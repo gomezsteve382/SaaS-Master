@@ -1,0 +1,102 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3033,
+  "className": "com.diagnosticProcedures.event.BundleLoadedEvent",
+  "classNameNormalized": "com.diagnosticProcedures.event.BundleLoadedEvent",
+  "superName": "flash.events.Event",
+  "superNameNormalized": "flash.events.Event",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 48593,
+  "cinitMethod": 48590,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "8968fefe3361931dc644a99f29c5517e2a5b8020d513ac243f0db2f7611fa5a0",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "f9ef126ba0fe05b501daab6227e1a6be8c07eaf5de1f0c92314520a4ae81f25e",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "bundles",
+      "traitKind": "getter",
+      "methodIndex": 48594,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9b1c63f96ac453f6f605c71213601add5073ebc7d8ff3b2be4930e1841ce6ba3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "errorText",
+      "traitKind": "getter",
+      "methodIndex": 48595,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "606ec2b2e76c82338ab2d747fefa9b9b0b09b15bdb1b1df25d347b492bec8f84",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "Complete",
+      "traitKind": "method",
+      "methodIndex": 48591,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader",
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "com.diagnosticProcedures.event.BundleLoadedEvent",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "cbb43d0c14521407ad460e79bba1d1b379de404e7de05fafb1c7fc3cbe711466",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "Error",
+      "traitKind": "method",
+      "methodIndex": 48592,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader",
+        "String",
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "com.diagnosticProcedures.event.BundleLoadedEvent",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "784a24839e017875676c8ee92c1bb9467b38ea32bdcde5c83bb2d1f72e3c4ce6",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

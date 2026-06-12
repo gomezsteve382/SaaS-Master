@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1744,
+  "className": "com.hurlant.crypto.symmetric.CBCMode",
+  "classNameNormalized": "com.hurlant.crypto.symmetric.CBCMode",
+  "superName": "com.hurlant.crypto.symmetric.IVMode",
+  "superNameNormalized": "com.hurlant.crypto.symmetric.IVMode",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.symmetric.IMode"
+  ],
+  "iinitMethod": 33825,
+  "cinitMethod": 33824,
+  "iinitBytecode": {
+    "codeLength": 8,
+    "codeSha256": "759834360b3138b4f9f149bb91b34cde0e9d339d5cd03f58962655320a4089b4",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decrypt",
+      "traitKind": "method",
+      "methodIndex": 33827,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 176,
+      "bytecode": {
+        "codeLength": 176,
+        "codeSha256": "f69be3b7ed59ee30f9b3f208a9be22892fc64e42a711660821aa30c0058ed37a",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "encrypt",
+      "traitKind": "method",
+      "methodIndex": 33826,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "d2f69543745d51332bdd0365ce17b3e20edb37dc6744cbbe93325a9da8edc5e5",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 33828,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "1ed3aeb95068131c703018859445a05c429e239d46093dd592e9ec712f7620cf",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

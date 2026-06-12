@@ -1,0 +1,325 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 974,
+  "className": "com.chrysler.cda.presentation.component.rawdiagnostics.controller.RawDiagnosticsController",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.rawdiagnostics.controller.RawDiagnosticsController",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 20042,
+  "cinitMethod": 20025,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "a3f0262a1912f59850c70f52f3b319fbb996d5972635b9f03aefcd43f4065067",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 20037,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "79dc42f8de0fb6009a61e83cc9939702a86c37f38ef4971fe46c2c837971bed2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 20038,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "e00e1dfb6639ff2afdd283200c9b461b50b3625514024db5a6c4acd450b96d71",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuAddedToContext",
+      "traitKind": "method",
+      "methodIndex": 20027,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.rawdiagnostics.messages.EcuAddedMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "2d5f200b64b2caa66fb25ea73f9afa8478a71299a388b3dc1d70be415935d1e3",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 20039,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "e249ae772976bd7bde53660312c436b2e1ba7d7011582b717a0838c9d00cb52c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "getter",
+      "methodIndex": 20035,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.rawdiagnostics.model.RawDiagnosticsModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "09dc6b5e4550265d75a551ae15563b0fba9a07b696bff6d28728ec7a6ffefd15",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "setter",
+      "methodIndex": 20036,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.rawdiagnostics.model.RawDiagnosticsModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4eb68a23a3695066cc3e8d574b2fc243b0320101cea71d599513d9a8f99d7164",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onEcuListReady",
+      "traitKind": "method",
+      "methodIndex": 20026,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.ECUContextMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "375ad5bda8ff6add3143cf55816bb4c12f84a832e9554cfe76e3b6408e495c05",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onGetBroadcastIdsError",
+      "traitKind": "method",
+      "methodIndex": 20029,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.presentation.component.rawdiagnostics.messages.RequestBroadcastIdsMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "c9cd6db0e623fd4f984364212f47bb6408bde99d1f007233d615671e27b27b5c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onGetBroadcastIdsResult",
+      "traitKind": "method",
+      "methodIndex": 20028,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.presentation.component.rawdiagnostics.messages.RequestBroadcastIdsMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "b5dd1efffb717386f6b00e23d489b772951280ae8141ddb413cff785161da5aa",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "onGetChannelsError",
+      "traitKind": "method",
+      "methodIndex": 20031,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.presentation.component.rawdiagnostics.messages.RequestChannelsMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "c9cd6db0e623fd4f984364212f47bb6408bde99d1f007233d615671e27b27b5c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onGetChannelsResult",
+      "traitKind": "method",
+      "methodIndex": 20030,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.presentation.component.rawdiagnostics.messages.RequestChannelsMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "d9d2ad22932e1f97cf8d66073c6540e565511ac3adeccb8b47edb5bcbb8937dd",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "onRawMessageError",
+      "traitKind": "method",
+      "methodIndex": 20034,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.presentation.component.rawdiagnostics.messages.SendRawMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "94c7d4ee6e5009f3efc1776f1c9c770f436fa243cf169063b100836f60346efe",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onRawMessageResponse",
+      "traitKind": "method",
+      "methodIndex": 20033,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.presentation.component.rawdiagnostics.messages.SendRawMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "d32ed79ea21a31eb46dbe568628dfcde5c7b196f57233818edbc470956a0a9c2",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 20040,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "443d436645c4f25195abec4b0b5ef66619e281d3707d1109823a070e48bdd899",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sendRawMessage",
+      "traitKind": "method",
+      "methodIndex": 20032,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "String",
+        "Boolean",
+        "Boolean",
+        "Boolean",
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "39bfc9c4c41527d6b94aec121f1ee4a81fed67d50199ce8f762570bf7e9f21a7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 20041,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "05f22bd3610d6f7348c3346d9f52efd5ea27ec8c8aa8e7e560bfe00f92ac278f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

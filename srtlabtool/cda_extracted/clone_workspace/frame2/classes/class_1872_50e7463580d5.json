@@ -1,0 +1,133 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1872,
+  "className": "flashx.textLayout.conversion.PlainTextExporter",
+  "classNameNormalized": "flashx.textLayout.conversion.PlainTextExporter",
+  "superName": "flashx.textLayout.conversion.ConverterBase",
+  "superNameNormalized": "flashx.textLayout.conversion.ConverterBase",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.conversion.IPlainTextExporter"
+  ],
+  "iinitMethod": 35362,
+  "cinitMethod": 35361,
+  "iinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "8aa3d475511f60fd70ce3e5d03d4fbd53b00335154993b4dace4d35d56dc9324",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "0fe41ba82bcbe6e4dde15d63cf74732f51a301d536922e628762c8ba0d0b2fea",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "export",
+      "traitKind": "method",
+      "methodIndex": 35367,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "b164843cb883fb8262efbad75c38fc828cf0d9242c1ceacb4280f0aa7defce49",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.conversion:PlainTextExporter.exportToString",
+      "traitKind": "method",
+      "methodIndex": 35368,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 223,
+      "bytecode": {
+        "codeLength": 223,
+        "codeSha256": "2f9614ad14f0487ef7338287bce55b1ed93eb654baab9ab4df77f44082de0f24",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "paragraphSeparator",
+      "traitKind": "getter",
+      "methodIndex": 35365,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "68b4d420acdd1bd28df32714e6f91337d00e1475a1c5aafb0d1460a1308ec2a8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "paragraphSeparator",
+      "traitKind": "setter",
+      "methodIndex": 35366,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "641927f215e8392fbeaa0136190d6d4400cac8debb43346977f0acb813fb9e4c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stripDiscretionaryHyphens",
+      "traitKind": "getter",
+      "methodIndex": 35363,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1b7ff3901306ed725d9d9d22c26d9b4cd72af01217cd244a27db38e32705288a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stripDiscretionaryHyphens",
+      "traitKind": "setter",
+      "methodIndex": 35364,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f3bb1af91273606a5988b17e46b2f8a9eb82a81ee30cc4de490e4d36b1df2de8",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

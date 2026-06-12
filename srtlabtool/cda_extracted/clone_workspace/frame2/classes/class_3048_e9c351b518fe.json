@@ -1,0 +1,291 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3048,
+  "className": "mx.core.FlexHTMLLoader",
+  "classNameNormalized": "mx.core.FlexHTMLLoader",
+  "superName": "flash.html.HTMLLoader",
+  "superNameNormalized": "flash.html.HTMLLoader",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IFocusManagerComplexComponent",
+    "mx.core.IIMESupport"
+  ],
+  "iinitMethod": 48709,
+  "cinitMethod": 48708,
+  "iinitBytecode": {
+    "codeLength": 58,
+    "codeSha256": "916004066459d4f8d92408de04f56b45bcfba6a2041ebcd0ee0593bf65a7e1b5",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "assignFocus",
+      "traitKind": "method",
+      "methodIndex": 48723,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "be94541670ca40e83dd52be1a21954366e1131de2ba8cef66d49c3fd82dec45a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "drawFocus",
+      "traitKind": "method",
+      "methodIndex": 48722,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enableIME",
+      "traitKind": "getter",
+      "methodIndex": 48710,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2ec7decfb0997bbd7e6d9f953b42adb2faeab029978be37e696e377117c6cbed",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focusEnabled",
+      "traitKind": "getter",
+      "methodIndex": 48711,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "839ccfb396ab99bd32d8ab1769bdb446995a046729378e3a6fc096db41202dbb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focusEnabled",
+      "traitKind": "setter",
+      "methodIndex": 48712,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "6c798e1229b7b7bc56b58eb10125a0b90548b5ba28fc61b30138d21d8386c1d9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasFocusableChildren",
+      "traitKind": "getter",
+      "methodIndex": 48713,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "52049f2ebfb2dd34438b42bb874e1b8c8d2cd290676ce9e7984bed038c7007aa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasFocusableChildren",
+      "traitKind": "setter",
+      "methodIndex": 48714,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "f4215fe2a5059b61aaf847b5a0ed53baafbefb45eac495d4b2941532fe1247b6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "imeMode",
+      "traitKind": "getter",
+      "methodIndex": 48715,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ba28540ba7d9907b2288fa11e33cf165b212ed5343ae3f3e8e4ecad9c043ff8c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "imeMode",
+      "traitKind": "setter",
+      "methodIndex": 48716,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "e73e3f5ad192547c0872bb7342f5745ac49fa6e29c94e8c918ce801e51dabd2f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mouseFocusEnabled",
+      "traitKind": "getter",
+      "methodIndex": 48717,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "00ec46b5085f9ba4c277d3330391108e1590bb8d7cf18247fa515305b213e10e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mouseFocusEnabled",
+      "traitKind": "setter",
+      "methodIndex": 48718,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "8948c7d3ba357c9248d5806a37f762b8641c221e5cfdbe0b33b4e3878761cb76",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.htmlRenderHandler",
+      "traitKind": "method",
+      "methodIndex": 48724,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "4e8be829b1ef4826b8bcb888fe8cd7e20aae963c9c8a0d999604073ebb8d57c8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setFocus",
+      "traitKind": "method",
+      "methodIndex": 48721,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "5f09c4e17948bdef902040055139f49e1e63c026c4cb95eba95f036db29696da",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "tabFocusEnabled",
+      "traitKind": "getter",
+      "methodIndex": 48719,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3e714c8c07dc13342a2221176bbe0e778011a20579c9d1d18d5dce246804dceb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "tabFocusEnabled",
+      "traitKind": "setter",
+      "methodIndex": 48720,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "d604d7a7d3d1530999d66e214e3d7038f202200f83d9838eee66c106a7f97fc6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 48725,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "49b8d773ec515e47f18bfba1c796265beb1ad538f27454074058588d40e6c2b5",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

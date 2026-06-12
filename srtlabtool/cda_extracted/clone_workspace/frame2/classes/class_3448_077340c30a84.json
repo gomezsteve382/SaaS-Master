@@ -1,0 +1,174 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3448,
+  "className": "com.chrysler.cda.presentation.discover.components.VectorContainer",
+  "classNameNormalized": "com.chrysler.cda.presentation.discover.components.VectorContainer",
+  "superName": "com.chrysler.cda.presentation.discover.components.DeviceContainer",
+  "superNameNormalized": "com.chrysler.cda.presentation.discover.components.DeviceContainer",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 52767,
+  "cinitMethod": 52763,
+  "iinitBytecode": {
+    "codeLength": 352,
+    "codeSha256": "7baef702e0e37d39ec1cc4b979874d12bf75a5c8a69739e2ccb3ac8792a3450b",
+    "bytecodeLineCount": 22
+  },
+  "cinitBytecode": {
+    "codeLength": 67,
+    "codeSha256": "6581503b2487b447a82f5e717195848ef90b9a8059af6d056b3f5467d51cdc43",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.discover.components:VectorContainer.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 52778,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9b6618e58dca50662193ef853a35bdd89b0e7b9b061fe187b00f857cd1437334",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 52770,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 52769,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "76520ac12ab6bca89104b6d6170b30575a902175817536b205a183db9aa81874",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._VectorContainer_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 52771,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "23ef5b0aee267dae5f7dbae776aab98ebab5d107d10ad812442f3c37ad7983c1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._VectorContainer_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 52777,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "22265566b53a602e611beaa915b28c793016b43b798cd732f1d943d21cb5ffcd",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._VectorContainer_DataGrid1_i",
+      "traitKind": "method",
+      "methodIndex": 52772,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.DataGrid",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "d15f397e9d5535dc190ae999c242891f533acf944fe188d910e2c409f68a494a",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._VectorContainer_DataGridColumn1_i",
+      "traitKind": "method",
+      "methodIndex": 52773,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "bdb9acb886a50277d5949b6f689e491a7051b36368ee18b7312bc9620971458b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VectorContainer_DataGridColumn2_i",
+      "traitKind": "method",
+      "methodIndex": 52774,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "80d75e6cf35197114e412acb5bc24181e79b6f36c0b66af928227c5415af6be0",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 52764,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "9c838508537e4d67aa716c670565b1e0bbe20895f81a15a5fa08ef3da2201daa",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

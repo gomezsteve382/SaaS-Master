@@ -1,0 +1,538 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1037,
+  "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.controller.UpliftController",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.controller.UpliftController",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 22453,
+  "cinitMethod": 22422,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "83bf904a7e1d7617f210d56536a1a6942bb8b870e1a8decaf4446da45d7b0cc6",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 22448,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "9daf5d9122b201eebfff03dc95b22f6194cdb291811f22c68c424457f49a464f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "authenticateUser",
+      "traitKind": "method",
+      "methodIndex": 22426,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 113,
+      "bytecode": {
+        "codeLength": 113,
+        "codeSha256": "0a0ff644b98926c0facdd0bd4547799ba5d685af0efa672d94eb891a338750d8",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 22444,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7da6fca87455ece9cd8538b90f743c9dd58d70767eb1fb8fba09ecf4d10ffdef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 22445,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "0d7b80e0368e38bbfa853f77b0cb6ebcc91878358867228c8ae8a4a47f1719fe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "closeLogin",
+      "traitKind": "method",
+      "methodIndex": 22424,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "fc839e1b00a157d103e22f5e29b8f80f8e2c36c0123b3429915eec8972a5dcf6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "closeNotification",
+      "traitKind": "method",
+      "methodIndex": 22423,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "0f98565670cc4b46ee94193777b9478aabbca9813cb2f82a8ba05c2cc4927139",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 22449,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "68c86376994e19e9b3bf667e2f3c28aa1e1675a17c2f1ad885cf4af82d817921",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuContext",
+      "traitKind": "getter",
+      "methodIndex": 22446,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.EcuContext",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "42d44817c2939b546d3ac349a68b301df39a00ab74df37f8614f9600944c4691",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuContext",
+      "traitKind": "setter",
+      "methodIndex": 22447,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.EcuContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c351bb47f28ea363afc2c8b18f7c3eaf20bc309859e49b0336d7bd37e4a65e91",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ecuContextMessageReadyhandler",
+      "traitKind": "method",
+      "methodIndex": 22435,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.ECUContextMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 226,
+      "bytecode": {
+        "codeLength": 226,
+        "codeSha256": "f6ff6cc5366061067288206efabf3e8364d6f988b7b9ed486fb45ad2d1833cd2",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "endOfSessionMessageHandler",
+      "traitKind": "method",
+      "methodIndex": 22434,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.EndOfSessionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 184,
+      "bytecode": {
+        "codeLength": 184,
+        "codeSha256": "4756b1dc48c5e37c3e0fe4af5c5ac230a99aea5420b65795c3114dbf0759c928",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 22450,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "8f3e654ab510d58a1523c8435069db25a54a78a4f8ebbd2c4dfcfe344bfc66cc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "loginDecorationChanges",
+      "traitKind": "method",
+      "methodIndex": 22433,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.ChangeLoginStatusPropertiesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "e664dbc68ec68829dcf9ba5430b8ac63a837ff0833bb11a1a5a6a77d58652638",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onAuthenticationFailure",
+      "traitKind": "method",
+      "methodIndex": 22428,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.AuthenticationFailedMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "082c4c3c7f5c4c03e0f67f9cb3ba058107d1fa58349ccb8fd15acadb5c394b8f",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onAuthenticationSuccess",
+      "traitKind": "method",
+      "methodIndex": 22427,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.AuthenticationSuccessfulMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 223,
+      "bytecode": {
+        "codeLength": 223,
+        "codeSha256": "5b1b4a594ea5bbc00572ae5d82b28918d5db7c93e6afc74b51915104f37a74f1",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 22451,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "02766f721e49f710912a3057f0735ef60ceb82f023c1b61331fe51faa1e4e0f4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sessionGuardModel",
+      "traitKind": "getter",
+      "methodIndex": 22440,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.SessionGuardModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7a56e3de1be96e502f668d281e9f30a95b716fda65314bbd218bf44f7178057f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sessionGuardModel",
+      "traitKind": "setter",
+      "methodIndex": 22441,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.SessionGuardModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "d4348b5cfbeda256d70abfcf943895386447668f0c02e2a65a83dd8b33be9b38",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "sessionTypeModel",
+      "traitKind": "getter",
+      "methodIndex": 22438,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.SessionTypeModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0dfab94ddf6c029d1b6b3367485f32404e48b9cce978a4e59bbae454055de142",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sessionTypeModel",
+      "traitKind": "setter",
+      "methodIndex": 22439,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.SessionTypeModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "029b05a3c4c9e8cde29ba69107f1c1c2986abea298c95e5cb59392fa42f9d150",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "showLogin",
+      "traitKind": "method",
+      "methodIndex": 22425,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.ShowLoginMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "223251e161d383fe4184f175e074fd34147ead9829523541307a4a2354505bb0",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "systemNotifcationManager",
+      "traitKind": "getter",
+      "methodIndex": 22442,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.util.SystemNotificationManager",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b8a5f0c91aa839152292b0ecf220672e4b207c82ba1d4a5db478f879e6c3a843",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "systemNotifcationManager",
+      "traitKind": "setter",
+      "methodIndex": 22443,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.util.SystemNotificationManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "f115f7ef0de5130894c988e4f84dd59dd748fdc2beb81169375f6c4df32f9947",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "upliftButtonPropertiesChange",
+      "traitKind": "method",
+      "methodIndex": 22429,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.ChangeUpliftButtonPropertiesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "3fc84dd47bc0d6bdce6cbac6df03aecefab22c4570a96ac0064b81661a5e0d2b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "upliftLoginFailureState",
+      "traitKind": "method",
+      "methodIndex": 22432,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.ChangeLoginFailurePresentationMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "649f09618fca54af111404025a7e1b49e520fde09b9534a0164d4081ea28bb3d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "upliftLoginPropertiesChange",
+      "traitKind": "method",
+      "methodIndex": 22431,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.ChangeUpliftLoginPropertiesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "389e2856bb674440e9d3a914c2397be5acada9bc736125cad9581e14e38c7b08",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "upliftNotifcationPropertiesChange",
+      "traitKind": "method",
+      "methodIndex": 22430,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.ChangeUpliftNotificationPropertiesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "b42a4eec61532cdbf4a77eb792ec42981cbade3a9619acd55abc76ea5eaadda9",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "viewModel",
+      "traitKind": "getter",
+      "methodIndex": 22436,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.UpliftModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d1fc1f2832ca99dbccd94e0aa6b6b598f6ac07d4b128817eedb5162539c950c1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "viewModel",
+      "traitKind": "setter",
+      "methodIndex": 22437,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.UpliftModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "246cf40ff407427208b02a114538a057f2e1f9d24b032b4c8bcd0af803aef40b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 22452,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "b0bf4d499e3e67f65547d8959670170e604302d228dc092a9bee0d2a479cf040",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

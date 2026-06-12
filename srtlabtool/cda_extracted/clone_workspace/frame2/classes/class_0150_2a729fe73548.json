@@ -1,0 +1,357 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 150,
+  "className": "mx.managers.NativeDragManagerImpl",
+  "classNameNormalized": "mx.managers.NativeDragManagerImpl",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IDragManager"
+  ],
+  "iinitMethod": 2999,
+  "cinitMethod": 2996,
+  "iinitBytecode": {
+    "codeLength": 131,
+    "codeSha256": "6daed6cd3497e4b34d4c31d908796bf8a37918db7cefb0b3def3a20d8f4141bf",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "acceptDragDrop",
+      "traitKind": "method",
+      "methodIndex": 3003,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "c85b60833cf2fd4dcc9bda1cebe0474b97f72c461829e40eed55350d335191fc",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "doDrag",
+      "traitKind": "method",
+      "methodIndex": 3001,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "mx.core.DragSource",
+        "flash.events.MouseEvent",
+        "mx.core.IFlexDisplayObject",
+        "Number",
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 825,
+      "bytecode": {
+        "codeLength": 825,
+        "codeSha256": "5b76a5d265f932219ef74a7e5f745a9fd79a3957d8e50ac743cb81dfc48eddc3",
+        "bytecodeLineCount": 52
+      }
+    },
+    {
+      "traitName": "endDrag",
+      "traitKind": "method",
+      "methodIndex": 3006,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "f76eb638f4357539e6071834cdcdd42c3c8b1eeb29dafc8d637ca4f75fe9601d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "getFeedback",
+      "traitKind": "method",
+      "methodIndex": 3005,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "5fa0d2dfe0f92021bb973ff3a0b169767fd7ea03b9c81a1848eb75fc63196e0c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.registerSystemManager",
+      "traitKind": "method",
+      "methodIndex": 3007,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.ISystemManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 171,
+      "bytecode": {
+        "codeLength": 171,
+        "codeSha256": "c00cdfb489531bfc5c62ac0eb60694bf3ebb740e3b5ca97c6faf87eabbd74320",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.unregisterSystemManager",
+      "traitKind": "method",
+      "methodIndex": 3008,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.ISystemManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 171,
+      "bytecode": {
+        "codeLength": 171,
+        "codeSha256": "6acc19822042c9e23077002d892407977d26e6f0a850e48194a1232ef5a28382",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "isDragging",
+      "traitKind": "getter",
+      "methodIndex": 3000,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "b6049678a995a633e93485c4fd6db317363fee64b481d2adf4328d22ce5384d3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._dispatchDragEvent",
+      "traitKind": "method",
+      "methodIndex": 3013,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "mx.events.DragEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 161,
+      "bytecode": {
+        "codeLength": 161,
+        "codeSha256": "50451bbc8c559663247cd2508ce17318384a0b533feaa1b034236af9cbf4980c",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.dragAutomationHandlerClass",
+      "traitKind": "getter",
+      "methodIndex": 3009,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 109,
+      "bytecode": {
+        "codeLength": 109,
+        "codeSha256": "7de8766840b440201d5b777888c33d72711401a975c704b205136859f74f8e91",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.initiateDrag",
+      "traitKind": "method",
+      "methodIndex": 3002,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 232,
+      "bytecode": {
+        "codeLength": 232,
+        "codeSha256": "ca8d9d6f4f061aa12ede4743a7c9987410f4061c37c597562a03910571cc7958",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.isSameOrChildApplicationDomain",
+      "traitKind": "method",
+      "methodIndex": 3014,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "2fb9b70b8be75608a25a47d149182a8cfe4110a4152229ce1515f35f6d407591",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.marshalDispatchEventHandler",
+      "traitKind": "method",
+      "methodIndex": 3015,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 246,
+      "bytecode": {
+        "codeLength": 246,
+        "codeSha256": "5d7851adcd4e33ba4ce23d4690f7a37e5bae0c95124b880a913183aae5a9c7d9",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.marshalDragManagerHandler",
+      "traitKind": "method",
+      "methodIndex": 3016,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 324,
+      "bytecode": {
+        "codeLength": 324,
+        "codeSha256": "2402658cbed6defff4efa51be18d6c32210997b058e1cef7ad31b87081b260f5",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "PrivateNs.nativeDragEventHandler",
+      "traitKind": "method",
+      "methodIndex": 3012,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.NativeDragEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 651,
+      "bytecode": {
+        "codeLength": 651,
+        "codeSha256": "17a8289607737e7afe001e55914427bd2e16d90d51d317d0a8d4dc97433b803c",
+        "bytecodeLineCount": 41
+      }
+    },
+    {
+      "traitName": "PrivateNs.sm_mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 3010,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0fd037ed88498f8efba39f4ebbfd136fe520233c3e4c7fff1a275ae54626c20d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.sm_mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 3011,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2bd65e669072b143a404293da221ce20557eccbb0d38b488cdea2f86905f89db",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showFeedback",
+      "traitKind": "method",
+      "methodIndex": 3004,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 155,
+      "bytecode": {
+        "codeLength": 155,
+        "codeSha256": "58ba1dd6c90a4c69ad2ea61b0d690c8d9f3ee815a0af7915d59764f5db095adf",
+        "bytecodeLineCount": 10
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 2997,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.IDragManager",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "725844064bdc4fb31371bcde2078bc9c7aef82ce684afe78e3bf5e6091639b04",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.getStyleManager",
+      "traitKind": "method",
+      "methodIndex": 2998,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "mx.styles.IStyleManager2",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "ea03d05f3c7e27ba9d76e6486868aed4ae7a5bb192a964b101687e8c761d5cff",
+        "bytecodeLineCount": 4
+      }
+    }
+  ]
+}

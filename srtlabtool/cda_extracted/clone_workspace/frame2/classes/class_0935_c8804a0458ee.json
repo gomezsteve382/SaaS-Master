@@ -1,0 +1,194 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 935,
+  "className": "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay.EOLDDEEntries",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay.EOLDDEEntries",
+  "superName": "com.chrysler.cda.presentation.component.datagrids.ToggleHeaderDataGrid",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.datagrids.ToggleHeaderDataGrid",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.proxi.components.home.IViewAction"
+  ],
+  "iinitMethod": 18895,
+  "cinitMethod": 18894,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "68e0fea0ad59f5d9ad1612b0fbfa5a478d1f2b902914a940917aec90831d25a4",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "abc49b7acc3a0fe38ba379e115cd4dcc061a6877888d2d608417740b75c1dadf",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay:EOLDDEEntries.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 18905,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bb02e485bb7c5098feceec659e69bbc7052e17a0492217759f008459da325746",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "factory",
+      "traitKind": "getter",
+      "methodIndex": 18901,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.ecu.ReadWriteDataValueItemRendererFactory",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "8649acf8510a86a5617719b1890805eca3ac853f697fba186273770b1d63de85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "factory",
+      "traitKind": "setter",
+      "methodIndex": 18902,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.ReadWriteDataValueItemRendererFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "d9a82506db90ee407bc0dc8f0b82001db175c5c8f8d427871ab6767923c74ec2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onCalledSetFocus",
+      "traitKind": "method",
+      "methodIndex": 18898,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.ProxiGlobalStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "49dbadb6d15848c00be30271577ad2a95f2d13522650618558b15473f1086af9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onShow",
+      "traitKind": "method",
+      "methodIndex": 18896,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "0b919c64ab49407c7181e54c96f5f06ce60846939de5e4c129ac0bfdf08876ab",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 18899,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay.EOLDDEEntriesPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c4e7ebf2a74ebf533e7bb906ce234b6b11b892c821d00b4e47d59039c117d4d2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 18900,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolDataDisplay.EOLDDEEntriesPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0721b54d5a6afe0c4ff9b637494549d3ac089c129b5899c9128f00e80f558482",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setDefaultFocus",
+      "traitKind": "method",
+      "methodIndex": 18897,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "5447227b82a42f71ce3c37c82c64970683f5d83c14783187512fac9823493a4b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toggleButtonRendererFactory",
+      "traitKind": "getter",
+      "methodIndex": 18903,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.renderers.ToggleButtonRendererFactory",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "aa2e2ae210f3341122e0694c19fd5430483087025bf5972aebb31f9ff21ccac6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toggleButtonRendererFactory",
+      "traitKind": "setter",
+      "methodIndex": 18904,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.renderers.ToggleButtonRendererFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "3db999a8118481663c55423e193a72673626a16df68611169ba9a9546a9ca961",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

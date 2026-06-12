@@ -1,0 +1,256 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1359,
+  "className": "spark.components.ButtonBarButton",
+  "classNameNormalized": "spark.components.ButtonBarButton",
+  "superName": "spark.components.ToggleButton",
+  "superNameNormalized": "spark.components.ToggleButton",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "spark.components.IItemRenderer"
+  ],
+  "iinitMethod": 29875,
+  "cinitMethod": 29874,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "ddd72eefe4cebff32b4c0ea8634000e7fa1c06666e188dc323a80341190c559a",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "allowDeselection",
+      "traitKind": "getter",
+      "methodIndex": 29876,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1d0b466033c4e2bd7b697c18f85d460e21234d668140ce2439b730476ab2cfa6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "allowDeselection",
+      "traitKind": "setter",
+      "methodIndex": 29877,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "8de6c3a4628ff717925d2039f7291cc75c684bd1b6acb2ad71d01a065ba928bb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "getter",
+      "methodIndex": 29882,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "c2571b795d887f4f637d79db4c85f173318dcb01fea17e53236cff534d0e8411",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "setter",
+      "methodIndex": 29883,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "7eccd067535355cc0610ae60c223e7ddacbb547a816a07d375803d8e3a06308e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dragging",
+      "traitKind": "getter",
+      "methodIndex": 29880,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "8bd91b4d6662c2af4743360fdfdadd0ffd59568f99d5771831541eb0e40a633f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dragging",
+      "traitKind": "setter",
+      "methodIndex": 29881,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "itemIndex",
+      "traitKind": "getter",
+      "methodIndex": 29884,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "abb53c33b58d84f5e5d19106f2cf5948ed02106a5d835407aeec68d368ed691f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "itemIndex",
+      "traitKind": "setter",
+      "methodIndex": 29885,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "8eddd3eb3984b083e3dba60cb2a65b5b72b892b902d438687b683a8f35193202",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "label",
+      "traitKind": "getter",
+      "methodIndex": 29886,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d63280cc266a5e33d3feb8ab597ecc13b40dbf18a5fd5ce7c3d0a574d8e9c0ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "label",
+      "traitKind": "setter",
+      "methodIndex": 29887,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "a559e5c13507670db1ca5c3ed648023b9c6fd807f9d7f0721d973cb5407d83d6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "showsCaret",
+      "traitKind": "getter",
+      "methodIndex": 29878,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c5d9b04cae58533a62711e87e89faa6b42e1e63f3e0c25ff8802e621c186c049",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showsCaret",
+      "traitKind": "setter",
+      "methodIndex": 29879,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "616493f4b7183930169f3b4640fd9d915b88bbbe948aed3db26bfa40d295ed6a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components:ButtonBarButton.buttonReleased",
+      "traitKind": "method",
+      "methodIndex": 29888,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "53e7dbc59443f54d89ffe08e1d366c49571c1fde866035ace0410b85e7cd036c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components:ButtonBarButton.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 29889,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d829601dfa63e21f14e9878b77bd823c7a0c2eeb125c1e81505aae42506bcdb8",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,401 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1711,
+  "className": "com.chrysler.core.component.QuickBarButtonFacadeBase",
+  "classNameNormalized": "com.chrysler.core.component.QuickBarButtonFacadeBase",
+  "superName": "spark.components.Group",
+  "superNameNormalized": "spark.components.Group",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 33572,
+  "cinitMethod": 33571,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "buttonStyle",
+      "traitKind": "getter",
+      "methodIndex": 33594,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ec111c5c5640c978886d8481d67c645560e2d75007814565207509bfab8d9267",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "buttonStyle",
+      "traitKind": "setter",
+      "methodIndex": 33595,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "a876b9046d941e1ebc3e7a129a18fd346a1b5bb23544479b13926e5db86264de",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.component:QuickBarButtonFacadeBase.buttonEnabled",
+      "traitKind": "getter",
+      "methodIndex": 33581,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f4076e32fa19cf36e14e01599a3e9f3dea67b4ece831e4218bfc7f423ac45061",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.component:QuickBarButtonFacadeBase.buttonEnabled",
+      "traitKind": "setter",
+      "methodIndex": 33583,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "6f7c2d1a3419a868905eec9f90ac15d568efeaeceb9f34183f910435eeeb34a8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.component:QuickBarButtonFacadeBase.buttonHeight",
+      "traitKind": "getter",
+      "methodIndex": 33592,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "70f19799e4ee531a2acc70a20643902a0300735b6e864314514074b7362c3eca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.component:QuickBarButtonFacadeBase.buttonHeight",
+      "traitKind": "setter",
+      "methodIndex": 33593,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "da5a06bd07cafaab9ad223bf3737e40f83d93d834bad63c5472fee26f39a7ad6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.component:QuickBarButtonFacadeBase.buttonWidth",
+      "traitKind": "getter",
+      "methodIndex": 33590,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "02fb379d1183328c7512aa4403462c341594f9b8c8a0f998d6b38623c52878a6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.component:QuickBarButtonFacadeBase.buttonWidth",
+      "traitKind": "setter",
+      "methodIndex": 33591,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "4d441a59fe432679b91babc6f4f8414ff031afd0f9354d046cb9d32299eade5a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.component:QuickBarButtonFacadeBase.internalClickHandler",
+      "traitKind": "method",
+      "methodIndex": 33585,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "9535104c6b320b6556e318716e60a2942d2849fda98e962dcfe7579010f2009a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "disabledBenchtopToolTip",
+      "traitKind": "getter",
+      "methodIndex": 33575,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "79b0e4d4735f3423d04bb278333b414e47a8de285f849d5916b74b8588489327",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "disabledBenchtopToolTip",
+      "traitKind": "setter",
+      "methodIndex": 33576,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "a995fa4b8e0ff53e736e69d68a2ef950ed530c651b801951256735c0b07f8f43",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "disabledToolTip",
+      "traitKind": "getter",
+      "methodIndex": 33577,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "649fbb1cfbdf87fb65cbc23d3b9ae69ef223fc7528e3f0bce04e8b6133601ef1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "disabledToolTip",
+      "traitKind": "setter",
+      "methodIndex": 33578,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "86c9f5fdd1fb37be7bb9443472f77ccbd7c95ae41b2cf8fc64ac1988b9e11fd8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "displayableToolTip",
+      "traitKind": "getter",
+      "methodIndex": 33589,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "415eb176068f72a7920083a2535f746a9e2fd5ad7464e496877b5515f3f72cef",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "enabled",
+      "traitKind": "getter",
+      "methodIndex": 33582,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "d585616625656f7803c9407d288dca461830151e2b66e2009440e239c604ef48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enabled",
+      "traitKind": "setter",
+      "methodIndex": 33584,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "140609698355b07302e099c93735661b845f090a8b3a24169e8ee5a99c2ab355",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enabledToolTip",
+      "traitKind": "getter",
+      "methodIndex": 33573,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6b74a4f9c862582cfef7750a7d53c82889604afbcd9a5d399c574a6e1b17fc7b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enabledToolTip",
+      "traitKind": "setter",
+      "methodIndex": 33574,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "f3d39e0835e6b4588dda59dc25b472f47630fa02dad87617fcf41a9c56905829",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "height",
+      "traitKind": "setter",
+      "methodIndex": 33587,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "b84fb588bdc669ebc8cc82f4a5b5892a29bfc1a596ff426f3b6e1ee3320ef4ba",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "isBenchtopMode",
+      "traitKind": "getter",
+      "methodIndex": 33579,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "37f0df0475b79222701829e342a8e3f9d807ba92900279fbf459020636472e9f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isBenchtopMode",
+      "traitKind": "setter",
+      "methodIndex": 33580,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "09c04eb3b802857014e0cee3f93b1d25c337b4094168ebf8d9b3b2b283ae87d8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.bind",
+      "traitKind": "method",
+      "methodIndex": 33588,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "3eb22752a4260806db8ea3724e62cadcd189c54b1734be1d4672776a6aae56f3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "width",
+      "traitKind": "setter",
+      "methodIndex": 33586,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "09bd6d99b3d55959270c69f976fe002a50cc5d5b4fc604f517ed2318985e2443",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

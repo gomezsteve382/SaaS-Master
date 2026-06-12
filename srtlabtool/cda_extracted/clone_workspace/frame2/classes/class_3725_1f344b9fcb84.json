@@ -1,0 +1,62 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3725,
+  "className": "mx.rpc.soap.types.ICustomSOAPType",
+  "classNameNormalized": "mx.rpc.soap.types.ICustomSOAPType",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 55619,
+  "cinitMethod": 55616,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.rpc.soap.types:ICustomSOAPType.decode",
+      "traitKind": "method",
+      "methodIndex": 55618,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.SOAPDecoder",
+        "*",
+        "*",
+        "*",
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.rpc.soap.types:ICustomSOAPType.encode",
+      "traitKind": "method",
+      "methodIndex": 55617,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.SOAPEncoder",
+        "XML",
+        "QName",
+        "*",
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

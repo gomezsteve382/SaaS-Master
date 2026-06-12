@@ -1,0 +1,118 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3821,
+  "className": "org.spicefactory.parsley.dsl.lifecycle.impl.DefaultLifecycleBuilder",
+  "classNameNormalized": "org.spicefactory.parsley.dsl.lifecycle.impl.DefaultLifecycleBuilder",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.dsl.lifecycle.LifecycleBuilder"
+  ],
+  "iinitMethod": 56448,
+  "cinitMethod": 56447,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "315e7976370b7d71a862e7af97dfc4f2555e2887a36fe04d9158270b6eb191de",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "asyncInit",
+      "traitKind": "method",
+      "methodIndex": 56451,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.lifecycle.AsyncInitBuilder",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "75f52a185d79ee795c80a85909171a50f4244d3dd0d17e61c4cd157dd1a6bd6f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "definitionReplacer",
+      "traitKind": "method",
+      "methodIndex": 56454,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.dsl.core.ObjectDefinitionReplacer"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.lifecycle.LifecycleBuilder",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "654e10a71785485ce0fbbd55e09f63ac84b48feb8a7cabfd489eff7abeb7e5be",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "instantiator",
+      "traitKind": "method",
+      "methodIndex": 56450,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectInstantiator"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.lifecycle.LifecycleBuilder",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "a18d276b2472bfaf9b2dbdd4dfbe70be5605eee425c9dd40fb55cb5f688759d6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "messageReceiverFactory",
+      "traitKind": "method",
+      "methodIndex": 56453,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.processor.messaging.MessageReceiverFactory",
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.lifecycle.LifecycleBuilder",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "712f07cc0c41cdec1ff7b8e3ce8d4413182ed6bdf98586a467f488de499c50e6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "processorFactory",
+      "traitKind": "method",
+      "methodIndex": 56452,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectProcessorFactory"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.lifecycle.LifecycleBuilder",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "0c67e674f5e2d504f46d84c4f3d0081ac5ba41f8000e8d6002c2fbdb678aa564",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

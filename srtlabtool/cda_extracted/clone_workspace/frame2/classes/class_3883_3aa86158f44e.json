@@ -1,0 +1,71 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3883,
+  "className": "com.hurlant.crypto.tls.SSLConnectionState",
+  "classNameNormalized": "com.hurlant.crypto.tls.SSLConnectionState",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.tls.IConnectionState"
+  ],
+  "iinitMethod": 56847,
+  "cinitMethod": 56846,
+  "iinitBytecode": {
+    "codeLength": 117,
+    "codeSha256": "c22bc4bf1f004b7872441bf2cf06dc74d9dc1eedb6aa6240252f06aa97d555ad",
+    "bytecodeLineCount": 8
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decrypt",
+      "traitKind": "method",
+      "methodIndex": 56848,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 455,
+      "bytecode": {
+        "codeLength": 455,
+        "codeSha256": "4c4ccea30aa01ae246ab69b509c7fa5b2d9e8706ce25f5f7929b2dcd1fb300b2",
+        "bytecodeLineCount": 29
+      }
+    },
+    {
+      "traitName": "encrypt",
+      "traitKind": "method",
+      "methodIndex": 56849,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 329,
+      "bytecode": {
+        "codeLength": 329,
+        "codeSha256": "2661461203524d60b6cb2b7bdbee7ed32009d18127b405851e934419ea0aabae",
+        "bytecodeLineCount": 21
+      }
+    }
+  ],
+  "staticMembers": []
+}

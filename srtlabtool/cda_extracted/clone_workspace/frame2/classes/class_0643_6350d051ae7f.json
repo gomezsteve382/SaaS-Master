@@ -1,0 +1,321 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 643,
+  "className": "com.chrysler.core.logging.targets.FileLogTarget",
+  "classNameNormalized": "com.chrysler.core.logging.targets.FileLogTarget",
+  "superName": "mx.logging.targets.LineFormattedTarget",
+  "superNameNormalized": "mx.logging.targets.LineFormattedTarget",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 12244,
+  "cinitMethod": 12227,
+  "iinitBytecode": {
+    "codeLength": 119,
+    "codeSha256": "887d5e8cfff91f9d0390ea795d3c4823b633f4dce91beecb7c57c70b5584a8d3",
+    "bytecodeLineCount": 8
+  },
+  "cinitBytecode": {
+    "codeLength": 86,
+    "codeSha256": "b90566b34648bc7435aff66b0116e3fd4db71179f0341d9a79a9ddf70f541755",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.internalLog",
+      "traitKind": "method",
+      "methodIndex": 12246,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "5a3c8b4f1cd16de8e84db9d7661332958659488a4ea0c609213efed69ecb6763",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "logEvent",
+      "traitKind": "method",
+      "methodIndex": 12245,
+      "methodName": "",
+      "paramTypes": [
+        "mx.logging.LogEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 335,
+      "bytecode": {
+        "codeLength": 335,
+        "codeSha256": "366d38724cbd018ba724cd51dd2ea2fd5f8f47084944b5417bf12f64740829c2",
+        "bytecodeLineCount": 21
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 12241,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4b59ba93b06a5d5e80c3a87855976a4d54fd776df9b1d6b01b4502c59e84a807",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.logging.targets:FileLogTarget.padTime",
+      "traitKind": "method",
+      "methodIndex": 12238,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "e6935fd881b394e377b6beed456efb4dcf4c42ea5d3ccf78d72c298db0092081",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.logging.targets.asBytes",
+      "traitKind": "method",
+      "methodIndex": 12234,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 146,
+      "bytecode": {
+        "codeLength": 146,
+        "codeSha256": "b502b7ceeb27fdf87c1f448f3c79df106739bbe51715e35ad004083f31866a8f",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.logging.targets.padToBlockSize",
+      "traitKind": "method",
+      "methodIndex": 12235,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "6c6a98a7079799423b6f71bcae0c9b0132d38e12bd4d682101482dca1e2e4625",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 12242,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "3d22cd07fef0ba6c20e0798f9a2f1a778f9e9454222f9da94460dfb92dcad56d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "FName",
+      "traitKind": "method",
+      "methodIndex": 12228,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "d588822594152cc3baef62a333f44ebfe252bb8ae6e94dd52b024810b7afe88c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "getLogFolder",
+      "traitKind": "method",
+      "methodIndex": 12229,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.filesystem.File",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "97dc28bb453b3388c311300b4327f05f3de1ade4505114616dbe95b712197daa",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getLogFolderArchive",
+      "traitKind": "method",
+      "methodIndex": 12230,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.filesystem.File",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "c637450de965c18e09b221ea1435c8b8a8b03d190330616f0c3bac227c528e65",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 12243,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "08c45da46116e34c33113ee0107fe09e5cc77f137c7d5b0109cafbe66df46bb5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 12236,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "String",
+        "int"
+      ],
+      "returnType": "flash.filesystem.File",
+      "hasBody": true,
+      "codeLength": 227,
+      "bytecode": {
+        "codeLength": 227,
+        "codeSha256": "659e4a6de6610b6e94a81484f496c2c691b05e9e2bbd4d31d70249eafec0d1f9",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "orderFile",
+      "traitKind": "method",
+      "methodIndex": 12237,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "*"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "6d0623540250d87e8a0e6bb4300e206363ed6811d66596d001a8739688fd106e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.openLogStream",
+      "traitKind": "method",
+      "methodIndex": 12233,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "ff20c95a9c5621caf20ad2f0a33b798988f0fbf1c4feffe058c1510bf7c11897",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "RenameLogFileName",
+      "traitKind": "method",
+      "methodIndex": 12240,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "737a061b7acc159b4c536257017449cc502ecd1c6ba9fa77882fd5f9e906870c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "StopLogging",
+      "traitKind": "method",
+      "methodIndex": 12239,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "c6d4abb62c76397fee4aa551dcbbb1896885a3c404140d582794ce3f6e2f27e4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "tidyLogFolder",
+      "traitKind": "method",
+      "methodIndex": 12232,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 491,
+      "bytecode": {
+        "codeLength": 491,
+        "codeSha256": "e686ca3c7f2840096365092c24e617b4033b5f5ab964295c5ec7df0335bf4a4b",
+        "bytecodeLineCount": 31
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 927,
+  "className": "com.chrysler.cda.application.VehicleArchitectureCommand",
+  "classNameNormalized": "com.chrysler.cda.application.VehicleArchitectureCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 18747,
+  "cinitMethod": 18743,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "b07b2184ab1435d90e98b2cdbb2b2439f502aeadaf1e37aa495c3474a75504bb",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onGetVehicleArchitectureMessage",
+      "traitKind": "method",
+      "methodIndex": 18744,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.VehicleArchitectureMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "e8276fcf2dd207db17889afa2afee93b1ec3df0d30996388bafccae0c7057906",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "vehicleArchitectureMessageError",
+      "traitKind": "method",
+      "methodIndex": 18746,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.VehicleArchitectureMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "fd21322f0f5af36fab7c5f734a270a5dd7d2f3c05a160faa09292fc10125c661",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "vehicleArchitectureMessageResult",
+      "traitKind": "method",
+      "methodIndex": 18745,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.VehicleArchitectureMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "d5385bb2524305c97d396ee19adebf52253882a8bcf868bc83d0ce1aa9039834",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

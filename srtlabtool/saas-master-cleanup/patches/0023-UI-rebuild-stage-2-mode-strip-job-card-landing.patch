@@ -1,0 +1,472 @@
+From 58d6fe4e2ed7c82a9cc847c934d05cdcc1414167 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 12 Jun 2026 06:26:58 +0000
+Subject: [PATCH 23/23] UI rebuild stage 2: mode strip + job-card landing
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+CommandShell: render a per-job ModeStrip across the top of the workspace —
+the job's member tabs become mode pills, so the 8 KEYS / 10 READ duplicate
+tabs collapse into one job screen instead of N drawer entries.
+
+App: add a JobCards hero to the Diagnose landing (the six job doors as
+'what are you trying to do?' cards reading labels from the shared model),
+gated behind a new DumpsTabV2 onOpenTab prop so existing DumpsTab tests
+render unchanged. MarrySyncTab gets a stable marry-sync-tab root testid.
+
+Tests: update the nav drift-guards to the job-flow model — rail doors open
+jobs (mode-strip assertion), keyxfer reached via KEYS door + mode pill.
+15 nav tests green; the 7 pre-existing suite failures (fixtures/OCR/SEC16,
+verified on a clean tree) are untouched by this change.
+---
+ artifacts/srt-lab/src/App.jsx                 |  41 ++++++-
+ .../src/__tests__/keyTransferNav.ui.test.jsx  |  21 ++--
+ .../src/__tests__/keyTransferTab.ui.test.jsx  |  15 ++-
+ .../src/__tests__/workspaceNav.ui.test.jsx    | 106 +++++++++---------
+ .../srt-lab/src/components/CommandShell.jsx   |  64 ++++++++++-
+ artifacts/srt-lab/src/tabs/MarrySyncTab.jsx   |   2 +-
+ 6 files changed, 180 insertions(+), 69 deletions(-)
+
+diff --git a/artifacts/srt-lab/src/App.jsx b/artifacts/srt-lab/src/App.jsx
+index afa6c25..88af129 100644
+--- a/artifacts/srt-lab/src/App.jsx
++++ b/artifacts/srt-lab/src/App.jsx
+@@ -21,6 +21,7 @@
+ import React, { useState, useCallback, useMemo, useRef, useEffect, useContext } from "react";
+ import { Bot } from "lucide-react";
+ import CommandShell from "./components/CommandShell.jsx";
++import { JOBS } from "./workspaceJobs.js";
+ import CopilotPanel from "./components/CopilotPanel.jsx";
+ import ReferencePanel, { ReferencePanelTrigger } from "./components/ReferencePanel.jsx";
+ import GpecTab from "./tabs/GpecTab";
+@@ -1233,7 +1234,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
+         activeTab={tab}
+         onSelect={setTab}
+       >
+-        {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
++        {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')} onOpenTab={setTab}/>}
+         {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
+         {tab==='secsync'   && <MarrySyncTab/>}
+         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
+@@ -1319,7 +1320,39 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
+ }
+ 
+ /* ═══ DUMPS TAB v2 — vehicle-aware ═══ */
+-export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
++/* Job-card hero for the Diagnose landing — the six job doors rendered as
++ * "what are you trying to do?" cards, reading their labels straight from the
++ * shared JOB MODEL so the landing, the rail and the drawer all agree. Clicking
++ * a card opens that job's primary workspace (whose mode-strip then exposes the
++ * member modes). Gated behind `onOpenTab` at the call site, so the many
++ * DumpsTabV2 test harnesses that don't pass it render the landing unchanged. */
++const JOB_CARD_ICON = { read:'🔍', marry:'🔐', keys:'🔑', flash:'⚡', live:'📡', ref:'📚' };
++const JOB_CARD_TINT = { read:'#00838F', marry:'#D32F2F', keys:'#6A1B9A', flash:'#E65100', live:'#1565C0', ref:'#455A64' };
++function JobCards({onOpenJob}){
++  return (
++    <div data-testid="job-cards">
++      <div style={{fontSize:11,fontWeight:900,letterSpacing:1.5,color:C.ts,marginBottom:10}}>WHAT ARE YOU TRYING TO DO?</div>
++      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:10}}>
++        {JOBS.map(j=>{
++          const tint = JOB_CARD_TINT[j.id] || C.a4;
++          return (
++            <button key={j.id} type="button" data-testid={`job-card-${j.id}`} onClick={()=>onOpenJob(j.primary)}
++              style={{textAlign:'left',cursor:'pointer',padding:'14px',borderRadius:12,background:C.c2,border:`1.5px solid ${C.bd}`,borderTop:`3px solid ${tint}`,display:'flex',flexDirection:'column',gap:5,transition:'all .15s'}}
++              onMouseEnter={e=>{e.currentTarget.style.borderColor=tint;e.currentTarget.style.transform='translateY(-2px)';}}
++              onMouseLeave={e=>{e.currentTarget.style.borderColor=C.bd;e.currentTarget.style.transform='none';}}>
++              <span style={{fontSize:22,lineHeight:1}}>{JOB_CARD_ICON[j.id]||'🔧'}</span>
++              <span style={{fontWeight:900,fontSize:13,letterSpacing:.5,color:C.tx}}>{j.label}</span>
++              <span style={{fontSize:11,color:C.ts,lineHeight:1.35}}>{j.sub}</span>
++              <span style={{fontSize:10,fontWeight:800,letterSpacing:1,color:tint,marginTop:2}}>{j.members.length} TOOL{j.members.length>1?'S':''} →</span>
++            </button>
++          );
++        })}
++      </div>
++    </div>
++  );
++}
++
++export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab}){
+   const [tv, setTv] = useState('');
+   const [msg, setMsg] = useState('');
+   const [err, setErr] = useState('');
+@@ -1604,6 +1637,10 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
+   };
+ 
+   return <div style={{display:'grid',gridTemplateColumns:'1fr',gap:16}}>
++    {/* Job-card hero — the six job doors as a "what are you trying to do?"
++        picker. Only rendered in the live app (onOpenTab provided), so the
++        DumpsTabV2 unit tests render the landing unchanged. */}
++    {onOpenTab && <JobCards onOpenJob={onOpenTab}/>}
+     {/* Target VIN input */}
+     <Card>
+       <div style={{display:'flex',gap:14,alignItems:'center',flexWrap:'wrap'}}>
+diff --git a/artifacts/srt-lab/src/__tests__/keyTransferNav.ui.test.jsx b/artifacts/srt-lab/src/__tests__/keyTransferNav.ui.test.jsx
+index fe8075e..3b476f1 100644
+--- a/artifacts/srt-lab/src/__tests__/keyTransferNav.ui.test.jsx
++++ b/artifacts/srt-lab/src/__tests__/keyTransferNav.ui.test.jsx
+@@ -4,8 +4,9 @@
+  *
+  * Unlike keyTransferTab.ui.test.jsx (which renders KeyTransferTab in isolation
+  * and asserts PRIMARY_NAV contains a 'keyxfer' entry), this test renders the
+- * full App → VehicleWorkspace → CommandShell, clicks the `rail-keyxfer` rail
+- * button, and asserts the `key-transfer-tab` content actually renders.
++ * full App → VehicleWorkspace → CommandShell, opens the KEYS job door
++ * (`rail-keyprog`), clicks the `mode-keyxfer` mode pill, and asserts the
++ * `key-transfer-tab` content actually renders.
+  *
+  * It guards against navigation drift: if the rail key, the `tab==='keyxfer'`
+  * switch, or the KeyTransferTab wiring is renamed/broken, the workspace would
+@@ -37,15 +38,21 @@ describe('Key Program rail navigation (full shell)', () => {
+     // Landing page → pick a vehicle to enter the per-vehicle workspace.
+     await act(async () => { fireEvent.click(screen.getByText('CHARGER')); });
+ 
+-    // The command shell is up; the rail Key Program button is present.
+-    const railBtn = screen.getByTestId('rail-keyxfer');
+-    expect(railBtn).toBeTruthy();
++    // Post job-flow rebuild: the rail exposes the KEYS job door (primary
++    // `keyprog`), not a standalone keyxfer button.
++    const keysDoor = screen.getByTestId('rail-keyprog');
++    expect(keysDoor).toBeTruthy();
+ 
+     // Default landing tab is Dumps, not the key-transfer tab.
+     expect(screen.queryByTestId('key-transfer-tab')).toBeNull();
+ 
+-    // Click the rail button → the key-transfer tab content should render.
+-    await act(async () => { fireEvent.click(railBtn); });
++    // Open the KEYS door → its mode strip exposes a keyxfer mode pill.
++    await act(async () => { fireEvent.click(keysDoor); });
++    const modePill = screen.getByTestId('mode-keyxfer');
++    expect(modePill).toBeTruthy();
++
++    // Click the keyxfer mode → the key-transfer tab content renders.
++    await act(async () => { fireEvent.click(modePill); });
+ 
+     expect(screen.getByTestId('key-transfer-tab')).toBeTruthy();
+     // And specifically not the Dumps fallback.
+diff --git a/artifacts/srt-lab/src/__tests__/keyTransferTab.ui.test.jsx b/artifacts/srt-lab/src/__tests__/keyTransferTab.ui.test.jsx
+index f1d8945..c04d040 100644
+--- a/artifacts/srt-lab/src/__tests__/keyTransferTab.ui.test.jsx
++++ b/artifacts/srt-lab/src/__tests__/keyTransferTab.ui.test.jsx
+@@ -15,6 +15,7 @@ import { render, screen, cleanup, fireEvent, act } from '@testing-library/react'
+ 
+ import KeyTransferTab from '../tabs/KeyTransferTab.jsx';
+ import { PRIMARY_NAV } from '../components/CommandShell.jsx';
++import { JOB_BY_ID, JOB_OF } from '../workspaceJobs.js';
+ import {
+   CHAR_KEYTABLE_BASE,
+   CHAR_KEYTABLE_STRIDE,
+@@ -91,12 +92,14 @@ describe('KeyTransferTab — primary nav + hex viewer', () => {
+     cleanup();
+   });
+ 
+-  it('registers a deduplicated keyxfer entry in the primary nav', () => {
+-    const keys = PRIMARY_NAV.map(n => n.key);
+-    expect(keys).toContain('keyxfer');
+-    // Deduplicated keys => the Advanced drawer (which excludes PRIMARY_NAV keys)
+-    // can never render a duplicate of this destination.
+-    expect(new Set(keys).size).toBe(keys.length);
++  it('keyxfer is a mode under the KEYS job, reachable from the keys door', () => {
++    // Post job-flow rebuild: the rail exposes six JOB doors, not individual
++    // tabs. keyxfer is no longer its own rail key — it's a member ("mode") of
++    // the KEYS job, reached via the KEYS door (primary `keyprog`) + mode strip.
++    const railKeys = PRIMARY_NAV.map(n => n.key);
++    expect(new Set(railKeys).size).toBe(railKeys.length); // doors stay deduplicated
++    expect(JOB_BY_ID.keys.members).toContain('keyxfer');
++    expect(JOB_OF.keyxfer).toBe('keys');
+   });
+ 
+   it('lands on the empty hex viewer before a file is loaded', () => {
+diff --git a/artifacts/srt-lab/src/__tests__/workspaceNav.ui.test.jsx b/artifacts/srt-lab/src/__tests__/workspaceNav.ui.test.jsx
+index 2370ad2..88e224f 100644
+--- a/artifacts/srt-lab/src/__tests__/workspaceNav.ui.test.jsx
++++ b/artifacts/srt-lab/src/__tests__/workspaceNav.ui.test.jsx
+@@ -1,25 +1,20 @@
+ // @vitest-environment jsdom
+ /*
+- * Full-shell navigation drift guard.
++ * Full-shell navigation drift guard (job-flow model).
+  *
+- * Companion to keyTransferNav.ui.test.jsx (which guards the single Key Program
+- * rail button). This test renders the full App -> VehicleWorkspace ->
+- * CommandShell and, for every PRIMARY_NAV + FOOTER_NAV destination, clicks the
+- * rail button and asserts the destination's own content renders — never the
+- * Dumps fallback.
++ * Renders the full App -> VehicleWorkspace -> CommandShell and, for every
++ * PRIMARY_NAV job door + FOOTER_NAV link, clicks the rail button and asserts
++ * the destination renders — never the Dumps fallback.
+  *
+- * Why this matters: `setTab()` in VehicleWorkspace clamps any unknown tab id
+- * to 'dumps'. So if a rail key, the `tab === '<id>'` switch arm, or a tab
+- * component's wiring is renamed/broken, the workspace would silently fall back
+- * to the Dumps tab and ship a dead button with no failure. This test turns that
+- * silent drift into a hard failure.
++ * Post job-flow rebuild the rail is the SIX job doors (workspaceJobs.js), each
++ * opening its job's `primary` tab. Clicking a door must (a) show that job's
++ * mode strip (`mode-strip-<jobId>`) and (b) NOT silently clamp back to the
++ * Dumps tab. `setTab()` clamps any unknown id to 'dumps', so a broken rail key
++ * or switch arm would land on dumps — which shows `mode-strip-ref` + the dumps
++ * fallback — and fail these assertions loudly.
+  *
+- * A small sample of Advanced-drawer destinations is covered the same way.
+- *
+- * Each destination has an EXPECTED_CONTENT_TESTID entry pointing at a stable
+- * root testid on the rendered tab. The `PRIMARY_NAV/FOOTER_NAV are all mapped`
+- * test asserts the map stays complete, so adding a new rail/footer entry
+- * without a content assertion fails loudly here.
++ * A sample of Advanced-drawer destinations is covered the same way (the drawer
++ * sections are collapsible, so the test expands the section first).
+  */
+ import React from 'react';
+ import { describe, it, beforeEach, afterEach, expect } from 'vitest';
+@@ -27,31 +22,33 @@ import { render, screen, cleanup, fireEvent, act } from '@testing-library/react'
+ 
+ import App from '../App.jsx';
+ import { PRIMARY_NAV, FOOTER_NAV } from '../components/CommandShell.jsx';
++import { JOB_OF } from '../workspaceJobs.js';
++
++// Each rail door opens a JOB. `job` is the mode-strip id that always renders
++// for that door; optional `testid` is a stable root testid on the primary tab.
++const PRIMARY_EXPECT = {
++  inspector: { job: 'read' },
++  secsync:   { job: 'marry', testid: 'marry-sync-tab' },
++  keyprog:   { job: 'keys' },
++  flasher:   { job: 'flash' },
++  obd:       { job: 'live', testid: 'live-obd-tab' },
++  dumps:     { job: 'ref', testid: 'dumps-pcm-target-chip-selector' },
++};
+ 
+-// Stable root testid rendered by each destination tab's content. The negative
+-// assertion checks the Dumps fallback (`dumps-pcm-target-chip-selector`) is
+-// absent for every non-dumps destination.
+-const EXPECTED_CONTENT_TESTID = {
+-  dumps: 'dumps-pcm-target-chip-selector',
+-  vinsync: 'vinsync-slots',
+-  secsync: 'security-sync-tab',
+-  keyxfer: 'key-transfer-tab',
+-  'uds-console': 'uds-console-tab',
+-  vinprog: 'vinprog-subtab-bar',
+-  obd: 'live-obd-tab',
+-  investigation: 'investigation-tab',
+-  // FOOTER_NAV
++// FOOTER_NAV links (still reached via rail-footer-<key>).
++const FOOTER_EXPECT = {
+   workflow: 'workflow-tab',
+   canuniverse: 'canuniverse-tab',
+ };
+ 
+ const DUMPS_FALLBACK_TESTID = 'dumps-pcm-target-chip-selector';
+ 
+-// A representative sample of Advanced-drawer destinations (reached via the
+-// topbar "Advanced / Reference" button -> drawer-tab-<id>).
++// A representative sample of Advanced-drawer destinations. Both are READ-job
++// members, so the drawer's READ section must be expanded before the tab pill
++// renders (sections are collapsed by default unless they hold the active tab).
+ const DRAWER_SAMPLE = [
+-  { key: 'bcm', testid: 'bcm-tab' },
+-  { key: 'rfhub', testid: 'rfhub-tab' },
++  { key: 'bcm', section: 'read', testid: 'bcm-tab' },
++  { key: 'rfhub', section: 'read', testid: 'rfhub-tab' },
+ ];
+ 
+ function enterWorkspace() {
+@@ -60,7 +57,7 @@ function enterWorkspace() {
+   act(() => { fireEvent.click(screen.getByText('CHARGER')); });
+ }
+ 
+-describe('Workspace navigation (full shell)', () => {
++describe('Workspace navigation (full shell, job-flow model)', () => {
+   let originalFetch;
+   beforeEach(() => {
+     // App fires fire-and-forget fetches on some interactions; stub so jsdom
+@@ -73,29 +70,36 @@ describe('Workspace navigation (full shell)', () => {
+     cleanup();
+   });
+ 
+-  it('every PRIMARY_NAV and FOOTER_NAV key has a content assertion mapped', () => {
+-    for (const item of [...PRIMARY_NAV, ...FOOTER_NAV]) {
++  it('every PRIMARY_NAV door + FOOTER_NAV key has an expectation mapped', () => {
++    for (const item of PRIMARY_NAV) {
+       expect(
+-        EXPECTED_CONTENT_TESTID[item.key],
+-        `Nav key "${item.key}" has no EXPECTED_CONTENT_TESTID entry — add one so its rail button is guarded against dead-navigation drift.`,
++        PRIMARY_EXPECT[item.key],
++        `Rail door "${item.key}" has no PRIMARY_EXPECT entry — add one so its door is guarded against dead-navigation drift.`,
+       ).toBeTruthy();
++      // The door's primary tab must agree with the job model's mode-strip id.
++      expect(PRIMARY_EXPECT[item.key].job).toBe(JOB_OF[item.key]);
++    }
++    for (const item of FOOTER_NAV) {
++      expect(FOOTER_EXPECT[item.key], `Footer key "${item.key}" has no FOOTER_EXPECT entry.`).toBeTruthy();
+     }
+   });
+ 
+-  describe('PRIMARY_NAV rail buttons render their destination', () => {
++  describe('PRIMARY_NAV job doors render their destination', () => {
+     for (const item of PRIMARY_NAV) {
+-      it(`rail-${item.key} renders ${EXPECTED_CONTENT_TESTID[item.key]}`, () => {
++      const { job, testid } = PRIMARY_EXPECT[item.key];
++      it(`rail-${item.key} opens the ${job.toUpperCase()} job`, () => {
+         enterWorkspace();
+ 
+         const railBtn = screen.getByTestId(`rail-${item.key}`);
+         expect(railBtn).toBeTruthy();
+-
+         act(() => { fireEvent.click(railBtn); });
+ 
+-        const contentTestId = EXPECTED_CONTENT_TESTID[item.key];
+-        expect(screen.getByTestId(contentTestId)).toBeTruthy();
++        // The job's mode strip renders — proof we landed in this job, not a
++        // clamp to dumps (which would show mode-strip-ref instead).
++        expect(screen.getByTestId(`mode-strip-${job}`)).toBeTruthy();
++        if (testid) expect(screen.getByTestId(testid)).toBeTruthy();
+ 
+-        // Non-dumps destinations must not silently fall back to the Dumps tab.
++        // Non-dumps doors must not silently fall back to the Dumps tab.
+         if (item.key !== 'dumps') {
+           expect(screen.queryByTestId(DUMPS_FALLBACK_TESTID)).toBeNull();
+         }
+@@ -103,24 +107,23 @@ describe('Workspace navigation (full shell)', () => {
+     }
+   });
+ 
+-  describe('FOOTER_NAV rail buttons render their destination', () => {
++  describe('FOOTER_NAV links render their destination', () => {
+     for (const item of FOOTER_NAV) {
+-      it(`rail-footer-${item.key} renders ${EXPECTED_CONTENT_TESTID[item.key]}`, () => {
++      it(`rail-footer-${item.key} renders ${FOOTER_EXPECT[item.key]}`, () => {
+         enterWorkspace();
+ 
+         const footerBtn = screen.getByTestId(`rail-footer-${item.key}`);
+         expect(footerBtn).toBeTruthy();
+-
+         act(() => { fireEvent.click(footerBtn); });
+ 
+-        expect(screen.getByTestId(EXPECTED_CONTENT_TESTID[item.key])).toBeTruthy();
++        expect(screen.getByTestId(FOOTER_EXPECT[item.key])).toBeTruthy();
+         expect(screen.queryByTestId(DUMPS_FALLBACK_TESTID)).toBeNull();
+       });
+     }
+   });
+ 
+   describe('Advanced-drawer destinations render (sample)', () => {
+-    for (const { key, testid } of DRAWER_SAMPLE) {
++    for (const { key, section, testid } of DRAWER_SAMPLE) {
+       it(`drawer-tab-${key} renders ${testid}`, () => {
+         enterWorkspace();
+ 
+@@ -128,6 +131,9 @@ describe('Workspace navigation (full shell)', () => {
+         act(() => { fireEvent.click(screen.getByTestId('topbar-advanced-btn')); });
+         expect(screen.getByTestId('advanced-drawer')).toBeTruthy();
+ 
++        // Sections are collapsed by default — expand the one holding this tab.
++        act(() => { fireEvent.click(screen.getByTestId(`drawer-section-${section}`)); });
++
+         // Click the drawer entry -> destination content renders, drawer closes.
+         act(() => { fireEvent.click(screen.getByTestId(`drawer-tab-${key}`)); });
+ 
+diff --git a/artifacts/srt-lab/src/components/CommandShell.jsx b/artifacts/srt-lab/src/components/CommandShell.jsx
+index b90971f..6c09336 100644
+--- a/artifacts/srt-lab/src/components/CommandShell.jsx
++++ b/artifacts/srt-lab/src/components/CommandShell.jsx
+@@ -5,7 +5,7 @@ import {
+   Cpu, Zap, BookOpen,
+ } from 'lucide-react';
+ import {MasterVinContext} from '../lib/masterVinContext.jsx';
+-import {JOBS, JOB_OF} from '../workspaceJobs.js';
++import {JOBS, JOB_OF, JOB_BY_ID} from '../workspaceJobs.js';
+ 
+ /* SRT command-center design tokens (graduated from the approved canvas mockup). */
+ const T = {
+@@ -247,7 +247,64 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect})
+   );
+ }
+ 
+-/* ── Command shell: slim top bar + 5-item workflow rail + drawer ── */
++/* ── Mode strip ──
++ * When the active tab belongs to a job with more than one member, render the
++ * job's members as a horizontal strip of "modes" across the top of the
++ * workspace. This is what collapses the duplication on screen: the 8 KEYS
++ * tabs (or 10 READ tabs) stop being 8 separate drawer entries and become
++ * mode pills inside one job screen. Primary mode is first (model order). */
++function ModeStrip({tabs, activeTab, onSelect}) {
++  const jobId = JOB_OF[activeTab];
++  const job = jobId && JOB_BY_ID[jobId];
++  if (!job || job.members.length <= 1) return null;
++  const byId = {};
++  for (const t of tabs) byId[t.id] = t;
++  const modes = job.members.map((id) => byId[id]).filter(Boolean);
++  if (modes.length <= 1) return null;
++  return (
++    <div
++      data-testid={`mode-strip-${jobId}`}
++      style={{
++        display: 'flex', gap: 7, alignItems: 'center', overflowX: 'auto',
++        padding: '11px 22px 0', maxWidth: 1200, margin: '0 auto',
++        scrollbarWidth: 'thin',
++      }}
++    >
++      <span style={{
++        fontFamily: "'Righteous',sans-serif", fontSize: 11, letterSpacing: 1,
++        color: T.muted, flexShrink: 0, paddingRight: 4,
++      }}>{job.label}</span>
++      {modes.map((t) => {
++        const active = t.id === activeTab;
++        return (
++          <button
++            key={t.id}
++            type="button"
++            data-testid={`mode-${t.id}`}
++            title={t.s}
++            onClick={() => onSelect(t.id)}
++            style={{
++              display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
++              background: active ? T.red : T.panel,
++              color: active ? '#fff' : T.ink,
++              border: `1px solid ${active ? T.red : T.line}`,
++              borderRadius: 999, padding: '6px 12px', cursor: 'pointer',
++              fontFamily: "'Nunito',sans-serif", fontWeight: 800, fontSize: 12,
++              whiteSpace: 'nowrap',
++            }}
++            onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#fff7f5'; }}
++            onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = T.panel; }}
++          >
++            <span style={{fontSize: 14, lineHeight: 1}}>{t.i}</span>
++            {t.l}
++          </button>
++        );
++      })}
++    </div>
++  );
++}
++
++/* ── Command shell: slim top bar + 6-job rail + mode strip + drawer ── */
+ export default function CommandShell({
+   vehicle, onBack, onOpenWizard, onOpenCopilot, tabs, categories, activeTab, onSelect, children,
+ }) {
+@@ -432,7 +489,8 @@ export default function CommandShell({
+ 
+         {/* Content slot */}
+         <main data-testid="command-content" style={{flex: 1, minWidth: 0, overflow: 'auto', background: T.base}}>
+-          <div style={{maxWidth: 1200, margin: '0 auto', padding: '22px 22px 60px'}}>
++          <ModeStrip tabs={tabs} activeTab={activeTab} onSelect={onSelect} />
++          <div style={{maxWidth: 1200, margin: '0 auto', padding: '14px 22px 60px'}}>
+             {children}
+           </div>
+         </main>
+diff --git a/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx b/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx
+index 511d3a5..4cb056f 100644
+--- a/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx
++++ b/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx
+@@ -137,7 +137,7 @@ export default function MarrySyncTab() {
+   );
+ 
+   return (
+-    <div>
++    <div data-testid="marry-sync-tab">
+       <div style={{fontFamily: "'Righteous'", fontSize: 20, letterSpacing: 1, marginBottom: 6}}>MARRY / SYNC</div>
+       <div style={{color: C.ts, fontSize: 12, marginBottom: 12, maxWidth: 780}}>
+         Derive a module's immobilizer secret from a married source, write it with the verified writer, and confirm
+-- 
+2.43.0
+

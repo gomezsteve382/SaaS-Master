@@ -1,0 +1,182 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2329,
+  "className": "com.chrysler.cda.presentation.component.rawdiagnostics.messages.SendRawMessage",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.rawdiagnostics.messages.SendRawMessage",
+  "superName": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.components.SessionGuarded",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.messaging.components.SessionGuarded",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 41137,
+  "cinitMethod": 41126,
+  "iinitBytecode": {
+    "codeLength": 75,
+    "codeSha256": "479a648038eae5cf439ad3524c2bdd16c85570ebbb247d39764debb4bcfb8c85",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "broadcastId",
+      "traitKind": "getter",
+      "methodIndex": 41130,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8b7fe479c546ebc15d9973bbcdf1d49d985e4e5640dc730cc26e912f6cc7e27c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "brs",
+      "traitKind": "getter",
+      "methodIndex": 41132,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "31b4eb8dde95d5366870af7e3767846e8e2e880c22e8b39799d85cb8b47b0a57",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "channel",
+      "traitKind": "getter",
+      "methodIndex": 41127,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ba6d66429de384ae1b5b57850dbf512b6876c9852babb34cbb4510f7d8ebda61",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "counter78",
+      "traitKind": "getter",
+      "methodIndex": 41136,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "77fdd40a48f2337f31cf4eba089a4689a45e5a5b8749d53e8b07fd14a10f1864",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fd",
+      "traitKind": "getter",
+      "methodIndex": 41131,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "11490d2c837be88b528de98d9b2d3ccc86b2784eaf8cf40bd2f06c350ced651b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "optimizedFrames",
+      "traitKind": "getter",
+      "methodIndex": 41133,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0a99ce9073a596985186e19a1dcab8759edb70b63ce24de7a65f6780edcbb32f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "requestId",
+      "traitKind": "getter",
+      "methodIndex": 41128,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "23532e57594d7d9a2c31b15ca6019fdc78b67613697c7e8d4b63d1055e38fc24",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "responseId",
+      "traitKind": "getter",
+      "methodIndex": 41129,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d36e7c975e2bd04019965ac489dd01dd9f20ce1d0317e33cc85873a565573f35",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "timeout",
+      "traitKind": "getter",
+      "methodIndex": 41135,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4c2b7d6aaed5a29aa47c4bdd7f63b562f66e6a366f81838cd7aabe2459eac996",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xmit",
+      "traitKind": "getter",
+      "methodIndex": 41134,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0f7f2f5c38c2acf8f5c12dc6203e801bfc35ebc4aa02ef719c7e1d2378c6ddca",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

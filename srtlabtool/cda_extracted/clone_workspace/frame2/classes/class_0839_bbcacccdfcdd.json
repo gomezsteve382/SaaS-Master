@@ -1,0 +1,49 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 839,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.sessions.FindDiagnosticSessionsCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.sessions.FindDiagnosticSessionsCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 16664,
+  "cinitMethod": 16662,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "b692a0d1ba9a6a38092d502e8418553a2c96ab2fb483843aeb42e3dcff89ae15",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getAvailableDiagnosticSessions",
+      "traitKind": "method",
+      "methodIndex": 16663,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.sessions.FindAvailableDiagnosticSessions"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "7f903278d0621cf0f1744ca78437fb970c39115772ee6ee83a53df41b311959e",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

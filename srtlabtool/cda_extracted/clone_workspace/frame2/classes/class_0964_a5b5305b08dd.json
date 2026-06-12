@@ -1,0 +1,137 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 964,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs.FindDTCEnvironmentalCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.dtcs.FindDTCEnvironmentalCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 19711,
+  "cinitMethod": 19702,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "f17ecdd639c26fb97700b9f811bfde10377fd4d6d69805cba98fd6e55b034cb4",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onFindDTCEnvironmental",
+      "traitKind": "method",
+      "methodIndex": 19703,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCEnvironmentalMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "7fa59a1b1e85768c9f23e594fcda1810142f4af248f67e6fc46edef9ece6e14e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onFindReportDTCEnvironmentalData",
+      "traitKind": "method",
+      "methodIndex": 19704,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.report.RequestDTCEnvironmentalDataForReportMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "a02ba7dab6e2d141fe6aad8907cf3761d680d7edd39c461ecf481e3b28f0eb65",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onGetReportDtcEnvironmentalData",
+      "traitKind": "method",
+      "methodIndex": 19705,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.report.GetDtcEnvironmentalDataForScanReportMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "698dceefbc905becef2b2253ba248fe227332f2ff8ed15ed80c2d9c1a987fd5c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onGetReportDtcEnvironmentDataError",
+      "traitKind": "method",
+      "methodIndex": 19709,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.report.GetDtcEnvironmentalDataForScanReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "c427edbd7629d8e6e92fece9c985b20dc3549a6ab1663906cd920371181d1286",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onGetReportDtcEnvironmentDataResult",
+      "traitKind": "method",
+      "methodIndex": 19707,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.report.GetDtcEnvironmentalDataForScanReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "5dedf0cde65d531cfe1f277d6ff7d032d090e5e8b95df849d1412fd7056e7834",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.worker",
+      "traitKind": "method",
+      "methodIndex": 19710,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "8ccb2cca4759c2ce8afd0ab8861a8ef05f2fe3187e81d486168f7661b15cd7b2",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

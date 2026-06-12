@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3592,
+  "className": "com.diagnosticProcedures.bundle.DpbAssetHandler",
+  "classNameNormalized": "com.diagnosticProcedures.bundle.DpbAssetHandler",
+  "superName": "com.diagnosticProcedures.bundle.BundleAssetHandler",
+  "superNameNormalized": "com.diagnosticProcedures.bundle.BundleAssetHandler",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54007,
+  "cinitMethod": 54006,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "bundleType",
+      "traitKind": "getter",
+      "methodIndex": 54009,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ba08c18bbc5bcc323c8823500383e6d879a2bf636443c24046e7b24f48385351",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.bundle:DpbAssetHandler.isEntryInvalid",
+      "traitKind": "method",
+      "methodIndex": 54010,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.bundle.ZipEntry"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6bb6e3856d6ed3ecb44fa034f24e8f681db8caaf1262181a9a9823230a07c93c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.bundle:DpbAssetHandler.processEntry",
+      "traitKind": "method",
+      "methodIndex": 54008,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.bundle.ZipEntry",
+        "Array",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "e947464dda422bdd478503a657423de28150c875a4047210ad64cd133cfb4f9c",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

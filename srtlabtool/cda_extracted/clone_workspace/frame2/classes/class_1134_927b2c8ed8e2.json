@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1134,
+  "className": "com.chrysler.cda.application.state.UnlockStateCommand",
+  "classNameNormalized": "com.chrysler.cda.application.state.UnlockStateCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "unlock",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 24857,
+  "cinitMethod": 24853,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 22,
+    "codeSha256": "09543c040cb3c4626ff2173d0ec211070528235bb272bee1ec974e38944bb02b",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "SetUnlockStateCommand",
+      "traitKind": "method",
+      "methodIndex": 24854,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.UnlockStateMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 123,
+      "bytecode": {
+        "codeLength": 123,
+        "codeSha256": "a68430ee22f38585370bc987a560912862fe4ee216635a56f37c12fec79954f0",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "SetUnlockStateCommandKO",
+      "traitKind": "method",
+      "methodIndex": 24856,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.UnlockStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "1e6c02079347b8a307d0c0ab4659bad8073e62b7f3be45055b7ed36e63807f74",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "SetUnlockStateCommandOK",
+      "traitKind": "method",
+      "methodIndex": 24855,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.UnlockStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "cee7d8991431881c0ef00562ec3c3462339b4901019645cf64a880295936f7a1",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

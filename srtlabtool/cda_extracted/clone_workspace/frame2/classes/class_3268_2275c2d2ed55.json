@@ -1,0 +1,80 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3268,
+  "className": "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind",
+  "classNameNormalized": "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 50724,
+  "cinitMethod": 50722,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "9eedd17bd41646a1646f063086e409cfe42a636815dedc09c5ad2038963fb3c7",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 91,
+    "codeSha256": "bedcdea35d20594840d29615e64420019ebb6e1a52f17380df4cbee3a4d29c5d",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [
+    {
+      "traitName": "key",
+      "traitKind": "getter",
+      "methodIndex": 50725,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0acfbc53f0bb5b32284979faee793247378f00f79007112f34a23feb36b916ee",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 50726,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0acfbc53f0bb5b32284979faee793247378f00f79007112f34a23feb36b916ee",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "forCommandStatus",
+      "traitKind": "method",
+      "methodIndex": 50723,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.command.CommandStatus"
+      ],
+      "returnType": "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind",
+      "hasBody": true,
+      "codeLength": 160,
+      "bytecode": {
+        "codeLength": 160,
+        "codeSha256": "6f7258e28464addbdba41ddea706ab686031d2737d6eda45b049a4a35acc01d2",
+        "bytecodeLineCount": 10
+      }
+    }
+  ]
+}

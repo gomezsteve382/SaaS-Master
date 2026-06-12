@@ -1,0 +1,190 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1507,
+  "className": "spark.effects.supportClasses.ResizeInstance",
+  "classNameNormalized": "spark.effects.supportClasses.ResizeInstance",
+  "superName": "spark.effects.supportClasses.AnimateInstance",
+  "superNameNormalized": "spark.effects.supportClasses.AnimateInstance",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 32575,
+  "cinitMethod": 32574,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "heightBy",
+      "traitKind": "getter",
+      "methodIndex": 32576,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d0f4bfcaee6f368c87f3a8ec37a72ca7501bc7ae87c8ac328cc0b786ba0dfc17",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "heightBy",
+      "traitKind": "setter",
+      "methodIndex": 32577,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "dc589b912b3ee2560fa1c7d93e4774a4c060ae47dd6812a4573573c24ee7751b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "heightTo",
+      "traitKind": "getter",
+      "methodIndex": 32578,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ed3a259579c1dd56e9b1ffcd53f61055bd14ffe5de2bad0ca55cf9edfe8fdec4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "heightTo",
+      "traitKind": "setter",
+      "methodIndex": 32579,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "ea3165a38d0cae41621041c1a31dc1b47075f1d9685dc3b48e625683fadc107b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "play",
+      "traitKind": "method",
+      "methodIndex": 32584,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 429,
+      "bytecode": {
+        "codeLength": 429,
+        "codeSha256": "921c94d65152de7e64033e2baf100d6806d79ac6c2704f8735f6bd42f24f183f",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "PrivateNs.calculateDimensionChanges",
+      "traitKind": "method",
+      "methodIndex": 32585,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 776,
+      "bytecode": {
+        "codeLength": 776,
+        "codeSha256": "c915766c44b29e33352d634cd015d4b9e4e168e024aafa9980e50c6c24c79f72",
+        "bytecodeLineCount": 49
+      }
+    },
+    {
+      "traitName": "widthBy",
+      "traitKind": "getter",
+      "methodIndex": 32580,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "164f8c25cd1b31ca4ac70f81f6579d360c5a095247ab515ed5826f89acd6648e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "widthBy",
+      "traitKind": "setter",
+      "methodIndex": 32581,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "4034691145cbf7b76d7e858ec683bb2d16fb52b35406b86c66269fc7b354142d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "widthTo",
+      "traitKind": "getter",
+      "methodIndex": 32582,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c2ce1a5b550bd33860cc0ef94d60d5f902f7a3976301f159403a440671705559",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "widthTo",
+      "traitKind": "setter",
+      "methodIndex": 32583,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "20b4c35ceb2b6aa22e3a65a4e4c2f51084c8f2f686afc7daf01e27b49bc8a87a",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

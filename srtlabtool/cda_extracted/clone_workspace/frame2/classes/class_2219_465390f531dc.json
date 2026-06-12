@@ -1,0 +1,308 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2219,
+  "className": "wde.common.services.IService",
+  "classNameNormalized": "wde.common.services.IService",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "wde.common.services.IClosable"
+  ],
+  "iinitMethod": 39912,
+  "cinitMethod": 39888,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "wde.common.services:IService.addArgument",
+      "traitKind": "method",
+      "methodIndex": 39903,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IServiceArgument"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.dataType",
+      "traitKind": "getter",
+      "methodIndex": 39901,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.dataType",
+      "traitKind": "setter",
+      "methodIndex": 39902,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.getArguments",
+      "traitKind": "method",
+      "methodIndex": 39907,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.Dictionary",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.getArgumentValue",
+      "traitKind": "method",
+      "methodIndex": 39906,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.hasArgument",
+      "traitKind": "method",
+      "methodIndex": 39908,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.host",
+      "traitKind": "getter",
+      "methodIndex": 39891,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.host",
+      "traitKind": "setter",
+      "methodIndex": 39892,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.name",
+      "traitKind": "getter",
+      "methodIndex": 39895,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.name",
+      "traitKind": "setter",
+      "methodIndex": 39896,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.open",
+      "traitKind": "method",
+      "methodIndex": 39911,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.port",
+      "traitKind": "getter",
+      "methodIndex": 39893,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.port",
+      "traitKind": "setter",
+      "methodIndex": 39894,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.protocol",
+      "traitKind": "getter",
+      "methodIndex": 39889,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.protocol",
+      "traitKind": "setter",
+      "methodIndex": 39890,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.removeArgument",
+      "traitKind": "method",
+      "methodIndex": 39904,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.resolveURL",
+      "traitKind": "method",
+      "methodIndex": 39909,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.resultContentType",
+      "traitKind": "getter",
+      "methodIndex": 39899,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.resultContentType",
+      "traitKind": "setter",
+      "methodIndex": 39900,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.send",
+      "traitKind": "method",
+      "methodIndex": 39910,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.serviceURI",
+      "traitKind": "getter",
+      "methodIndex": 39897,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.serviceURI",
+      "traitKind": "setter",
+      "methodIndex": 39898,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IService.setArgumentValue",
+      "traitKind": "method",
+      "methodIndex": 39905,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

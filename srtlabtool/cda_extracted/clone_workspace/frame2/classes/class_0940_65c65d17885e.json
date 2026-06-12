@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 940,
+  "className": "com.chrysler.cda.application.state.StartTesterPresentCommand",
+  "classNameNormalized": "com.chrysler.cda.application.state.StartTesterPresentCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 19046,
+  "cinitMethod": 19042,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "ecc137333f1b4328faf85f2471af93b47894f889951745e7b907024969dc8b11",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "SetStartTesterPresentState",
+      "traitKind": "method",
+      "methodIndex": 19043,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.StartTesterPresentMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "fb9561a323f4dcc547e2408936e12efe510b7f93aee9c07137664d115e3b5e80",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "SetStartTesterPresentStateKO",
+      "traitKind": "method",
+      "methodIndex": 19045,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.StartTesterPresentMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "ad2454803ff05fce171985d16d5cf49e8b99cc178cf80a19408cb8a6182203eb",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "SetStartTesterPresentStateOK",
+      "traitKind": "method",
+      "methodIndex": 19044,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.StartTesterPresentMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "bed0b53f8ca83379e584be65ccf9585180dd0ca269645d830c64cd8e7c56327c",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

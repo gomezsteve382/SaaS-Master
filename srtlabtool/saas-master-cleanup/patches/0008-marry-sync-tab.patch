@@ -1,0 +1,287 @@
+From efbf912a52cec0926b750b185e9e00f2dc31c0f6 Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 14:10:07 +0000
+Subject: [PATCH] Stage C: unified engine-backed Marry/Sync tab; retire 2
+ duplicates
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add MarrySyncTab.jsx — a single workspace backed by the marryModule() engine:
+load a married SOURCE + unmarried TARGET, derive→write→verify in one place,
+with the confidence badge and the unverified-target ack gate surfaced in-UI.
+
+Consolidation: the 'secsync' entry (front-page 'Security Sync' rail button,
+appearance unchanged) now renders MarrySyncTab instead of the read-only
+SecuritySyncTab; BcmPcmPairingTab is retired and its id redirects to the
+unified tab via TAB_REDIRECTS. Both old component files are kept (reversible).
+Drawer drops from 51→50 tabs. esbuild-validated; registry verifier green.
+---
+ artifacts/srt-lab/src/App.jsx               |  23 ++-
+ artifacts/srt-lab/src/tabs/MarrySyncTab.jsx | 169 ++++++++++++++++++++
+ 2 files changed, 184 insertions(+), 8 deletions(-)
+ create mode 100644 artifacts/srt-lab/src/tabs/MarrySyncTab.jsx
+
+diff --git a/artifacts/srt-lab/src/App.jsx b/artifacts/srt-lab/src/App.jsx
+index 7433d7c..afa6c25 100644
+--- a/artifacts/srt-lab/src/App.jsx
++++ b/artifacts/srt-lab/src/App.jsx
+@@ -48,10 +48,9 @@ import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
+ import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
+ import Cda6DatabaseToolsTab from "./tabs/Cda6DatabaseToolsTab.jsx";
+ import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
+-import SecuritySyncTab from "./tabs/SecuritySyncTab.jsx";
++import MarrySyncTab from "./tabs/MarrySyncTab.jsx";
+ import ProxiTab from "./tabs/ProxiTab.jsx";
+ import ImmoBcm56xbTab from "./tabs/ImmoBcm56xbTab.jsx";
+-import BcmPcmPairingTab from "./tabs/BcmPcmPairingTab.jsx";
+ import BcmConfigTab from "./tabs/BcmConfigTab.jsx";
+ import FcaModuleInspector from "./tabs/FcaModuleInspector.jsx";
+ import UnlockCoverageTab from "./tabs/UnlockCoverageTab.jsx";
+@@ -925,7 +924,7 @@ function VehicleLanding({onSelect}){
+ const WORKSPACE_TABS = [
+   {id:'dumps',     i:'📂', l:'DUMPS',        s:'VIN · SEC16 · Unlocks · Hex'},
+   {id:'vinsync',   i:'🪪', l:'VIN → SYNC',   s:'Step 1 VIN+CRC · Step 2 security'},
+-  {id:'secsync',   i:'🔐', l:'SECURITY SYNC',s:'BCM · RFHUB · PCM · SEC16/SEC6 side-by-side'},
++  {id:'secsync',   i:'🔐', l:'MARRY / SYNC', s:'Marry a module into a set · derive → write → verify'},
+   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
+   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
+   {id:'keyxfer',   i:'🔑', l:'KEY PROGRAM',  s:'Offline transponder-key transfer · no OBD'},
+@@ -953,7 +952,6 @@ const WORKSPACE_TABS = [
+   {id:'vinprog',   i:'🪪', l:'VIN + CHECKSUM', s:'Single-file VIN write + CRC patcher'},
+   {id:'proxi',     i:'📋', l:'PROXI',        s:'BCM 0x2023 + DEnn feature decoder · read-only'},
+   {id:'immobcm56xb',i:'🧠', l:'IMMO BCM 56xB',s:'64 KB MPC5606B · FULL / VIN_ONLY / LOCKED · file in/out'},
+-  {id:'bcmpcmpair', i:'🔐', l:'BCM → PCM',    s:'MPC5606B full-flash · GPEC2A · SEC6 pairing workbench'},
+   {id:'bcmconfig', i:'⚙️', l:'BCM CONFIG',   s:'DE00..DE0C · 155 toggles · SRT/Perf/Track'},
+   {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
+   {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
+@@ -994,7 +992,7 @@ const WORKSPACE_CATEGORIES = {
+   smartbox:'MODULES', immobcm56xb:'MODULES', bcmconfig:'MODULES', inspector:'MODULES', proxi:'MODULES',
+   // MARRY & KEYS — secret pairing, sync, key programming (marryModule engine).
+   vinsync:'MARRY', secsync:'MARRY', modsync:'MARRY', keyprog:'MARRY', keyxfer:'MARRY',
+-  keymgr:'MARRY', bcmpcmpair:'MARRY', livekey:'MARRY', keywriter:'MARRY', radiocodes:'MARRY',
++  keymgr:'MARRY', livekey:'MARRY', keywriter:'MARRY', radiocodes:'MARRY',
+   seed:'MARRY', jailbreak:'MARRY',
+   // FLASH & FIRMWARE — offline image patch / program.
+   flasher:'FLASH', cflash:'FLASH', gpecunlock:'FLASH', efd:'FLASH', efd2bin:'FLASH',
+@@ -1008,6 +1006,13 @@ const WORKSPACE_CATEGORIES = {
+   canuniverse:'INTEL', patterns:'INTEL', kg:'INTEL', sigdisc:'INTEL', cda6db:'INTEL', exttools:'INTEL',
+ };
+ 
++/* Retired tab ids → their replacement. The engine-backed Marry/Sync workspace
++ * (MarrySyncTab, rendered under 'secsync') subsumes the old BCM→PCM pairing tab;
++ * any deep-link / setTab('bcmpcmpair') lands on the unified tab instead. */
++const TAB_REDIRECTS = {
++  bcmpcmpair: 'secsync',
++};
++
+ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
+   const vehicle = VEHICLES[vehicleId];
+   // The FCA Analyzer tab was removed; if any persisted/deep-linked state
+@@ -1022,7 +1027,10 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
+   const [referenceOpen, setReferenceOpen] = useState(false);
+   const setTab = useCallback((next)=>{
+     if (next === 'info') { setReferenceOpen(true); return; }
+-    setTabRaw(VALID_TAB_IDS.has(next) ? next : 'dumps');
++    // Retired tabs consolidated into the engine-backed Marry/Sync workspace
++    // (rendered under the 'secsync' id). Redirect old ids / deep-links there.
++    const redirected = TAB_REDIRECTS[next] || next;
++    setTabRaw(VALID_TAB_IDS.has(redirected) ? redirected : 'dumps');
+   },[VALID_TAB_IDS]);
+   /* Window-level "open this tab" channel so deeply-nested components
+    * (e.g. the inline CAN Universe panel rendered on tabs that don't
+@@ -1227,7 +1235,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
+       >
+         {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
+         {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
+-        {tab==='secsync'   && <SecuritySyncTab/>}
++        {tab==='secsync'   && <MarrySyncTab/>}
+         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
+         {tab==='keyprog'   && <KeyProgTab/>}
+         {tab==='keyxfer'   && <KeyTransferTab/>}
+@@ -1254,7 +1262,6 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
+         {tab==='vinprog'   && <VinProgrammerTab/>}
+         {tab==='proxi'     && <ProxiTab/>}
+         {tab==='immobcm56xb' && <ImmoBcm56xbTab/>}
+-        {tab==='bcmpcmpair' && <BcmPcmPairingTab/>}
+         {tab==='bcmconfig' && <BcmConfigTab vehicle={vehicle}/>}
+         {tab==='inspector' && <FcaModuleInspector onOpenTab={setTab}/>}
+         {tab==='unlockcov' && <UnlockCoverageTab/>}
+diff --git a/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx b/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx
+new file mode 100644
+index 0000000..c16d350
+--- /dev/null
++++ b/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx
+@@ -0,0 +1,169 @@
++import React, {useState, useMemo, useRef} from "react";
++import {Card, Btn, Tag} from "../lib/ui.jsx";
++import {C} from "../lib/constants.js";
++import {parseModule} from "../lib/parseModule.js";
++import {marryModule} from "../lib/marryModule.js";
++
++/* ────────────────────────────────────────────────────────────────────────────
++ * MarrySyncTab — the single, engine-backed home for marrying an unmarried
++ * module into a married set. Replaces the overlapping SecuritySyncTab /
++ * BCM→PCM pairing surfaces: load a SOURCE (a module that already carries the
++ * married secret — your BCM source of truth, or an RFHUB/95640) and a TARGET
++ * (the donor/unmarried module). One call to marryModule() derives the target's
++ * secret, writes it with the verified securityBytes writer, and re-parses the
++ * output to prove it reads back correctly before anything can be downloaded.
++ *
++ * The relationships (single source of truth, immoSecret.js):
++ *   RFHUB SEC16 == reverse(BCM SEC16) ; PCM SEC6 == reverse(BCM SEC16)[0:6].
++ * Refuse-on-doubt: a blank/virgin source is rejected, and writing an
++ * UNVERIFIED-formula target (RFHUB Gen1 / XC2268) requires an explicit ack.
++ * ────────────────────────────────────────────────────────────────────────── */
++
++const mono = "'JetBrains Mono'";
++const TONE = {
++  "bench-verified":     {c: C.gn, t: "BENCH-VERIFIED"},
++  "grounded-extracted": {c: C.wn, t: "EXTRACTED · UNCONFIRMED"},
++  "unverified":         {c: C.er, t: "UNVERIFIED"},
++};
++
++function FileSlot({label, accent, mod, onLoad, onClear}) {
++  const inputRef = useRef(null);
++  const onChange = (e) => {
++    const f = e.target.files && e.target.files[0];
++    if (!f) return;
++    const r = new FileReader();
++    r.onload = () => { onLoad(f, new Uint8Array(r.result)); if (inputRef.current) inputRef.current.value = ""; };
++    r.readAsArrayBuffer(f);
++  };
++  return (
++    <Card style={{borderTop: "3px solid " + accent, padding: 16}}>
++      <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8}}>
++        <div style={{fontFamily: "'Righteous'", fontSize: 14, color: accent, letterSpacing: 1}}>{label}</div>
++        {mod && (
++          <button onClick={onClear} style={{border: "none", background: C.er + "14", color: C.er, fontWeight: 800, fontSize: 10, padding: "3px 9px", borderRadius: 6, cursor: "pointer"}}>CLEAR</button>
++        )}
++      </div>
++      {mod ? (
++        <div style={{fontSize: 12}}>
++          <div><b>{mod.info?.type || "?"}</b> · {mod.file?.name}</div>
++          <div style={{color: C.tm, fontSize: 11, fontFamily: mono}}>
++            {mod.bytes.length} B{mod.info?.vins?.length ? ` · VIN ${mod.info.vins[0].vin}` : ""}
++          </div>
++        </div>
++      ) : (
++        <div>
++          <input ref={inputRef} type="file" style={{display: "none"}} onChange={onChange} />
++          <Btn onClick={() => inputRef.current && inputRef.current.click()}>Load file…</Btn>
++        </div>
++      )}
++    </Card>
++  );
++}
++
++export default function MarrySyncTab() {
++  const [src, setSrc] = useState(null);
++  const [tgt, setTgt] = useState(null);
++  const [vin, setVin] = useState("");
++  const [ack, setAck] = useState(false);
++
++  const load = (setter) => (file, bytes) => {
++    let info = null;
++    try { info = parseModule(bytes, file.name); } catch (e) { /* unparseable → engine reports */ }
++    setter({file, bytes, info});
++    setAck(false);
++  };
++
++  const result = useMemo(() => {
++    if (!src || !tgt) return null;
++    try {
++      return marryModule({
++        source: {bytes: src.bytes, info: src.info},
++        target: {bytes: tgt.bytes, info: tgt.info},
++        vin: vin.trim() || undefined,
++        allowUnverifiedTarget: ack,
++      });
++    } catch (e) {
++      return {ok: false, reason: String(e?.message || e), checks: []};
++    }
++  }, [src, tgt, vin, ack]);
++
++  const download = () => {
++    if (!result?.bytes) return;
++    const fn = `${result.targetType || "TARGET"}_MARRIED${vin.trim() ? "_" + vin.trim() : ""}.bin`;
++    const a = document.createElement("a");
++    a.href = URL.createObjectURL(new Blob([result.bytes], {type: "application/octet-stream"}));
++    a.download = fn; a.click(); URL.revokeObjectURL(a.href);
++  };
++
++  const tone = result?.grounding ? (TONE[result.grounding.level] || TONE.unverified) : null;
++  const needsAck = !!result && !result.ok && /allowUnverifiedTarget/i.test(result.reason || "");
++
++  return (
++    <div>
++      <div style={{fontFamily: "'Righteous'", fontSize: 20, letterSpacing: 1, marginBottom: 6}}>MARRY / SYNC</div>
++      <div style={{color: C.ts, fontSize: 12, marginBottom: 14, maxWidth: 760}}>
++        Derive a target module's immobilizer secret from a married source, write it with the verified
++        writer, and confirm by re-parse. BCM is the source of truth — RFH SEC16 = reverse(BCM),
++        PCM SEC6 = reverse(BCM)[0:6]. One engine, refuse-on-doubt, nothing downloads unless it verifies.
++      </div>
++
++      <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12}}>
++        <FileSlot label="SOURCE · married" accent={C.sr} mod={src} onLoad={load(setSrc)} onClear={() => setSrc(null)} />
++        <FileSlot label="TARGET · unmarried" accent={C.a1} mod={tgt} onLoad={load(setTgt)} onClear={() => setTgt(null)} />
++      </div>
++
++      <div style={{marginBottom: 14}}>
++        <label style={{fontSize: 11, color: C.tm, marginRight: 8}}>Optional VIN to stamp into target</label>
++        <input
++          value={vin}
++          onChange={(e) => setVin(e.target.value.toUpperCase())}
++          maxLength={17}
++          placeholder="17-char VIN"
++          style={{fontFamily: mono, fontSize: 12, padding: "6px 8px", border: `1px solid ${C.bd}`, borderRadius: 6, width: 210}}
++        />
++      </div>
++
++      {!result && (
++        <Card style={{padding: 16, color: C.tm}}>Load a source and a target module to begin.</Card>
++      )}
++
++      {result && (
++        <Card style={{padding: 16}}>
++          <div style={{display: "flex", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap"}}>
++            <div style={{fontFamily: "'Righteous'", fontSize: 15}}>{result.sourceType || "?"} → {result.targetType || "?"}</div>
++            {result.op && <Tag>{result.op}</Tag>}
++            {tone && (
++              <span title={result.grounding?.caveat || ""} style={{fontSize: 10, fontWeight: 800, letterSpacing: 0.5, padding: "2px 8px", borderRadius: 10, background: tone.c + "18", color: tone.c}}>
++                {tone.t}
++              </span>
++            )}
++            {result.ok && result.verified && <Tag>✓ VERIFIED</Tag>}
++          </div>
++
++          {(result.checks || []).map((ch, i) => (
++            <div key={i} style={{fontSize: 12, color: ch.pass ? C.gn : C.er, marginBottom: 3, fontFamily: mono}}>
++              {ch.pass ? "✓" : "✗"} {ch.label}{ch.detail ? ` — ${ch.detail}` : ""}
++            </div>
++          ))}
++
++          {result.reason && (
++            <div style={{marginTop: 8, color: C.er, fontSize: 12, fontWeight: 700}}>{result.reason}</div>
++          )}
++
++          {needsAck && (
++            <label style={{display: "block", marginTop: 10, fontSize: 12, color: C.er, fontWeight: 600}}>
++              <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} style={{marginRight: 6}} />
++              I understand this target's writer formula is UNVERIFIED and could brick the module — proceed anyway.
++            </label>
++          )}
++
++          {result.ok && result.verified && (
++            <div style={{marginTop: 12}}>
++              <Btn onClick={download}>⬇ Download verified {result.targetType}</Btn>
++            </div>
++          )}
++        </Card>
++      )}
++    </div>
++  );
++}
+-- 
+2.43.0
+

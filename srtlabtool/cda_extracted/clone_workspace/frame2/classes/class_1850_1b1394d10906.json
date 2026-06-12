@@ -1,0 +1,195 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1850,
+  "className": "flashx.textLayout.accessibility.TextAccImpl",
+  "classNameNormalized": "flashx.textLayout.accessibility.TextAccImpl",
+  "superName": "flash.accessibility.AccessibilityImplementation",
+  "superNameNormalized": "flash.accessibility.AccessibilityImplementation",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 35027,
+  "cinitMethod": 35025,
+  "iinitBytecode": {
+    "codeLength": 64,
+    "codeSha256": "5481c39bbef50aa418f90e353a8d3281ef78a835ba04c0665bd0e0f63efb558c",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 75,
+    "codeSha256": "97ec2fab2671d9535f311dcd0385558113c3d62a81b409a0956141d627e289ab",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "detachListeners",
+      "traitKind": "method",
+      "methodIndex": 35028,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "e0c14aa0c2ab5b203c8e6deb7522e04462b173da273e9195480c337f5d5bb92b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.accessibility:TextAccImpl.eventHandler",
+      "traitKind": "method",
+      "methodIndex": 35033,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 146,
+      "bytecode": {
+        "codeLength": 146,
+        "codeSha256": "f9f8e2ccfd4836e29b0a0c1c485791a301e07a3d6863f1a5d1b566ae8595776f",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "get_accName",
+      "traitKind": "method",
+      "methodIndex": 35031,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "c4102ad464674bc713637bf04e8b69d185508148d9a5ff02e48c6e18456534a2",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "get_accRole",
+      "traitKind": "method",
+      "methodIndex": 35029,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "1c61ef9f1af0ffc939d893861f9f084e171151683924c06fbba4fa79739f9c4a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "get_accState",
+      "traitKind": "method",
+      "methodIndex": 35030,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "4c68c0a1bdef9217e9f9b3fe97871cafcd009b55a8aa517e8fdcf36b2137104e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "get_accValue",
+      "traitKind": "method",
+      "methodIndex": 35032,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "9721ad0df3e50013a22e00facab219a874cc8bebf6c707a70dce1736f4989b03",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "searchText",
+      "traitKind": "getter",
+      "methodIndex": 35036,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "41fa087571dd13fae34de3c9e2905703c9bae24a355f1e20865986b12ab1a059",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "selectionActiveIndex",
+      "traitKind": "getter",
+      "methodIndex": 35034,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "9cdc20608decac0776173fd73e6ee45fc8d8807e7b756ae98f7c3c7389002fc6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "selectionAnchorIndex",
+      "traitKind": "getter",
+      "methodIndex": 35035,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "1856cda4b415d4727931ebdc4c93ae566470e16e00f4d1263ac597439069ad9e",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.exportToString",
+      "traitKind": "method",
+      "methodIndex": 35026,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "8a0f01121614e350571ba9289001eddd202c94c7432fced980b2cdbb200b38da",
+        "bytecodeLineCount": 10
+      }
+    }
+  ]
+}

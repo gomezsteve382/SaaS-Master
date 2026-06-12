@@ -1,0 +1,169 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2957,
+  "className": "org.spicefactory.lib.reflect.cache.DefaultReflectionCache",
+  "classNameNormalized": "org.spicefactory.lib.reflect.cache.DefaultReflectionCache",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.lib.reflect.cache.ReflectionCache"
+  ],
+  "iinitMethod": 47627,
+  "cinitMethod": 47618,
+  "iinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "e8d290b5ceab8f8645a099679026c81e0b6bcb0c3c51d35c310f0e5529752d3c",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "active",
+      "traitKind": "getter",
+      "methodIndex": 47625,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "898e036451c4530e5eeaee291445804766108630f35ad957728f3adbac915b0c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "active",
+      "traitKind": "setter",
+      "methodIndex": 47626,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "6aa2318245aac379125fe4c1c16ebefd7c65bc2b44f146c8f0a1ea4fea227aa6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "addClass",
+      "traitKind": "method",
+      "methodIndex": 47620,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.ClassInfo",
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "4d0e4199642c1614ac00f47c572da1baf776d529075c1fe3356318c8bced68f9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getClass",
+      "traitKind": "method",
+      "methodIndex": 47621,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.ClassInfo",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "2361aed524b8f01f5f27f1a53d0cf3ea87c91e0a2338efbcebb6d91a0e05a431",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDomainCache",
+      "traitKind": "method",
+      "methodIndex": 47619,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "PrivateNs.DomainCache",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "61d952c6e4147cb2cbbe19f0b374117bba85f9bcffe63511fd5e59701126d4f3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "purgeAll",
+      "traitKind": "method",
+      "methodIndex": 47624,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "048eb5fb15f5f8fec440591b0137672a8bdf5da36a9011439b2492f4578cc4bf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "purgeClass",
+      "traitKind": "method",
+      "methodIndex": 47622,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "cc1d4bf3ee9b454aa965cd3adef6c94691e2945a25428b4212f97031f32b994e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "purgeDomain",
+      "traitKind": "method",
+      "methodIndex": 47623,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "c2507308921eea9bf252add0f4b71c3d8f54b27a89ddb6759ef70f8f82994b39",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

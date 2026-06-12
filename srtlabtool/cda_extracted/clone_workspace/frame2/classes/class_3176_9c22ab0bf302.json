@@ -1,0 +1,424 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3176,
+  "className": "com.hurlant.crypto.rsa.RSAKey",
+  "classNameNormalized": "com.hurlant.crypto.rsa.RSAKey",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 50058,
+  "cinitMethod": 50053,
+  "iinitBytecode": {
+    "codeLength": 112,
+    "codeSha256": "efadbe4ed1ff5d62c6e5e8a72342cfc3120e0313a26f59343942f1d90bef03fc",
+    "bytecodeLineCount": 7
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.hurlant.crypto.rsa:RSAKey.doPrivate",
+      "traitKind": "method",
+      "methodIndex": 50075,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 180,
+      "bytecode": {
+        "codeLength": 180,
+        "codeSha256": "6626fc15829a9f90d5bc2194361769ce8599384719df937faab1170963b891d1",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "com.hurlant.crypto.rsa:RSAKey.doPrivate2",
+      "traitKind": "method",
+      "methodIndex": 50074,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 186,
+      "bytecode": {
+        "codeLength": 186,
+        "codeSha256": "8b520de55ffd1361c54a51ed90be59bf20aa335f427f56df65e75c9e9036d987",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "com.hurlant.crypto.rsa:RSAKey.doPublic",
+      "traitKind": "method",
+      "methodIndex": 50073,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "8cc29900bc757d2db2ff2b70708783495b4ca023f8a815ae07bf66331cce8ef8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "decrypt",
+      "traitKind": "method",
+      "methodIndex": 50062,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray",
+        "uint",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "d01a20f843a41088e3564150005d5d131d5a6b989335db4cfe394c46f1110834",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 50060,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "28db3a94df5ef53a643e9eeddd2a6657bd3f8b105cb09a1445c18666fa695327",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "dump",
+      "traitKind": "method",
+      "methodIndex": 50072,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 226,
+      "bytecode": {
+        "codeLength": 226,
+        "codeSha256": "c3ac36249aea82134d985a47b647411fe01718ec8030f3fd7d5e480f4d346f2d",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "encrypt",
+      "traitKind": "method",
+      "methodIndex": 50061,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray",
+        "uint",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "2c3914b40dda3345a4ffa19b5d55ee0ae041a9fd7a06b0edad12158dd77a45fc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getBlockSize",
+      "traitKind": "method",
+      "methodIndex": 50059,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "1e30975cc604e71f5d67cc990e26185c0951a7e0e9d88cd48bebf7fbd17515eb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._decrypt",
+      "traitKind": "method",
+      "methodIndex": 50066,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray",
+        "uint",
+        "Function",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 165,
+      "bytecode": {
+        "codeLength": 165,
+        "codeSha256": "6861a8ce2cc4d2adcbf7c8b7c356362460076a2592c7d83db0812f49c52e561b",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs._encrypt",
+      "traitKind": "method",
+      "methodIndex": 50065,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray",
+        "uint",
+        "Function",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 127,
+      "bytecode": {
+        "codeLength": 127,
+        "codeSha256": "900c535463b3268925253aceca6b3dfcf902b7dcdc52aee0826497fddec33e2a",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.pkcs1pad",
+      "traitKind": "method",
+      "methodIndex": 50067,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "int",
+        "uint",
+        "uint"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 276,
+      "bytecode": {
+        "codeLength": 276,
+        "codeSha256": "da22c7d48c5f2d1f542921027e563380bb1b579d6dff6a5ebc91fd9651128c09",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "PrivateNs.pkcs1unpad",
+      "traitKind": "method",
+      "methodIndex": 50068,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "uint",
+        "uint"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 275,
+      "bytecode": {
+        "codeLength": 275,
+        "codeSha256": "0c372571c9ffdca0c442743a5be5d35ff1c06c19e56fb7384562b38b5216a408",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "rawpad",
+      "traitKind": "method",
+      "methodIndex": 50069,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "int",
+        "uint",
+        "uint"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "a8cf1788d38c7c7f2f44842cb1b870989ee193ed8a7c311372e42b875df5496d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "rawunpad",
+      "traitKind": "method",
+      "methodIndex": 50070,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "uint",
+        "uint"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a8648c67e2ea485592606657e9b00c1da3b8ffd47efcbe81bfbb19c6151da0e6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sign",
+      "traitKind": "method",
+      "methodIndex": 50063,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray",
+        "uint",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "9c352b416ad20e3294abb83b67490e1f0528a357f83235b56806ddac75e10267",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 50071,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bab673b4ec5f523d9f14c4ef76ae66dbeb6fa11914711de98ec5d0aa1aec2113",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "verify",
+      "traitKind": "method",
+      "methodIndex": 50064,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray",
+        "uint",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "787a2bb3d4b8c6d48891462396d89019dc6eca9b7960be714dfc059fef79aabd",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "com.hurlant.crypto.rsa:RSAKey.bigRandom",
+      "traitKind": "method",
+      "methodIndex": 50057,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "com.hurlant.crypto.prng.Random"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "939dc762eff917a873dd7600a47d1ad58d5508ec1c15804a4869ca6404eea377",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "generate",
+      "traitKind": "method",
+      "methodIndex": 50056,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "String"
+      ],
+      "returnType": "com.hurlant.crypto.rsa.RSAKey",
+      "hasBody": true,
+      "codeLength": 536,
+      "bytecode": {
+        "codeLength": 536,
+        "codeSha256": "6458cdab0b503b6ef90380fa73ce6c14b07fcd6e67442ad787c0a2a89ee9e35b",
+        "bytecodeLineCount": 34
+      }
+    },
+    {
+      "traitName": "parsePrivateKey",
+      "traitKind": "method",
+      "methodIndex": 50055,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "String",
+        "String",
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "com.hurlant.crypto.rsa.RSAKey",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "4ac97227b726b646b0ce18b60c2d6fcff9427664e662eb5d6f996d0ec3fbbf08",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "parsePublicKey",
+      "traitKind": "method",
+      "methodIndex": 50054,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "com.hurlant.crypto.rsa.RSAKey",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "7f3163739e064b0225c51a4b3f0fd1af8b8c709c73484675899710231da231c0",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

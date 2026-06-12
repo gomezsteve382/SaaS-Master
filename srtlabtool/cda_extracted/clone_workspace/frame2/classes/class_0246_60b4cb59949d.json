@@ -1,0 +1,434 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 246,
+  "className": "com.chrysler.skins.buttons.IconButtonSkin",
+  "classNameNormalized": "com.chrysler.skins.buttons.IconButtonSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 5775,
+  "cinitMethod": 5771,
+  "iinitBytecode": {
+    "codeLength": 554,
+    "codeSha256": "fc4dbc02450620e8fa547f8618d974c2b10df6837bcd5ad51e961be7facd64df",
+    "bytecodeLineCount": 35
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_IconButtonSkin_Image2",
+      "traitKind": "getter",
+      "methodIndex": 5788,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b9c2b187122293c7e947c98a06d3029071ed5bfff789fa4c19b248e83706bdd0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_IconButtonSkin_Image2",
+      "traitKind": "setter",
+      "methodIndex": 5789,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "6285eba39275b602a53ab4d9a052c7057495b45e0eaa49516ff355a2fb0bdc03",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_IconButtonSkin_Image3",
+      "traitKind": "getter",
+      "methodIndex": 5790,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5678916f6d93e70abe04564c392da9d828227699c807be0e928f865f31f63dd8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_IconButtonSkin_Image3",
+      "traitKind": "setter",
+      "methodIndex": 5791,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "78e317522ba3a2ae02c73e7bfe40d38fb314ee3fad2a7f9d9821b078d4ebef4c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_IconButtonSkin_Image4",
+      "traitKind": "getter",
+      "methodIndex": 5792,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "96ec0527b055d6dc3290e4e9e70d6d54ed099ec1f3047efbe8764d81e673a0e9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_IconButtonSkin_Image4",
+      "traitKind": "setter",
+      "methodIndex": 5793,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "93258eefeb9ddf70af36782a60e1f6cfdf4dd49b9d32a4f33b9d0f5bdfd800bd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.skins.buttons:IconButtonSkin.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 5778,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 198,
+      "bytecode": {
+        "codeLength": 198,
+        "codeSha256": "267c78174ff1b8cbb3b61e19a34a9c293dab98a14f4d0ac83163b8473361204b",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 5802,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.IconButton",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "33fa8bcce8b39de2bf7d0c34f41bc3cd8eb7b8daef2e3e948dea4c8217875788",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 5803,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.IconButton"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "3779ae62069fc57af88e16f5ae9ab7ca9d17c9bfcc205f754d50121d98a5b918",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 5777,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 5776,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "695e2f09df221363ba4c2e6ed9c39c74da06b641848f58cbe6d5b3fef05aeb44",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconButtonSkin_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 5787,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "834767dd6d303af14c9f0503afe99a71238546fe5ed716ef718aee136ebecbf7",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconButtonSkin_Image1_i",
+      "traitKind": "method",
+      "methodIndex": 5779,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "ee9ecf7cfc3f9f7aa70b1b3e1e5f7dcb9965d6170d27867c462c8de02459ebe3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconButtonSkin_Image2_i",
+      "traitKind": "method",
+      "methodIndex": 5780,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "660052e97b6e8581437b08d978378688d2e5c46c9e212e6d330f217ea2f8ea19",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconButtonSkin_Image3_i",
+      "traitKind": "method",
+      "methodIndex": 5781,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "613735349a7116b1126f67b459d9ac8c4ff6adf47178135b8c1f6266bd175c08",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconButtonSkin_Image4_i",
+      "traitKind": "method",
+      "methodIndex": 5782,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "a0d91c1b378da3f6cd77abde349955f83ae3e1daab58643e8d84f0a3976f378c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.disabledImage",
+      "traitKind": "getter",
+      "methodIndex": 5800,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5263b736c1fec6ced6c98ef9d97ce51fdcfcdee8fdb46400120a23a36ce77a5b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.disabledImage",
+      "traitKind": "setter",
+      "methodIndex": 5801,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0d34a2911bb0bec1ff261d76d417a065c3859c46738694518e3c3420dc5ae23a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.downImage",
+      "traitKind": "getter",
+      "methodIndex": 5796,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4d78b34bfc79b171d53e032d3e79f78c4e7b1b26c13ea7aa212a7f85248b3eb2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.downImage",
+      "traitKind": "setter",
+      "methodIndex": 5797,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "b8b98f3a3125f6b0fa854bffdd27e5612c65833afb942aceff23fc8f06f5fbdb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.overImage",
+      "traitKind": "getter",
+      "methodIndex": 5798,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9640e71101cf8c19a2c64a653ece03742a1e75bbf62921050076d3aed8345490",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.overImage",
+      "traitKind": "setter",
+      "methodIndex": 5799,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "1f3e57186e1fbe518f6f81909db2711417e9006d324bedb85bbc618e0353c2f4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.upImage",
+      "traitKind": "getter",
+      "methodIndex": 5794,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1d6b5af07e365e847b8d72c5b657756b4ad7ac56c316f2bbefeaab1a7ff43bae",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.upImage",
+      "traitKind": "setter",
+      "methodIndex": 5795,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4d95c0bf76c553e74804d1cd8727f7bd701ac020fbf4845ba14e54734f35b7a9",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 5772,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "b77c711d461d3998dc661e55f68bb703ed30d002821358f4590c199dd9038240",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

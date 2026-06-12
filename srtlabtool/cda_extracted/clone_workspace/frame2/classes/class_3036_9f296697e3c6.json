@@ -1,0 +1,304 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3036,
+  "className": "com.diagnosticProcedures.DiagnosticProcedureBundleLoader",
+  "classNameNormalized": "com.diagnosticProcedures.DiagnosticProcedureBundleLoader",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher",
+    "com.diagnosticProcedures.util.ILogging",
+    "com.diagnosticProcedures.IDiagnosticProcedureBundle"
+  ],
+  "iinitMethod": 48629,
+  "cinitMethod": 48627,
+  "iinitBytecode": {
+    "codeLength": 129,
+    "codeSha256": "b28764646c47858cbee06bd0e2b3f77d5e9fa99b4b30502b5cc0e0966f0eb370",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 48637,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "2e0e62b497e3159789fd8769fa65d7a7bfb533d37d56e0bbb527fa410accaae6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:DiagnosticProcedureBundleLoader.bundleHandler",
+      "traitKind": "getter",
+      "methodIndex": 48643,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.bundle.IBundleAssetHandler",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3abca1482e68571f9d1273b470bc193899de5c6aaf47d8841fe06b3e107c1171",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.bundleHandlerFactory",
+      "traitKind": "setter",
+      "methodIndex": 48644,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.bundle.BundleAssetHandlerFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "3f43f973cfd6a67aa7963f4a2da171c9a8ee0daed4bad0ef68a2189d11a6d02d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "containsResource",
+      "traitKind": "method",
+      "methodIndex": 48634,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "31db84ffed83b32127827e73b977952d646a9575eacb3f4e7e40a5f2aeb2e342",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "diagnostic",
+      "traitKind": "getter",
+      "methodIndex": 48632,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "5ab929a1763ef2113c98fbc38eacbceed5b36ab98091cfda2d177194d13ab0ce",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 48639,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4b1719dcf90258ffd4f3678e2daa5a6a4b2f7f3f468e55f950eae9c6f1ad9f20",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getResource",
+      "traitKind": "method",
+      "methodIndex": 48635,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "7d6c2099b8f0f81a8e1d8c55090c0b4572101e5c7644626e325440830ee8880a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getResourceBytes",
+      "traitKind": "method",
+      "methodIndex": 48636,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "03489985ad98ee5be6512cda7f495ec0c88b2a589f303f5d1b675430c8bb1c68",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 48640,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "2f79cdc9b4b8fbd23e4e54ff2177ea07310c89b8945bfb5547d534680d51aabe",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "javascript",
+      "traitKind": "getter",
+      "methodIndex": 48631,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "7963b6b3e52b53fc89efcf7abbee8576f18789582f3144e26c429bacc8c38bfd",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "logger",
+      "traitKind": "getter",
+      "methodIndex": 48642,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "13ef446663fc28adc180e3cf833f5f5cf91ed5bc969b66a1bc2a19817c9fed87",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "name",
+      "traitKind": "getter",
+      "methodIndex": 48630,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a15c9f616abfb6c2d88ae93711fecf40a507aef37405897c1507ef5b833adb0c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 48638,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "504b5705cfcfa1315c35421dc13980300dff651901e11871907716ebe6ca106b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resources",
+      "traitKind": "getter",
+      "methodIndex": 48633,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "c97f727c5644ab825adfd7abdce4fa428dcc21e29eeffc94c2c1c7aaa508b157",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 48641,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "46fa5637b2f15b52ed8a17e5de7b9f011906152fde0bac4b90d67c78c18eb8c4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createBundle",
+      "traitKind": "method",
+      "methodIndex": 48628,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "com.diagnosticProcedures.IDiagnosticProcedureBundle",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "f06a7770fd62872ca13cd6225e24f56ada4a1dd34c4762355ee3c15c834f8cb7",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,236 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1004,
+  "className": "com.chrysler.cda.presentation.component.ecuconfig.popover.ECUConfigErrorPopoverImpl",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.ecuconfig.popover.ECUConfigErrorPopoverImpl",
+  "superName": "com.chrysler.cda.presentation.component.ecuconfig.popover.ECUConfigErrorPopover",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.ecuconfig.popover.ECUConfigErrorPopover",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 21324,
+  "cinitMethod": 21320,
+  "iinitBytecode": {
+    "codeLength": 380,
+    "codeSha256": "b0c34945f62c3eeafc4b8f647254b174c2e3336682fe86aa8439e92b5d9938d3",
+    "bytecodeLineCount": 24
+  },
+  "cinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "f63e7d4205b16e38668bb98e9a9d660cd407557b8a8ac04622a839bd1b303751",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___ECUConfigErrorPopoverImpl_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 21331,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "6da3218b6d8305d653022ebf30858c9e3b6c6599867fc00a003c2719fb3a2f34",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.ecuconfig.popover:ECUConfigErrorPopoverImpl.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 21341,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "93cacc892c93fd1d767641354a4f2a44317ab8748fa02ffe4c64c5df269d7dc7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 21327,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 21326,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "435d06f18861b1b87ae2515d2c63d0c33f9780c268600e41cee2dfa774500856",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigErrorPopoverImpl_Array2_c",
+      "traitKind": "method",
+      "methodIndex": 21332,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "51b163f64ca45f75809150e57bb5eb02017b2fffe419c4f36ff07c223910b03b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigErrorPopoverImpl_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 21340,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "dfd3dcfd88ff33f7fdeb1a76bb4b553ef1886e62871b7d0e1c4b788c93410d7f",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigErrorPopoverImpl_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 21330,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "8ab08e7f4a1fbe9fd4de216a1a9aea0959604b01a05e3f600116101d3ae80742",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigErrorPopoverImpl_ConfigureTag1_i",
+      "traitKind": "method",
+      "methodIndex": 21328,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.flex.tag.view.ConfigureTag",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "e6538c907a529a9fdee9ef4cf9028cc08c2ac50248d0d2f86efbe2c9e0e09403",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigErrorPopoverImpl_RichEditableText1_i",
+      "traitKind": "method",
+      "methodIndex": 21333,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "2864ae2164ef72ae2fb956fd7398681885b1be3f700b3d1c76720ba2174c9a0c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigErrorPopoverImpl_RichEditableText2_i",
+      "traitKind": "method",
+      "methodIndex": 21335,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "365c97cf3a4d11ea10f66195d94535e43d0ef24d1e9c340f94d60a730f662606",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigErrorPopoverImpl_Scroller1_c",
+      "traitKind": "method",
+      "methodIndex": 21334,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "ec6ff1a8a45e9b90920e78032f666eda96e159a2ab5975f94a029a0a5b52eb03",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigErrorPopoverImpl_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 21329,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "77768197b34676c159fb7fd388756d485d170886f1c82743afc6934749938681",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 21321,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "46b078621e6b6529030ae5f884e96c2d314cf9707c48643c844f5d8b6f17db7c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

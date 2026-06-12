@@ -1,0 +1,112 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2222,
+  "className": "com.chrysler.cda.domain.diagnostic.procedures.CDADiagnosticProcedureService",
+  "classNameNormalized": "com.chrysler.cda.domain.diagnostic.procedures.CDADiagnosticProcedureService",
+  "superName": "wde.common.services.impl.RestfulService",
+  "superNameNormalized": "wde.common.services.impl.RestfulService",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 39987,
+  "cinitMethod": 39985,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "9130f270304c0f3724d961cfa2ffe80423c65d196c4625cdc350d6bb0fcc2aa6",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.domain.diagnostic.procedures:CDADiagnosticProcedureService.createRequest",
+      "traitKind": "method",
+      "methodIndex": 39990,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.net.URLRequest",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "818e41ef10828cad9ed5fb88f6065faf009f88e23e830b8021ef9f7806a08235",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.createArgument",
+      "traitKind": "method",
+      "methodIndex": 39991,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "wde.common.services.IServiceArgument",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "bde271d0729ac3392efcc2948a5474bd7ef4d0e376eed6fa0627e0b6d278fb6e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 39989,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "165e2312fd629c1fafb6a3daf2f573181873fb3ddd42484fdf3619cb7d949209",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "serviceURI",
+      "traitKind": "setter",
+      "methodIndex": 39988,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "01a1721d593e786671a5ef3aff3402af439740c265a12c5a782c2aa47be7a379",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "uom",
+      "traitKind": "getter",
+      "methodIndex": 39986,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "066e1cb877074c8db8691d7182610caddfb9dad6ab88239bb57b12facc38454c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

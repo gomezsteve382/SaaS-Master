@@ -1,0 +1,156 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1047,
+  "className": "com.chrysler.cda.application.diagnostic.flash.GetFlashStatusCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.flash.GetFlashStatusCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 22574,
+  "cinitMethod": 22566,
+  "iinitBytecode": {
+    "codeLength": 22,
+    "codeSha256": "10e712d4deea6442f6bd5e4d5c7f7067b9ad171bcf84adec353321b4df4e8429",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "c569b25b12f9136bdb8545c4a91a4f2dc822aee7f766bd20ea6626d8b82c72b6",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onGetFlashStatus",
+      "traitKind": "method",
+      "methodIndex": 22570,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.flash.GetFlashStatusMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "e010f23f8f2f52801d82cc76a3cb4f602764fdd49ecb2eb7d9f3c787a9807025",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onGetFlashStatusError",
+      "traitKind": "method",
+      "methodIndex": 22573,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.flash.GetFlashStatusMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "2b2b12b2fcbbdc11c59ccef8e8b8b9abb949593e36f987089a4cf2dc097aeb16",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onGetFlashStatusResult",
+      "traitKind": "method",
+      "methodIndex": 22572,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.flash.GetFlashStatusMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "2b20f02daf1e9030eec4b4689f3ea85af57bb3bf6c7e02141cfb96e29b07eaaa",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onGetFlashStatusResultIntercept",
+      "traitKind": "method",
+      "methodIndex": 22571,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.flash.GetFlashStatusMessage",
+        "org.spicefactory.parsley.core.messaging.MessageProcessor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "3392e2ba9849857301a6bd945a3cbde7acb006d4029cedb1b6f5abf11eb8dc72",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onStartFlashStatus",
+      "traitKind": "method",
+      "methodIndex": 22568,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.flash.StartFlashStatusMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "111643d8409273162c20f9a67592a86a0e174c0329a46f958bd3a084b8f6c5df",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onStopFlashStatus",
+      "traitKind": "method",
+      "methodIndex": 22569,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.flash.StopFlashStatusMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "6bd4a8e0fb7018ccde2bcb7e53b67283c5460fb9ccd5306ecf7fec46358c9d0f",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.flashIsComplete",
+      "traitKind": "method",
+      "methodIndex": 22567,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5dd75b501bef35c364eb8455ab237df1b3596444912d7021e72b3271e3dc80dc",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

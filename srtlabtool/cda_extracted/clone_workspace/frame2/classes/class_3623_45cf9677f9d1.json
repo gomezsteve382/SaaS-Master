@@ -1,0 +1,341 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3623,
+  "className": "org.httpclient.HttpSocket",
+  "classNameNormalized": "org.httpclient.HttpSocket",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54401,
+  "cinitMethod": 54400,
+  "iinitBytecode": {
+    "codeLength": 46,
+    "codeSha256": "03e6c3d2d2811cb84edcd7fbd1cc4dac096114874cb0a211e9dbc039a1dc115d",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 36,
+    "codeSha256": "6f446efdb811649a225b5405eb26b61ef327e18a0e49748afbe9300d22faaf4d",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "close",
+      "traitKind": "method",
+      "methodIndex": 54404,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "a401b9e1133ab9896284623251a250ee71955f6ff4271025d44b76511d476f37",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "getDefaultPort",
+      "traitKind": "method",
+      "methodIndex": 54403,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "0c94f4eedaeb7fec99fc65bb7b2ceff6abe4191983c3fc88215ff194e6e32cd8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "org.httpclient:HttpSocket.connect",
+      "traitKind": "method",
+      "methodIndex": 54407,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 163,
+      "bytecode": {
+        "codeLength": 163,
+        "codeSha256": "d6c00c5420cd24d7a0d70edf309d6ba17b5b942222b62a9b8b69f34c77c3994b",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "org.httpclient:HttpSocket.connectProxy",
+      "traitKind": "method",
+      "methodIndex": 54411,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "org.httpclient.HttpRequest"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 221,
+      "bytecode": {
+        "codeLength": 221,
+        "codeSha256": "9c2e28f7d219cc2a63bfdc8a75d15489329089a86681a3084ac8aea6ff1e8dee",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "org.httpclient:HttpSocket.createSocket",
+      "traitKind": "method",
+      "methodIndex": 54402,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 154,
+      "bytecode": {
+        "codeLength": 154,
+        "codeSha256": "54a977cefdae8d5aa043817949c60ad0ded3f650a14c71ad6a98b1f8318075bb",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "org.httpclient:HttpSocket.sendRequest",
+      "traitKind": "method",
+      "methodIndex": 54412,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "org.httpclient.HttpRequest"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 296,
+      "bytecode": {
+        "codeLength": 296,
+        "codeSha256": "3e82bfa6b6f1a6efb86e37daf0244e4fbf45d3f640526bc35fedb3aa88309417",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "PrivateNs.onClose",
+      "traitKind": "method",
+      "methodIndex": 54421,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "15c3aa61d4fbcfe8092f94dcd9a3464846837ab9ca94bbe15ff5605f27c0552a",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.onComplete",
+      "traitKind": "method",
+      "methodIndex": 54418,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.HttpResponse"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "904d26b36be8283468cce12dedb74b74d977ea4296c78a0c71b2f60326783199",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.onConnect",
+      "traitKind": "method",
+      "methodIndex": 54420,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "337b7ec15909ef72056854307d30ac20667fb15a171ca6c4ee9c119be39d4274",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.onIOError",
+      "traitKind": "method",
+      "methodIndex": 54422,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "6ca0e54d6c22566f1a24e85efcdbd6c9d36d40947a55af20e59dcbc91cfa12dd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.onRequestComplete",
+      "traitKind": "method",
+      "methodIndex": 54415,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.HttpRequest",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "21dc1c5f186f2baa3a2fba9a1d7b6faf53c878c23f0a1041f8695e55e22d6a37",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.onResponseComplete",
+      "traitKind": "method",
+      "methodIndex": 54414,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.HttpResponse"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "d8d465c842ba869ebbaa780ec580f689cb31fa727dd4523dd718d28094751d50",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.onResponseData",
+      "traitKind": "method",
+      "methodIndex": 54417,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "d67673984013381c32baab51711c636c539a9fb0ee671c2cbfc34aad2ccd4707",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.onResponseHeader",
+      "traitKind": "method",
+      "methodIndex": 54416,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.HttpResponse"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "87364f4237eb9ce26113ffc997be766d2cca95f1ba91eca2314b137c46edf08d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.onSecurityError",
+      "traitKind": "method",
+      "methodIndex": 54423,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SecurityErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "6ca0e54d6c22566f1a24e85efcdbd6c9d36d40947a55af20e59dcbc91cfa12dd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.onSocketData",
+      "traitKind": "method",
+      "methodIndex": 54413,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 202,
+      "bytecode": {
+        "codeLength": 202,
+        "codeSha256": "63b44573ca72d1e893f838641eaa2b009576c62646f9ddd9bcd47f2dba8ff967",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.onTimeout",
+      "traitKind": "method",
+      "methodIndex": 54419,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "96e4d90d4d1d620493d84e7a166410f6d69197bb6e134ea8b89e1b6e4044a6f4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "request",
+      "traitKind": "method",
+      "methodIndex": 54406,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "org.httpclient.HttpRequest"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "8ea133c473f6dab864bd58d034ddbceac7b2e32f5af18325872fa85dbc6b6381",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

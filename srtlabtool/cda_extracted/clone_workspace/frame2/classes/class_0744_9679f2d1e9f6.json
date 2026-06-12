@@ -1,0 +1,563 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 744,
+  "className": "com.chrysler.cda.presentation.component.DesktopPM",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.DesktopPM",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 14470,
+  "cinitMethod": 14437,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "60ffc1c79d07dd21c9fd866c5c194c2a524938734c94cbdc31e683a7e80b61f7",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addPopup",
+      "traitKind": "method",
+      "methodIndex": 14466,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.CDAPopupWindowMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "ac9f837d2d73dd18008dbd81cafe0bb8d42f9d97b8193cab51a6bd6d1cd99bf5",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "addWindow",
+      "traitKind": "method",
+      "methodIndex": 14440,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.CDAWindowMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 526,
+      "bytecode": {
+        "codeLength": 526,
+        "codeSha256": "c51fafaa2b6a423cecd7376f36d8a8b8756f23c4c11ad6bbe28cc34c6e358bbf",
+        "bytecodeLineCount": 33
+      }
+    },
+    {
+      "traitName": "addWindowIntercepter",
+      "traitKind": "method",
+      "methodIndex": 14439,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.CDAWindowMessage",
+        "org.spicefactory.parsley.core.messaging.MessageProcessor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "8d96f32dfa57e81da57957f7657b361f33f08777b037f5802fcc57c33cb8d688",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component:DesktopPM.getDepth",
+      "traitKind": "method",
+      "methodIndex": 14469,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "34026a6ea5431766c82ae2f00babf45bdca25eab5dd5b2558090836ce2d4cd58",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "disableOtherViews",
+      "traitKind": "method",
+      "methodIndex": 14463,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "0b6f601fccde472dc00718007d201b0e78922641b0f5d45682ea4bd97e06a503",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "enableOtherViews",
+      "traitKind": "method",
+      "methodIndex": 14464,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "cfa02aa9ec07dd4ab5560275e5f641ce90bd81bc2f40e349122c7c9e7dee30ff",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "endOfSession",
+      "traitKind": "method",
+      "methodIndex": 14451,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.EndOfSessionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "af8f0828926ac2941e2b2553f225c09c595e174cac851a7f49cabe8a24fe1e3a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getAllAbstractWindows",
+      "traitKind": "method",
+      "methodIndex": 14468,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "4af9f140aff9bef8c94bd8e934e1c5e55bda3231d94690c672295d6f08c4f790",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "hideTopMostVisibleWindow",
+      "traitKind": "method",
+      "methodIndex": 14449,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.CDAWindowMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "1dc3e9734eba02f0bc7e7c17879fc4beb6aa358e13a637649d15827c4b43278a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 14438,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.Desktop"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "391a01a7bd38f00f9dab02bc9acb77699e222fe070f6bc4d63f881504a8556dd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.anyOtherWindowsModal",
+      "traitKind": "method",
+      "methodIndex": 14465,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "412286d8b36f6903ef3dff23581f6ebe4ef69fa1f98e80728620a970a31ec897",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.bringWindowToFront",
+      "traitKind": "method",
+      "methodIndex": 14455,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 188,
+      "bytecode": {
+        "codeLength": 188,
+        "codeSha256": "631c633aef067f3353182c6d385dc1e383c6bcdb2f3243552c701b8798b2baee",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkForCustomizations",
+      "traitKind": "method",
+      "methodIndex": 14441,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.AbstractWindow",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "f3e2e379da4c5dd36a70dbd5487f834625dcd67213f24e3069355d57b0b9cdf9",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.findWindow",
+      "traitKind": "method",
+      "methodIndex": 14454,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.AbstractWindow",
+        "Array"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "4c1abd4a030dc59e618ca0ace659a70a1a621d868aa12b2ae21e4a06be1e7230",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.getAbstractWindowWithStartingName",
+      "traitKind": "method",
+      "methodIndex": 14462,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.chrysler.core.window.AbstractWindow",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "4e1e7bd83e43d26a7d4ce7c1c3eb564be59e91a8d0843351c8a2e4b98eb07687",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getNumElements",
+      "traitKind": "method",
+      "methodIndex": 14452,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "43eca375d1a451fa626ee964cb8aae04d064ccfcb39f81219845eb41b0c221ed",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.getNumVisibleWindows",
+      "traitKind": "method",
+      "methodIndex": 14459,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "d867614f8b3e1bbede9e3cd6ff376a3d09b85c474fdcb7e90e2fe5cea261ce21",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getTopVisibleWindow",
+      "traitKind": "method",
+      "methodIndex": 14460,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.window.AbstractWindow",
+      "hasBody": true,
+      "codeLength": 181,
+      "bytecode": {
+        "codeLength": 181,
+        "codeSha256": "a7d6fba510d5370c596a9b7ff9302fe87fdaef4a000e910d530d67d80bd6c86f",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.getTopWindow",
+      "traitKind": "method",
+      "methodIndex": 14453,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.window.AbstractWindow",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "cc6de137a2012d540e7bdf223c6c1aaee5c918d3b5b12ca7590d2cf3c4344499",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.hideAllWindows",
+      "traitKind": "method",
+      "methodIndex": 14458,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "a87890c65a23ec5683444b5c5758d8882df039e6d77ca28979e950e19a54e80c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.hideWindow",
+      "traitKind": "method",
+      "methodIndex": 14457,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "6d7105f5195014a77d1a9eaaaea5d42965a59464b1e247ed92f85360b2a251e5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.iterateOverChildren",
+      "traitKind": "method",
+      "methodIndex": 14461,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "99087b27c8c81559c64e4c4f92bf04e818d06c92dfa53b3c37681a8d06e671ec",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.showWindow",
+      "traitKind": "method",
+      "methodIndex": 14456,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "19c1ec5b389dcd7a47972678625d2ce21c0911e76c14c47c11e023ae04608590",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.windowToFrontWorker",
+      "traitKind": "method",
+      "methodIndex": 14444,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "37d712e446bc13ce8d9e7acdc7409eefb1ffed4e4edb163da51bd1cebb8fde74",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeWindow",
+      "traitKind": "method",
+      "methodIndex": 14442,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.event.WindowEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "b78da3604168a39dfd7f03a42f2b3f0fe6e6ff196e5e8b72846891b19a331a3b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "resetFocusToApplication",
+      "traitKind": "method",
+      "methodIndex": 14450,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.MenuMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "4494db5e72393e6710743d967b65a681452638b34ca2bcc4d14417bc98438492",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showPopup",
+      "traitKind": "method",
+      "methodIndex": 14467,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.CDAPopupWindowMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "378ec19122e16e8cc595978e4d8859dbcb63f22fc6aa589a058178d35c23f2f2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "windowCloseAll",
+      "traitKind": "method",
+      "methodIndex": 14448,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.CDAWindowMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "4a6cb310b6f11397768185438309fc61a940c4e95cb3aa3c7abb564f7ab95b14",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "windowCollapse",
+      "traitKind": "method",
+      "methodIndex": 14445,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.CDAWindowMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "12f155269cea026c33daf23f2020644dd05c1f90b234acc5fb4c89ef94d51b14",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "windowMaximize",
+      "traitKind": "method",
+      "methodIndex": 14446,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.CDAWindowMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "c4b4062de8d4f3070d3fd8778aba7eec6de051d9b99f80bee4ed55d29bf07177",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "windowRestore",
+      "traitKind": "method",
+      "methodIndex": 14447,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.CDAWindowMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "813636048579a8be547bf69b63eb39c1dbf43bbee94d9f5bf3c760cc7a31129b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "windowToFront",
+      "traitKind": "method",
+      "methodIndex": 14443,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.event.WindowEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "d78686f04f5189f997ab6bad040a080928e4a2f8f912d78f24ede9d5a9184a0a",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

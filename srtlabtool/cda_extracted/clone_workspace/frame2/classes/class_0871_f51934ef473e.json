@@ -1,0 +1,140 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 871,
+  "className": "com.chrysler.cda.presentation.util.SystemNotificationManager",
+  "classNameNormalized": "com.chrysler.cda.presentation.util.SystemNotificationManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 17348,
+  "cinitMethod": 17339,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 84,
+    "codeSha256": "7486b2a2c0742e33f9b0a24bec82f28c507d008dc942a8a584ab316dcbc6e2c4",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addSystemNotification",
+      "traitKind": "method",
+      "methodIndex": 17343,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.SystemNotification"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "96e1118bd360991bb300b9eb0c5cbae226483255c64f9011719010a67b1c838e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:SystemNotificationManager.packageView",
+      "traitKind": "method",
+      "methodIndex": 17347,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.SystemNotification",
+        "String",
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "17a6483b46523a30d990f71a363e37107442a48a5f8c31fd0ec0031fabe50a11",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:SystemNotificationManager.removeSystemNotificationFromLog",
+      "traitKind": "method",
+      "methodIndex": 17346,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.SystemNotificationEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "f103e07bf547b27c2a598adb7ad0c5c3640f0d49e37e155f3d14f2dc8e29439c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:SystemNotificationManager.removeSystemNotificationHandler",
+      "traitKind": "method",
+      "methodIndex": 17345,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.SystemNotificationEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "974e6efee52d312b6b643219c198b0c70236e18601969c19466f91c66c7395dd",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "createSystemNotification",
+      "traitKind": "method",
+      "methodIndex": 17342,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean",
+        "Object"
+      ],
+      "returnType": "com.chrysler.core.component.SystemNotification",
+      "hasBody": true,
+      "codeLength": 868,
+      "bytecode": {
+        "codeLength": 868,
+        "codeSha256": "23acdb51ef371fa1041b67de22aecde33c9c068ac2ced626dc2d04c4bebe5d8f",
+        "bytecodeLineCount": 55
+      }
+    },
+    {
+      "traitName": "logSystemNotification",
+      "traitKind": "method",
+      "methodIndex": 17344,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.SystemNotification"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "26a1f1a6b09c397f0d045f116f19249249111f0d6cdd0c465af48dcb8e85cc6d",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

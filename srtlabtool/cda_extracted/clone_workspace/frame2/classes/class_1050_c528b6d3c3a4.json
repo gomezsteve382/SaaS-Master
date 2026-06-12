@@ -1,0 +1,192 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1050,
+  "className": "com.chrysler.cda.application.help.GetVRFlashVersionCommand",
+  "classNameNormalized": "com.chrysler.cda.application.help.GetVRFlashVersionCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 22599,
+  "cinitMethod": 22589,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "a749e9ae4792fd2f6bba000b4f9cf9c25515ef5372165c8d1df2efbf537ea9f4",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "cb5ee0a0bcf6ef605c106c434a107243572c296a8286d4fab349df713a3b31f1",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 22594,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "1e6d300f7be66c4ef40ac45edd3c8afbcc9bc38459ca9112dba17ae543aa1345",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 22595,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "2214527ca7d23f421bef2af23ab87a769780571ac63682359e0ca63bcdbdf46b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 22596,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "fae8e575225bc3bb63c8499eb0a28f5c2debba7890f51863c28380bd1dfcdf7a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onGetVersion",
+      "traitKind": "method",
+      "methodIndex": 22590,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.help.GetVRFlashVersionMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "f6049461273c9ef989bd3f03d084b910b60d45b713b479f945cc65efd0ad71ce",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onResult",
+      "traitKind": "method",
+      "methodIndex": 22591,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.help.GetVRFlashVersionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "4c1a40c39a64f0651d22a0da516b85baa2e1c7b3b32c07c9c84da3e788fbdda8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 22597,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "595cd9153157d61dcc889e52f31b7b6adecbeb0f62ccb632bded7eb51c44adf7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "versionInformationPM",
+      "traitKind": "getter",
+      "methodIndex": 22592,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.help.VersionInformationPM",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b3b055ab3215ab4f6f18b3190eb868098b8a323808869289c87a58eebed476ef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "versionInformationPM",
+      "traitKind": "setter",
+      "methodIndex": 22593,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.help.VersionInformationPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "e8ef05592a06309e8542a7d9f70ee6fa0aedfc210539d74e144d01accfd444d3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 22598,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "ae86ef6b8ab2b331864f6ea257f3eba6395fc12395bb065f58387c6d49b8626f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

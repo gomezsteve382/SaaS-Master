@@ -1,0 +1,924 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 798,
+  "className": "com.chrysler.cda.presentation.component.help.LicenseInformation",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.help.LicenseInformation",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 15485,
+  "cinitMethod": 15481,
+  "iinitBytecode": {
+    "codeLength": 398,
+    "codeSha256": "d676bfb0551232daf5a9fc17e787809a624ab53a830bbf2bd2002cbef74c7f13",
+    "bytecodeLineCount": 25
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "b8e88c95a22b35b98805387807f96b7db980a651742dce4a2a7953afc9965fa8",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___LicenseInformation_AbstractWindow1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 15532,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "2ac68444d141e8e7ccd58257ecb9adb7737ac0d9d0d0a6f8d813acd67d5f3945",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.help:LicenseInformation.creationCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 15489,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "aba371a408388de057410b764d7870f9aa3065a93fcbbc4fd105982ab3c6ae38",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.help:LicenseInformation.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 15558,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "354949009830d0292fce9fcc2963a23735672e58bca2524923a98ebd1b5a13f9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostId",
+      "traitKind": "getter",
+      "methodIndex": 15559,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "269c62482d791d8909b50ac1b98ed302089ab15003df14df1924509d95c0eb66",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostId",
+      "traitKind": "setter",
+      "methodIndex": 15560,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RichEditableText"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "ab699f1d84857e6af7a3db3aa2a5d07ed61d410b7a974192f87470ecb188ecce",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 15563,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0cd4a3d706c259ae7bc817b31418466dc4a974b90a192785d9c416d0eb5c0108",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 15564,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0c2eead92500c39078018efdf9b7a0f4b09e6d0357824851eadafa0811e3b3df",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 15487,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 15486,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "a578f8b8d824a37eb18f9d14035ea41e0304b868185960208374f5cf042c4d43",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onGetHostIdQResult",
+      "traitKind": "method",
+      "methodIndex": 15488,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.license.GetHOSTIDMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "05e5d18e2c0e6d326da472e75de3cb1bf80c2ba6bd9a954f0f732de2a6fe67d3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 15491,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "e070e8f15be17319ba06bb541c9db16ebb26437afa8004aa2d808bae4fa6c031",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 15557,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 595,
+      "bytecode": {
+        "codeLength": 595,
+        "codeSha256": "3638d0d5467fb18de7c97ad3687233af90992b5895bb0ee759bf3d7071932868",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement1_c",
+      "traitKind": "method",
+      "methodIndex": 15500,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement10_c",
+      "traitKind": "method",
+      "methodIndex": 15520,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement11_c",
+      "traitKind": "method",
+      "methodIndex": 15523,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement12_c",
+      "traitKind": "method",
+      "methodIndex": 15526,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement13_c",
+      "traitKind": "method",
+      "methodIndex": 15529,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement2_c",
+      "traitKind": "method",
+      "methodIndex": 15502,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement3_c",
+      "traitKind": "method",
+      "methodIndex": 15504,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement4_c",
+      "traitKind": "method",
+      "methodIndex": 15506,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement5_c",
+      "traitKind": "method",
+      "methodIndex": 15508,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement6_c",
+      "traitKind": "method",
+      "methodIndex": 15510,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement7_c",
+      "traitKind": "method",
+      "methodIndex": 15512,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement8_c",
+      "traitKind": "method",
+      "methodIndex": 15514,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_BreakElement9_c",
+      "traitKind": "method",
+      "methodIndex": 15517,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BreakElement",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4d0b0b4dfa622c21c66d70564f19772afe185910d7dd05d8cdc6b98a706b0a86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement1_i",
+      "traitKind": "method",
+      "methodIndex": 15497,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "9c7000989c4f0aff802830561db4c378941431efc54bd57f922b90ac18be0547",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement10_i",
+      "traitKind": "method",
+      "methodIndex": 15513,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "e127acd382195b47b1bf4057a9f2b124d7d06a257bc2d970286320cb571bae4e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement11_i",
+      "traitKind": "method",
+      "methodIndex": 15515,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "80073ce87579ccca7b987a13ab587684a7162e19c991ac0decb1efd4ecf15e85",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement12_i",
+      "traitKind": "method",
+      "methodIndex": 15516,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "9eaffe5150b7e2dc9c096a411efccf601a0ac865cf44c0e4fda61c6e614f458f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement13_i",
+      "traitKind": "method",
+      "methodIndex": 15518,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "14b96a1aaf77cba36e0ea615a2bc6ced8236c0498e488226fb586f3b928fe0ad",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement14_i",
+      "traitKind": "method",
+      "methodIndex": 15519,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "d3cae90a74df2da40bb3a69a52171a66c62ce0a7f3bee0e493adbab4d2066d76",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement15_i",
+      "traitKind": "method",
+      "methodIndex": 15521,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "3056c159faa56d5df8f7a4b16f91a97ff29802b9992dd27e5876f87e89a83770",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement16_i",
+      "traitKind": "method",
+      "methodIndex": 15522,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "addd70e147f7dae621a6162be9237a2a37ae0468459a00e7c7dddb76331a6c08",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement17_i",
+      "traitKind": "method",
+      "methodIndex": 15524,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "fe9286a3cd5ed9e42625ffb507036e2a847e75fe45d3750a12cfc5c83bad9d0c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement18_i",
+      "traitKind": "method",
+      "methodIndex": 15525,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "f9a59df14c70a5382563aa8f045425616d117546ddcec81ef4027bbd6c9a6d27",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement19_i",
+      "traitKind": "method",
+      "methodIndex": 15527,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "ce2c4a6fe980ff460dd966b19aa3d9b7fb1a0afeda255652676e57c7e8bf87b9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement2_i",
+      "traitKind": "method",
+      "methodIndex": 15498,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "412df401a17f4c04688c26a51ed3c328064c92bebdba61524a2bd3f2fc643e74",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement20_i",
+      "traitKind": "method",
+      "methodIndex": 15528,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "a7f3d90bd2a13157e2d1d2f6cd845e9bf0e87caf5cb98112201fa8fb52d30b5f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement21_i",
+      "traitKind": "method",
+      "methodIndex": 15530,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "60d2dd588f6b4b0ece1ed62356a4ee6ece1009d1e3d11fff70aeb7ade5c00866",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement22_i",
+      "traitKind": "method",
+      "methodIndex": 15531,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "7a1aafc2e33e6f517871c9f4f1bac9127c498ee381b44e8c7936ddcbcbd5b07b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement3_i",
+      "traitKind": "method",
+      "methodIndex": 15499,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "2b19a22d4e10268b4dbd172519581a2f6034db529d030f4cf677e86cd79abf77",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement4_i",
+      "traitKind": "method",
+      "methodIndex": 15501,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "cf5f9e7b0753d8db24528ab742b6628a565f9d3f7b5cdd14c3fea7fd04d60db0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement5_i",
+      "traitKind": "method",
+      "methodIndex": 15503,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "14bcf76f9ce4b95ce5a0f589484a608eaf71f88364b28d5533f5aa1fe34cee7c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement6_i",
+      "traitKind": "method",
+      "methodIndex": 15505,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "f82e72cda08c1b03a1732f4abc60d5287d7e6ae94a5a864df870baacc2e5fb9c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement7_i",
+      "traitKind": "method",
+      "methodIndex": 15507,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "25038e87017117c14aefa1a72dcd27adb326fe2e7aa7bdbe25f55463846ec85b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement8_i",
+      "traitKind": "method",
+      "methodIndex": 15509,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "3f394df03774b975250c4cb7564f604361084e833726286b4cf2c443afd03ee6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_ParagraphElement9_i",
+      "traitKind": "method",
+      "methodIndex": 15511,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "0c66871073740a811d85a8d7844519d21be10eac39e05d4eac0e151df9e0517c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_RichEditableText1_i",
+      "traitKind": "method",
+      "methodIndex": 15492,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "5ecdc7922dbb0ef23ef41a72a5de0afe56e346a56ac61fd8ade91357bd39f2f1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_RichEditableText2_i",
+      "traitKind": "method",
+      "methodIndex": 15493,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "babdb47d397bf2523b7cfa0fde9ac3608876564ebf53a43e55434893b6c91330",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_RichEditableText3_c",
+      "traitKind": "method",
+      "methodIndex": 15495,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "39c3945f572245dec4734de6d6d9bc00eb30b111e35e7797b7cc876b75aa863d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_Scroller1_c",
+      "traitKind": "method",
+      "methodIndex": 15494,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "48d7de2dfdea9e65f76d312cb0ad794debeb17a05898a616d0853bf7f388a399",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_TextFlow1_c",
+      "traitKind": "method",
+      "methodIndex": 15496,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.TextFlow",
+      "hasBody": true,
+      "codeLength": 347,
+      "bytecode": {
+        "codeLength": 347,
+        "codeSha256": "1be92732cc6a9a47e204c23fe121c085fbd1c40b8207a8a5926525afb17bee5b",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "PrivateNs._LicenseInformation_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 15490,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "856740634431526cb8cc9899d92d386e3544807575645da0a00be40b4d16d015",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "registrationPM",
+      "traitKind": "getter",
+      "methodIndex": 15565,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.registration.RegistrationPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "457c4b49730ded753da64de5ade67789f85c8527a5ed70a3a9916b0ec83a1670",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "registrationPM",
+      "traitKind": "setter",
+      "methodIndex": 15566,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.registration.RegistrationPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9e644960dc3bbb1e63ac77df812da42d17ea1bf9ee5e27ae77c387e7376b22bc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "username",
+      "traitKind": "getter",
+      "methodIndex": 15561,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "444dcb5e4b0f7949d2c1dcc202b08f2bb49080091a8e97ed96ea3cf6d42bd8c2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "username",
+      "traitKind": "setter",
+      "methodIndex": 15562,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RichEditableText"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e44e8efde925c3e3686e1085a27b3f995b872b3fda1b710f9e57630012e646c1",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 15482,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "8f359849038f75ffc2cda47030fdcaaf2506aacfb9267e6956561852adac3490",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

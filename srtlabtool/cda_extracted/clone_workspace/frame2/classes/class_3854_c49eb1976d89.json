@@ -1,0 +1,102 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3854,
+  "className": "com.hurlant.util.der.DER",
+  "classNameNormalized": "com.hurlant.util.der.DER",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56672,
+  "cinitMethod": 56667,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "526cfabd0b6c82934b69d352b74e58690298aa8303c294b244ec4ad5629019f5",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "parse",
+      "traitKind": "method",
+      "methodIndex": 56668,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "*"
+      ],
+      "returnType": "com.hurlant.util.der.IAsn1Type",
+      "hasBody": true,
+      "codeLength": 1365,
+      "bytecode": {
+        "codeLength": 1365,
+        "codeSha256": "c8fa4765d0d1c92aeb50969b7a279d7a08e4a52c4e8dc442a31f7296d0e714e6",
+        "bytecodeLineCount": 86
+      }
+    },
+    {
+      "traitName": "PrivateNs.getLengthOfNextElement",
+      "traitKind": "method",
+      "methodIndex": 56669,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "881c9fd9f1dd0eb395471b50e2e37de05819c66136961e53663e0256478f1a11",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.isConstructedType",
+      "traitKind": "method",
+      "methodIndex": 56670,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "a842dd72efec5786214dff9c3be2a6553f91006fcc35d642351f2bf4cdda94f8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "wrapDER",
+      "traitKind": "method",
+      "methodIndex": 56671,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 249,
+      "bytecode": {
+        "codeLength": 249,
+        "codeSha256": "dc2d84960caf56d02951b824dd668ae54cacfeb0dce35d5d4e00403b8c769530",
+        "bytecodeLineCount": 16
+      }
+    }
+  ]
+}

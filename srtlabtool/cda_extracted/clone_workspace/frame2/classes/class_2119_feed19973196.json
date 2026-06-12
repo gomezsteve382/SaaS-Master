@@ -1,0 +1,81 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2119,
+  "className": "com.chrysler.cda.event.message.view.EngineeringFilesMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.view.EngineeringFilesMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 38656,
+  "cinitMethod": 38654,
+  "iinitBytecode": {
+    "codeLength": 16,
+    "codeSha256": "93f0f75af505a17fda3084c01fe9b29d3e2c085ff18c4759bed229fbd5ad0dd0",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "56327f0cc18aa1c3a26d7138039811952bc36b950b79a4fc72d5df3c1f060873",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "acronym",
+      "traitKind": "getter",
+      "methodIndex": 38658,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "903ced242025c98ca496942701c33fd53fc8b63c9da7744440fdbc3034877df0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "getter",
+      "methodIndex": 38657,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "1f32ed8551d38003771f4ac7e60ad143b2ff606745a563cad6af886f61b7e288",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "factory",
+      "traitKind": "method",
+      "methodIndex": 38655,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.event.message.view.EngineeringFilesMessage",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "43f67efdc53ef58404c3b3f954205e267fa71913bcbe1227a62ca90a49086cc3",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

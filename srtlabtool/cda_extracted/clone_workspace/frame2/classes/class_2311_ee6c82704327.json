@@ -1,0 +1,92 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2311,
+  "className": "com.chrysler.cda.event.message.report.GetDtcComponentQualificationDataForScanReportMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.report.GetDtcComponentQualificationDataForScanReportMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "dtc",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 40852,
+  "cinitMethod": 40847,
+  "iinitBytecode": {
+    "codeLength": 31,
+    "codeSha256": "228848102caad57e34e32034ac41dfc59843aa3a3d72fa64311906b6f2d4b2a1",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 40848,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "223ebc15ca39b4f0e614d9114a70a90c8c6fb3783612271735e53af1cac64a2d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "originalResult",
+      "traitKind": "getter",
+      "methodIndex": 40850,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "589aed46df840e0c247614b46263550472ff952e3ebda7824066fcb90ff066de",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "qualSetIds",
+      "traitKind": "getter",
+      "methodIndex": 40849,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b7744249ccd781efa42f0195946eecf0a2d8fa6801e2b0a9ce1196430e984feb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "token",
+      "traitKind": "getter",
+      "methodIndex": 40851,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ae66fcfb7e0f779622046dd7561633d41174764b678240c67ea944762a72c5b8",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

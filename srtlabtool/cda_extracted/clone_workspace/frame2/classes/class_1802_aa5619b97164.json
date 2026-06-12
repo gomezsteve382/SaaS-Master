@@ -1,0 +1,329 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1802,
+  "className": "flashx.textLayout.edit.IMEClient",
+  "classNameNormalized": "flashx.textLayout.edit.IMEClient",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.text.ime.IIMEClient"
+  ],
+  "iinitMethod": 34605,
+  "cinitMethod": 34604,
+  "iinitBytecode": {
+    "codeLength": 153,
+    "codeSha256": "223a8f0dbe9694cc2e22445a8ef0e6d183ec0c56759ac27bd6beef549e5a4b1c",
+    "bytecodeLineCount": 10
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "compositionAbandoned",
+      "traitKind": "method",
+      "methodIndex": 34613,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "4b23284d000e4096392860bb4ce05a6a372a4a6e16a7035161229b0ee6d038ef",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "compositionEndIndex",
+      "traitKind": "getter",
+      "methodIndex": 34617,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "93132aed8bd69ff913996f6905f7d2d39a5446c3413425d59e189dac8b49da91",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "compositionStartIndex",
+      "traitKind": "getter",
+      "methodIndex": 34616,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f8c697fdc7e4f2c923c9fcc39b6e82a292283dcccae93f3d4061ab624f92b5b4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "confirmComposition",
+      "traitKind": "method",
+      "methodIndex": 34612,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "57f8e85fd2d165ac0512f56709935e051d0968058b46eee89bf121599d2b2baa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getTextBounds",
+      "traitKind": "method",
+      "methodIndex": 34615,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 488,
+      "bytecode": {
+        "codeLength": 488,
+        "codeSha256": "dcd08459c8762f5b468cf6cd16449c24f3ccf79c647f5d1ba6c9d49d1b04f7af",
+        "bytecodeLineCount": 31
+      }
+    },
+    {
+      "traitName": "getTextInRange",
+      "traitKind": "method",
+      "methodIndex": 34623,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 99,
+      "bytecode": {
+        "codeLength": 99,
+        "codeSha256": "b0155eddabf2b7001ecaa44b7010a53ca6f067a4ffa3ca5d80e1ebbad031beb1",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.deleteIMEText",
+      "traitKind": "method",
+      "methodIndex": 34609,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "56205986f7faa971e4dcd2c206da0eb3e469a8f33028f0b45cc18fd1872da29a",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.doIMEClauseOperation",
+      "traitKind": "method",
+      "methodIndex": 34607,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "998415472ca690e956e11ecb77b115deded7aed7e808b4248ccedbecd0790a54",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.doIMEStatusOperation",
+      "traitKind": "method",
+      "methodIndex": 34608,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState",
+        "flash.text.ime.CompositionAttributeRange"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 195,
+      "bytecode": {
+        "codeLength": 195,
+        "codeSha256": "c08d2b8e2838280783a8bf8c86b7474f568230fdd9032028aaf8ed995f40c5f3",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.endIMESession",
+      "traitKind": "method",
+      "methodIndex": 34614,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "0000fba37aa08c7c81b77e549cb6bb8f61df1446fb1d6786941e963e99dc495c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.rollBackIMEChanges",
+      "traitKind": "method",
+      "methodIndex": 34610,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 155,
+      "bytecode": {
+        "codeLength": 155,
+        "codeSha256": "b1a0739323c4a74716abc8998135cc0c00ee1da4cc85c17c707c89ea2e8aee0e",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "selectionActiveIndex",
+      "traitKind": "getter",
+      "methodIndex": 34619,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "8af6101e5c075394eb16eb4d28b8163e32ce2c71a92e3d992c76be0730b42c52",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selectionAnchorIndex",
+      "traitKind": "getter",
+      "methodIndex": 34620,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "c4a09f0047f5a9ee2f65c4bb435dd5e259c977df1df6b5570157f85331957114",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selectionChanged",
+      "traitKind": "method",
+      "methodIndex": 34606,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "bb9b9fe6c5f027daecc0a052166cb91fd6c658f0a3d640a86915784e571a0921",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "selectRange",
+      "traitKind": "method",
+      "methodIndex": 34621,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "1aba37afdb5c9265e950f1f9238c4d24387135c5b30ba475effe45fed108dc79",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setFocus",
+      "traitKind": "method",
+      "methodIndex": 34622,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "e370817be6d1a2df1f742419b7cd9db0809a5c6493637a397ea96c9e69b4f34b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "updateComposition",
+      "traitKind": "method",
+      "methodIndex": 34611,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "__AS3__.vec.Vector<flash.text.ime.CompositionAttributeRange>",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 474,
+      "bytecode": {
+        "codeLength": 474,
+        "codeSha256": "8c585fa0c1d65fead95d80ff2b316b3c06da31b6be78a9aacb06d2a6a1813ae6",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "verticalTextLayout",
+      "traitKind": "getter",
+      "methodIndex": 34618,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "2335d281b2fbfbe09faf3ceabc8048856a5fc7570cfa91a8a36a0d833915bcfa",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

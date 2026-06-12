@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2969,
+  "className": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportProcessorCSVImpl",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportProcessorCSVImpl",
+  "superName": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportProcessor",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportProcessor",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.reports.customdisplay.ICustomDisplayReportProcessor"
+  ],
+  "iinitMethod": 47698,
+  "cinitMethod": 47697,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports.customdisplay.extractXMLData",
+      "traitKind": "method",
+      "methodIndex": 47701,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "601a5edf9a5d375e7817ed1012a688de8d5612116863f8dca985b124cd9ce59e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getCustomDisplayReports",
+      "traitKind": "method",
+      "methodIndex": 47699,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "2247712b865546fe9e80d513562560be4e7bd4ac56c5b5444dafdcf64485f003",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "processFile",
+      "traitKind": "method",
+      "methodIndex": 47700,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "53f4339ff1bbbbd7550bd39432df96db0e771dcd04bc4b361f92d6ddebca26c4",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

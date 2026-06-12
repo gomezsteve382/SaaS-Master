@@ -1,0 +1,474 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 492,
+  "className": "mx.managers.CursorManagerImpl",
+  "classNameNormalized": "mx.managers.CursorManagerImpl",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.ICursorManager"
+  ],
+  "iinitMethod": 9856,
+  "cinitMethod": 9854,
+  "iinitBytecode": {
+    "codeLength": 143,
+    "codeSha256": "ff66ac732e85ba1e70e8bb1fbd2397f42b4bf72230ec3b57849601d5ae053f0b",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "currentCursorID",
+      "traitKind": "getter",
+      "methodIndex": 9857,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c0adb7513c13f6dab9d22beef9f1f35350a70fdc148adb270fe3d8f9bc6a2839",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentCursorID",
+      "traitKind": "setter",
+      "methodIndex": 9858,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "097978b78fda73adf61bf9955b0ee7061d1b58ca573560cc9263a4c2e827ce5c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "currentCursorXOffset",
+      "traitKind": "getter",
+      "methodIndex": 9859,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3161186a721a5431ae560ecc7e2661e81e9a69589eeda66add489e4ab3a9ef24",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentCursorXOffset",
+      "traitKind": "setter",
+      "methodIndex": 9860,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "da27dc4c76b3e60dc908205327a64909160bfb26e50daca51096f4dbd393df6f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "currentCursorYOffset",
+      "traitKind": "getter",
+      "methodIndex": 9861,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "67416a51a728eb7b80ede0c70f25050b2f93e6d7351bce4de19da3ad1bce66ca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentCursorYOffset",
+      "traitKind": "setter",
+      "methodIndex": 9862,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "0310084e6b830a5d660fcb0a24335bcc84e3b320979956352d72528141a02fc8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "hideCursor",
+      "traitKind": "method",
+      "methodIndex": 9864,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "52c84e5e911475f162f63ad8c51da5e0dbaa0b63fcf71d0a02497abf7c4eeb4f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.mouseMoveHandler",
+      "traitKind": "method",
+      "methodIndex": 9880,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 303,
+      "bytecode": {
+        "codeLength": 303,
+        "codeSha256": "a803ec251e8d84217eedcbce9e315384f2bf0d4eb6c20985449dd885f6a4aa74",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.mouseOutHandler",
+      "traitKind": "method",
+      "methodIndex": 9879,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "9bf023279f6aa9a0b471505d2be3163dccc6db2118fb63645720c2f5cb773ebf",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.addContextMenuHandlers",
+      "traitKind": "method",
+      "methodIndex": 9872,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "4891e27a65a0be138a8766788f8eaea9b18334fd63694890c4e9656569df698e",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.completeHandler",
+      "traitKind": "method",
+      "methodIndex": 9882,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "c07813fe3e72f8d9a066374707e22acc38b74360e0a7febb26c202cba6eca927",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.contextMenu_menuSelectHandler",
+      "traitKind": "method",
+      "methodIndex": 9876,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ContextMenuEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "4d7ec5c0e85be3a20e59c9272df1639e23609e8d43367b04329aa85341d85cc1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.findSource",
+      "traitKind": "method",
+      "methodIndex": 9878,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "4e844dec31f0fe26b0945aa702d213921e5979d84c5c8a6f7c2cc75f7ab3992a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseOverHandler",
+      "traitKind": "method",
+      "methodIndex": 9877,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "764d70f3ffcc7aa1f14992c2e5bb50e044e658ceac0a84a2376a4235c171824f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.priorityCompare",
+      "traitKind": "method",
+      "methodIndex": 9866,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.CursorQueueItem",
+        "PrivateNs.CursorQueueItem"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "e7cab91beb8c4255bddff45c62b9f6d9a90ee5425866ea3f04bbff7da33e766e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.progressHandler",
+      "traitKind": "method",
+      "methodIndex": 9881,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "b11e9413e676698406eac4b5368fa7e8c4c8bc240bd352b39c181d87559a84c6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeContextMenuHandlers",
+      "traitKind": "method",
+      "methodIndex": 9873,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "7022eabd6e9e6b83207b3f010d4f8a40973c4c6dfa85d9a2cfc119b4b2af497f",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.showCurrentCursor",
+      "traitKind": "method",
+      "methodIndex": 9871,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1017,
+      "bytecode": {
+        "codeLength": 1017,
+        "codeSha256": "a0edab06b26b3487daa79e2f3bd95e9aa93e6aa9ddc97e556480eefa168a3516",
+        "bytecodeLineCount": 64
+      }
+    },
+    {
+      "traitName": "registerToUseBusyCursor",
+      "traitKind": "method",
+      "methodIndex": 9874,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 109,
+      "bytecode": {
+        "codeLength": 109,
+        "codeSha256": "187aa0766d4b06b380cdbf201c334ba92574bc8914e2219e5257d37a9259b01d",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "removeAllCursors",
+      "traitKind": "method",
+      "methodIndex": 9868,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "90bbb6d30c1aafcb1679c3507c2cfd1153bd94499c4b0fe00be387c75227f145",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeBusyCursor",
+      "traitKind": "method",
+      "methodIndex": 9870,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "022b864075a1d684f0216f7c52608c317f464fbdc8670fe30680a7a29a2aba88",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "removeCursor",
+      "traitKind": "method",
+      "methodIndex": 9867,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 129,
+      "bytecode": {
+        "codeLength": 129,
+        "codeSha256": "5f6b244396f81b13430843198cbf3c12e525b5877e2531509a842b7d90cb9846",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "setBusyCursor",
+      "traitKind": "method",
+      "methodIndex": 9869,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "b5043ed8d13a6c79ea132883118c230c1907cb39217a819ce6ca518e7ac5a348",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "setCursor",
+      "traitKind": "method",
+      "methodIndex": 9865,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "int",
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 209,
+      "bytecode": {
+        "codeLength": 209,
+        "codeSha256": "9dc8e5f58a236fec645dcce31cbbd2c811cd730ea2c533c896d6208ca2e446cf",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "showCursor",
+      "traitKind": "method",
+      "methodIndex": 9863,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "84df55cd9c72c140ebcf1214c1f41d0d99ae5420256dd08513a340af621334a5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "unRegisterToUseBusyCursor",
+      "traitKind": "method",
+      "methodIndex": 9875,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 109,
+      "bytecode": {
+        "codeLength": 109,
+        "codeSha256": "5f03c9e29c0e1b7426118834aafcec6914069ff1fbb59e20c946a82e3c257975",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 9855,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.ICursorManager",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "2302be2413ab7cd8c976074c119ae9418980aaaf1e1a60f505ba97740ea9c648",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

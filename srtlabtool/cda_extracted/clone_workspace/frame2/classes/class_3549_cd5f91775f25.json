@@ -1,0 +1,143 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3549,
+  "className": "mx.collections.DefaultSummaryCalculator",
+  "classNameNormalized": "mx.collections.DefaultSummaryCalculator",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.collections.ISummaryCalculator"
+  ],
+  "iinitMethod": 53440,
+  "cinitMethod": 53433,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "calculateSummary",
+      "traitKind": "method",
+      "methodIndex": 53435,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.collections.SummaryField2",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 544,
+      "bytecode": {
+        "codeLength": 544,
+        "codeSha256": "07015bd59fcb4ebe2451a401b129726a0c7b36c4215cf7edda13d9dcf0be6e82",
+        "bytecodeLineCount": 34
+      }
+    },
+    {
+      "traitName": "calculateSummaryOfSummary",
+      "traitKind": "method",
+      "methodIndex": 53438,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "mx.collections.SummaryField2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 467,
+      "bytecode": {
+        "codeLength": 467,
+        "codeSha256": "7180805307093827924f02c3332de3c1e8573483d114574e428b7c1a1a6ddc48",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "returnSummary",
+      "traitKind": "method",
+      "methodIndex": 53436,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.collections.SummaryField2"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 208,
+      "bytecode": {
+        "codeLength": 208,
+        "codeSha256": "c4971280c764a22edcce14a42044aa02fd66950489e0d6caedf5afded288765b",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "returnSummaryOfSummary",
+      "traitKind": "method",
+      "methodIndex": 53439,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.collections.SummaryField2"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 208,
+      "bytecode": {
+        "codeLength": 208,
+        "codeSha256": "c4971280c764a22edcce14a42044aa02fd66950489e0d6caedf5afded288765b",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "summaryCalculationBegin",
+      "traitKind": "method",
+      "methodIndex": 53434,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.SummaryField2"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 248,
+      "bytecode": {
+        "codeLength": 248,
+        "codeSha256": "0c18540be6c56891f5c5cb6c76b73ccd19acbe0a28c5f329e133316cab37622f",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "summaryOfSummaryCalculationBegin",
+      "traitKind": "method",
+      "methodIndex": 53437,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.collections.SummaryField2"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "7f7df4d714649f19341e871d6fe47aa3080ca4e3af550b9a4c6faa6c185a8a13",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

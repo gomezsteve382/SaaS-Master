@@ -1,0 +1,444 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 394,
+  "className": "mx.utils.ObjectUtil",
+  "classNameNormalized": "mx.utils.ObjectUtil",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 8277,
+  "cinitMethod": 8254,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 53,
+    "codeSha256": "d339729ff5a77fb8b87b06c55d10f30e94297f8aff3c87a03419d8502894fab1",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 8257,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "3416acabbc6a53573340ca038c04e08b2b403f7b9b47b430b99e5dc810ff97fd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "compare",
+      "traitKind": "method",
+      "methodIndex": 8255,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "62fa68460f5f813ad9e2d21c85114672fe72b5dd09220d8188be0e78fed3dad8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "copy",
+      "traitKind": "method",
+      "methodIndex": 8256,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "669226d7c76b1ed8e9963831015282a034612644417b7aab954c2f3e1e4cc05e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "dateCompare",
+      "traitKind": "method",
+      "methodIndex": 8262,
+      "methodName": "",
+      "paramTypes": [
+        "Date",
+        "Date"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "dd97d2971bdd43fd69bbc45fd3e8d1dcd0c6d1e40a8fb5283177e205c6242e63",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getClassInfo",
+      "traitKind": "method",
+      "methodIndex": 8267,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Array",
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 2054,
+      "bytecode": {
+        "codeLength": 2054,
+        "codeSha256": "a8c0d54b05ff554806edb41825ff7c0fd3d5afaa21f524599119416062a83434",
+        "bytecodeLineCount": 129
+      }
+    },
+    {
+      "traitName": "hasMetadata",
+      "traitKind": "method",
+      "methodIndex": 8268,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "String",
+        "Array",
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "a61fa7cc9d0ef30bb23ef8b8aa4a3de14638b46b48edd58dbff9656cd5ac69ce",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isDynamicObject",
+      "traitKind": "method",
+      "methodIndex": 8269,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "9b3526a8a11c0aa43386448ad0c953a848bc83d9fe2229fcda98bdf5621eb3ee",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isSimple",
+      "traitKind": "method",
+      "methodIndex": 8259,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 131,
+      "bytecode": {
+        "codeLength": 131,
+        "codeSha256": "2edbb378cb206a5e85d16474f89d8f284895e50bed01b1a6cc2d36e4f42fa24e",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "numericCompare",
+      "traitKind": "method",
+      "methodIndex": 8260,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "51d2b726d19ba7dd40cb7179283305a0ee115256b2b68e906f4907b0e1119ce4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.arrayCompare",
+      "traitKind": "method",
+      "methodIndex": 8273,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array",
+        "int",
+        "int",
+        "flash.utils.Dictionary"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 195,
+      "bytecode": {
+        "codeLength": 195,
+        "codeSha256": "97af841920b34957da466a25e08d74bf5ad0584265e25f82528644258893c653",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.byteArrayCompare",
+      "traitKind": "method",
+      "methodIndex": 8274,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "ed3c487c41ac7aef7a69cf6c5f5e965f24a8d1cc328e9581668b5aa861b9b6b9",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.cloneInternal",
+      "traitKind": "method",
+      "methodIndex": 8258,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "409bcc675cfcc9970dadb3bfea163cb46b2f56e5416a10dd647dd7c92b8f6aa3",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.getCacheKey",
+      "traitKind": "method",
+      "methodIndex": 8272,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Array",
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 167,
+      "bytecode": {
+        "codeLength": 167,
+        "codeSha256": "ae71b7b6ab028d3bdc8ba74758727fcb5760c0d9b3b9860e1ce8f702dd148656",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.getRef",
+      "traitKind": "method",
+      "methodIndex": 8276,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "flash.utils.Dictionary"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "37e549028519b1d29c9997f6a309f83c0c28f85e58cadbcc2a03b9f5f220e87d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.internalCompare",
+      "traitKind": "method",
+      "methodIndex": 8266,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "int",
+        "int",
+        "flash.utils.Dictionary"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 904,
+      "bytecode": {
+        "codeLength": 904,
+        "codeSha256": "dfec6e6144e65f0715f09df3d0400aecd54e929bcbedbe72bdeaad8bb4c03179",
+        "bytecodeLineCount": 57
+      }
+    },
+    {
+      "traitName": "PrivateNs.internalHasMetadata",
+      "traitKind": "method",
+      "methodIndex": 8270,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "2edd5e0a0218c6c7184f495be6ee0e03326934748590e296e8bc40fd023cd238",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.internalToString",
+      "traitKind": "method",
+      "methodIndex": 8264,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "int",
+        "flash.utils.Dictionary",
+        "Array",
+        "Array"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 1028,
+      "bytecode": {
+        "codeLength": 1028,
+        "codeSha256": "4e9843cc388739e080fdfdc1e374037bbd204ed4e4c96d1a6a4046546d4fb017",
+        "bytecodeLineCount": 65
+      }
+    },
+    {
+      "traitName": "PrivateNs.listCompare",
+      "traitKind": "method",
+      "methodIndex": 8275,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.IList",
+        "mx.collections.IList",
+        "int",
+        "int",
+        "flash.utils.Dictionary"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 122,
+      "bytecode": {
+        "codeLength": 122,
+        "codeSha256": "d732a2261dc134db39db993b1011f3eb5d27dea96805d7eceea68854f1425e3d",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.newline",
+      "traitKind": "method",
+      "methodIndex": 8265,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "e4caa12709162660a70fd571ec3157fe1d2a9a3e63b9ac95cedc8cdc3031d6a5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.recordMetadata",
+      "traitKind": "method",
+      "methodIndex": 8271,
+      "methodName": "",
+      "paramTypes": [
+        "XMLList"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 437,
+      "bytecode": {
+        "codeLength": 437,
+        "codeSha256": "a4ae0fa202c297311b0284e2505c5150d653c220602b6e15e81b636fd9c2023c",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "stringCompare",
+      "traitKind": "method",
+      "methodIndex": 8261,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "f4348943869e4cbbe0b064c4687d5972c8269af6b7a148b51205fa48b1edb64a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 8263,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Array",
+        "Array"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "a5afd750ff81202e07669d437d3407c03f66ee06a56efdd8a2cb1e35d0f2bcab",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

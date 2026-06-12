@@ -1,0 +1,56 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2878,
+  "className": "org.spicefactory.parsley.core.messaging.command.CommandFactoryRegistry",
+  "classNameNormalized": "org.spicefactory.parsley.core.messaging.command.CommandFactoryRegistry",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 46963,
+  "cinitMethod": 46960,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging.command:CommandFactoryRegistry.addCommandFactory",
+      "traitKind": "method",
+      "methodIndex": 46962,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "org.spicefactory.parsley.core.messaging.command.CommandFactory"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging.command:CommandFactoryRegistry.getCommandFactory",
+      "traitKind": "method",
+      "methodIndex": 46961,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "org.spicefactory.parsley.core.context.LookupStatus"
+      ],
+      "returnType": "org.spicefactory.parsley.core.messaging.command.CommandFactory",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

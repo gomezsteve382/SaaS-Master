@@ -1,0 +1,76 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3806,
+  "className": "mx.rpc.soap.types.RowSetType",
+  "classNameNormalized": "mx.rpc.soap.types.RowSetType",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.rpc.soap.types.ICustomSOAPType"
+  ],
+  "iinitMethod": 56293,
+  "cinitMethod": 56292,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decode",
+      "traitKind": "method",
+      "methodIndex": 56295,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.SOAPDecoder",
+        "*",
+        "*",
+        "*",
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 467,
+      "bytecode": {
+        "codeLength": 467,
+        "codeSha256": "10af4b432371ccb1289b3f0917b8d90186f0def9b6c1e3aa7f2a679184a6275b",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "encode",
+      "traitKind": "method",
+      "methodIndex": 56294,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.SOAPEncoder",
+        "XML",
+        "QName",
+        "*",
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "6161c6469e87898a49239da2860eb893a3246c59d89e86e5dcf4e240e63bffde",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

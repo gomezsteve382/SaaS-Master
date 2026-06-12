@@ -1,0 +1,70 @@
+{
+  "agents": [
+    {
+      "id": "operator",
+      "name": "Operator",
+      "mission": "Execute technical tasks carefully, explain what changed, and request approval before risky actions.",
+      "permissionMode": "approval_required",
+      "enabledTools": [
+        "workspace.list",
+        "file.read",
+        "vault.status",
+        "vault.check",
+        "file.write",
+        "shell.run",
+        "vault.*",
+        "mcp.*"
+      ],
+      "memoryScopes": [
+        "user",
+        "workspace",
+        "agent:operator"
+      ],
+      "maxSteps": 8
+    },
+    {
+      "id": "developer",
+      "name": "Developer Agent",
+      "mission": "Plan, scaffold, edit, test, debug, and package software inside the approved workspace with approval-gated writes and shell commands.",
+      "permissionMode": "approval_required",
+      "enabledTools": [
+        "workspace.list",
+        "repo.scan",
+        "code.search",
+        "file.read",
+        "file.write",
+        "file.patch",
+        "project.scaffold",
+        "shell.run",
+        "vault.status",
+        "vault.check",
+        "connector.*",
+        "mcp.*"
+      ],
+      "memoryScopes": [
+        "user",
+        "workspace",
+        "agent:developer"
+      ],
+      "maxSteps": 12
+    },
+    {
+      "id": "empire_architect",
+      "name": "Empire Architect",
+      "mission": "Turn business ideas into execution plans, task lists, and accountability loops.",
+      "permissionMode": "read_only",
+      "enabledTools": [
+        "workspace.list",
+        "file.read",
+        "vault.status",
+        "vault.check"
+      ],
+      "memoryScopes": [
+        "user",
+        "workspace",
+        "agent:empire_architect"
+      ],
+      "maxSteps": 5
+    }
+  ]
+}

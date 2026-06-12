@@ -1,0 +1,66 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 901,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.iocontrol.SendActuatorStateCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.iocontrol.SendActuatorStateCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 18048,
+  "cinitMethod": 18045,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "f16d4044c4d8c2becc0de158a612eb5d1bf302ef50a78679471bd5fda72f1454",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onSendActuatorStateMessage",
+      "traitKind": "method",
+      "methodIndex": 18046,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.iocontrol.SendActuatorStateMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "eeed31926ca6c419ab6a0fb0115e2aab05703ad6b59e1b155ae01f6f9e5c1e42",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "produceInformationAsString",
+      "traitKind": "method",
+      "methodIndex": 18047,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f309cd4cc2f5e42521dba1f06a52dfc4e48fa9be1e77cdb010c9dfc6274539e4",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

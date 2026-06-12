@@ -1,0 +1,653 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1132,
+  "className": "com.chrysler.cda.domain.UserPrincipal",
+  "classNameNormalized": "com.chrysler.cda.domain.UserPrincipal",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 24847,
+  "cinitMethod": 24805,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "c87b462ee9d684c8ba7ee07baf782c9a575bfae3cc60db58ca53d43c035169d5",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "e21392dbaced5a36f320462e8f42c9f788e92261364b3e60bb106ae16b58b62a",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "checkCredentialsAgainstSyncConfig",
+      "traitKind": "method",
+      "methodIndex": 24816,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 173,
+      "bytecode": {
+        "codeLength": 173,
+        "codeSha256": "ea65eab9472055e1e2356c879e938a1ce0af1f8c388ba3533c65cf7a62f3f8b5",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.domain:UserPrincipal.cancelClicked",
+      "traitKind": "method",
+      "methodIndex": 24838,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.CloseEvent",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "da293f7a106ed1d0f9b8858fdc3f15374bd33155c537c9110b77bd9d9563bb91",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.domain:UserPrincipal.okClicked",
+      "traitKind": "method",
+      "methodIndex": 24837,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "3ea6bd8a2738953543e05282f9514fb13ec71239c742e6eca54762d8ab273c3b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.domain.buildUserProperties",
+      "traitKind": "method",
+      "methodIndex": 24843,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "com.chrysler.core.infrastructure.Cryptographer"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 480,
+      "bytecode": {
+        "codeLength": 480,
+        "codeSha256": "3c0a89d03e762465596f0dc82c2602cfcc92a4675202ccd5fe5bc3da3d217b26",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.domain.readProperties",
+      "traitKind": "method",
+      "methodIndex": 24842,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "com.chrysler.core.infrastructure.Cryptographer"
+      ],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 152,
+      "bytecode": {
+        "codeLength": 152,
+        "codeSha256": "a2db6ace0008d66cd98292278b35d67605a6c2f1e94601f8d0586641d6d64919",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "dcAuthToken",
+      "traitKind": "getter",
+      "methodIndex": 24821,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1342182a5704d034aac738fd6d4c6b105d16c3b000642098fe63a4f25bfda5c1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dcAuthToken",
+      "traitKind": "setter",
+      "methodIndex": 24822,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "5a2e3ee7d6773fb786d6c41af24f71dc54fd2c9b3892f4e995171fb7a09af2e4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dealerCode",
+      "traitKind": "getter",
+      "methodIndex": 24807,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cada33d8b52438da4a2970ccc79f9b563092b87f71156dc1a140fe97a3a57463",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dealerCode",
+      "traitKind": "setter",
+      "methodIndex": 24806,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a4fe3a76b5edca7422e0d743b0d5242e22aad84cac221f214985269093db094b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dongleLDAP",
+      "traitKind": "getter",
+      "methodIndex": 24808,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "dbb7a45003a186e06f19f9d3c97ed138f63d5412b54458b028dfbe2de8a0d678",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dongleLDAP",
+      "traitKind": "setter",
+      "methodIndex": 24809,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "0a4da747773b42169c2aac07b217d78a0cfa0972a6f1dfe60d0d156cb6470077",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dongleOK",
+      "traitKind": "getter",
+      "methodIndex": 24814,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2f8f442d0769648960b20d4304e2c20348c7d3fb284c618a42bc1da7e01ab1f2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dongleOK",
+      "traitKind": "setter",
+      "methodIndex": 24815,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "4030c11ad5a92d71baa843c6ee18a0fb1a694276301b73d9fb3e5942dae70610",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "donglePassword",
+      "traitKind": "getter",
+      "methodIndex": 24812,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "df5ada2dfa4e387a6156ea7c921b1462e8bd96e67107e18e53e3c35ecd44750f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "donglePassword",
+      "traitKind": "setter",
+      "methodIndex": 24813,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a26347345a8275171304c5542a5cee346ba1f392f567e5c78fcf1f793125b964",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "donglePIN",
+      "traitKind": "getter",
+      "methodIndex": 24810,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b3e5444cd5746b6272c84020f846fcc36e4bb1b7c47194cd3f6dc7f0906b0a92",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "donglePIN",
+      "traitKind": "setter",
+      "methodIndex": 24811,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "3f1d56d37cbaf4569f030519654acd638d936ce2b284ab8907eb4a5f3ddc7636",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "findLastLicenseDate",
+      "traitKind": "method",
+      "methodIndex": 24846,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 279,
+      "bytecode": {
+        "codeLength": 279,
+        "codeSha256": "2e6f1d2cd4641c1badacd5aa16f7f2c3d49351db86642713ce1a7693db677f0e",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "getPasswortdEncrypted",
+      "traitKind": "method",
+      "methodIndex": 24819,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "85e5327be05522eacb4dd38c614e678e2274fe354eb820537fc0dbddddaad690",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getUsernameEncrypted",
+      "traitKind": "method",
+      "methodIndex": 24818,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "07932369284d01433b31bb22a1442233e12476072c73f6b7a6b732bfbef248d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasPassword",
+      "traitKind": "method",
+      "methodIndex": 24833,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "a29feb9b3460b659317f4d85364f85cc5476454474d120ec7e412b6fe14e2f6d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "invalidateLDAPToken",
+      "traitKind": "method",
+      "methodIndex": 24827,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "39bacba1a5336af142d48aa1b24a8aee179c613c8d888fbf2e51d6af6919784d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isLDAPTokenValid",
+      "traitKind": "method",
+      "methodIndex": 24828,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "24e51ce2ad5eacb5cf675415d3cc1230b998be3d6755bdc9740002a6d9aafaa5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "ldapUsername",
+      "traitKind": "getter",
+      "methodIndex": 24823,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6ea1b40c202e38972e474bc14a0ae3139d82e55b411f474b8479b41e8803e6c2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ldapUsername",
+      "traitKind": "setter",
+      "methodIndex": 24824,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "2d4468a6b1b2a3746b26fa49cd7505f9968f6a60a8610db39a8adafc73cc8abc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "password",
+      "traitKind": "getter",
+      "methodIndex": 24829,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "49d917ccb3614cb88f02fe60c2fd536698ae1a1f990d9b6fe1e1f2f1bed7eb63",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "password",
+      "traitKind": "setter",
+      "methodIndex": 24820,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "977dd6d9cd51b2673dbe7f7ba5db0fa46ecdcd4c0f7a6f85b3101b896244efae",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.encrypt",
+      "traitKind": "method",
+      "methodIndex": 24839,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 152,
+      "bytecode": {
+        "codeLength": 152,
+        "codeSha256": "db72fd4acfa31f1e7a1e2bfde3a1c6aab8f33c29d33d527c3fce858f4321fa0b",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.getCapabilityRequestFile",
+      "traitKind": "method",
+      "methodIndex": 24841,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.filesystem.File",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "e3977e305b1c1ee2711e12bb45135875a38d1304bed2f33ed84bb8e9e3e2cd81",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "promptForPassword",
+      "traitKind": "method",
+      "methodIndex": 24836,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 146,
+      "bytecode": {
+        "codeLength": 146,
+        "codeSha256": "bcb4b2eed777c50518f1742181cc9a4f1a46e01c26169a3c6edf37dde5f67a54",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "pullOffIndex",
+      "traitKind": "method",
+      "methodIndex": 24844,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "fa05c587d87af84b634ee6ab7e37f5cb8b9de3bf6244dda7811f783b26a32294",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "resetPassword",
+      "traitKind": "method",
+      "methodIndex": 24832,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f6d76e903db5bb13e4be52408dc9c03ce4ba7598d751895d96b9d1bffda418d9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "store",
+      "traitKind": "method",
+      "methodIndex": 24817,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 132,
+      "bytecode": {
+        "codeLength": 132,
+        "codeSha256": "0730041597523a69287eec2b9eb9ad09dcfd76cf9916128c2c9c6312d799ce85",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "storeLDAPLoginToken",
+      "traitKind": "method",
+      "methodIndex": 24826,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "038925ef3443f2b4fc87d23fa5f97820c87636d3d88ddf7a35c2ef03f70e1411",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "username",
+      "traitKind": "getter",
+      "methodIndex": 24830,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b45c8e673d2a386de5cb865f61dfce8cab0650b111bfafc8c682150d64847084",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "username",
+      "traitKind": "setter",
+      "methodIndex": 24831,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "39a9d94f20bb6253407b45ac1d8bdc760eedd4e342819efca25593976c3ce271",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "writeProperty",
+      "traitKind": "method",
+      "methodIndex": 24845,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "8b66d4101bb61f90464cf8596fb120b3af00413c553ffc39490eb68c252208b6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeSyncConfigFile",
+      "traitKind": "method",
+      "methodIndex": 24840,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 139,
+      "bytecode": {
+        "codeLength": 139,
+        "codeSha256": "786f70c675fa501c23bf2909c096cc8d2fe054e910d4f0351b60f972ddad122b",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": []
+}

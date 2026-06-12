@@ -1,0 +1,191 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2490,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.DTCSnapShotData",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.DTCSnapShotData",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.diagnostic.IQualSetId"
+  ],
+  "iinitMethod": 42944,
+  "cinitMethod": 42938,
+  "iinitBytecode": {
+    "codeLength": 57,
+    "codeSha256": "99877afe0a9af22c1a52441bc60c1dd5aad792bfe8d8c87f14338b95ca9ea7d8",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "error",
+      "traitKind": "getter",
+      "methodIndex": 42947,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8669348ae3085f63f81f4c67639a1f0ecae15333127396437fe1e5f6f08588cf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isError",
+      "traitKind": "getter",
+      "methodIndex": 42946,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "d34f201da176ae8d9d9f07df29a740ff958116fbc602e7a5d4543e5276a24de6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mitigatedErrors",
+      "traitKind": "getter",
+      "methodIndex": 42948,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a900d1a8ef906e23d5f019c5a5ad6e44be1530454a6ad91f1b509513042c8b23",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "partitionInformation",
+      "traitKind": "getter",
+      "methodIndex": 42949,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e2d57dcaea750d09bcd044c083ad758c4a7ef10aee4aeb67defa91e4f407f618",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "qualified",
+      "traitKind": "getter",
+      "methodIndex": 42943,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "140a5a864a8c754d9f38b53bfbd417703114f72027d67cf19565664f279bf32a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "qualified",
+      "traitKind": "setter",
+      "methodIndex": 42942,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "19e185244d382c7899343bc6147700b25e7b40996a773ed50534718e774b69a7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "qualSetId",
+      "traitKind": "getter",
+      "methodIndex": 42941,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0a3955c13cd11a32c16c081133ccb4cd63d22733430cd35714e8c1e68013a003",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "value",
+      "traitKind": "getter",
+      "methodIndex": 42945,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "1257b8ba3a1f74dbcecdba6b89e8e723a96d59da44e0f4078b00f24ca58d2ae7",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "dtcSnapShotDataMaker",
+      "traitKind": "method",
+      "methodIndex": 42939,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "49850274695bb7b5182a47ce69c464825a29854fefacff4095b27c5679e602bd",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "orderDTCSnapshotDataItemMap",
+      "traitKind": "method",
+      "methodIndex": 42940,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 278,
+      "bytecode": {
+        "codeLength": 278,
+        "codeSha256": "02bcdd56c13a32d8fc1658fd556d14b084155f7b1a9400da27fd74e2fa7f74cd",
+        "bytecodeLineCount": 18
+      }
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1870,
+  "className": "flashx.textLayout.conversion.TextLayoutExporter",
+  "classNameNormalized": "flashx.textLayout.conversion.TextLayoutExporter",
+  "superName": "flashx.textLayout.conversion.BaseTextLayoutExporter",
+  "superNameNormalized": "flashx.textLayout.conversion.BaseTextLayoutExporter",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 35346,
+  "cinitMethod": 35340,
+  "iinitBytecode": {
+    "codeLength": 26,
+    "codeSha256": "785bace299d784997c81d7f4b19953920f6b7102c8dabe49684f69763ec21d2c",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 52,
+    "codeSha256": "6dd73971432e741005d6d7bcf1486dc4c313c45bd8650805094594ef1139aa43",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [
+    {
+      "traitName": "flashx.textLayout.conversion:TextLayoutExporter.exportFlowElement",
+      "traitKind": "method",
+      "methodIndex": 35351,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowElement"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 149,
+      "bytecode": {
+        "codeLength": 149,
+        "codeSha256": "eefdb806fbbf770061425f6866bbc2fd5f29604977756603a98f6ea95fee1f5e",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.conversion:TextLayoutExporter.formatDescription",
+      "traitKind": "getter",
+      "methodIndex": 35352,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0d6c6dc7c4a0587418dccb94aa0122432cf4b494c9be72ff5ec2d8f541eb931b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.conversion:TextLayoutExporter.getSpanTextReplacementXML",
+      "traitKind": "method",
+      "methodIndex": 35348,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "5bd5472ce6d0b63eb2b90214936ad8ea36644eef1de362c694d1292e1dee32ab",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.conversion:TextLayoutExporter.spanTextReplacementRegex",
+      "traitKind": "getter",
+      "methodIndex": 35347,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "RegExp",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0de2d1fbaaad3903aa477a18a81c4f714554301259f3173688a1a4cb0f95632f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.createStylesFromDescription",
+      "traitKind": "method",
+      "methodIndex": 35349,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "Boolean",
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 268,
+      "bytecode": {
+        "codeLength": 268,
+        "codeSha256": "43846f4138f79650343b426d9007491f209bf74f23a5ebc29fb45c88656649bc",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.exportObjectAsTextLayoutFormat",
+      "traitKind": "method",
+      "methodIndex": 35350,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 212,
+      "bytecode": {
+        "codeLength": 212,
+        "codeSha256": "ea8a3406fa961ed6282afc5d50a84b1e4434dc8b7ada7dd39a9a47e7ace47a12",
+        "bytecodeLineCount": 14
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "exportDiv",
+      "traitKind": "method",
+      "methodIndex": 35343,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutExporter",
+        "flashx.textLayout.elements.DivElement"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "04ae45443ff9a24b164caf907aa7aee91334cd891b1a489e8d90b559ab766182",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "exportImage",
+      "traitKind": "method",
+      "methodIndex": 35341,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutExporter",
+        "flashx.textLayout.elements.InlineGraphicElement"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "bd0fd855e6a6cf5c876253e46da046d21b48a613d4496c570ecd7f6a4c46d648",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "exportLink",
+      "traitKind": "method",
+      "methodIndex": 35342,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutExporter",
+        "flashx.textLayout.elements.LinkElement"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "5a4d8306e8de6ae5e1484981fd06c7751b2fa9d257ecca64d218468f56a67f6e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "exportSPGE",
+      "traitKind": "method",
+      "methodIndex": 35344,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutExporter",
+        "flashx.textLayout.elements.SubParagraphGroupElement"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "bd8dbd157aea80f97de2979dd882ed040b17aaf01180079fe809b319510ca938",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "exportTCY",
+      "traitKind": "method",
+      "methodIndex": 35345,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutExporter",
+        "flashx.textLayout.elements.TCYElement"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "bd8dbd157aea80f97de2979dd882ed040b17aaf01180079fe809b319510ca938",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

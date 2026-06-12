@@ -1,0 +1,97 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3611,
+  "className": "mx.rpc.events.HeaderEvent",
+  "classNameNormalized": "mx.rpc.events.HeaderEvent",
+  "superName": "mx.rpc.events.AbstractEvent",
+  "superNameNormalized": "mx.rpc.events.AbstractEvent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54234,
+  "cinitMethod": 54232,
+  "iinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "fd9ef70a028fc46fe6ff281f3195872bd6503f8371c573c2d7a1b0a816683dd3",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "0818f6d5c57c6539688d230f0d65c88e6f192e0d2412c4e04d1d94df094abeb2",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 54236,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.Event",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "3de5921664dd94e8d3f12abc3c302bc73417790d239d9de625114b2f924241d3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "header",
+      "traitKind": "getter",
+      "methodIndex": 54235,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f7e74e4d0a80a0eb40924a640475799d6e082d55a2fb205c21f70c95abd2f05f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 54237,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "4999f45ff26d46d4a0ebbc0bcdb5201050c9bb6c7c84ce319ef47086e7eb964a",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createEvent",
+      "traitKind": "method",
+      "methodIndex": 54233,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.rpc.AsyncToken",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "mx.rpc.events.HeaderEvent",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "8343bd97e17cdec147c77af49135728f49ed924d8da0e1cd56613c2976709517",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

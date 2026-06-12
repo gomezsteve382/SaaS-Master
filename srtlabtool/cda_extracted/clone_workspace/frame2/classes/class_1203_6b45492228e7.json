@@ -1,0 +1,189 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1203,
+  "className": "com.chrysler.cda.presentation.component.edit.CANFDSettingsModel",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.edit.CANFDSettingsModel",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 27155,
+  "cinitMethod": 27145,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "9fd07d3190d0c6251267184a4b14f3454a146b74a767c7d1f7ef83af616c1f07",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 27150,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "f787151aebd495bce5ca32ad5ce833fcc1f92f3c1dda5d86ca44b37f158ae051",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "disableCANFD",
+      "traitKind": "getter",
+      "methodIndex": 27148,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7c66372c6a389ed5cc38759059fec9515a62f0d7e6ef8887532a005668980b4f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disableCANFD",
+      "traitKind": "setter",
+      "methodIndex": 27149,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "b98aec90013d9c6c5b1c21c74206aedfe8ca5426032be763a25dcc2ba59a89f9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 27151,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "2fcc5034885fa7c9fe044170bb367c5394a5f5ed171780ad1211b3ac706b4ccc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 27152,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "82c280d26dfb833908440f49644d940ca5b55e42150b8d2496a710b929c47c6a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 27153,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "223c87c2921904a2484a4c9c488757e766bf881d41406f167bab553f9cee703a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transportLayerModel",
+      "traitKind": "getter",
+      "methodIndex": 27146,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.TransportLayerModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a21be42c16fe768ba273f224ef7ffebfdb975ddf201e280095b864664b48c4da",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transportLayerModel",
+      "traitKind": "setter",
+      "methodIndex": 27147,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.TransportLayerModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "57f7ce1b59698e8b02f44a73466d912265d1aec81cd4810b3b58230289c62ae5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 27154,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "2abfa8a2a3f241e576519937016ab8bfa7972895c389996dc5acdaecfe70c942",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

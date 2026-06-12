@@ -1,0 +1,147 @@
+From 709fecb51c0458cdb1eca05c7d8ec201ac7cf33d Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 12 Jun 2026 16:01:32 +0000
+Subject: [PATCH] BCM SEC16: honest shared-constant flag + grounded findings
+ doc
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Proven on the SCAT married set that the marry algebra is correct
+(RFH[0x050E]=reverse16(BCM split); PCM[0x3C8]=reverse(BCM)[0:6]; marker
+FFFFFFAA). The bug was never the math — it's that on un-programmed/donor
+BCMs the resolver falls back to the 00..313E..0A block, which is
+byte-identical across 3 unrelated cars (527958/592745/539430) and only
+appears when split records are blank. Its status as a real family secret
+is unresolved (codebase claims SINCRO; no married constant-set to prove it).
+
+So instead of guessing either way: resolveBcmSec16 now flags
+bcmSec16.sharedConstant (bytes unchanged -> all 704 BCM tests preserved),
+and crossValidate warns so marry/key flows never treat it as a confident
+per-car secret. Evidence + the one unresolved question documented in
+BCM_SECRET_FINDINGS.md. Full suite: 5843 passed, 7 pre-existing failures,
+zero new.
+---
+ artifacts/srt-lab/BCM_SECRET_FINDINGS.md   | 58 ++++++++++++++++++++++
+ artifacts/srt-lab/src/lib/crossValidate.js |  7 +++
+ artifacts/srt-lab/src/lib/parseModule.js   | 14 ++++++
+ 3 files changed, 79 insertions(+)
+ create mode 100644 artifacts/srt-lab/BCM_SECRET_FINDINGS.md
+
+diff --git a/artifacts/srt-lab/BCM_SECRET_FINDINGS.md b/artifacts/srt-lab/BCM_SECRET_FINDINGS.md
+new file mode 100644
+index 0000000..a513547
+--- /dev/null
++++ b/artifacts/srt-lab/BCM_SECRET_FINDINGS.md
+@@ -0,0 +1,58 @@
++# BCM SEC16 secret — evidence-grounded findings
++
++Companion to `RFHUB_GEN2_LAYOUT.md`. Every claim traced to a byte-level diff or
++multi-sample read across the real dump corpus. Unknowns are marked as unknown.
++
++## 1. The marry algebra is PROVEN (and was never the problem)
++On the SCAT 530589 **married** set (BCM + RFHUB + PCM, same VIN):
++
++```
++BCM split-secret (0x81A0/C0/E0) = 6B 56 F3 63 8A 5C B8 84 33 02 E1 B4 84 00 38 3B
++RFHUB[0x050E]                    = 3B 38 00 84 B4 E1 02 33 84 B8 5C 8A 63 F3 56 6B  = reverse16(BCM)   ✓
++PCM[0x3C8] SEC6                  = 3B 38 00 84 B4 E1                                = reverse(BCM)[0:6] ✓
++PCM[0x3C4] marker               = FF FF FF AA  (GPEC2A)                                               ✓
++```
++
++This is exactly `immoSecret.deriveAllFromBcm`. The marry math is correct; what
++was wrong was **which BCM bytes get used as the secret** (below).
++
++## 2. Two BCM states — NOT two year-generations
++The discriminator is **programmed vs un-programmed**, not model year. Secret
++location is the **split records `0x81A0/C0/E0`** across 18–22 (no generational
++move).
++
++| BCM | split records | `0x40C9` | resolver source |
++|---|---|---|---|
++| 19 SCAT / 19 charger / 21 Jailbreak / 22 Redeye | **populated (per-car secret)** | blank / real | `split` |
++| 18 ZO / 21 592745 | blank | the constant | `mirror1` |
++| 18 SRT | **no split structure** | the constant | `mirror1` |
++
++Caveat (single sample): the **18 SRT** BCM has no split-record structure at all
++— possibly a genuine different part, but one dump can't confirm a variant.
++
++## 3. The `00…31 3E 00 10 00 18 00 0A 00` constant
++- **Byte-identical across 527958 / 592745 / 539430** (three unrelated cars) — so
++  it is **not a per-vehicle secret.**
++- Appears **only** on BCMs whose split records are blank (un-programmed/donor);
++  never on programmed BCMs. Strong signal it's a **virgin/default placeholder.**
++- **NOT proven fake, either.** Every constant-BCM I have is from an un-synced /
++  donor set (matched RFHUB/PCM blank), so "the RFHUB doesn't carry its reverse16"
++  is equally explained by "un-synced." The codebase claims FCA-SINCRO confirmed
++  it as a real "6.2 Charger / 1C4RJFDJ-family bench SEC16" (`bcmSec16Absent`,
++  `charger62bench.realfiles` tests).
++- **Resolution requires one thing I don't have:** a *married* set whose BCM
++  carries the constant. If its RFHUB carries `reverse16(constant)` → real secret;
++  if not → placeholder.
++
++## 4. What shipped (honest, non-destructive)
++`resolveBcmSec16` now sets `bcmSec16.sharedConstant=true` when the resolved value
++is that constant (and source≠split). **Bytes are unchanged** (SINCRO-claim
++behavior + all 704 BCM tests preserved). `crossValidate` emits a warning so the
++marry/key flows never present it as a confident per-car secret — honest
++provenance instead of guessing in either direction.
++
++## 5. Un-synced detection (grounded)
++The 19charger set: BCM has a real split secret (`55 5A AA F0…`) but `reverse16`
++of it appears **nowhere** in the RFHUB (`0x050E` = `FF 01 FF…`). That's a true
++**OG set needing marry** — write `reverse16(split)` → RFHUB `0x050E`,
++`reverse(split)[0:6]` → PCM `0x3C8`.
+diff --git a/artifacts/srt-lab/src/lib/crossValidate.js b/artifacts/srt-lab/src/lib/crossValidate.js
+index 696628f..a596996 100644
+--- a/artifacts/srt-lab/src/lib/crossValidate.js
++++ b/artifacts/srt-lab/src/lib/crossValidate.js
+@@ -86,6 +86,13 @@ function crossValidate(modules){
+       warnings.push("BCM legacy flat 0x40C9 STALE — live SEC16 ("+bcm.bcmSec16.source+")="+fmtHex(resolved)+" but flat slice (LE)="+fmtHex(flat)+". Open Module Sync → 'Repair flat 0x40C9 from split records' so legacy CGDI/Autel readers see the live secret.");
+     }
+   }
++  /* Shared-constant guard — the BCM SEC16 resolved to the `00…31 3E…0A`
++   * block that is byte-identical across unrelated VINs and only appears on
++   * un-programmed/donor BCMs (proven, see resolveBcmSec16). Warn so the marry/
++   * key flows never treat it as a confident per-car secret. */
++  if(bcm?.bcmSec16?.sharedConstant){
++    warnings.push("BCM SEC16: SHARED-DEFAULT value ("+fmtHex(bcm.bcmSec16.bytes)+") — this block is byte-identical across multiple unrelated cars and only appears on un-programmed/donor BCMs. Treat as a placeholder, NOT a confirmed per-car secret; do not derive RFHUB/PCM security from it without a bench-verified secret.");
++  }
+   if(rfhub&&rfhub.sec16s){
+     if(rfhub.sec16valid)passed.push("RFHUB SEC16: VALID — slots 1&2 match, non-blank");
+     else if(rfhub.sec16s[0]?.blank)warnings.push("RFHUB SEC16: BLANK (all FF/00) — virgin module");
+diff --git a/artifacts/srt-lab/src/lib/parseModule.js b/artifacts/srt-lab/src/lib/parseModule.js
+index a1153d6..e71d2b1 100644
+--- a/artifacts/srt-lab/src/lib/parseModule.js
++++ b/artifacts/srt-lab/src/lib/parseModule.js
+@@ -743,6 +743,19 @@ function resolveBcmSec16(data){
+     const c=candidates[key];
+     if(c&&!c.blank){chosen=c;source=key;break;}
+   }
++  /* sharedConstant: the resolved value is the `00…31 3E 00 10 00 18 00 0A 00`
++   * block that is BYTE-IDENTICAL across multiple unrelated VINs (proven on
++   * 527958 / 592745 / 539430 — three different cars) and only ever appears on
++   * BCMs whose split records are blank (un-programmed / donor). So it is NOT a
++   * per-vehicle secret. Its status as a real family/default secret is NOT
++   * established (the codebase claims FCA-SINCRO confirmation; no matched married
++   * set proves it). We keep returning the bytes (don't break the existing
++   * behavior/tests) but flag them so the marry/UI never present them as a
++   * confident per-car secret — honest provenance over a guess in either
++   * direction. */
++  const SHARED_CONST=[0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x31,0x3E,0x00,0x10,0x00,0x18,0x00,0x0A,0x00];
++  const sharedConstant=!!chosen&&source!=='split'&&chosen.bytes.length===16&&
++    SHARED_CONST.every((v,i)=>chosen.bytes[i]===v);
+   /* allBlank: all candidates are structurally blank (all-FF / all-00).
+    * This is the only condition under which a BCM is treated as virgin. */
+   const allBlank=
+@@ -764,6 +777,7 @@ function resolveBcmSec16(data){
+     candidates,
+     blank:allBlank,
+     sec16Absent,
++    sharedConstant,
+   };
+ }
+ 
+-- 
+2.43.0
+

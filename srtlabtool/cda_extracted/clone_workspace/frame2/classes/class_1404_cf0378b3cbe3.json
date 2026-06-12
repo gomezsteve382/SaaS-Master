@@ -1,0 +1,1345 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1404,
+  "className": "spark.skins.spark.DefaultGridHeaderRenderer",
+  "classNameNormalized": "spark.skins.spark.DefaultGridHeaderRenderer",
+  "superName": "spark.components.gridClasses.GridItemRenderer",
+  "superNameNormalized": "spark.components.gridClasses.GridItemRenderer",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 30633,
+  "cinitMethod": 30632,
+  "iinitBytecode": {
+    "codeLength": 813,
+    "codeSha256": "36128ad05f73ab85f65534c6abeb49f2cb7832c59f0c85e6d90f5c36e24b6944",
+    "bytecodeLineCount": 51
+  },
+  "cinitBytecode": {
+    "codeLength": 47,
+    "codeSha256": "86413c1d67167d17da8780b0a60c22ec51285f26ab20a9eaf0d0c94de32dfef4",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry1",
+      "traitKind": "getter",
+      "methodIndex": 30682,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "156239a7c83731ac1761ac270f7119a6317413a51d47f4e48ce4de796d024697",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry1",
+      "traitKind": "setter",
+      "methodIndex": 30683,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "1156ca677f68a27cc366bfa08b6063bd57a4451f6a8c15a96438a31baa4f6539",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry11",
+      "traitKind": "getter",
+      "methodIndex": 30684,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ae95ed1e89ea04e0e3726a2196504d82384381991ad12fa0e2dd19d00baf4fea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry11",
+      "traitKind": "setter",
+      "methodIndex": 30685,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "c9d40bc60ac9425d6d8a0523d79c9cbab33c96f99e1d63258898bf17e0e0c176",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry12",
+      "traitKind": "getter",
+      "methodIndex": 30686,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "103f8685e9a67a6d4832081c382e922b76a374e1535171697294f63da7e986bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry12",
+      "traitKind": "setter",
+      "methodIndex": 30687,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "ec8ab833bab0de4da92d7d708bffd297f2234e346c32cbc6e224e0bf7f375191",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry2",
+      "traitKind": "getter",
+      "methodIndex": 30688,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4be7696f394bb190026fdcac7169616bf7d5a092d8b9e9f62538e0829289415b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry2",
+      "traitKind": "setter",
+      "methodIndex": 30689,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "40b1183a1fc55da55a108ab5fc3da958c9025bb894a6f60731ec14903fe74eb6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry3",
+      "traitKind": "getter",
+      "methodIndex": 30690,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "975938abb28202e412e6cc74d936a6501b76a74b13dfb90ee51a6d98d850f2ff",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry3",
+      "traitKind": "setter",
+      "methodIndex": 30691,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "0512dec8a89bc2ec7cadccf5d0028d72005aeaf4d829a1bfd7de858c2cc102d8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry4",
+      "traitKind": "getter",
+      "methodIndex": 30692,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d82d1456a6a4c312966d914625ecf492aefb4268ce78fb64b7b570f3ffbb5fc4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry4",
+      "traitKind": "setter",
+      "methodIndex": 30693,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "fe5af02ecc67b430cd5f04685f073429d074e05b0d002f58ef94f32e423ec832",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry8",
+      "traitKind": "getter",
+      "methodIndex": 30694,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "08437ded2a2bfa7b674c82358181e37d6eaa6143c0fa57ddc1a433924f98c56d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry8",
+      "traitKind": "setter",
+      "methodIndex": 30695,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "0ff4ba04b91f93fb1c24bfcc0907bb3b6bfdb9cadb77641a299940ada8c86d16",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry9",
+      "traitKind": "getter",
+      "methodIndex": 30696,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8f04abf784a7c378a05e0d181f143bd6225ca69cc59c846efcadf5afeb6d1e2e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultGridHeaderRenderer_GradientEntry9",
+      "traitKind": "setter",
+      "methodIndex": 30697,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "310afccb5e08dffa3ed289218a3b54f3a655ee807588bbeb456fcf455f53e775",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "defaultSortIndicator",
+      "traitKind": "getter",
+      "methodIndex": 30698,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ff7c4c857688e8ea184d6292afe257da74f9b9ca686918e432a4bb874fb3cc31",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "defaultSortIndicator",
+      "traitKind": "setter",
+      "methodIndex": 30699,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.ClassFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "7fce5f2919c89416d34cf951e3d0c545a1366f64ee3874eafdb68d65692b770f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "fill",
+      "traitKind": "getter",
+      "methodIndex": 30700,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "37cec789b715cdec985d24e6be0a88fec024426b6a45e1164528169a37afb400",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fill",
+      "traitKind": "setter",
+      "methodIndex": 30701,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "81b2e4dc24d0b64df008733134b5f264d6c99af6fde87ad87225c1a7b26c727c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "highlight",
+      "traitKind": "getter",
+      "methodIndex": 30702,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "befcec21518a5f2860e7424d440439407e944b1afd7d26bb06a3f767249f6521",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "highlight",
+      "traitKind": "setter",
+      "methodIndex": 30703,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "dfe4bc54a24cd9afa73af3ad5c0a5958289de110d667e0f6253a6eaa8f36e04c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "highlightStroke",
+      "traitKind": "getter",
+      "methodIndex": 30704,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "49ed941ed1a1ccbf2c7c951247807e64ed788f7503309c75506f6efd7421a928",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "highlightStroke",
+      "traitKind": "setter",
+      "methodIndex": 30705,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "90999ca727272a54acbeccbcfe1483249d96c33b17042bf3d20848b0722e31fc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hldownstroke1",
+      "traitKind": "getter",
+      "methodIndex": 30706,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9f94f5ef1c6ef205780e869e520e49fa925f8609e5362bba9d1ec1ea6fd43f91",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hldownstroke1",
+      "traitKind": "setter",
+      "methodIndex": 30707,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "b5d3e7927f4e6359d56b4ff00e766278c6c193dab98c3a2c056e26670582fc72",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hldownstroke2",
+      "traitKind": "getter",
+      "methodIndex": 30708,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9b7cf4467b8877b527b11978623e32d0aaaa536eae21a0e2368045ede481f1c7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hldownstroke2",
+      "traitKind": "setter",
+      "methodIndex": 30709,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "9e20e89f044175e63bd7b5b8ed87fbc9408bdcc9d983f9addc0852384e8c186d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 30635,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "labelDisplayGroup",
+      "traitKind": "getter",
+      "methodIndex": 30710,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "313d50fe192c0a15d75f695660a44700af6c64b5d32f677378b009fde9fa570d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "labelDisplayGroup",
+      "traitKind": "setter",
+      "methodIndex": 30711,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "5b8150f78222d49203f820a42b93810243e80a94767a6c677a5153808285553f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "lowlight",
+      "traitKind": "getter",
+      "methodIndex": 30712,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2bbb80a1d0ff099cd7e3a6034bbeb903893507328ce446aeb62d924e82880463",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "lowlight",
+      "traitKind": "setter",
+      "methodIndex": 30713,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "8f40c9a4d795b300f4052eda04151a8ea5b719407b5d681b40b5c6f399cf529a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "maxDisplayedLines",
+      "traitKind": "getter",
+      "methodIndex": 30637,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7e6fbcd37cbdcff1b693bb241c94d08a17623842394de1b48b70c0399b589a76",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "maxDisplayedLines",
+      "traitKind": "setter",
+      "methodIndex": 30638,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "792ef50045c83baa5cca264bea125dcba7451ee59d8ec359dd1a42104a779b02",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 30634,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "c014c76265b4b3758e86c48273ca223d87f7ba6455f12688d0d903290e7278d4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "prepare",
+      "traitKind": "method",
+      "methodIndex": 30641,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 371,
+      "bytecode": {
+        "codeLength": 371,
+        "codeSha256": "34c21c2e05f344e8e7f42393649544a37f42fc2471847768a4462771a6ac1898",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_ClassFactory1_i",
+      "traitKind": "method",
+      "methodIndex": 30644,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "0dad4a42a3afbce526d805b55413d5f2069a04853ee5565a5e8add4d69cfb708",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry1_i",
+      "traitKind": "method",
+      "methodIndex": 30648,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "83f847cd53e5c92e0e0623163e4adfc1136fd61b0aeda2898e647cd791b17eed",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry10_c",
+      "traitKind": "method",
+      "methodIndex": 30663,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "beaa8dd3014c9dc4aba119891be6a08957c9ba5bed8cfc2172f384afb52deb4f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry11_i",
+      "traitKind": "method",
+      "methodIndex": 30666,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "0bfa2b1270dee0a5ec519de63494fe4219f88ac524039dab02ccf4da15c91a15",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry12_i",
+      "traitKind": "method",
+      "methodIndex": 30667,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "e96b230a360ce05bde763912755a45a62eac955260617790bb89450dbd9d30bc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry13_c",
+      "traitKind": "method",
+      "methodIndex": 30670,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "c1fc60d50bf2fc7c985d030a0a026468d7fe53a1153f34ac5de00ecb7585a5c5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry14_c",
+      "traitKind": "method",
+      "methodIndex": 30671,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "4077890da01f2243de80cb83f90e550635798a5c2b72b35952d8201a574085e1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry15_c",
+      "traitKind": "method",
+      "methodIndex": 30672,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "726d4aa5bc0729c1e12cc8180083a2eb728e3aa69ada63098cace0e91cf26e0c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry16_c",
+      "traitKind": "method",
+      "methodIndex": 30673,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "e4663e20b52fd264ff0642f27e2d15b4ccaa9ba7896c3e890372e52b41a276ac",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry17_c",
+      "traitKind": "method",
+      "methodIndex": 30674,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "5ed8aa64cb8baf8d9d511ede367e967dfab30da1502812eceec18ade9e27566f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry18_c",
+      "traitKind": "method",
+      "methodIndex": 30677,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "45a9fd2f0742d222083dd8ede4cffda1f6215ccaeb6141f3d7be3c0878fdd054",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry19_c",
+      "traitKind": "method",
+      "methodIndex": 30678,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "ff1a4b8c2a2aefe8f3220a83bd26ba3d755049d1643d56afa46495656ca2e911",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry2_i",
+      "traitKind": "method",
+      "methodIndex": 30649,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "d97e445e95232ec44bd539704527cc428ffe3e974051d70b3072f05fdf773fe4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry3_i",
+      "traitKind": "method",
+      "methodIndex": 30652,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "21350dcf1bc8c3397ff5ef6772a5885720851d99760934037fd2fea199ebe9e3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry4_i",
+      "traitKind": "method",
+      "methodIndex": 30653,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9d9267f3e5573c0bfd6b66ad7987db1a6f535a5d389bc9efbcccb50b2793cbde",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry5_c",
+      "traitKind": "method",
+      "methodIndex": 30656,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "2f08cfbd0bda122c896eae0f420fa637aa36c55321d55454982f506cda6e37e7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry6_c",
+      "traitKind": "method",
+      "methodIndex": 30657,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "12414024267ddad6a120c793d7da2a941575056d667762df6bc711356343858f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry7_c",
+      "traitKind": "method",
+      "methodIndex": 30658,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "72b9ab4079771ecd2e3aaca37fe12200347ae290bbb96d253aa12932822b38a1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry8_i",
+      "traitKind": "method",
+      "methodIndex": 30661,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "986317f1ad3b78f186b08e27ccf8e531f16f7a89b227a1e5777efcb0e2743ba7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_GradientEntry9_i",
+      "traitKind": "method",
+      "methodIndex": 30662,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "4906bc8c242d4ac652266818ea0e82a835e6a4b0f9efbd2ea39b97d5dec4b6f9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Group1_i",
+      "traitKind": "method",
+      "methodIndex": 30680,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "a43501f45a1b4865875ad7bf303dccf6a0d876024db458876cc200b074fdffd9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Group2_i",
+      "traitKind": "method",
+      "methodIndex": 30681,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "fbe8ac61f75aa4ab5632a5d9bb04d5678bed99ace3acd3063f20bb3f7a182506",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_HGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 30679,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "81fa49f2d4a80635913fe7f65819986b5440e88295b412d776feb8555b416d69",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 30645,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 127,
+      "bytecode": {
+        "codeLength": 127,
+        "codeSha256": "d7d8f4d072a6d2af553620d83b93f00bb7b53ce0f448c3ef0226cc60044df9e9",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_LinearGradient1_c",
+      "traitKind": "method",
+      "methodIndex": 30647,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "58cfd84a8053c5da620a60019e83b28772f1a4a7823d7e1e44d6739b89aec4f8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_LinearGradient2_c",
+      "traitKind": "method",
+      "methodIndex": 30651,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "38ce9b0840d102a07943191283ddb764330a6390bb5339e48e32052c59a27548",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_LinearGradient3_c",
+      "traitKind": "method",
+      "methodIndex": 30655,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "0c5f80398aea557b0ca4c33822feccb3fc8d87da206d54257b70e84e84f6d468",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_LinearGradient4_c",
+      "traitKind": "method",
+      "methodIndex": 30660,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "107d2860836ce7773159ab2aaee77bbb876ba4fc5c366bd4404faadd3c3fd2f5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_LinearGradientStroke1_c",
+      "traitKind": "method",
+      "methodIndex": 30665,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "db1e573cf1a918ce4faf566eef3d5a42f8b699c84615f3093ab8c5639a03d924",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_LinearGradientStroke2_c",
+      "traitKind": "method",
+      "methodIndex": 30669,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "1b23766ce7e42d77f5695e019917f7572bfab8e0a00d812383d77efaa2540fe2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_LinearGradientStroke3_c",
+      "traitKind": "method",
+      "methodIndex": 30676,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "53909abb61b3a9d7e5a9433d15027f0c66eba083ec298757dd29b214035fb418",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Rect1_i",
+      "traitKind": "method",
+      "methodIndex": 30646,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "a0ed54e206484c1802d746f45c2d4b76a7da549782ad443ccf85e0d0d5818584",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Rect2_i",
+      "traitKind": "method",
+      "methodIndex": 30650,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "28578a2e99b8fad62b425d8d535f729e9743bddb14109b8450ebdee0dc6d6596",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Rect3_i",
+      "traitKind": "method",
+      "methodIndex": 30654,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "cd7b076c0712639808c146e0d2fbad7c76959ec6adf53e8ed9004205a8540a67",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Rect4_i",
+      "traitKind": "method",
+      "methodIndex": 30659,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "fb39149a811575bb302c004b18cf57b1a36dc7de697e6e51cfbadb5948351697",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Rect5_i",
+      "traitKind": "method",
+      "methodIndex": 30664,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "6e42a87696559fc65274a182c3f5b1f7de91e15f5a623120a0925eb170da6dea",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Rect6_i",
+      "traitKind": "method",
+      "methodIndex": 30668,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "baafa62a390088920af1869cbf98dc6a9fb8f8cbb0db47dec7ab844a758d95f9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultGridHeaderRenderer_Rect7_i",
+      "traitKind": "method",
+      "methodIndex": 30675,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "dc77e443524b64c5a0967c7d7eccc57aee4f6b95ba91d4442755a8c82e05c754",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchChangeEvent",
+      "traitKind": "method",
+      "methodIndex": 30636,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "cb99e433e437689787ea96423537eef21b6a019536a70f4b7d479416030a8e7d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "shadow",
+      "traitKind": "getter",
+      "methodIndex": 30714,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "afd17b0909e3dda85d246b999370e43c2f3e14f93499d8e38440a0400c60837f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "shadow",
+      "traitKind": "setter",
+      "methodIndex": 30715,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "610587110d4d4bd38f6f431533514c56a95a3c25929ecd53af956fe105c7e487",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "sortIndicator",
+      "traitKind": "getter",
+      "methodIndex": 30639,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "db77543d4e7306931cc797e869d9c5a2e787705da8503d45abe84861094f70e2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "sortIndicator",
+      "traitKind": "setter",
+      "methodIndex": 30640,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "f60d2a29da9af388ce85739c040993641d3900181f32eee6aac4073a72944efb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "sortIndicatorGroup",
+      "traitKind": "getter",
+      "methodIndex": 30716,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "38165b4d611af661b63bc3d104209f919d3c91477408aa2bef6f3bca18518749",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sortIndicatorGroup",
+      "traitKind": "setter",
+      "methodIndex": 30717,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "2a9e5ac7ab140ff0fcf0f504bac18431916d7825bb179442f73e4f6b7b3a3cbb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:DefaultGridHeaderRenderer.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 30642,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 349,
+      "bytecode": {
+        "codeLength": 349,
+        "codeSha256": "bf777ce5d8f91abddc8cd7b9e4ef40471fe90721a5d7c829ddd28ad4f2b75c64",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 30643,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "e9baf0a23b7e8ce1d3075798f745cf4abf1ef8206db1adc59255c4615a46a63e",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

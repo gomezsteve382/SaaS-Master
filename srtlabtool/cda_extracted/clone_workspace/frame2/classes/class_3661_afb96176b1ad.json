@@ -1,0 +1,116 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3661,
+  "className": "PrivateNs.ChildContextObserverImpl",
+  "classNameNormalized": "PrivateNs.ChildContextObserverImpl",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.state.ChildContextObserver"
+  ],
+  "iinitMethod": 55016,
+  "cinitMethod": 55015,
+  "iinitBytecode": {
+    "codeLength": 39,
+    "codeSha256": "70f084ac3d96f3c7d9422a8b1fc94da28bf114f58e691638c7cc37b46de51de2",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cancel",
+      "traitKind": "method",
+      "methodIndex": 55018,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "af5de309c81fdbf426c1c79bed83ff9dbb4ff7cd34be8574fdf053d0dca9237e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.execute",
+      "traitKind": "method",
+      "methodIndex": 55019,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "75a47df30318c6362dbd33111aa4fda6a5c5c7f69f4e25fc9b285023ffe2039e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.onTimeout",
+      "traitKind": "method",
+      "methodIndex": 55020,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "7fb1191278f5f24fa4452b30304c75744c84f218c0fa082c1fa55150ed3a8b41",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "timeout",
+      "traitKind": "method",
+      "methodIndex": 55017,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "d8ff4cd328c4e7dc69ab528f9337f30ea5d8bcec5c623c7010b450197458c75f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "view",
+      "traitKind": "getter",
+      "methodIndex": 55021,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f9fd5b11673e5cd2e94fc2d28f8ac9ffd76618e34cde9fd0d17dbcfc6df7ea0f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

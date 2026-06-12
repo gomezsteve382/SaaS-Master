@@ -1,0 +1,145 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 756,
+  "className": "com.chrysler.cda.application.proxy.AutoProxyCommand",
+  "classNameNormalized": "com.chrysler.cda.application.proxy.AutoProxyCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 14637,
+  "cinitMethod": 14629,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 80,
+    "codeSha256": "b508490e70f926a4c7dd81727fff37682b776220a2bdc4707f8c01a9ceeb39eb",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application.proxy:AutoProxyCommand.errorOutputDataHandler",
+      "traitKind": "method",
+      "methodIndex": 14636,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "24def7e3be626375bc0fc39ddf9c171f162605cc713a7a8e2482d0f635f077c3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.proxy:AutoProxyCommand.lookupCmdNativePath",
+      "traitKind": "method",
+      "methodIndex": 14630,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "ad00aab7c8f5f90269f4ad129f8d0d7196764de58c160fda17213c8102115a00",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.proxy:AutoProxyCommand.onExit",
+      "traitKind": "method",
+      "methodIndex": 14635,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.NativeProcessExitEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "350c539a7dffaf068813b5e5a1721cc56cf166fcb15bb3d15828d7a6ed471232",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.proxy:AutoProxyCommand.outputDataHandler",
+      "traitKind": "method",
+      "methodIndex": 14634,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "6b3ec0848c6a950a7fac54c2cc7d6989ae9ee01ce7f49717b2a25d3a1fd0e783",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getCmdNativePath",
+      "traitKind": "method",
+      "methodIndex": 14631,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "d1937d5aff4ab4466191fed9d99827ab341e73564b40d1b68bb762d1463aae84",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onAutoProxyCheckConfiguration",
+      "traitKind": "method",
+      "methodIndex": 14633,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.AutoProxyCheckConfigurationMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 335,
+      "bytecode": {
+        "codeLength": 335,
+        "codeSha256": "0393fcf7f7e13bbb85a5afeb4f86c8aacdaeb25477f4142abaeeb12f167d766d",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkOS",
+      "traitKind": "method",
+      "methodIndex": 14632,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 188,
+      "bytecode": {
+        "codeLength": 188,
+        "codeSha256": "92daa669204b7f06faaa69b1be69fbcfdbfb14d646f454e2f387ccb98e8d58c5",
+        "bytecodeLineCount": 12
+      }
+    }
+  ],
+  "staticMembers": []
+}

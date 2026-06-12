@@ -1,0 +1,264 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1953,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.LinearTable",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.LinearTable",
+  "superName": "mx.controls.DataGrid",
+  "superNameNormalized": "mx.controls.DataGrid",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 36512,
+  "cinitMethod": 36506,
+  "iinitBytecode": {
+    "codeLength": 469,
+    "codeSha256": "b2a5dae44e543b9869d5d8378b5581e04b32b59488c30ef70c55cfe8bd082055",
+    "bytecodeLineCount": 30
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 36526,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cc7dac3b5e291622f94711d889335befdb1fce861a7ddb46b754cdd2fb69cddb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 36527,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "2029fcc53833df5022c469f37577bb0e378100fea6d265559b9f9d2aee6ea7bc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 36514,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 36513,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "022c95dffd9a4f9ad6477109da53ce4c48ae2606591ab9c3bee37b40e2971868",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LinearTable_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 36525,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "3ccecea7b412c4f9fefd338f99fb9e43f705b57d47aa423b648c12c3b69d562f",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._LinearTable_ClassFactory1_c",
+      "traitKind": "method",
+      "methodIndex": 36516,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "62d52c613f6e115dfa0d211cc20c5e259569d4c269ef7a7348164c7f988a195a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LinearTable_ClassFactory2_c",
+      "traitKind": "method",
+      "methodIndex": 36520,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "c39929ea7feab5c8e099ec92a032264046818b0d8e1ca2753a96565109227420",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LinearTable_DataGridColumn1_i",
+      "traitKind": "method",
+      "methodIndex": 36515,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "8643daa0f034139f12c8cf64ea3c96da05d175c63d2dbd2e570ceea7b2506902",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._LinearTable_DataGridColumn2_i",
+      "traitKind": "method",
+      "methodIndex": 36517,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "d700ba032e2d701fc5c2665812ca036060f9824d470a370c6da109a293025ce8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._LinearTable_DataGridColumn3_i",
+      "traitKind": "method",
+      "methodIndex": 36518,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "399ecdb27aec920d1e88d9567c6f8748caba3eb1be0e1b8dd1b05e8103e78480",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._LinearTable_DataGridColumn4_i",
+      "traitKind": "method",
+      "methodIndex": 36519,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "52b83383d431695892c3a498b299d024ea17505c5810a4da0fe2c2a0da9975bf",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "ConversionMetaObjectEncoding",
+      "traitKind": "method",
+      "methodIndex": 36508,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "String",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "478796e4bbd6816b54fd4af147d47437e5faa89a2b135a4559b615fb837f080e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ConversionMetaObjectLinear",
+      "traitKind": "method",
+      "methodIndex": 36507,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "41e0029f054e1a035cdf0e5a92b8095bda6b1b91d2dc5d8c960f6fc49a3dda5f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 36509,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "35c1057321cee2ee476f89edfb0cde4bd18c25ee21f7f86ca50717fe06e5cb8b",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

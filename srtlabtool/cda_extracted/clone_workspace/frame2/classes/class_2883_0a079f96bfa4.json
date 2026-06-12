@@ -1,0 +1,222 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2883,
+  "className": "com.adobe.serialization.json.JSONTokenizer",
+  "classNameNormalized": "com.adobe.serialization.json.JSONTokenizer",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 46987,
+  "cinitMethod": 46986,
+  "iinitBytecode": {
+    "codeLength": 45,
+    "codeSha256": "83f24b51ee232eedcbdabc73f73082df14d57a98dff20c7a1a17f1fe6b9abde6",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getNextToken",
+      "traitKind": "method",
+      "methodIndex": 46988,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.adobe.serialization.json.JSONToken",
+      "hasBody": true,
+      "codeLength": 885,
+      "bytecode": {
+        "codeLength": 885,
+        "codeSha256": "373e37ea07105878057cf0fa738ababa1379643d612597793395cdd68688ce80",
+        "bytecodeLineCount": 56
+      }
+    },
+    {
+      "traitName": "parseError",
+      "traitKind": "method",
+      "methodIndex": 46999,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "408a9f258e890bb89ef37a34ce1fce23cb8987b66b53ad775dc5a84d0db929fc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.isDigit",
+      "traitKind": "method",
+      "methodIndex": 46997,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "8259118648b115f6a2afdc229f35098a010071753edade3fb651bd3cc0664417",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.isHexDigit",
+      "traitKind": "method",
+      "methodIndex": 46998,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "ccf836aca6cbc30257c351dc8e25b3a5f181e34c424f4a17195f48d8acc8b6da",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.isWhiteSpace",
+      "traitKind": "method",
+      "methodIndex": 46996,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "6a9c6ea36ef82c47d6b0bd00427eb82ba14cda6a356c77ed66e457e46cdb030e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.nextChar",
+      "traitKind": "method",
+      "methodIndex": 46992,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "de197344ace46ef2d71fd721532d1dd61e97f058bbe70ab65c60a6e78e5db949",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.readNumber",
+      "traitKind": "method",
+      "methodIndex": 46991,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.adobe.serialization.json.JSONToken",
+      "hasBody": true,
+      "codeLength": 594,
+      "bytecode": {
+        "codeLength": 594,
+        "codeSha256": "7405a4b4d51b92eff1c37ae7dd605b74e47e33527ea85390ae58bf6509b767c3",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "PrivateNs.readString",
+      "traitKind": "method",
+      "methodIndex": 46989,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.adobe.serialization.json.JSONToken",
+      "hasBody": true,
+      "codeLength": 195,
+      "bytecode": {
+        "codeLength": 195,
+        "codeSha256": "2b09547565e7b9411200bdc0c4813df4a7b9b8c184c729a2bfd0a2ec86525cac",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.skipComments",
+      "traitKind": "method",
+      "methodIndex": 46994,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 258,
+      "bytecode": {
+        "codeLength": 258,
+        "codeSha256": "00085490edebaa29506b8da3fc4e787ee9ad0484b1339ae555da70f0342f19ec",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.skipIgnored",
+      "traitKind": "method",
+      "methodIndex": 46993,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "80450d243ed3e09e8b67e923c77f5798e2f6acb13b3d38db391a2de6302ee0e7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.skipWhite",
+      "traitKind": "method",
+      "methodIndex": 46995,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "3707b595be4cf4106b44a49ca233c6228e2d79b0f15e9d566f05c4dd1ad9a927",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "unescapeString",
+      "traitKind": "method",
+      "methodIndex": 46990,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 620,
+      "bytecode": {
+        "codeLength": 620,
+        "codeSha256": "c7049029b60a23266303fe8c6bdad2d58159e5c7ada399dfdd908f2a3fe54e41",
+        "bytecodeLineCount": 39
+      }
+    }
+  ],
+  "staticMembers": []
+}

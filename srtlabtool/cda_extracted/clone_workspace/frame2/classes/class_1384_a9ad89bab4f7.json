@@ -1,0 +1,183 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1384,
+  "className": "mx.graphics.RadialGradient",
+  "classNameNormalized": "mx.graphics.RadialGradient",
+  "superName": "mx.graphics.GradientBase",
+  "superNameNormalized": "mx.graphics.GradientBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.graphics.IFill"
+  ],
+  "iinitMethod": 30275,
+  "cinitMethod": 30274,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 28,
+    "codeSha256": "121ce095ff3209500b3e7da61abdc34cc544c9ae1bdeab66fe24b14972f814ca",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "begin",
+      "traitKind": "method",
+      "methodIndex": 30283,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Graphics",
+        "flash.geom.Rectangle",
+        "flash.geom.Point"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 346,
+      "bytecode": {
+        "codeLength": 346,
+        "codeSha256": "b4a164c9960a213d5029bc04734ffb0cb82e84981986e73275458f13605e56d0",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "end",
+      "traitKind": "method",
+      "methodIndex": 30284,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Graphics"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "adc8ce87ea27dd4795a0d7ac91e7f68c2581622e5aabdc68f1ad602e0885b098",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focalPointRatio",
+      "traitKind": "getter",
+      "methodIndex": 30276,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2b6ba3599accac25b77b7e352f04763a98acee0a3ddde801fc365bb138337a3d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focalPointRatio",
+      "traitKind": "setter",
+      "methodIndex": 30277,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "18dda022c62dfe83ba1dc4742a9fc12e07f24e3f89655a271a9225e0babb7802",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "matrix",
+      "traitKind": "setter",
+      "methodIndex": 30278,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "73229a6c404e92816406f8797a9ac269a23638a5a4371ffa47c2b2b83c58c45f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "scaleX",
+      "traitKind": "getter",
+      "methodIndex": 30279,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "08b289085bf927594fd0d144b8cf428d44d98a5415537f0a703f3e9b528e5a20",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "scaleX",
+      "traitKind": "setter",
+      "methodIndex": 30280,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "cde77b404db8036bc2bfd855289d16f6358e45f362cde03155daa117fca1e68a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "scaleY",
+      "traitKind": "getter",
+      "methodIndex": 30281,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "9dc877adcebb28715237bdb5b9a66484c3f07892e78b7e96d14207078dca3d7e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "scaleY",
+      "traitKind": "setter",
+      "methodIndex": 30282,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "5961f074d89b74a9cbad4442b78dd9f02546335d6bedf5451d20401e79da10fa",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

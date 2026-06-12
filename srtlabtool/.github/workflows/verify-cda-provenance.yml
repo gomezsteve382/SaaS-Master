@@ -1,0 +1,36 @@
+name: Verify CDA Provenance
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  verify-cda-provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run strict verifier
+        run: node ./verify-cda-repro.mjs --root ./cda_extracted --json --out ./verify-cda-report.json
+
+      - name: Record provenance snapshot
+        run: node ./record-cda-verify-snapshot.mjs --root ./cda_extracted --out-dir ./verification-history --report-file ./verify-cda-report.json --json
+
+      - name: Upload provenance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-cda-provenance
+          path: |
+            ./verify-cda-report.json
+            ./verification-history

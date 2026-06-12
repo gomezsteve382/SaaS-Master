@@ -1,0 +1,134 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1110,
+  "className": "com.chrysler.cda.application.license.ReconnectToServerCommand",
+  "classNameNormalized": "com.chrysler.cda.application.license.ReconnectToServerCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.core.infrastructure.communication.IErrorResolver",
+    "mx.rpc.IResponder"
+  ],
+  "iinitMethod": 24147,
+  "cinitMethod": 24139,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "20c8d5bf0cface4c4ca7a05a8ee26dd90145b2c7a534038d4a579e6b5a5e254e",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "0060e33033ac8d56f8a4b3e8529b0094fef50d5c4819b1f5a4e14c3dd496d1d6",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "fault",
+      "traitKind": "method",
+      "methodIndex": 24145,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "8747cb1c58fa9bf31eab619c766a342536fe066ea5cba994107c3b50251827b1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "reconnect",
+      "traitKind": "method",
+      "methodIndex": 24142,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "630a3411c859ccfc639f8f519d65f4251b247b002f8f7da5c0e53461fa8a0365",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "result",
+      "traitKind": "method",
+      "methodIndex": 24146,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "1e4533d8f5a166c5d661bbf2092a5751e3a1db216ece901df5968ea57cc88370",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "terminalError",
+      "traitKind": "method",
+      "methodIndex": 24144,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "61df4d572e2ae01dd7833b136091f7da92aba8badc12830960964ca5a97249c3",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "applyFault",
+      "traitKind": "method",
+      "methodIndex": 24141,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "c00282ded319c738b0d31a03c26d6f4e2144d0a965e8b89fc47144a6f04b2c1a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "applyResults",
+      "traitKind": "method",
+      "methodIndex": 24140,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "e88b25e6b1150280a3e883aae269b7e6504d9bb70f53dfae034a11377421f742",
+        "bytecodeLineCount": 6
+      }
+    }
+  ]
+}

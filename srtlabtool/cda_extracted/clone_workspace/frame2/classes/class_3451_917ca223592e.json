@@ -1,0 +1,114 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3451,
+  "className": "mx.messaging.Consumer",
+  "classNameNormalized": "mx.messaging.Consumer",
+  "superName": "mx.messaging.AbstractConsumer",
+  "superNameNormalized": "mx.messaging.AbstractConsumer",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 52845,
+  "cinitMethod": 52844,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.messaging:Consumer.internalSend",
+      "traitKind": "method",
+      "methodIndex": 52850,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "eb91622220a84a2183d331d271b89ceb847dbf286f97a77f3309daa2da176402",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "selector",
+      "traitKind": "getter",
+      "methodIndex": 52846,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c0371271361625a92c7aaeb2acf435b01907b98c52f34842570e3982331c0bf4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selector",
+      "traitKind": "setter",
+      "methodIndex": 52847,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "ffbe861ffb22944bd46275e6a88cea7142e2797f2805728a79340e93ee27bf2e",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "subtopic",
+      "traitKind": "getter",
+      "methodIndex": 52848,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "04b46c289f8066d1fab3243b3fc20d9d0d82ff9af39da00aecb35f5c9dfabeae",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "subtopic",
+      "traitKind": "setter",
+      "methodIndex": 52849,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "64d7be6b76dab7c9d15e4d0edf0a96d635fff0dbe8c54ce47d8062dbaf97b2b4",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

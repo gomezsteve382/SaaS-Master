@@ -1,0 +1,989 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 24,
+  "className": "spark.components.Application",
+  "classNameNormalized": "spark.components.Application",
+  "superName": "spark.components.SkinnableContainer",
+  "superNameNormalized": "spark.components.SkinnableContainer",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 759,
+  "cinitMethod": 757,
+  "iinitBytecode": {
+    "codeLength": 84,
+    "codeSha256": "56c875d82d995dc78a0a20679d59568ba49d65d806d623288e954b679dbe7944",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 80,
+    "codeSha256": "f643fa52b950d9bd458b2cfcb7a91e6bc5eb07ac78ccfbf173c06a0ef85708fb",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 814,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "03022d5b1cb55d90c623f53bd53c700cdcfea4b7d1703ff0b80de3ed31c2f058",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "applicationDPI",
+      "traitKind": "getter",
+      "methodIndex": 771,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "0d53b1681d72ead77ec9e3cd4bba84c0c009e14a55d645ae825aeb3e07543654",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "applicationDPI",
+      "traitKind": "setter",
+      "methodIndex": 772,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "aspectRatio",
+      "traitKind": "getter",
+      "methodIndex": 781,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "6aba1dc3337caf5cb858c00b11228ec10729ad7b22b694936dab340ff260cb85",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "colorCorrection",
+      "traitKind": "getter",
+      "methodIndex": 761,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "5770c73f82437564bae3c2d21d6f52e08c7c3e53985892f89c37e3722ede6677",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "colorCorrection",
+      "traitKind": "setter",
+      "methodIndex": 762,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a6523e3e99b626e8350d6ecf99d7d686c2c23f0a9f7d4db373ca7b301cdc0148",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "controlBarContent",
+      "traitKind": "getter",
+      "methodIndex": 763,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "a6abc0d0ae9453348a0ad80df5b2a1b2e01ae5b84786e211d5e97541041518d6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "controlBarContent",
+      "traitKind": "setter",
+      "methodIndex": 764,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "44c2aeb1867b1999dd92340544c9989b98a67533a3fb0729a8adecb6bcd574bf",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "controlBarLayout",
+      "traitKind": "getter",
+      "methodIndex": 765,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.supportClasses.LayoutBase",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "7a9e6b75ebcf7e17da1ffe21ca8e5e9d004a4b18eed6dcd27b9bd88de892327e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "controlBarLayout",
+      "traitKind": "setter",
+      "methodIndex": 766,
+      "methodName": "",
+      "paramTypes": [
+        "spark.layouts.supportClasses.LayoutBase"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "6762ab86d6faac4f832ce39ad94ebf0b4d82899c2ccb5b43449e8e66a502b70e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "controlBarVisible",
+      "traitKind": "getter",
+      "methodIndex": 767,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "fa055c61ecb61946a4311ff46d74aa42d7ed7666bf17229d3bf1e62d17990200",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "controlBarVisible",
+      "traitKind": "setter",
+      "methodIndex": 768,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "c13f00621ec89bc3104ba74457c4d16b20e6395ff53ac0dcf212e127e59bbbb3",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setUnscaledHeight",
+      "traitKind": "method",
+      "methodIndex": 800,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "ec62944a256b49dd83c453d7d7e40582f2533ba4ea9456210295e94957762b8c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setUnscaledWidth",
+      "traitKind": "method",
+      "methodIndex": 801,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "c14642be3b3bddc2f9274d4c4dc07398422cb6eb02be3153c2aace2929dc79b6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "id",
+      "traitKind": "getter",
+      "methodIndex": 776,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "63768372b24ddd0337994d429c11473453f8b7fa409e9e7f8de251076a984d4a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 789,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 231,
+      "bytecode": {
+        "codeLength": 231,
+        "codeSha256": "5994c6f58e3a4047b2ac6214d56e37a038986f9c0d73fd9e8acc0201854bc2a3",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "parameters",
+      "traitKind": "getter",
+      "methodIndex": 782,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bf67d48ba63059fed3dcac1d9539da4932ba2cad5b5360c7bd80eb349005ba5a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "percentHeight",
+      "traitKind": "setter",
+      "methodIndex": 777,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "24218b3b1d99140f13bc6027b1454e16e49f320bb3bebe93bb826ff5b94c2c66",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "percentWidth",
+      "traitKind": "setter",
+      "methodIndex": 778,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "83aa57d5bd21b7433c6e305d6be7aa78e017b30386590cff0293d013be4fa92b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.clearSoftKeyboardTarget",
+      "traitKind": "method",
+      "methodIndex": 810,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "51bac21035313684bf88c65f380b578a014c141c9fec588321fe67aa7bafaac4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.debugTickler",
+      "traitKind": "method",
+      "methodIndex": 802,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "29c5e6a126519706e57491205ed99b4f9be405d6c5aa57b12ec8dcec0fa29ef0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.initContextMenu",
+      "traitKind": "method",
+      "methodIndex": 804,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "382f313f99f172c07cad122ee0194f865bb59adb027640133174207b38a1c824",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.initManagers",
+      "traitKind": "method",
+      "methodIndex": 803,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.ISystemManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "caae02e549b519c97515d4345155c7110f0b1790873371bb9263f24574a650ff",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.initResizeBehavior",
+      "traitKind": "method",
+      "methodIndex": 805,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 195,
+      "bytecode": {
+        "codeLength": 195,
+        "codeSha256": "2e26c45486ab09d67e8e32cc79b1459ebff40b8f7c39bac68d2d69189a83cde7",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.nativeApplication_deactivateHandler",
+      "traitKind": "method",
+      "methodIndex": 808,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "846528afe80dcb1c489b0ef7737d8cf191678188f5d76908de23566081578a33",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.resizeHandler",
+      "traitKind": "method",
+      "methodIndex": 811,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "30e7e8f6cb8c031ec96405de661ef39258df3f65032ab79aa5a866f86dc1b6a2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.scaleFactor",
+      "traitKind": "getter",
+      "methodIndex": 760,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "b86ebbf26a22d928f0bfcf5673e029ad0320e1407d11d12c5b423b4f90c7a87e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.softKeyboardActivateHandler",
+      "traitKind": "method",
+      "methodIndex": 806,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SoftKeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 270,
+      "bytecode": {
+        "codeLength": 270,
+        "codeSha256": "95eca50e37550faca2caef53afbb363bbb1051785f1cd04b9d1dd7c28e783985",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.softKeyboardDeactivateHandler",
+      "traitKind": "method",
+      "methodIndex": 807,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SoftKeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 118,
+      "bytecode": {
+        "codeLength": 118,
+        "codeSha256": "f2a422f48c2544e1b718da7e649e0cdd7ad2e33e011512a15cd9bb7e54500a6f",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.softKeyboardTarget_removeFromStageHandler",
+      "traitKind": "method",
+      "methodIndex": 809,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "84a31701233662e7e73e2dc86fd7be19f7cece5773c84e201a3a9c7e90fbdb64",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.stage_orientationChange",
+      "traitKind": "method",
+      "methodIndex": 791,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "d285fa3674c29bd2d1126a59b62f2d6b3fe835d64c2a3445fb1e3e98ac0b738b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.stage_orientationChangingHandler",
+      "traitKind": "method",
+      "methodIndex": 790,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 351,
+      "bytecode": {
+        "codeLength": 351,
+        "codeSha256": "580c18a9e742f1690928c727916ae52bf0adb474f44916f342169492609caf1c",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "PrivateNs.uncaughtErrorRedispatcher",
+      "traitKind": "method",
+      "methodIndex": 816,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "0d9f1c02973727f4fb8fd5ac0f5d5922514abb7bbfc5f84e364ef1382a0dbcf6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateBounds",
+      "traitKind": "method",
+      "methodIndex": 813,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 396,
+      "bytecode": {
+        "codeLength": 396,
+        "codeSha256": "6b8bdd26b6415bf0565bed166aaf109670ebe4ce71e400f93205382e371058b0",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateScreenSizeCache",
+      "traitKind": "method",
+      "methodIndex": 792,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 169,
+      "bytecode": {
+        "codeLength": 169,
+        "codeSha256": "5e9010b171d9d3b70a53fd193ec1091434b80ddabd0b4496bc14c2274c2d5540",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 815,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "1163fd1b5c9b980c824543152b94cb61a06edf9b3a1c4689f3cda2f6586a102f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "resizeForSoftKeyboard",
+      "traitKind": "getter",
+      "methodIndex": 783,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "65f069ec5370db61987657ea7885921f3fcfdfccf95e3de5ac2da1f8a3c1c446",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resizeForSoftKeyboard",
+      "traitKind": "setter",
+      "methodIndex": 784,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "24c99e7098b5814cdf6cd3846174f5f2aeeb326328709740423b98e3b96e76be",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "runtimeDPI",
+      "traitKind": "getter",
+      "methodIndex": 773,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "c3817ae76f5f41c4827c98da1ef57af84f2a991e227ee172cafa0bd1dccadecd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "runtimeDPIProvider",
+      "traitKind": "getter",
+      "methodIndex": 774,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "0bce959013f8daa5bd91b6d37a25f089989f883c9deb94c7c3b3ba2a193ac891",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "runtimeDPIProvider",
+      "traitKind": "setter",
+      "methodIndex": 775,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components:Application.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 794,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 164,
+      "bytecode": {
+        "codeLength": 164,
+        "codeSha256": "8ec950bbf7d270f7fee731e2f0c383d1e3cb6eda01f5dad76d7e78c3420d4f51",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "spark.components:Application.createChildren",
+      "traitKind": "method",
+      "methodIndex": 793,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "40bfa600b0117a1d2c14a4e93c9caf72773377e6cc0a07ba6c602b69cf5d52ff",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "spark.components:Application.getCurrentSkinState",
+      "traitKind": "method",
+      "methodIndex": 798,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 128,
+      "bytecode": {
+        "codeLength": 128,
+        "codeSha256": "07a00479922e0e5d8539cbace59c08b24bb5df3b7ed52f70f82d6c56fb6e33db",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "spark.components:Application.invalidateParentSizeAndDisplayList",
+      "traitKind": "method",
+      "methodIndex": 788,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "a16d1577336f87078b44e90e1e2972c52f3c4c357d83581da95c335688d5ef97",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.components:Application.menuItemSelectHandler",
+      "traitKind": "method",
+      "methodIndex": 812,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "610975f896579fcd2465d3409041f76a156b58ab9f18b9384758e1dc9b327072",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components:Application.partAdded",
+      "traitKind": "method",
+      "methodIndex": 796,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 170,
+      "bytecode": {
+        "codeLength": 170,
+        "codeSha256": "c9caa56616a897ce92936f9daada46ea9a4a9f782dee67f415d82b5a08696e67",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "spark.components:Application.partRemoved",
+      "traitKind": "method",
+      "methodIndex": 797,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 155,
+      "bytecode": {
+        "codeLength": 155,
+        "codeSha256": "1fb9a60c93de2ee75fde0a9f5cc20acac2b774d337fe682ac82e1f82557ef179",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "spark.components:Application.resourcesChanged",
+      "traitKind": "method",
+      "methodIndex": 795,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "5e90374a2d7d74ab2679dac3111397aa9266fc8a42deffca5e07f49420c7f2ab",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components:Application.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 817,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "24605ca9ab277d698f95a002b37ce9f8e546e57a1a2df7b6e9fb70b59d9f9a9e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "splashScreenImage",
+      "traitKind": "getter",
+      "methodIndex": 769,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "a51b162a12525b6eb394a64803b892e9b4ebf8b843d14281692d9dd8df4f442d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "splashScreenImage",
+      "traitKind": "setter",
+      "methodIndex": 770,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "d35e0b73168cb5e80d155085882182a63961ced9c065cf29e1ab37da752d1f09",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 799,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "b13e5c9de01975719f0288cc542843e6da4c6ffb933e4d787911ca2f3006c19b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "tabIndex",
+      "traitKind": "setter",
+      "methodIndex": 779,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toolTip",
+      "traitKind": "setter",
+      "methodIndex": 780,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "url",
+      "traitKind": "getter",
+      "methodIndex": 785,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5aef7c65cf7ad109731284ea89612b113808722b01a3962a3419fb470e2d6809",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "viewSourceURL",
+      "traitKind": "getter",
+      "methodIndex": 786,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "109156c3c0a87c9295a7747fe0e58b9d465154afefa91f756a59dbe4a0ef7e96",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "viewSourceURL",
+      "traitKind": "setter",
+      "methodIndex": 787,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cc91057a533f23dc86b0796b159963a6b96658f155e93d7541db19ffebaaa507",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.softKeyboardBehavior",
+      "traitKind": "getter",
+      "methodIndex": 758,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 203,
+      "bytecode": {
+        "codeLength": 203,
+        "codeSha256": "a6c35769345725f9e7735527b26d7f9e7b8e978a7991b68a3d6ef247f825b431",
+        "bytecodeLineCount": 13
+      }
+    }
+  ]
+}

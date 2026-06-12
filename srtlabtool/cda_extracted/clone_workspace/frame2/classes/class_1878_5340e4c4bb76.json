@@ -1,0 +1,700 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1878,
+  "className": "spark.effects.animation.Animation",
+  "classNameNormalized": "spark.effects.animation.Animation",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 35432,
+  "cinitMethod": 35425,
+  "iinitBytecode": {
+    "codeLength": 174,
+    "codeSha256": "a33913a3b6696c47205bd5437a7f1d1913b707aa68e187157939917071c0d4c5",
+    "bytecodeLineCount": 11
+  },
+  "cinitBytecode": {
+    "codeLength": 116,
+    "codeSha256": "0daff3fac5d40d7ce0a60a412785611d019dc1a0870fcbc00e0488212be21080",
+    "bytecodeLineCount": 8
+  },
+  "instanceMembers": [
+    {
+      "traitName": "animationTarget",
+      "traitKind": "getter",
+      "methodIndex": 35433,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.animation.IAnimationTarget",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a2de8499ad383bdb02c8a7114cee636f4b33da3f45515c42c041a38d8f182205",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "animationTarget",
+      "traitKind": "setter",
+      "methodIndex": 35434,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.IAnimationTarget"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "5ce3532f8558ed401061684e6a8faa1e51d563b0b681dc135cd722578941578a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cycleFraction",
+      "traitKind": "getter",
+      "methodIndex": 35447,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "578ecc4285ff2b3c6b8bb08d4a0decd1a720cdecf79cc5b6e3351b37ae153080",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cycleTime",
+      "traitKind": "getter",
+      "methodIndex": 35446,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ab3b84b8f291d19a11c5ebfb7d1b761f43e148c3bfded2de9d819f15c34d2d26",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "easer",
+      "traitKind": "getter",
+      "methodIndex": 35448,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.easing.IEaser",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ef5a8235aea7fe913af33dee5143dcb8736cbac11a2460871276955454a87f67",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "easer",
+      "traitKind": "setter",
+      "methodIndex": 35449,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.easing.IEaser"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "ea6d5f74ca3eae4ea757ce383a0d2c89ab96c74ce4a7fbc6bea3e0de8fc44a81",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "end",
+      "traitKind": "method",
+      "methodIndex": 35457,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 241,
+      "bytecode": {
+        "codeLength": 241,
+        "codeSha256": "334d3db3eae50ba0cb9fff100575c539ec2df3c40f2a9d5748524741a985c3be",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.reverse",
+      "traitKind": "method",
+      "methodIndex": 35462,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "55a0ef6b1ac631ccadf30ed5804a5b227237e442a572f19c0269ff3e171972e8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "isPlaying",
+      "traitKind": "getter",
+      "methodIndex": 35437,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f2564de6ddb08ce6a1788f15919bd026ae79241c5d587769b8535f7c5aec0e31",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pause",
+      "traitKind": "method",
+      "methodIndex": 35463,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "86dbcb8ee6a7d869e137a421df1ebe1f4037bad0fe7710b1804651cb479aa21d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "play",
+      "traitKind": "method",
+      "methodIndex": 35459,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 369,
+      "bytecode": {
+        "codeLength": 369,
+        "codeSha256": "211956a92a37a08be18a33773b7dbe74eb9c8f1637c48ae75dc395582a51f744",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "playheadTime",
+      "traitKind": "getter",
+      "methodIndex": 35435,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "23c2e3591c388eebc3b3c1128f990fa64f96c216d9314e29fd7cc864ef91486a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "playheadTime",
+      "traitKind": "setter",
+      "methodIndex": 35436,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "d68c0dc364ad84f1bab26e262bc6a3e1de18a57e7971b2a51c2c95a79eed6d32",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "playReversed",
+      "traitKind": "getter",
+      "methodIndex": 35450,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4574ce1296cb248c40bedf36142c57c1b71e288909593f34841a7dd58b4de08b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "playReversed",
+      "traitKind": "setter",
+      "methodIndex": 35451,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "b934d1b3e866f1f861d77ec766ff6fb82e425342e887e711fe04f320dbf3c615",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.addToDelayedAnimations",
+      "traitKind": "method",
+      "methodIndex": 35458,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 189,
+      "bytecode": {
+        "codeLength": 189,
+        "codeSha256": "83f392ae5b42418f256c800219c1f1d67ca95dd96b381a766c1c9894eb6fbcca",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.calculateValue",
+      "traitKind": "method",
+      "methodIndex": 35455,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 246,
+      "bytecode": {
+        "codeLength": 246,
+        "codeSha256": "a4ac936178c440886902c2deb2b837325914576929249606c89d525d0b4901f5",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.doInterval",
+      "traitKind": "method",
+      "methodIndex": 35452,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 512,
+      "bytecode": {
+        "codeLength": 512,
+        "codeSha256": "7e97c7213314b270f5928f81287ac763f37715f03a6dbdc6df22ef903914012d",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeFromDelayedAnimations",
+      "traitKind": "method",
+      "methodIndex": 35456,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "b9dc920e1cb3be5c9fae863451d907183aef54a172c1069d8a6742756b254c03",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.repeat",
+      "traitKind": "method",
+      "methodIndex": 35467,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "d3f9be74dd251e05cf9c3b444ded785f0d26cc0216cbdfc08b6612ee8917c7e6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.seek",
+      "traitKind": "method",
+      "methodIndex": 35460,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 483,
+      "bytecode": {
+        "codeLength": 483,
+        "codeSha256": "f827e34899eba114b384c82531faf51a3c24b946acc75924404a67559e0ee4dc",
+        "bytecodeLineCount": 31
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendAnimationEvent",
+      "traitKind": "method",
+      "methodIndex": 35454,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 225,
+      "bytecode": {
+        "codeLength": 225,
+        "codeSha256": "753c464b4e7f9d600549b621332e983b391f78efaeb5cb90379eb977d7dfa29c",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendUpdateEvent",
+      "traitKind": "method",
+      "methodIndex": 35453,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "48bbdb5d7845e3cf041e2596fe4f3c2457f06316aa4c9dd8d9829470c3bb6009",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.setupInterpolation",
+      "traitKind": "method",
+      "methodIndex": 35461,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "80a0db4510418924a589787a864ad4a1d3a4b297d248e5faa82bddb7627d1fbe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.start",
+      "traitKind": "method",
+      "methodIndex": 35468,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 219,
+      "bytecode": {
+        "codeLength": 219,
+        "codeSha256": "7d16d9f80183972ae9d1e194fb9c7ba4c8d7c8033555ed57adf6aa1a5c7388f1",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopAnimation",
+      "traitKind": "method",
+      "methodIndex": 35464,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "d1936322dbf7ef927e4b988caf6c3c8884b5451e570d334801af1ed9e4683c1c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "repeatBehavior",
+      "traitKind": "getter",
+      "methodIndex": 35438,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1fb5dfede45f595ecc9efcf3bd283d6b33f077bae646cb9154cf7e9d8228abf1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "repeatBehavior",
+      "traitKind": "setter",
+      "methodIndex": 35439,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "fbab7e8dbc14fcd292b2ab0a5df477f33600da52513d6801ecab8105cdbb4b47",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "repeatCount",
+      "traitKind": "getter",
+      "methodIndex": 35441,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7b4b205212fcc699717a5a84cb86657e0c8f65a68eca6d4cef4ffc1af6621406",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "repeatCount",
+      "traitKind": "setter",
+      "methodIndex": 35440,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "adbe1f804c595f20518350b95f70ea0b7476cd35c999ffe6c873c4615c47eebb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "repeatDelay",
+      "traitKind": "getter",
+      "methodIndex": 35443,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8e8d726af874f2f292dce3981e7d67bf0cfba9626b8468fe54d75d932f8bbd24",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "repeatDelay",
+      "traitKind": "setter",
+      "methodIndex": 35442,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "095afc9120385f3f3910386132a1596de02a9d7f64494eeef39bcffd9c9a914c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resume",
+      "traitKind": "method",
+      "methodIndex": 35466,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "f45f6a9b8e84818e1f29f75f0773d9b3fcfdcf55c1639aa39b541bfe0a9ea52c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "startDelay",
+      "traitKind": "getter",
+      "methodIndex": 35445,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1f362e299b1b4e2d871b696c049b55d9c14bab79af5c9ba8fbfc1b7d511557f3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "startDelay",
+      "traitKind": "setter",
+      "methodIndex": 35444,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "141d631ef416724dbc8045ab763fbc1273d40f9215de5f746f35e5a794eac6be",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stop",
+      "traitKind": "method",
+      "methodIndex": 35465,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "69fb7014c21831a682834f0daeb1baa842b823861941ebf9d71120c5f0d56b14",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.pulse",
+      "traitKind": "method",
+      "methodIndex": 35431,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "d6b2b822a4639e26154bbbc5adc64d08281e124537c524a4f912288e50b8d55f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.addAnimation",
+      "traitKind": "method",
+      "methodIndex": 35426,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.Animation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 273,
+      "bytecode": {
+        "codeLength": 273,
+        "codeSha256": "b2061c8d199d382148deabfe494a0e1180d7005856adb313042c712ec747659a",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeAnimation",
+      "traitKind": "method",
+      "methodIndex": 35428,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.Animation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "23b9c64d0b9f027cd1d31c49aa906d19d434030ea2a37a1dff6a72450491c4b8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeAnimationAt",
+      "traitKind": "method",
+      "methodIndex": 35427,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "3b0960784a3a53c426037be3f099824de65fd0b45a8ab4b9122f1cfafad37907",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopTimerIfDone",
+      "traitKind": "method",
+      "methodIndex": 35430,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "a4dcda701744837724c81335c07c2b1f3f5edec3ce8b75a5f5a35f87a67a6498",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.timerHandler",
+      "traitKind": "method",
+      "methodIndex": 35429,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 225,
+      "bytecode": {
+        "codeLength": 225,
+        "codeSha256": "999ac87744fad2de76dbd1d63eb9921fdf37295e2c692d7760d4b86b0bd8887c",
+        "bytecodeLineCount": 15
+      }
+    }
+  ]
+}

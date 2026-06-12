@@ -1,0 +1,129 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2180,
+  "className": "com.chrysler.cda.event.message.tools.CustomDisplayWriteBackProgressMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.tools.CustomDisplayWriteBackProgressMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 39495,
+  "cinitMethod": 39490,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "dccac5d4f97be1636d4ada3556a204735f360790feed8d0a9edd01299fd79ea5",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 47,
+    "codeSha256": "92ed0986290d3031148ffcff9fa3e7485f8005c1733f34476ea6b5e1f1032aea",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "at",
+      "traitKind": "getter",
+      "methodIndex": 39496,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5c3ac8e22b97e62fcfc0704ff087c33a6f87d9a04c6fe9498e30b64beeb512a0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "total",
+      "traitKind": "getter",
+      "methodIndex": 39497,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cbae1b923331cc64a97fd0ac205c125773863e020f0ef68b8f8c565d36d7a64a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "NotifyCancel",
+      "traitKind": "method",
+      "methodIndex": 39494,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.tools.CustomDisplayWriteBackProgressMessage",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "0aac8911d44ce5fb7a6dbee0057fa681c0560f672cc00d12d5332cc821e4268d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "NotifyComplete",
+      "traitKind": "method",
+      "methodIndex": 39493,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.tools.CustomDisplayWriteBackProgressMessage",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "bb40d0293960b824bcf8b786a2e0b610ae566ed871ba303d560264fc1f646d38",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "UpdateAnalysis",
+      "traitKind": "method",
+      "methodIndex": 39491,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint"
+      ],
+      "returnType": "com.chrysler.cda.event.message.tools.CustomDisplayWriteBackProgressMessage",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "d42fc94c8c69dab9d646387a9918745b5ba55563694c7ab9ac43d1d3d8112283",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "UpdateWriting",
+      "traitKind": "method",
+      "methodIndex": 39492,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint"
+      ],
+      "returnType": "com.chrysler.cda.event.message.tools.CustomDisplayWriteBackProgressMessage",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "4d91eabb676e42d35d5a71aaf3e32b4c3f9fd5a03058b128cb0dbb512f68ef8c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

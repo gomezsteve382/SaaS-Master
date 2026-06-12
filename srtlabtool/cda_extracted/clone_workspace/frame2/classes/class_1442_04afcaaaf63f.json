@@ -1,0 +1,202 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1442,
+  "className": "spark.layouts.FormLayout",
+  "classNameNormalized": "spark.layouts.FormLayout",
+  "superName": "spark.layouts.VerticalLayout",
+  "superNameNormalized": "spark.layouts.VerticalLayout",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 31863,
+  "cinitMethod": 31859,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getMeasuredColumnWidths",
+      "traitKind": "method",
+      "methodIndex": 31865,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "__AS3__.vec.Vector<Number>",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "577d864053a0082576642338538e57c733d0dd70afa78e6ee0ae35fbb8526f53",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "measure",
+      "traitKind": "method",
+      "methodIndex": 31867,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 161,
+      "bytecode": {
+        "codeLength": 161,
+        "codeSha256": "89c10d8c85e1d6316ed69c8d1e4fd41ffd304a58b5d45519ebf76553ba37f672",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.calculateColumnMaxWidths",
+      "traitKind": "method",
+      "methodIndex": 31869,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<mx.core.ILayoutElement>"
+      ],
+      "returnType": "__AS3__.vec.Vector<Number>",
+      "hasBody": true,
+      "codeLength": 273,
+      "bytecode": {
+        "codeLength": 273,
+        "codeSha256": "76e402bbdf887b19588aad493f0ad2bd8dc2c9cd4dbcc2918022afcb317d711f",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "PrivateNs.constrainPercentColumnWidths",
+      "traitKind": "method",
+      "methodIndex": 31870,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<Number>",
+        "Number",
+        "__AS3__.vec.Vector<mx.core.ILayoutElement>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 433,
+      "bytecode": {
+        "codeLength": 433,
+        "codeSha256": "d043af6cd52a4806d84239292505108b483d1e9ab39a2a3ea22127b8ce75d4aa",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "setLayoutColumnWidths",
+      "traitKind": "method",
+      "methodIndex": 31866,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<Number>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "e4918fcac40899386597e18609aedc2bbd33f68dc21d5f6e5bc672712e07ac1a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "target",
+      "traitKind": "setter",
+      "methodIndex": 31864,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.supportClasses.GroupBase"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "a6106ed556f286128cfd99a7a9c744537315eab4fc585a57f5c80d2e44e53480",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 31868,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "88d47f724d60bcadde2cd42041e566d55e9b5c2389e045223eb4687ffce77667",
+        "bytecodeLineCount": 14
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.calculateColumnWidthsSum",
+      "traitKind": "method",
+      "methodIndex": 31860,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<Number>"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "fbcd2562951ce1ea84780a20433ce706e99ad5644f00685d7f9ab93aff7f46ba",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getElementLayout",
+      "traitKind": "method",
+      "methodIndex": 31861,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.ILayoutElement"
+      ],
+      "returnType": "spark.layouts.supportClasses.LayoutBase",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "8a428c58131dcb45c88a468e6a2f00731553d2b02a49c68aadaf0aa3d0201f94",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getFormItems",
+      "traitKind": "method",
+      "methodIndex": 31862,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.supportClasses.GroupBase"
+      ],
+      "returnType": "__AS3__.vec.Vector<mx.core.ILayoutElement>",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "9c0b22f2244e9c1e5f67a849494ad09c5b22720ebf9fc64914fdece38465834e",
+        "bytecodeLineCount": 8
+      }
+    }
+  ]
+}

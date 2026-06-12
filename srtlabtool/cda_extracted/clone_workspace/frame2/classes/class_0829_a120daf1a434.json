@@ -1,0 +1,211 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 829,
+  "className": "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay.CheckEOLConfiguration",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay.CheckEOLConfiguration",
+  "superName": "com.chrysler.cda.presentation.component.datagrids.ToggleHeaderDataGrid",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.datagrids.ToggleHeaderDataGrid",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.proxi.components.home.IViewAction"
+  ],
+  "iinitMethod": 16413,
+  "cinitMethod": 16412,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "68e0fea0ad59f5d9ad1612b0fbfa5a478d1f2b902914a940917aec90831d25a4",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "972cc74e11610af25d3ceaadb6830c8d741963377ca866b6ceff6600957eb4ef",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay:CheckEOLConfiguration.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 16424,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "dc603f81aab0fe203a46f70cacab00a4fbaa909160e694de99f6001ef69ffc0a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "factory",
+      "traitKind": "getter",
+      "methodIndex": 16422,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.ecu.ReadWriteDataValueItemRendererFactory",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4dd89b026f34d3c25912ab23f2b834de6730c16c212ef2d90433dc628f330193",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "factory",
+      "traitKind": "setter",
+      "methodIndex": 16423,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.ReadWriteDataValueItemRendererFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0f3c69e06034ba76f3a3a62d2048fbf1517a82fec1e76d6931df9388b2b7ec67",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "handleTriggerOfEOLData",
+      "traitKind": "method",
+      "methodIndex": 16416,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.TriggerECUEOLFilter"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "e86cfabd4595d8e47605220a7dbc9b53224df95e0ffce847bb38aeaf79878c04",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onCalledSetFocus",
+      "traitKind": "method",
+      "methodIndex": 16417,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.ProxiGlobalStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "49dbadb6d15848c00be30271577ad2a95f2d13522650618558b15473f1086af9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onShow",
+      "traitKind": "method",
+      "methodIndex": 16414,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "cef17fd5ca915c7ccae741397cc301c1edbe014f12105d6ef0b2100c7cdddaab",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 16418,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay.CheckEOLConfigurationPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bd0d22dfa024983cd4c602f99b31d1ef21889d9dba528a760ba697906dd216d7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 16419,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.components.home.eolConfigurationDataDisplay.CheckEOLConfigurationPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "cd0fceb6b039c08e75c8023bae711236c0b765bb1ed55f9b94bd5640ea360778",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setDefaultFocus",
+      "traitKind": "method",
+      "methodIndex": 16415,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "5447227b82a42f71ce3c37c82c64970683f5d83c14783187512fac9823493a4b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toggleButtonRendererFactory",
+      "traitKind": "getter",
+      "methodIndex": 16420,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.renderers.ToggleButtonRendererFactory",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "229d6cb13883db06308da41284afc97c8a22c16867951d4ead8502b8b94e5788",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toggleButtonRendererFactory",
+      "traitKind": "setter",
+      "methodIndex": 16421,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.renderers.ToggleButtonRendererFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9b58c7c4e20362cdb631d989cf7d3cac43ecc81c8619d935d48958244c25033d",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

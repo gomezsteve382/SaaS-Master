@@ -1,0 +1,301 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3327,
+  "className": "com.chrysler.skins.buttonbar.ComServiceActionButtonBarSkin",
+  "classNameNormalized": "com.chrysler.skins.buttonbar.ComServiceActionButtonBarSkin",
+  "superName": "spark.components.supportClasses.Skin",
+  "superNameNormalized": "spark.components.supportClasses.Skin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 51290,
+  "cinitMethod": 51289,
+  "iinitBytecode": {
+    "codeLength": 135,
+    "codeSha256": "03f47157c5ac8820df8e8edc59a352c4c4b057b8e4165ae42581d1fd526bbfb7",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dataGroup",
+      "traitKind": "getter",
+      "methodIndex": 51298,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.DataGroup",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "da225f3f309766716326cf8597e0a22e8ea8ebc0939202d5bcb2d11a336289bd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataGroup",
+      "traitKind": "setter",
+      "methodIndex": 51299,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.DataGroup"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "72cc7c073f4e256e8b7ae8fdcc960d83325ef26b3701c733e53ab50dfccbd923",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "firstButton",
+      "traitKind": "getter",
+      "methodIndex": 51300,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "75cda58eca3f7c4e3b3d53c11cc93eaccf4c070c59b143750178961e5380a07e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "firstButton",
+      "traitKind": "setter",
+      "methodIndex": 51301,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.ClassFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "94644aac4e08a9dd7913853040b5b2f013aa513c89ad8eba177dc02c3c10a1de",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 51306,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.ButtonBar",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ef6601fc292725966e09e0904c126016a069ae651d9be2b2e29dc5d823b155d5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 51307,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.ButtonBar"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "8f138f5897d807e9fb8f10718018fcd3543229bf6c682f5368285b3a98c5dfda",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 51292,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "lastButton",
+      "traitKind": "getter",
+      "methodIndex": 51302,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b54b6bd89947fe31b6334e59c9774daea4f76f3d363edf7a32957a19107b2c4f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "lastButton",
+      "traitKind": "setter",
+      "methodIndex": 51303,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.ClassFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c381d9d73e53bc76b9f1ed47af96996f7e07bf4dd9bd3e7c22cf8d8a777a6145",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "middleButton",
+      "traitKind": "getter",
+      "methodIndex": 51304,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b90747fb09784f7848df27efd6fa646c7377ab42b4426e7ff0eb945ef2e62969",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "middleButton",
+      "traitKind": "setter",
+      "methodIndex": 51305,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.ClassFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "f74e3c3e658f4ad42a95dff47b673837ef57d8243f8ed650d489ef0c96a568c8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 51291,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "f82e3d8e1bd5581cdd2c03de4b99cf1bd68939a607edbc94e1a5341c52e49cc2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ComServiceActionButtonBarSkin_ButtonBarHorizontalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 51297,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.supportClasses.ButtonBarHorizontalLayout",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "34714c45d67e9712c6529658e406b4de7362d170e3f89f229fc8b4cc03f58710",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ComServiceActionButtonBarSkin_ClassFactory1_i",
+      "traitKind": "method",
+      "methodIndex": 51293,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "19de53a8e1834aff82bea800c0fffa2b642063221683553d4444a2bee58e9d42",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ComServiceActionButtonBarSkin_ClassFactory2_i",
+      "traitKind": "method",
+      "methodIndex": 51295,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "b8d1e8bd1c0ba3f6dfe4838803f35cf231c33cf8acf0311c341887be9543d872",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ComServiceActionButtonBarSkin_ClassFactory3_i",
+      "traitKind": "method",
+      "methodIndex": 51294,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "619c61dc569a7c36d5a9139ea867721d0c29a889d7049c30cec7f0d566a0ce92",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ComServiceActionButtonBarSkin_DataGroup1_i",
+      "traitKind": "method",
+      "methodIndex": 51296,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.DataGroup",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "ac67d1a2d64922a7a85559809c8c0f059571b77b26cb013ad16e084399fcd2f2",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

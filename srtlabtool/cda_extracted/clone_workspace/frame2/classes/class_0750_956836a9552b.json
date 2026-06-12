@@ -1,0 +1,175 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 750,
+  "className": "com.chrysler.cda.presentation.component.tracer.TracerLauncher",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.tracer.TracerLauncher",
+  "superName": "spark.components.NavigatorContent",
+  "superNameNormalized": "spark.components.NavigatorContent",
+  "domainBucket": "tracer",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 14526,
+  "cinitMethod": 14525,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "fcac9bb4f90d86a4e5c9c791e4e8fc598343ccab30e1e0dba12bbb629edc695d",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 14531,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1540f545c2df7c1ce4976da131c07c9146001498ef3f7d8e1626519dfc9b0e20",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 14532,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "19ac1631cc8e1d6c047d85aa5b87b7dcb547ab2146c216f14989e260065fe333",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.tracer:TracerLauncher.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 14535,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a16a4b6fc22f513db37e02a03a66cac312403f6d5107a838e13d9947932fbc80",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 14533,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "cf5bac7e4a99aa2349cdc212cef22248182a92decf875441d2622fe0208b61e4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 14534,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "52d2a605e515825b2c9a59551c5111d400bf1f9629b0b0d5c37f4d0e4a80a4e9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 14529,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.tracer.TracerPopupPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7d822f3e2cf5ede32ba4fc89a6586449b617d4b751fe8aa4d55b3fa27d5b45cc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 14530,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.tracer.TracerPopupPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e9a53e3b4497a5ea9bdafb9fc5c22b79f6b1b213cd9d73bdfdedf7866ae4390e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "tracerModel",
+      "traitKind": "getter",
+      "methodIndex": 14527,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.application.tracer.TracerModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d2fff634e006a65ad7593c13c0b90f50f6bdcfadceb5d7904cbca39f4a5e60de",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "tracerModel",
+      "traitKind": "setter",
+      "methodIndex": 14528,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.application.tracer.TracerModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9d0e762c9f4e8c6013258e270582266c40f853fa9d23d80d04c64f574b54ee50",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

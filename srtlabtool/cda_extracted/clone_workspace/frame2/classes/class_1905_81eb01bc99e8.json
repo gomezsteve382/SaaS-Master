@@ -1,0 +1,256 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1905,
+  "className": "com.chrysler.cda.presentation.component.renderers.ToggleButtonRenderer",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.renderers.ToggleButtonRenderer",
+  "superName": "mx.controls.dataGridClasses.MXDataGridItemRenderer",
+  "superNameNormalized": "mx.controls.dataGridClasses.MXDataGridItemRenderer",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 35751,
+  "cinitMethod": 35748,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "41b2c89cd60397cc2a01dd0171d21688e12e62cd23daedd0058fd15cf7e6446b",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "data",
+      "traitKind": "setter",
+      "methodIndex": 35752,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "ddd4ce4b2bec9cd61d21a5fd86d05c9b28d9734598fa427b0f9fd96a72f53aac",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "headerText",
+      "traitKind": "getter",
+      "methodIndex": 35754,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a8ef90c50cf75ddee1f61b76834dade8b00b8b7e5950e753a62842d499a4ecad",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "headerText",
+      "traitKind": "setter",
+      "methodIndex": 35753,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "13cb73ea86c264c949964aa40d9adb6b21728e8b6546848496616204544c3096",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 35758,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5acb7b027035f112eb42a7c688782b677982338d58fb9ef496dcac47676221b1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 35759,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "2e3589289b65b62934211f071de39c6ff42e3abda351eeb6f8c4623552010292",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onMouseDown",
+      "traitKind": "method",
+      "methodIndex": 35755,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "3568506b4ff7d13723e9b6fffc3b953efe766bbde8abbe8dba582cf91a38ffba",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "shortLabelText",
+      "traitKind": "getter",
+      "methodIndex": 35762,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b744533466ea9c48543880b69e6acac99af9b5e8dc8a750d8eeb831246d30ae2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "shortLabelText",
+      "traitKind": "setter",
+      "methodIndex": 35763,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "f3a0c86b88be5aa409d4abd65c10c3c9683dc2cccb2cc438856c926b12277074",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "toggleButtonChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 35757,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 170,
+      "bytecode": {
+        "codeLength": 170,
+        "codeSha256": "b09022cb3741e034765b33c4c14437b5510f29d9ffcd688a75e8cade09cbcea1",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "toggleButtonClicked",
+      "traitKind": "getter",
+      "methodIndex": 35749,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c79d7c34640718adbf847f61fdb32f8a865d1c615f2faded59bd14aabf39f813",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toggleButtonEventProcessed",
+      "traitKind": "method",
+      "methodIndex": 35756,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "9aa226e32d258095b87b531c6141a96f7cae558955067fdf8e3a1b3c043f149a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toggleState",
+      "traitKind": "getter",
+      "methodIndex": 35750,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bdc4ef46b9461e6b189b91eb2d783774149072d0f5b0616bd1ca859354175de8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toolTipText",
+      "traitKind": "getter",
+      "methodIndex": 35760,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1c4a6cec2f5681f9296a2eb31497e8173b7fa643c3bb5ff18c654b6d6235d103",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toolTipText",
+      "traitKind": "setter",
+      "methodIndex": 35761,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "09a359bdc107a729b0f14c7e39fd6e07a1814f60a95a4b170b2205c9496e79c8",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

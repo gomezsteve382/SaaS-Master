@@ -1,0 +1,114 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1382,
+  "className": "PrivateNs.CubicBezierSegment",
+  "classNameNormalized": "PrivateNs.CubicBezierSegment",
+  "superName": "PrivateNs.PathSegment",
+  "superNameNormalized": "PrivateNs.PathSegment",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 30262,
+  "cinitMethod": 30261,
+  "iinitBytecode": {
+    "codeLength": 35,
+    "codeSha256": "67498d80dc60e2e52dee3a932d267fb62c70d23be380c0f33d5bb874615139a8",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "draw",
+      "traitKind": "method",
+      "methodIndex": 30263,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.GraphicsPath",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "PrivateNs.PathSegment"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 264,
+      "bytecode": {
+        "codeLength": 264,
+        "codeSha256": "54d4d5318bd5c4fda448db42d6dde92915bee8a8fd11407e8c55c3a1e4d8e08c",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "getBoundingBox",
+      "traitKind": "method",
+      "methodIndex": 30264,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.PathSegment",
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 320,
+      "bytecode": {
+        "codeLength": 320,
+        "codeSha256": "08cf83837fb97e4048f17fc91dc37be874100fca46045236448b5e0d2b052e1d",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "getTangent",
+      "traitKind": "method",
+      "methodIndex": 30265,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.PathSegment",
+        "Boolean",
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "flash.geom.Point"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 901,
+      "bytecode": {
+        "codeLength": 901,
+        "codeSha256": "b286dd68a97dc2a7148a6947d958b85b7dc6add52d2c883b3673bbadbeab0f39",
+        "bytecodeLineCount": 57
+      }
+    },
+    {
+      "traitName": "PrivateNs.getQuadraticPoints",
+      "traitKind": "method",
+      "methodIndex": 30266,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.PathSegment"
+      ],
+      "returnType": "PrivateNs.QuadraticPoints",
+      "hasBody": true,
+      "codeLength": 507,
+      "bytecode": {
+        "codeLength": 507,
+        "codeSha256": "4475044035f30b1773e5170df265d47cd3c8229c86467e844cf6cbd24c7fc1fa",
+        "bytecodeLineCount": 32
+      }
+    }
+  ],
+  "staticMembers": []
+}

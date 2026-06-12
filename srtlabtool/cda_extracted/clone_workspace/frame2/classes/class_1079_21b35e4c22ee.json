@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1079,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.WriteDDECommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.WriteDDECommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23435,
+  "cinitMethod": 23430,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 44,
+    "codeSha256": "e2687302baa30b75fde60718ab454bcba0bacf4d5a2e3259972070e4bd04fb88",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onWriteDDE",
+      "traitKind": "method",
+      "methodIndex": 23431,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.WriteDDEMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 322,
+      "bytecode": {
+        "codeLength": 322,
+        "codeSha256": "b8c8da268c31730bb24df58261888b08ed7a5086bf8932bf558c08329ddbc42b",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "onWriteDDEError",
+      "traitKind": "method",
+      "methodIndex": 23434,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.WriteDDEMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "b02644ad6d2af8a10f3f110444c1f6d6008050921bb2c7c3f9b590eed1d2f921",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onWriteDDEResult",
+      "traitKind": "method",
+      "methodIndex": 23433,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.WriteDDEMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 547,
+      "bytecode": {
+        "codeLength": 547,
+        "codeSha256": "117e9fdf469673e1305c6046de3c4b62b641c0574f19ac279806e711a5c99d8f",
+        "bytecodeLineCount": 35
+      }
+    }
+  ],
+  "staticMembers": []
+}

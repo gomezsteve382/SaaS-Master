@@ -1,0 +1,154 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3069,
+  "className": "wde.common.domain.impl.JSONDataTranslator",
+  "classNameNormalized": "wde.common.domain.impl.JSONDataTranslator",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "wde.common.domain.IDataTranslator",
+    "wde.common.logging.ILoggable",
+    "wde.common.framework.IDisposable"
+  ],
+  "iinitMethod": 48939,
+  "cinitMethod": 48931,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 48933,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "9058208ac3847c4fb0cda7ffab12e6783d729facfea6233cb35ff7d2bf88c9dd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "logger",
+      "traitKind": "getter",
+      "methodIndex": 48932,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "de252875b9bb94022f8597cff5fb8181564e2bcee827eff39ac59ebaebf957a1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "parseObject",
+      "traitKind": "method",
+      "methodIndex": 48935,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "0087c8c058102d000fefefe8e19cdf03188f7b7b716806663c07ab595c7bcdd0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseJson",
+      "traitKind": "method",
+      "methodIndex": 48938,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "2480b99fa445034363aa1393d1082b9bf353caa706bb7cabdb1c2eafb8c88aa5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.translateArrayObjects",
+      "traitKind": "method",
+      "methodIndex": 48936,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Class"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "42faead198a178f3c7ecc8187a12b8e9bb89875b6d7a8f1c9c1d24fe099043cc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.translateObject",
+      "traitKind": "method",
+      "methodIndex": 48937,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Class"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "c8a519993f1f3c6d527b1e3c849cb0fd17d215b9c2c5b31542c963d73bda9596",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "translate",
+      "traitKind": "method",
+      "methodIndex": 48934,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.domain.impl.TranslationOptions"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "6909aa9ae06034dcec8a910dafdbe9b72ca9f844c22067278c75548a4f94790f",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

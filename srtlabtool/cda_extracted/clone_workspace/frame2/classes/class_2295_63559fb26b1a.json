@@ -1,0 +1,344 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2295,
+  "className": "com.chrysler.cda.presentation.component.reports.ScanReportsProcessor",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.reports.ScanReportsProcessor",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 40726,
+  "cinitMethod": 40708,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "a039605caf9297fb7584674e3377f9d448c5d8f7479f4ef41aa950e5ace22226",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 40724,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "ced832be67ac4fffe03ce5369343e482a9be86206147e5cf5bbca72217cb774b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "makeHeaderInfo",
+      "traitKind": "method",
+      "methodIndex": 40725,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "com.chrysler.cda.domain.discovery.device.DiscoveredDevice",
+        "com.chrysler.cda.domain.YearBodyInfo",
+        "String",
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 2173,
+      "bytecode": {
+        "codeLength": 2173,
+        "codeSha256": "6e30b77351e542fc3ac8da5e4c01a7c2460ddf76f010122c211be67e03c32f2e",
+        "bytecodeLineCount": 136
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "findDTCSnapshotDataForScanReportMessageErrorProcessor",
+      "traitKind": "method",
+      "methodIndex": 40716,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.report.FindDTCSnapshotDataForScanReportMessage",
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "a99e318aa28182eee7938548e3340b04855b4cabe964951fdb2ecede8a3bfafe",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "findDTCSnapshotDataForScanReportMessageResultProcessor",
+      "traitKind": "method",
+      "methodIndex": 40715,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.report.FindDTCSnapshotDataForScanReportMessage",
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 536,
+      "bytecode": {
+        "codeLength": 536,
+        "codeSha256": "2c273774ded6c6c5b26221c8e758e7ce472888f07ea3f690354debc50ed69dd7",
+        "bytecodeLineCount": 34
+      }
+    },
+    {
+      "traitName": "generateXMLContentFromLogicalBlocks",
+      "traitKind": "method",
+      "methodIndex": 40723,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "XML",
+        "String",
+        "Boolean",
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 207,
+      "bytecode": {
+        "codeLength": 207,
+        "codeSha256": "df4e5fdb0f234c97f333f9949345cc1c53f5b62c0ca8826c5a98ae23a061833b",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "makeDataElement",
+      "traitKind": "method",
+      "methodIndex": 40720,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "77fdbbf72cf46aad51909101f84f009e348bb8799b23f34c9c872f088d812dba",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "makeDTCDataChild",
+      "traitKind": "method",
+      "methodIndex": 40719,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ebc931262526fce86ca2757dd5ed696cac310309af99d308ce9c74959bb4a91b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "makeEcuInformationChild",
+      "traitKind": "method",
+      "methodIndex": 40718,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "64b04014d58a59197a97e99a97e46eda2acabfbe4af02bdad26ff123a0a3442c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "requestDTCEnvironmentalDataForReportMessageErrorProcessor",
+      "traitKind": "method",
+      "methodIndex": 40717,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.report.RequestDTCEnvironmentalDataForReportMessage",
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "bb27ac0d73c89303222a2572315c809030ee3fdf0102744999be42e676ba0e7b",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "requestDTCEnvironmentalDataForReportMessageResultProcessor",
+      "traitKind": "method",
+      "methodIndex": 40714,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.report.RequestDTCEnvironmentalDataForReportMessage",
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "mx.collections.XMLListCollection",
+      "hasBody": true,
+      "codeLength": 220,
+      "bytecode": {
+        "codeLength": 220,
+        "codeSha256": "2f994305a612832754d6d109c5c6a50c2eec2ab87beacf1cd149633da0c54f00",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "requestDTCForReportMessageErrorProcessor",
+      "traitKind": "method",
+      "methodIndex": 40713,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.report.RequestDTCForReportMessage",
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 189,
+      "bytecode": {
+        "codeLength": 189,
+        "codeSha256": "9631f8006da7bef408f9351e65e0d5a5bb3902091683942398b062f10ee2868e",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "requestDTCForReportMessageResultProcessor",
+      "traitKind": "method",
+      "methodIndex": 40712,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "String",
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 232,
+      "bytecode": {
+        "codeLength": 232,
+        "codeSha256": "477d18c32a9221ef7e3e78b485c190c73c9e539cfd7c96726553341c01e387d7",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "requestECUInstanceIdMessageErrorProcessor",
+      "traitKind": "method",
+      "methodIndex": 40709,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "ef6337f9baf48dfb53b171a46a2c4aaacf96e4db2fd9aedb548fc9969a9e37b2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "wrapApplicationSoftwareVersion",
+      "traitKind": "method",
+      "methodIndex": 40711,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "XML",
+        "Boolean"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "0484d25db77dabfd7c329dbd5d471326dda297e0aeec20034395da770ff1b8ef",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "wrapContent",
+      "traitKind": "method",
+      "methodIndex": 40722,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 183,
+      "bytecode": {
+        "codeLength": 183,
+        "codeSha256": "db0160a1f99ed5f4649ef5806202fec0682bd6fbd39db1df47a632e0cf5293eb",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "wrapDDEContent",
+      "traitKind": "method",
+      "methodIndex": 40721,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object",
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "5d1b92b02a8b82cd7e29010226023f08bd22c3712b65c671741b3bab164a685a",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "wrapSoftwareVersion",
+      "traitKind": "method",
+      "methodIndex": 40710,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "XML",
+        "Boolean"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "0a67c87cd26c2d4461c17301e22168d9b7a5f77d2976479e9aa99aa3a295470c",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

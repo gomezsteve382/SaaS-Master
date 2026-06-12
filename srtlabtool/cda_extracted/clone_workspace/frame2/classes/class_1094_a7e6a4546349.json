@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1094,
+  "className": "com.chrysler.cda.application.discover.StartDiscoveryAgentsCommand",
+  "classNameNormalized": "com.chrysler.cda.application.discover.StartDiscoveryAgentsCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23661,
+  "cinitMethod": 23656,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "9a805f4be3f7b631e1b66d6b5741505c76817467c450bc4003af0ed44d25f3c7",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onAddUserSpecifiedPodDiscovery",
+      "traitKind": "method",
+      "methodIndex": 23659,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.discover.AddUserSpecifiedPodMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 155,
+      "bytecode": {
+        "codeLength": 155,
+        "codeSha256": "e6f3e9ba38f0ea56a94463d12091c2e0802cfb6f72e6267e87d6ae879f9b84e7",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "onStartSLPDiscovery",
+      "traitKind": "method",
+      "methodIndex": 23657,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.discover.StartDiscoveryAgentsMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 272,
+      "bytecode": {
+        "codeLength": 272,
+        "codeSha256": "be61cbedb658917b40956ec873175196433cfcd055712e4e5ea8345a6deef35d",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "onStopSLPDiscovery",
+      "traitKind": "method",
+      "methodIndex": 23658,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.discover.StopDiscoveryMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "f5495bf8403228167290393116d082aa8979a7aa314612371d6640057655f9b0",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "onStopUserSpecifiedPodDiscovery",
+      "traitKind": "method",
+      "methodIndex": 23660,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.discover.RemoveUserSpecifiedPodMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "dad10e402454b3a4512aa7ce4ced4408f60f67385f7829860ca8b5773a95ee70",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

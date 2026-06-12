@@ -1,0 +1,309 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3427,
+  "className": "org.httpclient.HttpClient",
+  "classNameNormalized": "org.httpclient.HttpClient",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 52418,
+  "cinitMethod": 52417,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "0d33e6fdda39b77f611bd01aa9f32b0885ad4a689948221b7b5a98abcce4a4a6",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cancel",
+      "traitKind": "method",
+      "methodIndex": 52423,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "72755692a92e2137142798528bd74512adcaf6a8cce54f2e763d84e31f10e38a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "close",
+      "traitKind": "method",
+      "methodIndex": 52424,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "76c3aaa7501738fe59030ca3506ab4ca5638bd7bd7618e617aee5f355c373b26",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "del",
+      "traitKind": "method",
+      "methodIndex": 52434,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "7b8248fb1b4fdbc35a15ea6f926eb312fdc20a8fdfca33dc0227fce82a45503a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "get",
+      "traitKind": "method",
+      "methodIndex": 52427,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "org.httpclient.events.HttpListener"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "e3864d2dfa6782090aaa761761adb6770e5f32a621c4857ad18952be24ff6c4f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "head",
+      "traitKind": "method",
+      "methodIndex": 52433,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "ec62358464b7178ec2fa1ff9b080a145263a7b90795d84f3b265aa5d84d3c8ac",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "listener",
+      "traitKind": "getter",
+      "methodIndex": 52419,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.httpclient.events.HttpListener",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "e7954fb98a258840d7a66df180034e31594047e9410d685ef43cc41581506cb1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "listener",
+      "traitKind": "setter",
+      "methodIndex": 52420,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.events.HttpListener"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "4d9b9713af4217d88679f0663b120eb8fd6d78aeb3ce9adc0edbd99c23a5c01c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "post",
+      "traitKind": "method",
+      "methodIndex": 52430,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "*",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "ab870fc3dbb027cf2c2cdb92bb940bda00e87944d01d3ad5103806e79dedb0a4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "postFormData",
+      "traitKind": "method",
+      "methodIndex": 52428,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "3c937494d34e222f5b65523ca4a6d11f1a5b44925b65cce9c37769ff1922e116",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "postMultipart",
+      "traitKind": "method",
+      "methodIndex": 52429,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "org.httpclient.http.multipart.Multipart"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "4d6a1479c6aebc36e2ff8784e8226e40c6fb5eedadd3adf5d600326f979a8579",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "put",
+      "traitKind": "method",
+      "methodIndex": 52431,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "*",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "0bbf14b79ccf958b1ce65ee247b01cc3388aa374fce086aaf567d4a232a603f1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "putFormData",
+      "traitKind": "method",
+      "methodIndex": 52432,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "1d779cdcfcc43ce2945a7d52f9bcae4a2a1576f565f58c572220b1c9f2a89bf0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "request",
+      "traitKind": "method",
+      "methodIndex": 52425,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "org.httpclient.HttpRequest",
+        "int",
+        "org.httpclient.events.HttpListener"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "c37a925cd0a0c63cb470896f3f8d8dae300d3ae99378c53b37be56c00e1bb15b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "timeout",
+      "traitKind": "getter",
+      "methodIndex": 52422,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f13329eb012c2fcc2f6abbf8a34f46bb61aa77bcae5bdd76d07c0c7916f16775",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "timeout",
+      "traitKind": "setter",
+      "methodIndex": 52421,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "940b248f300f7cf83ce2f0bc76a906d6d03e8bd112b5e6780e534cce3f8a8043",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "upload",
+      "traitKind": "method",
+      "methodIndex": 52426,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "*",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "67a5de5a51be5d7872f9d721d7331b79ee9bebf30cc689b640857865bce6be2b",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": []
+}

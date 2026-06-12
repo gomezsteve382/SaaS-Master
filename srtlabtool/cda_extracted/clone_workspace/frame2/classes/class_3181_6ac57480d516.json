@@ -1,0 +1,114 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3181,
+  "className": "com.hurlant.crypto.symmetric.SimpleIVMode",
+  "classNameNormalized": "com.hurlant.crypto.symmetric.SimpleIVMode",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.symmetric.IMode",
+    "com.hurlant.crypto.symmetric.ICipher"
+  ],
+  "iinitMethod": 50114,
+  "cinitMethod": 50113,
+  "iinitBytecode": {
+    "codeLength": 22,
+    "codeSha256": "52fdea56de1b1435ea04da6601bf90f0e4015c2e54e681bbc75149dd0e1ab97f",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decrypt",
+      "traitKind": "method",
+      "methodIndex": 50118,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "0c76ca95c213263f054de102255c076a247f79446bebfce164aea9f41b915ebe",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 50116,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "7e469ac4a776c6a2a3ef2a0bf6850811c23c8a27dd2f1d7b40126021b8109fb4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "encrypt",
+      "traitKind": "method",
+      "methodIndex": 50117,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "56d32f981491de63fab6386c25f89071d2b10a2cf2d1a3f626395e8a7123dbcb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getBlockSize",
+      "traitKind": "method",
+      "methodIndex": 50115,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "c17f6a7f3bfa06607958ad34a9a51faa198121157c237b666a15fef96b967196",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 50119,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "e0046eef20996e9ef6e7be8010ee9c94f7aa461b4c550361c91fe3ebcf8fd093",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

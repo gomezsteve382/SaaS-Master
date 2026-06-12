@@ -1,0 +1,52 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3088,
+  "className": "com.diagnosticProcedures.command.ManualSessionControlCommand",
+  "classNameNormalized": "com.diagnosticProcedures.command.ManualSessionControlCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.api.ICommand"
+  ],
+  "iinitMethod": 49076,
+  "cinitMethod": 49074,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createAndExecuteService",
+      "traitKind": "method",
+      "methodIndex": 49075,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.IResponder",
+        "Object"
+      ],
+      "returnType": "wde.common.services.IClosable",
+      "hasBody": true,
+      "codeLength": 141,
+      "bytecode": {
+        "codeLength": 141,
+        "codeSha256": "c6f9ce98bd0fcb66e71ec3cd728ce5dd3ed2782106d4a14e3908692dc12e78a8",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": []
+}

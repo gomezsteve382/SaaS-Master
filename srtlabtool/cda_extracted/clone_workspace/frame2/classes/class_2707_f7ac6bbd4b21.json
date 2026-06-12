@@ -1,0 +1,243 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2707,
+  "className": "mx.controls.listClasses.ListItemRenderer",
+  "classNameNormalized": "mx.controls.listClasses.ListItemRenderer",
+  "superName": "mx.core.UIComponent",
+  "superNameNormalized": "mx.core.UIComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IDataRenderer",
+    "mx.controls.listClasses.IDropInListItemRenderer",
+    "mx.controls.listClasses.IListItemRenderer",
+    "mx.core.IFontContextComponent"
+  ],
+  "iinitMethod": 45399,
+  "cinitMethod": 45398,
+  "iinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "3a7a2c40a0e8432e87a666dae1e77f39a5100b042ac05a22c142f293419d761e",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "baselinePosition",
+      "traitKind": "getter",
+      "methodIndex": 45400,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "becad436bbfd756beac499200c2d5776e665243b11708a6caa6e45925a764f78",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "getter",
+      "methodIndex": 45401,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "61dd76d2ad0aa6c7548652b2c8e8bdf7282caacc116ab1e4a4f45b6f76ad8496",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "setter",
+      "methodIndex": 45402,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "f04d9ca7e3dc827e278b1b1a20971e0aa82f11a595dccc75d8d865adb4c194e7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "fontContext",
+      "traitKind": "getter",
+      "methodIndex": 45403,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFlexModuleFactory",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "19a96601b1ecda348a9f945180a519e8253538a768a36217a8ee3d36506da843",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fontContext",
+      "traitKind": "setter",
+      "methodIndex": 45404,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c92d172ec9c23cf6daa730a6b23242463df62241a422fb0db347a9de166a2fdc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getLabel",
+      "traitKind": "method",
+      "methodIndex": 45412,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IUITextField",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f1f579a0d85d1ca16748a921d4f9dba6d615f2568b96e606481295246fa1329b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "getter",
+      "methodIndex": 45405,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.listClasses.BaseListData",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3680734a3d3d928615ca04f19368806cbffc0f50e1cc7fce824f50ce47d4c8bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "setter",
+      "methodIndex": 45406,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.listClasses.BaseListData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "e96f4482f15fa839bd54a2921935db97f68126970c9b3dcadef793b425659415",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.controls.listClasses:ListItemRenderer.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 45408,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 465,
+      "bytecode": {
+        "codeLength": 465,
+        "codeSha256": "d22394c475b2d4d4faf7589cd8fc7488c86b56612f91a1a170e4fb0d67abd598",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "mx.controls.listClasses:ListItemRenderer.createChildren",
+      "traitKind": "method",
+      "methodIndex": 45407,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "d2bab824bf2601e39091df353abace0f8432cd63c5c071d8a246087c361fe6a6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.controls.listClasses:ListItemRenderer.measure",
+      "traitKind": "method",
+      "methodIndex": 45409,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 248,
+      "bytecode": {
+        "codeLength": 248,
+        "codeSha256": "9a05b1230782559b0597725656105ab8ca83781847a03fb5ca51c6ff469aafc4",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "mx.controls.listClasses:ListItemRenderer.toolTipShowHandler",
+      "traitKind": "method",
+      "methodIndex": 45411,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.ToolTipEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "ca92562ac6cb59292df6d3ae9c85ce33f0a0cf4218bd3db25ca6206f273efb3a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.controls.listClasses:ListItemRenderer.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 45410,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 433,
+      "bytecode": {
+        "codeLength": 433,
+        "codeSha256": "334dd5d0d578b0c49ca39c91345df8244ab2bff619c999eaf821d590dc3ab1b9",
+        "bytecodeLineCount": 28
+      }
+    }
+  ],
+  "staticMembers": []
+}

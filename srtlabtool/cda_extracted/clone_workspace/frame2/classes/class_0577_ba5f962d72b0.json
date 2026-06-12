@@ -1,0 +1,354 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 577,
+  "className": "mx.graphics.GradientBase",
+  "classNameNormalized": "mx.graphics.GradientBase",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 11119,
+  "cinitMethod": 11118,
+  "iinitBytecode": {
+    "codeLength": 30,
+    "codeSha256": "030d30de4b83f5e8d4fe5c1e3c9c09ce0943de2f828349c30767642e2bbaf7af",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "9aa1beb69fdf33f27121161cd45deedff3b7df1650a6c8cc17137253ac8c5a96",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "angle",
+      "traitKind": "getter",
+      "methodIndex": 11120,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "7cfb08c681ad70dd1c47a1e0416b81a27fde91f6f8e1344fe29dbe6cd88bc7d0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "angle",
+      "traitKind": "setter",
+      "methodIndex": 11121,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "adf24e1f731833925b0bd475133e6165109b413eaa671fc89e72d2b3c1a17a01",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "entries",
+      "traitKind": "getter",
+      "methodIndex": 11122,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b36bec79fcc8f5b3a50ee75b84ccff03815d19ea66a7bcf59b3d08685b21520a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "entries",
+      "traitKind": "setter",
+      "methodIndex": 11123,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "7e2cd1844d4a5d79e826b06def5df9d45abb79de3cc03796a9dc46a13e31c3b2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.dispatchGradientChangedEvent",
+      "traitKind": "method",
+      "methodIndex": 11138,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "*",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "7eddd8d76734128a66a1ed3d5839945b09195fe0c1a67356ed23b61f2cc4e26a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.rotationInRadians",
+      "traitKind": "getter",
+      "methodIndex": 11136,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "091ac59d03b7892ace0b2b6074c0619f11a684fe142e016f1e8190fad06cffb8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "interpolationMethod",
+      "traitKind": "getter",
+      "methodIndex": 11124,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ea5400a32cde495284864343f7cc9d97fc1ed327ae9e81942af201b60f541129",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "interpolationMethod",
+      "traitKind": "setter",
+      "methodIndex": 11125,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "50cdc2673434e4973f2eafe57430db37a037b8b60694b5b2afb793f99e6eac8b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "matrix",
+      "traitKind": "getter",
+      "methodIndex": 11126,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Matrix",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "bbef2b17d98ca740084d2f8a0964d4abad7afeb7316274dcd8596fc0b4097ca1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "matrix",
+      "traitKind": "setter",
+      "methodIndex": 11127,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "22d62606e07caf2ed9f47b4fb3b08b2910410e76d422984d45009e867666a667",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.entry_propertyChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 11139,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "cd0be7b880edbf3f82b6a43f97772b022f240f6ec4ed631d001339c6ccc75269",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.processEntries",
+      "traitKind": "method",
+      "methodIndex": 11137,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 424,
+      "bytecode": {
+        "codeLength": 424,
+        "codeSha256": "b93e616023ab25892ef85c8db402a76984147bca8a4c8209445e79a6688c0c37",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "rotation",
+      "traitKind": "getter",
+      "methodIndex": 11128,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "e1a88df80be8a7a3d4daa4b009870669ce9926e002be96f1b79b234a2d3fdf4e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "rotation",
+      "traitKind": "setter",
+      "methodIndex": 11129,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "4da9e0e2e365163668a0413e1c145f4643a54e6f71232fe961a701e042922f23",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spreadMethod",
+      "traitKind": "getter",
+      "methodIndex": 11130,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fdc757048ee2158b9c80bc9866cbe54848ef6b5a76fba810e15322e79b47669a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spreadMethod",
+      "traitKind": "setter",
+      "methodIndex": 11131,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "34cca915013bd73b7497fd7ea6028d2c5d31f38de083098a0abd7899419c970f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "x",
+      "traitKind": "getter",
+      "methodIndex": 11132,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "d82827efc95a9ddf571ff4a44bfa785438b1391bf3c5b6a1264b29b92f1437a9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "x",
+      "traitKind": "setter",
+      "methodIndex": 11133,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "5b087e9ecf51b247a5a7495974c140f245247e7da9326a711e3cf27e8f31c63d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "y",
+      "traitKind": "getter",
+      "methodIndex": 11134,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "d5716b7d82a22fac780d8d0bbda8122f153496cd0b489e5ef7e83df7a841a4ef",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "y",
+      "traitKind": "setter",
+      "methodIndex": 11135,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "271db4f83a40f756549ba1022c8dd0c4c9d8fa884b657bfd97eebb2b7d095ec0",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

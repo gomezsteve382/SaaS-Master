@@ -1,0 +1,310 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1846,
+  "className": "flashx.textLayout.events.FlowElementMouseEventManager",
+  "classNameNormalized": "flashx.textLayout.events.FlowElementMouseEventManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 34991,
+  "cinitMethod": 34990,
+  "iinitBytecode": {
+    "codeLength": 220,
+    "codeSha256": "c29c3942afc3e81e5d039074f4fff5a8fa7a44d63c8f0be4bd560e1969d7b4ea",
+    "bytecodeLineCount": 14
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 35001,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "67e88eb8fec673be8724b0135937b1f0e5135836f4b36937c22ad85f6b3dfa96",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.collectElements",
+      "traitKind": "method",
+      "methodIndex": 35000,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowGroupElement",
+        "int",
+        "int",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 148,
+      "bytecode": {
+        "codeLength": 148,
+        "codeSha256": "5a181586046a3ca211335e80d78d354c2b612de8fc3695aaae449ee78a9c4e72",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.dispatchFlowElementMouseEvent",
+      "traitKind": "method",
+      "methodIndex": 35005,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "7af1215ffb622cfbe0a8b0a314d5b7988d3af4504b3b1b9ea4526dc1b18c448f",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.setHandCursor",
+      "traitKind": "method",
+      "methodIndex": 35007,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 213,
+      "bytecode": {
+        "codeLength": 213,
+        "codeSha256": "c3598bf7cf8c9bcbfa06ebdfae55ebd732b8072063ecd7e75ef70d05f7917c6b",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.startHitTests",
+      "traitKind": "method",
+      "methodIndex": 34996,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "efd6ad025ff46849ba84946feee7d6039e41cc0b56f74baaa2911e76e42e87af",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "mouseToContainer",
+      "traitKind": "method",
+      "methodIndex": 34992,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "b2cf2d82b13da7af2086179dca0b3f74e4b133f895405b55f4009f8c5c864b07",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "needsCtrlKey",
+      "traitKind": "getter",
+      "methodIndex": 34993,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b1f1b99587c6e7dcce4887cde1735ad8a785e5c392a0866cabc16912e193190d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "needsCtrlKey",
+      "traitKind": "setter",
+      "methodIndex": 34994,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "c04ed7650a1c44550fcbc2d200b9fe14ad5c42f147fd28b3afadfd8408bb99b8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.addEventListener",
+      "traitKind": "method",
+      "methodIndex": 34998,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "b02c1b144b8f5e9e0ba7318563b16f0bb341caaad3c5ab86b742a9b926d69719",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkCtrlKeyState",
+      "traitKind": "method",
+      "methodIndex": 35003,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "3e64d01d7278ac27305f5600d0acbffd581d549de829c2ff7718d414eb5680db",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.hitTestKeyEventHandler",
+      "traitKind": "method",
+      "methodIndex": 35002,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "435e526743ef07cb78ea865e35552ddf80d041a52be318122ead471c44127a15",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.hitTestMouseEventHandler",
+      "traitKind": "method",
+      "methodIndex": 35004,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 397,
+      "bytecode": {
+        "codeLength": 397,
+        "codeSha256": "86523c4588d2d3560d98aaf45f45c0caa56f82a549ead9d876732c4d1aae19cd",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "PrivateNs.localDispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 35006,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 484,
+      "bytecode": {
+        "codeLength": 484,
+        "codeSha256": "250cf5d948a37fde62440d9dc7ac7278196030a25cd258670a23f10ba8d9d62f",
+        "bytecodeLineCount": 31
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 34999,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 113,
+      "bytecode": {
+        "codeLength": 113,
+        "codeSha256": "777dfe7ec46c179ef0480038de4f9d8be30e2950031d320646dba74b7a23deb1",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "stopHitTests",
+      "traitKind": "method",
+      "methodIndex": 34997,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 124,
+      "bytecode": {
+        "codeLength": 124,
+        "codeSha256": "f9342a5a961cfec04208f2d3979e42a712e8168de8ae9afd6ebb296f839af715",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "updateHitTests",
+      "traitKind": "method",
+      "methodIndex": 34995,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "flash.geom.Rectangle",
+        "flashx.textLayout.elements.TextFlow",
+        "int",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 511,
+      "bytecode": {
+        "codeLength": 511,
+        "codeSha256": "f2479a155c2bcd2d8fb68c74f08d2724e76855f68b685c7c2eb6db6b499b93b8",
+        "bytecodeLineCount": 32
+      }
+    }
+  ],
+  "staticMembers": []
+}

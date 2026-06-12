@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1193,
+  "className": "com.chrysler.cda.application.views.EngineeringFilesCommand",
+  "classNameNormalized": "com.chrysler.cda.application.views.EngineeringFilesCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 26867,
+  "cinitMethod": 26862,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "8c899ed74505127f9a97df68db89433c5b768403b9a952112aeec1f4b5f68be6",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onCustomDisplayEngineeringFiles",
+      "traitKind": "method",
+      "methodIndex": 26865,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.tools.EngineeringFilesCustomDisplayMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "4824bb0d22afd99a9a581179d8983679dc1ab19248c2aab86834d377252a47da",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onGetAllECUsInExistence",
+      "traitKind": "method",
+      "methodIndex": 26866,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.view.IECUMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "821c7e072066f50f127fcb6570e8b3a8868f07b953bd7abfa8c5f87c7ff7cfd4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onGetEngineeringFiles",
+      "traitKind": "method",
+      "methodIndex": 26863,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.view.EngineeringFilesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e82aa17e4ae004e31fffeeb3afe556ae5dcc143ab3d18855fe0f612e1f170efe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onGetEngineeringFilesForECUAcronym",
+      "traitKind": "method",
+      "methodIndex": 26864,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.view.EngineeringFilesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "9f440e51eda733c8dd6b943e17ef619fb50b294bb19d99be717b8ab60c59fa72",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

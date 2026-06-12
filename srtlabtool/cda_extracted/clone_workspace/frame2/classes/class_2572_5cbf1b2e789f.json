@@ -1,0 +1,315 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2572,
+  "className": "com.chrysler.cda.presentation.component.tracer.components.support.report.driveit.TracerReportViewImpl",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.tracer.components.support.report.driveit.TracerReportViewImpl",
+  "superName": "com.chrysler.cda.presentation.component.tracer.components.support.report.driveit.TracerReportView",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.tracer.components.support.report.driveit.TracerReportView",
+  "domainBucket": "tracer",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 44010,
+  "cinitMethod": 44006,
+  "iinitBytecode": {
+    "codeLength": 378,
+    "codeSha256": "09c49d1cda29596e5fd5d6cae248c0d37a372a16cad6fc768e74486f590eef90",
+    "bytecodeLineCount": 24
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___TracerReportViewImpl_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 44020,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "d79ac7530167e5b991ec62e6e3d58ab3c01c15a2e3b0d4eaed056c36813018b1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___TracerReportViewImpl_Button2_click",
+      "traitKind": "method",
+      "methodIndex": 44023,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "d67314aac5deb62c83aaca122533f90ad6a70eebe2d551c3c17ca2ba2438e990",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___TracerReportViewImpl_HelpButton1_click",
+      "traitKind": "method",
+      "methodIndex": 44018,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "9647035f26a14c7f52436e5acd2ea2d863c7b0d58aae98a9a070f63c10244e68",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 44012,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 44011,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "68c80ae6a68a03330ea39e0b2baa2bec2dc2f66f82904fc24c8cea7b5a9aef94",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 44038,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 324,
+      "bytecode": {
+        "codeLength": 324,
+        "codeSha256": "0e527f2c7beeda65ac83c880a3b3925fa3aedf1edfcc48ac39c602afcee9f439",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 44019,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "27deaf28e4f1a69043fc0f68822d950cba487becef527f24acfb078181e0fc4e",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 44022,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "b2a820d934fbfaaf35812ba3f3c7ccbe0989fab4a505c901d54cfa140418207d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_ErrorCollapsableContainerImpl1_i",
+      "traitKind": "method",
+      "methodIndex": 44026,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.tracer.components.ErrorCollapsableContainerImpl",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "b89472daa1f1bb0ed237fcc84f35477f5faac07a22c77621b820791c5628f241",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_HelpButton1_i",
+      "traitKind": "method",
+      "methodIndex": 44017,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.skins.help.HelpButton",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "2a52a228d7bcb35cee305d80706e2b38e17195285a1a40ba1531314287a7d0fd",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_HGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 44015,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "40941f32b2c5440f9a42b72af09a618f1c216e083db6796657c9f348bc04d344",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 44013,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "e70c2a62ec4ea0f31d1cebc8e7685604ee03723a856a76c395efc4d9da2a55c7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_Label2_i",
+      "traitKind": "method",
+      "methodIndex": 44014,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "cf1a232ff849b7914b27dd0ee343d1b4c450fb0801468cf32f4cd390c3395701",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_Label3_i",
+      "traitKind": "method",
+      "methodIndex": 44016,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "72e6047e1bbcbb67f6bca4b4b84173468cd83ea8516110ba4c06f9be54207b9c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_Label4_i",
+      "traitKind": "method",
+      "methodIndex": 44021,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "6e02a88b21d5c4cc22be20e9771a68dc798ebaedb00e72c921d5954bc47fe1b4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_Scroller1_c",
+      "traitKind": "method",
+      "methodIndex": 44024,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "f09ef687b64b349aca5e92317d33fb64c8fc91ce14056094d666abc94b62e8f0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._TracerReportViewImpl_VGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 44025,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "2493da13d07b684122aa637297da1b7ad6e50c6416fee4011cb4d0486315f61a",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 44007,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "4e1526c33753c229408b8b64d704317db5eac3b328cd9be6882ee8a22bd82c1d",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

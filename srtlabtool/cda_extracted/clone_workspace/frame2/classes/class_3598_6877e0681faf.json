@@ -1,0 +1,292 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3598,
+  "className": "com.adobe.crypto.MD5",
+  "classNameNormalized": "com.adobe.crypto.MD5",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54047,
+  "cinitMethod": 54033,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "hash",
+      "traitKind": "method",
+      "methodIndex": 54034,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "cda0f99d6426d5a437d25f1d2ecbef75649a90eaf82b5594a0a32ff7b2f84277",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hashBinary",
+      "traitKind": "method",
+      "methodIndex": 54036,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 2704,
+      "bytecode": {
+        "codeLength": 2704,
+        "codeSha256": "8329ffa6872926aef531e5c056cd32b4eee287867132d8f8eb543a7cd1ec1828",
+        "bytecodeLineCount": 169
+      }
+    },
+    {
+      "traitName": "hashBytes",
+      "traitKind": "method",
+      "methodIndex": 54035,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "9e8cf498f64a32da44c129a0d6665d7de9f7336a115c4539915a67c08d8b2976",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.createBlocks",
+      "traitKind": "method",
+      "methodIndex": 54046,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 161,
+      "bytecode": {
+        "codeLength": 161,
+        "codeSha256": "4b16f0e135460a42c4dc2d459db893f7a7530ef79a5225905777de990fb3c6cb",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.f",
+      "traitKind": "method",
+      "methodIndex": 54037,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "5c70e372aac1533710f8bab10cd53163f549b5bd434c647c8ad35773c9563e69",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.ff",
+      "traitKind": "method",
+      "methodIndex": 54042,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "3852c2586927f1233eb5ce2c61c8abe118b6c3543217dfde6e7e9c6d87f6e9c7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.g",
+      "traitKind": "method",
+      "methodIndex": 54038,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "dd93573df17197cf827cef67de766f6be6c7fc904440d21a5b260ba6fcb7d841",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.gg",
+      "traitKind": "method",
+      "methodIndex": 54043,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "9e0f60ef67ebd6af4abdfb9e22278f269287370caec882f6aee7dc6b07f3776e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.h",
+      "traitKind": "method",
+      "methodIndex": 54039,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e6aaa3515c0df0cec19bf189e3b81a9eacbaa4f8166cee1a8f5a8bc18bb2c726",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.hh",
+      "traitKind": "method",
+      "methodIndex": 54044,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "af4bb33c50ae7e6d469b14fb784f6e052818d1d8b78762ed5280d28f999d243d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.i",
+      "traitKind": "method",
+      "methodIndex": 54040,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "64d12c6764713ec5287202af42aabdb1c5a4a06b8ab2d5086c60afa0d801b1c5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.ii",
+      "traitKind": "method",
+      "methodIndex": 54045,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "b0dc5703a7d09ed0ef4da638a77ef176f0d308c57dddeb7701395f0330449243",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.transform",
+      "traitKind": "method",
+      "methodIndex": 54041,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "6e64428810b04e3aaf4262fd1a7beecbaa99f15b4eb5f558eb7606a96b07d7c0",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

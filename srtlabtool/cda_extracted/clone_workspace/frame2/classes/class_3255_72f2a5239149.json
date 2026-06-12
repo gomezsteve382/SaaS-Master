@@ -1,0 +1,109 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3255,
+  "className": "org.spicefactory.parsley.core.bootstrap.impl.GlobalStateAccessor",
+  "classNameNormalized": "org.spicefactory.parsley.core.bootstrap.impl.GlobalStateAccessor",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 50630,
+  "cinitMethod": 50624,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "objects",
+      "traitKind": "getter",
+      "methodIndex": 50627,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.state.GlobalObjectState",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "32d7abc34516b32583cbf67d604334fb016450b5532c3c47d22a38cc5cef3cbb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap.impl.stateManager",
+      "traitKind": "getter",
+      "methodIndex": 50625,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.state.manager.GlobalStateManager",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "111902ccf6547f7dbdcca766886f52bcf32d45f0f5f5c94f861eea5419339401",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap.impl.stateManager",
+      "traitKind": "setter",
+      "methodIndex": 50626,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.state.manager.GlobalStateManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "25d989e2f07fc641fb77a252a3188997c4f77de452947351c17b66e5ff3b3689",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "scopes",
+      "traitKind": "getter",
+      "methodIndex": 50629,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.state.GlobalScopeState",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "1072e38cc793c33b7b38ba96599d7eabdd6f0983f9d0bbb7a6eab13e206c6acc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "views",
+      "traitKind": "getter",
+      "methodIndex": 50628,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.state.GlobalViewState",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "e220da4180ac0e5d423c207f12e2fc41566fb4e408f4a3a4947134c28a696574",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

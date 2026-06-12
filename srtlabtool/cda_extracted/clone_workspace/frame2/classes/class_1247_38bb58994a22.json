@@ -1,0 +1,137 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1247,
+  "className": "mx.graphics.LinearGradientStroke",
+  "classNameNormalized": "mx.graphics.LinearGradientStroke",
+  "superName": "mx.graphics.GradientStroke",
+  "superNameNormalized": "mx.graphics.GradientStroke",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 27904,
+  "cinitMethod": 27903,
+  "iinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "be069bfb3cf2bbd2239f4b8c659546f8a088de5e2dcc8f14ab16d840e7da3a32",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 28,
+    "codeSha256": "5ff4d424f55208d06051584c9dc3341fda98cb9bc348f3a538f641ce95b80f55",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "apply",
+      "traitKind": "method",
+      "methodIndex": 27908,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Graphics",
+        "flash.geom.Rectangle",
+        "flash.geom.Point"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "df30ce3ec2fc88de4f23c662df4fdc85ae4ef5e52ebeb9c112849bf06751e67a",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "createGraphicsStroke",
+      "traitKind": "method",
+      "methodIndex": 27909,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle",
+        "flash.geom.Point"
+      ],
+      "returnType": "flash.display.GraphicsStroke",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "341c961fb3c31384834536b2a17033f5ea5df11aa470f4493fb54e2c0a874e61",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "matrix",
+      "traitKind": "setter",
+      "methodIndex": 27905,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "7464a568ec6b9e49972460676a4f52a7f98961096c16f431d05c6960583ffa81",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.calculateTransformationMatrix",
+      "traitKind": "method",
+      "methodIndex": 27910,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle",
+        "flash.geom.Matrix",
+        "flash.geom.Point"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 703,
+      "bytecode": {
+        "codeLength": 703,
+        "codeSha256": "c5de9377aec9f4b93f4fc5c48cdeeea70f62d50cdd16bc698cdc0ce1899932e9",
+        "bytecodeLineCount": 44
+      }
+    },
+    {
+      "traitName": "scaleX",
+      "traitKind": "getter",
+      "methodIndex": 27906,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "20ffbd3c61f94a95a6962cffbe69d53509c15dc8cd02ee6bb310d5407c037a85",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "scaleX",
+      "traitKind": "setter",
+      "methodIndex": 27907,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "521d40df922b5f01f9368d4e4d2566d7aabb980b6a5d63aea9503e1fe569ff8a",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

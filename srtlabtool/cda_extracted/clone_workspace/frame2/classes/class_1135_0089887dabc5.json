@@ -1,0 +1,102 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1135,
+  "className": "com.chrysler.cda.application.DeviceDataCollectionCommand",
+  "classNameNormalized": "com.chrysler.cda.application.DeviceDataCollectionCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 24864,
+  "cinitMethod": 24859,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 22,
+    "codeSha256": "dc799cc888517f3f5d0fe524f6d24418cfc56dab842f4ecaa4ebb241c199bb8c",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onDataCollectionToggleError",
+      "traitKind": "method",
+      "methodIndex": 24863,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.TriggerDataCollectionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "2f5884334f96d9d67dd68477907fcae18e17a82f84fd25b93063f0841934fad0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onDataCollectionToggleSuccess",
+      "traitKind": "method",
+      "methodIndex": 24862,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.TriggerDataCollectionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "eab26f05294b2ab8f42e48d553c4ef74feee13680d3f32dfbfe3fc9f40447b04",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "startDataCollection",
+      "traitKind": "method",
+      "methodIndex": 24861,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.TriggerDataCollectionMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "cbb9b9f11ad1fb1b7a4e56f5f16fbf2851b79607bd7f36d0ed7952475b8af2ce",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "stopDataCollection",
+      "traitKind": "method",
+      "methodIndex": 24860,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.TriggerDataCollectionMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "032c819df0fdc81b3afc2a3f4605291ebb350706cb62a00e9a4469877fe0a1ef",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

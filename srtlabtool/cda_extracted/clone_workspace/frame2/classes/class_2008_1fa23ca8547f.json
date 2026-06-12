@@ -1,0 +1,165 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2008,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.PIDEditorWriteMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.PIDEditorWriteMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 37142,
+  "cinitMethod": 37138,
+  "iinitBytecode": {
+    "codeLength": 59,
+    "codeSha256": "4caa3e73de8c09461c94407a06739bc537ab2417a107c7180184371506485586",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "3d990e89ccdbff6f4fb088590427bf5653c3d1e1fc8215484740b11c3266b3ac",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "autoSessionHandling",
+      "traitKind": "getter",
+      "methodIndex": 37145,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5d50404f8574fab0207dbb71e1627e220849b309c0a5a6ccda860a4a9acafa2a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "getter",
+      "methodIndex": 37143,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "27f0234e3da221b646a8f362fc4102ceb73aa941c4c1d9ea777eee8dbdb5c387",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 37147,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c07137012d768ffab556067435ee3873b5c8865e98ff741d4b712f50c0401d85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "responseRequired",
+      "traitKind": "getter",
+      "methodIndex": 37144,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fadee3aab23fd56a318a1c8404fb719d557d0fc200aebc7bac6f3adaab90b5ec",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selector",
+      "traitKind": "getter",
+      "methodIndex": 37141,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "634c1ce10baf51a5e9500cb95b2ff0468df90e4c4ec49a45eeaac0a65dd01eb2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xmit",
+      "traitKind": "getter",
+      "methodIndex": 37146,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "27a3e51174228730151f5c2ad6aaaa22c1c9471485ecbc37fa40811215ceb10e",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "ForECUDiagnostics",
+      "traitKind": "method",
+      "methodIndex": 37139,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.PIDEditorWriteMessage",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "2f4932f55996119a9320c83f2089acd6bec35ab32db1265b163df55edd940cce",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "ForProxiView",
+      "traitKind": "method",
+      "methodIndex": 37140,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.PIDEditorWriteMessage",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "1d4d7ac9fe7aab874b24ce539cce32845d7a3f158aca959063b630c687d235b3",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

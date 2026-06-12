@@ -1,0 +1,210 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 752,
+  "className": "com.chrysler.cda.application.authenticatedDiagnostics.SecurityGatewayOfflineDongleServiceAPIVersionCommand",
+  "classNameNormalized": "com.chrysler.cda.application.authenticatedDiagnostics.SecurityGatewayOfflineDongleServiceAPIVersionCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 14594,
+  "cinitMethod": 14583,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "97d9be273575ec90a43461e59eb1a00ce102cca0ef062c226c73ee106337c663",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "781e7ba6493e92527839db532dfe1b9629880d642a794218aa39622998c1a9e9",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 14589,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "43b595f8fbddc070b9df521193d0c97316e6df62642144ced46edff1acba73f9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 14590,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "bcf25bd710ba3ec66e1ceb23768e51fd11e64ef1075e423ce04e7b7170e71663",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getAPIVersion",
+      "traitKind": "method",
+      "methodIndex": 14584,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.securitygateway.SecurityGatewayOfflineDongleServiceVersionMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "97310507db94ddf27dc55b3621cbd9b7ac986dd9118f3c44395a1287e77b4dc1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getAPIVersionError",
+      "traitKind": "method",
+      "methodIndex": 14586,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.securitygateway.SecurityGatewayOfflineDongleServiceVersionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "0f1a7a1aa13678b54db858d6ed1d7879b30d0ea56d2fe0502eeebca4a4a670f7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getAPIVersionResult",
+      "traitKind": "method",
+      "methodIndex": 14585,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.securitygateway.SecurityGatewayOfflineDongleServiceVersionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "6edcf7e43dc9750196f10654bd27b902edc03932efd7ca7de3f9893e5765dd32",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 14591,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "3fb357aea9f06c863ad750b35bb3268ad56bac78d36f2f9484c51b7acdddd6f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 14587,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.AuthenticatedDiagnosticsLoginPopupPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3dc9b5aa75ce72ecf35d5c424e5b84d116d6540c757643f3cd8f2d2cbf23f895",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 14588,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.AuthenticatedDiagnosticsLoginPopupPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9bc5f0b10ecad72c0c3b21d18e83a2fb3cee5ecf8d74400d931b88978381bca2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 14592,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "db1207ba32c962a5a8b16dfe928ac2242a04eda39c0c4884e218a009e8214b9b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 14593,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "5a4a7ad5ce81a5e28a6473630b21bcd7398ca524f059865815b984a2b3819f04",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

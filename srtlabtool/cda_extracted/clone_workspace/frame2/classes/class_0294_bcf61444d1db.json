@@ -1,0 +1,99 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 294,
+  "className": "spark.accessibility.ToggleButtonAccImpl",
+  "classNameNormalized": "spark.accessibility.ToggleButtonAccImpl",
+  "superName": "spark.accessibility.ButtonBaseAccImpl",
+  "superNameNormalized": "spark.accessibility.ButtonBaseAccImpl",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 6597,
+  "cinitMethod": 6594,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "get_accName",
+      "traitKind": "method",
+      "methodIndex": 6598,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 134,
+      "bytecode": {
+        "codeLength": 134,
+        "codeSha256": "a83fae8f1258b997449e31edbd5d60a3f65633102da0e6552cbbd6734b555c4e",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "get_accState",
+      "traitKind": "method",
+      "methodIndex": 6599,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "3449607393c76d7490eb4e8b4014f61e8f7d2760f9fa0474ba9761f1fe76425f",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "enableAccessibility",
+      "traitKind": "method",
+      "methodIndex": 6595,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "1648f91b6d7d4b5bddd00afdea9c40fe57e0c4a7465463dae184717e84541a1e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createAccessibilityImplementation",
+      "traitKind": "method",
+      "methodIndex": 6596,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.UIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ea26c4f289c3482d845be815ad57b4991d224159295f6dc85d8e61fb5d84ea95",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

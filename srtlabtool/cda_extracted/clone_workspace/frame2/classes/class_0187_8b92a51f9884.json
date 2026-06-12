@@ -1,0 +1,296 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 187,
+  "className": "com.chrysler.core.locale.I18NResourceModel",
+  "classNameNormalized": "com.chrysler.core.locale.I18NResourceModel",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 3809,
+  "cinitMethod": 3805,
+  "iinitBytecode": {
+    "codeLength": 133,
+    "codeSha256": "ca437b656a258b65251fc5c02cc8c70484d01d1774cc9c9a762fe587b33ba062",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "5bbd6a17b1ad7ca35630ab785383de40c108290a1f786a1850ed46da5341f1bb",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.core.locale:I18NResourceModel.initializeLocales",
+      "traitKind": "method",
+      "methodIndex": 3811,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "e57329b5086dcbe652caf55a26f856b896701fb7305bd2d792a841e7df8dac97",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "getEnglishLangauge",
+      "traitKind": "method",
+      "methodIndex": 3813,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "601a1f7407529bae86fe43da7638e66a9c5544f2cfc393a476db03e67e919dc1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getText",
+      "traitKind": "method",
+      "methodIndex": 3822,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Array",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "39940b3d2146cef69dc235998f327fe5799314b1155fd511f5e3f1c642be005f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isLanguageSupported",
+      "traitKind": "method",
+      "methodIndex": 3815,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "563fa5918709e598bfdfa596fa9ccb72a981af5b8af0c4d2ae060e9af60bb0ee",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "locale",
+      "traitKind": "getter",
+      "methodIndex": 3820,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "d8b3a6927fb28db5b809de356955a7d2ed10b9c2586b979ae3376218c1bc9185",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "localeChain",
+      "traitKind": "getter",
+      "methodIndex": 3818,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "53953f1c43f32967f2b6c0b325056c9df628cc880eac9ac9cac1c0ae505b2db8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "localeChain",
+      "traitKind": "setter",
+      "methodIndex": 3817,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "80c08eae1790656a0989bc45c48b1c89cdd4cbe855ef6bcba5b31ec318f8dc1a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onInit",
+      "traitKind": "method",
+      "methodIndex": 3810,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "6d0a15d5c08aac58a2cf3f78c095bbf94b4838cbe279b35f106296f494e1ea48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onLocaleChanged",
+      "traitKind": "method",
+      "methodIndex": 3819,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "23e369778e45544c68fb86ffd2a4b2a2f332e064ae3eade372ea10a80a66a39a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "reduceLocaleListing",
+      "traitKind": "method",
+      "methodIndex": 3814,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "bec4332ce39d77d21dfc87adc81a08a18020da84dfa4c4def8ba75120775d8dd",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "resolveServerLocale",
+      "traitKind": "method",
+      "methodIndex": 3821,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fc5fe976ca9a3697a5cf45dff389ee67cf7b4c216f36bb0a8c74f94d2ce312ee",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setLocaleChainFromWDECode",
+      "traitKind": "method",
+      "methodIndex": 3816,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "3ed1b2a48e2aa22c978d89c2b694704486944c6505d1d4ef114bada145bd8524",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "supportedLocales",
+      "traitKind": "getter",
+      "methodIndex": 3812,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0c2471b9ccc8b4c7954335b1c56308fcba76699fe9163cdf510adeac2c76c40d",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "ChainsAreEquals",
+      "traitKind": "method",
+      "methodIndex": 3806,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "a4f05ccef383f4a9356ca94c3cd21f16eb5d803b098f1506a346e0e932fc651e",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "IsSameLanguageSupported",
+      "traitKind": "method",
+      "methodIndex": 3807,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "faaa8d677721de283b3f1002457ed7faba28650347025e8d7fcd1c37849c3726",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ReducedListOfLocales",
+      "traitKind": "method",
+      "methodIndex": 3808,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 109,
+      "bytecode": {
+        "codeLength": 109,
+        "codeSha256": "d90648c0ba454ea20a285c14e4e2fec69f8c01e4dd4d0e81771eba6ae14bdb26",
+        "bytecodeLineCount": 7
+      }
+    }
+  ]
+}

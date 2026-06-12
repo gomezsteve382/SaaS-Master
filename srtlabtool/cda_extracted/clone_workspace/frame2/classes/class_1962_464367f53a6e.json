@@ -1,0 +1,121 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1962,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCsMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCsMessage",
+  "superName": "com.chrysler.cda.event.message.RetryableMessageImpl",
+  "superNameNormalized": "com.chrysler.cda.event.message.RetryableMessageImpl",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 36612,
+  "cinitMethod": 36609,
+  "iinitBytecode": {
+    "codeLength": 30,
+    "codeSha256": "ca0f2923b3fa71977d6622fe6d83813bff76093aac6ea68472506e9400617a95",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "a4090c60c6de1f2c712c36cce7cd2e93f04e127ad75e9e12e4b2a2d8f05e3940",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 36613,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "acccf495510b808487328ada1b90d7a9e74f91b7d6fb7d9dcab15dbd4da9beb6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 36614,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "3990df3273a931e5263a15e55fcb65e9ecf2816a5b34de0a30e26c3d1e58fc4e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.setEcuAcronym",
+      "traitKind": "method",
+      "methodIndex": 36615,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCsMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "273239dc4cebd7f025f5a2ce75ef669ced6009c79e3ee3a54674ab46df395bff",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "ecuDiagnosticsDTCMessage",
+      "traitKind": "method",
+      "methodIndex": 36610,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Number"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCsMessage",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "fcbc9248180de9d0ccb6550e5f2305f9319c51fd4b7add07f8c29fd8c2873d5a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "vehWideDTCMessage",
+      "traitKind": "method",
+      "methodIndex": 36611,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "Number"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCsMessage",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "c92e28116260bd74ff207fd4489bbfecb595a5ee5b469b66162b23897b130900",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

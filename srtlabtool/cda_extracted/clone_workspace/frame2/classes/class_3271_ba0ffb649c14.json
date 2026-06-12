@@ -1,0 +1,166 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3271,
+  "className": "org.spicefactory.parsley.core.scope.ScopeInfo",
+  "classNameNormalized": "org.spicefactory.parsley.core.scope.ScopeInfo",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 50767,
+  "cinitMethod": 50754,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.addActiveCommand",
+      "traitKind": "method",
+      "methodIndex": 50762,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.command.Command"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.commandManager",
+      "traitKind": "getter",
+      "methodIndex": 50761,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.messaging.command.CommandManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.extensions",
+      "traitKind": "getter",
+      "methodIndex": 50765,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.scope.ScopeExtensions",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.getLifecycleObserverCache",
+      "traitKind": "method",
+      "methodIndex": 50764,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.ClassInfo"
+      ],
+      "returnType": "org.spicefactory.parsley.core.messaging.MessageReceiverCache",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.getMessageReceiverCache",
+      "traitKind": "method",
+      "methodIndex": 50760,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.ClassInfo"
+      ],
+      "returnType": "org.spicefactory.parsley.core.messaging.MessageReceiverCache",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.inherited",
+      "traitKind": "getter",
+      "methodIndex": 50757,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.lifecycleObservers",
+      "traitKind": "getter",
+      "methodIndex": 50763,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.lifecycle.LifecycleObserverRegistry",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.messageReceivers",
+      "traitKind": "getter",
+      "methodIndex": 50759,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.messaging.MessageReceiverRegistry",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.name",
+      "traitKind": "getter",
+      "methodIndex": 50755,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.objectLifecycle",
+      "traitKind": "getter",
+      "methodIndex": 50766,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.scope.ObjectLifecycleScope",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.rootContext",
+      "traitKind": "getter",
+      "methodIndex": 50758,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.context.Context",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.scope:ScopeInfo.uuid",
+      "traitKind": "getter",
+      "methodIndex": 50756,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

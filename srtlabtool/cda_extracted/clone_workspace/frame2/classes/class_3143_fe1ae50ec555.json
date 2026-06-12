@@ -1,0 +1,111 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3143,
+  "className": "mx.messaging.events.MessageAckEvent",
+  "classNameNormalized": "mx.messaging.events.MessageAckEvent",
+  "superName": "mx.messaging.events.MessageEvent",
+  "superNameNormalized": "mx.messaging.events.MessageEvent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49758,
+  "cinitMethod": 49756,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "a7df4fea7bdca4d137fd7667afb1cb2e0242c9da657b9b70063d3c1115bd2148",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "a6f89a67cc12824ba3c627a863e2ede9a7db1da693cd019652c0567c5cc94885",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "acknowledgeMessage",
+      "traitKind": "getter",
+      "methodIndex": 49759,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.messages.AcknowledgeMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "6006ba6b0f6048f48f5c018501673da834f2c81fb977d33aade83988f355f4bf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 49761,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.Event",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "b8cf8c3afd896f1fcb59d30795406759c3fde5f5f42c8f7319667b856e4d4880",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "correlationId",
+      "traitKind": "getter",
+      "methodIndex": 49760,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "5cb8ac9bf031b79636bec9d19f8b81b262927b7647982f51791d8e79a8609846",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 49762,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "6930b95131ac97b750b292eb55ad390acf4a64959d0f61f09dfa69b551820527",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createEvent",
+      "traitKind": "method",
+      "methodIndex": 49757,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.AcknowledgeMessage",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "mx.messaging.events.MessageAckEvent",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "2178319fb8332fa7a92cd5ab09c2fb841e0ea0a22a5f5a41b3e9572d29962e98",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

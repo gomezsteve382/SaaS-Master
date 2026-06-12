@@ -1,0 +1,157 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 831,
+  "className": "com.chrysler.cda.presentation.window.PopupAbstractWindowManager",
+  "classNameNormalized": "com.chrysler.cda.presentation.window.PopupAbstractWindowManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 16471,
+  "cinitMethod": 16463,
+  "iinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "d48b58f10fa62c7921a46b6a4a202d3f1eb4e196c8b584f4344e938c991384a5",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addPopup",
+      "traitKind": "method",
+      "methodIndex": 16466,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+        "Boolean",
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 118,
+      "bytecode": {
+        "codeLength": 118,
+        "codeSha256": "5cd637f4c8ed8732410a974268fcf96ffa4a3d03ceac4c84573da62f108ddda3",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "addPopupByClassName",
+      "traitKind": "method",
+      "methodIndex": 16468,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean",
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "8451853253f3c194dd142cfcaa08808b0ef402516c364968855b7e80be929545",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "addPopupByClassType",
+      "traitKind": "method",
+      "methodIndex": 16467,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "Boolean",
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "57aca491a7f8db1adbbe23832b75a438539b76da992815838f17d52876383659",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.window.centerComponent",
+      "traitKind": "method",
+      "methodIndex": 16470,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "31a8adb24ac6fddc0f3a8bdd86b9b663ffea863030467b079783e617af540eb9",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.queryByQName",
+      "traitKind": "method",
+      "methodIndex": 16465,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "fb6f4b2ddde68a973d7978eb43650ce7a8dadd94b0b772bd230b74045e098507",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removePopup",
+      "traitKind": "method",
+      "methodIndex": 16469,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.window.PopupAbstractWindow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "23e084b40989f838a03bbc9c34b378236b771c42a8c7e1b6546d1655906b4d79",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "windowExists",
+      "traitKind": "method",
+      "methodIndex": 16464,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.window.PopupAbstractWindow"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "e523e655358be53d0f54bd17bb69501949159acb28766b94d5324031bcc32e2b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

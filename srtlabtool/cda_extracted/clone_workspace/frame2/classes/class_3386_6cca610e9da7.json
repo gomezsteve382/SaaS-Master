@@ -1,0 +1,77 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3386,
+  "className": "com.diagnosticProcedures.session.IServerSessionManagement",
+  "classNameNormalized": "com.diagnosticProcedures.session.IServerSessionManagement",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "wde.common.framework.IDisposable",
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 51869,
+  "cinitMethod": 51864,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.session:IServerSessionManagement.endSession",
+      "traitKind": "method",
+      "methodIndex": 51868,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "com.diagnosticProcedures.session:IServerSessionManagement.isSessionActive",
+      "traitKind": "method",
+      "methodIndex": 51866,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "com.diagnosticProcedures.session:IServerSessionManagement.sessionToken",
+      "traitKind": "getter",
+      "methodIndex": 51867,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "com.diagnosticProcedures.session:IServerSessionManagement.startSession",
+      "traitKind": "method",
+      "methodIndex": 51865,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.IDiagnosticProcedureProperties"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

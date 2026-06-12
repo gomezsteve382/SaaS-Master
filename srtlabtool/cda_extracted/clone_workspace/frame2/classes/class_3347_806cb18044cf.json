@@ -1,0 +1,145 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3347,
+  "className": "com.diagnosticProcedures.node.WebProcedureNode",
+  "classNameNormalized": "com.diagnosticProcedures.node.WebProcedureNode",
+  "superName": "com.diagnosticProcedures.node.abstract.AbstractWebNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.abstract.AbstractWebNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51595,
+  "cinitMethod": 51594,
+  "iinitBytecode": {
+    "codeLength": 8,
+    "codeSha256": "759834360b3138b4f9f149bb91b34cde0e9d339d5cd03f58962655320a4089b4",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "allowUserRetry",
+      "traitKind": "method",
+      "methodIndex": 51596,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "24855a3173618e24568eb635adfc7480b1d119fd343618058814e2ca18275088",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.node:WebProcedureNode.processFault",
+      "traitKind": "method",
+      "methodIndex": 51602,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.Fault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 279,
+      "bytecode": {
+        "codeLength": 279,
+        "codeSha256": "64c6b10c74cd72e6bb9cbcf2acf770b91ae1a690d1826443298582546bae7f23",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "fault",
+      "traitKind": "method",
+      "methodIndex": 51601,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "d20378bebe4024ea3885d4f68fc010d06f0c74c25f00d4dad8dad2e44319ca3d",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51597,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "3e98d2687a17a001a3adb2b9ce14246372fc65354661c112cf5ffd9f04d73d3e",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "processResult",
+      "traitKind": "method",
+      "methodIndex": 51599,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "00934c3202df1f42cb93af556c069e6d04c6d221d1b09c6a19b51020fee0dd7d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "result",
+      "traitKind": "method",
+      "methodIndex": 51600,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 305,
+      "bytecode": {
+        "codeLength": 305,
+        "codeSha256": "33251640054fe425d13ee403788eca1e9edfe63d7a361c54b0053e65c84e9b92",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "sendServiceRequest",
+      "traitKind": "method",
+      "methodIndex": 51598,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 136,
+      "bytecode": {
+        "codeLength": 136,
+        "codeSha256": "4cde4fff2929b7826ea970de20364a1143036dd283417c4a7dfaf8c560b096af",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3168,
+  "className": "com.hurlant.crypto.hash.SHA256",
+  "classNameNormalized": "com.hurlant.crypto.hash.SHA256",
+  "superName": "com.hurlant.crypto.hash.SHABase",
+  "superNameNormalized": "com.hurlant.crypto.hash.SHABase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.hash.IHash"
+  ],
+  "iinitMethod": 49992,
+  "cinitMethod": 49991,
+  "iinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "e8dd0a773fe5c695a841074f8a3c6d303dcc08eefe55cea6b755b14749a215fb",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 205,
+    "codeSha256": "b01967d0d30b1f1082f2620011d99506d58a5b25fb7d3fa92c79d654087ba397",
+    "bytecodeLineCount": 13
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.hurlant.crypto.hash:SHA256.core",
+      "traitKind": "method",
+      "methodIndex": 49994,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "uint"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 758,
+      "bytecode": {
+        "codeLength": 758,
+        "codeSha256": "69a4aab511221bed47d502c07776cbc8c46cfc4efa4b70b23fe7223d1eb0b795",
+        "bytecodeLineCount": 48
+      }
+    },
+    {
+      "traitName": "com.hurlant.crypto.hash:SHA256.rrol",
+      "traitKind": "method",
+      "methodIndex": 49995,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "8fef9b918020cc687c2c9fbf08bcf7fcfd9d348e95e8cc22a9a3f9c6c7009297",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getHashSize",
+      "traitKind": "method",
+      "methodIndex": 49993,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 5,
+      "bytecode": {
+        "codeLength": 5,
+        "codeSha256": "8be96a0a3ea8e70cee76306989d9a45a3bbdad60152011bd7044b7e06ed82d10",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 49996,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "192a9debccd7729c5c6efa556769359fae4eeb0c5aa79eb75bb7272df466a73f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

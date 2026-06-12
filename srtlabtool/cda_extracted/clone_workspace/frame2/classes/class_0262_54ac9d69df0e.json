@@ -1,0 +1,314 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 262,
+  "className": "org.spicefactory.parsley.flex.tag.builder.ContextBuilderTag",
+  "classNameNormalized": "org.spicefactory.parsley.flex.tag.builder.ContextBuilderTag",
+  "superName": "org.spicefactory.parsley.flex.tag.ConfigurationTagBase",
+  "superNameNormalized": "org.spicefactory.parsley.flex.tag.ConfigurationTagBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 6228,
+  "cinitMethod": 6210,
+  "iinitBytecode": {
+    "codeLength": 51,
+    "codeSha256": "59dd11bfe756835508d4453daff31adcf73530ddeab00766cea464f5ac36fc48",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "4c3d7c56a1128abc44988a0a717b5320d9675c14663bef1d7b7e642b6a29f942",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "context",
+      "traitKind": "getter",
+      "methodIndex": 6211,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.context.Context",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b041130306f72e9349dbf0ac1257f310938f9c3dfd131d2d1d86cccd9e8dd16c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialized",
+      "traitKind": "method",
+      "methodIndex": 6212,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "ab5fe114461de98f68400a4b3e32167c785813139b2c0817e7267625060d293f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "org.spicefactory.parsley.flex.tag.builder:ContextBuilderTag.executeAction",
+      "traitKind": "method",
+      "methodIndex": 6222,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "9300703efb725d77094b6ae561d158122ac9bfc8f126c214e663697847ca8341",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.addViewRootListeners",
+      "traitKind": "method",
+      "methodIndex": 6213,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "512749fb5d9a0de55176f3f0c6603b1106ae0c80df9121eae1666fbcbbbbac4b",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.cacheAutowirePrefilterEvent",
+      "traitKind": "method",
+      "methodIndex": 6219,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "2b5c92f7677334bcd1dfbcfa3e41bf4341807e55ea2c7abb0a54097e2e1dfe50",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.cacheAutowireViewEvent",
+      "traitKind": "method",
+      "methodIndex": 6220,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "9af6ef081e7f9febb86fedb0160a81593c07856cf520928c85336608a1561612",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.cacheContextLookupEvent",
+      "traitKind": "method",
+      "methodIndex": 6218,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.events.ContextLookupEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "7d806db9e02efe8b3486fadb17e401aa8fb30b41d980207757fbbc441e966ba3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.cacheViewConfigEvent",
+      "traitKind": "method",
+      "methodIndex": 6217,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "e4ae88b5f259218ac685f8332a846113f458e73a8950c5b329d36a9fc692de19",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.contextError",
+      "traitKind": "method",
+      "methodIndex": 6226,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "0d9a5297cf9d7c4caee31650bc67dedfa24c5e15db96e315290a71f8bad4132c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.contextInitialized",
+      "traitKind": "method",
+      "methodIndex": 6225,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "f5866eaaac473d6db691d4eeb2e90c5732283713efe2ec564de1db4885055b9e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.createContext",
+      "traitKind": "method",
+      "methodIndex": 6224,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 647,
+      "bytecode": {
+        "codeLength": 647,
+        "codeSha256": "41b48b1ead8cc685ab3bcca1e565bafefe45202d3a7331dba66a7b0a2e9b167b",
+        "bytecodeLineCount": 41
+      }
+    },
+    {
+      "traitName": "PrivateNs.createContextDeferred",
+      "traitKind": "method",
+      "methodIndex": 6223,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "eb7fa40131cc48a7b96da9cb29283405c2541b08f0f087441b980085973ad827",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.detectPrematureChildCreation",
+      "traitKind": "method",
+      "methodIndex": 6216,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.events.ContextConfigurationEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "00c4f7ad6308cd2425522a1f2dbc1bbc3825e547501bb6c64d8418f0c5107460",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleCachedEvents",
+      "traitKind": "method",
+      "methodIndex": 6221,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.bootstrap.BootstrapConfig"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 398,
+      "bytecode": {
+        "codeLength": 398,
+        "codeSha256": "6ed65fa6ad36000b0df8bd1127cfd2e704a18cc18098bc4ddb2e3d29b731b41e",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeContextListeners",
+      "traitKind": "method",
+      "methodIndex": 6227,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "4e8e398a760d91bdf1a69674fe421bbaafc1f3c9aa152f171dd39dc16c649b6b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeViewRootListeners",
+      "traitKind": "method",
+      "methodIndex": 6214,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "54e6037b527d9531bcc92dbea3e9a17c4e172cc3bdb390b531bdc8a57760752d",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.syncChildContext",
+      "traitKind": "method",
+      "methodIndex": 6215,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.flex.tag.builder.ContextBuilderSyncEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "690350debd2897f97e75a0d634036fb777dc3f860bae206a0ca270848c8d0622",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

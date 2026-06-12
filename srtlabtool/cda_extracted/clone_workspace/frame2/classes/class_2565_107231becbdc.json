@@ -1,0 +1,120 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2565,
+  "className": "mx.containers.Grid",
+  "classNameNormalized": "mx.containers.Grid",
+  "superName": "mx.containers.Box",
+  "superNameNormalized": "mx.containers.Box",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 43906,
+  "cinitMethod": 43905,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "invalidateSize",
+      "traitKind": "method",
+      "methodIndex": 43907,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "5d35e22153cea9c2cb9dc29bebd90392d130b3893feb6bb19631b8423e7bde1f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.containers:Grid.measure",
+      "traitKind": "method",
+      "methodIndex": 43908,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1407,
+      "bytecode": {
+        "codeLength": 1407,
+        "codeSha256": "fb328c761d0c8868bce0942e0ebfc23c4e5900fbef874d728b19fdf2df1615db",
+        "bytecodeLineCount": 88
+      }
+    },
+    {
+      "traitName": "mx.containers:Grid.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 43909,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "4a743916afe9851a7e0a50d0b0618b091e318b088fe3a6195c98f1df5fed0357",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.distributeItemHeight",
+      "traitKind": "method",
+      "methodIndex": 43910,
+      "methodName": "",
+      "paramTypes": [
+        "mx.containers.GridItem",
+        "Number",
+        "Number",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 361,
+      "bytecode": {
+        "codeLength": 361,
+        "codeSha256": "341aeaa5e54accbbdb2e1598eaf3afac9b039aa14593e9f5f78e25a51ff40c79",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "PrivateNs.distributeItemWidth",
+      "traitKind": "method",
+      "methodIndex": 43911,
+      "methodName": "",
+      "paramTypes": [
+        "mx.containers.GridItem",
+        "int",
+        "Number",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 397,
+      "bytecode": {
+        "codeLength": 397,
+        "codeSha256": "6aeae91d4b2cc7c538a0999d0a80ed880a5654acec710ee888c045b672f8fbf3",
+        "bytecodeLineCount": 25
+      }
+    }
+  ],
+  "staticMembers": []
+}

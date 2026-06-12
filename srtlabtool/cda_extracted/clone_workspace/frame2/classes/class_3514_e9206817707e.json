@@ -1,0 +1,143 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3514,
+  "className": "org.spicefactory.parsley.binding.impl.LocalPersistenceManager",
+  "classNameNormalized": "org.spicefactory.parsley.binding.impl.LocalPersistenceManager",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.binding.PersistenceManager"
+  ],
+  "iinitMethod": 53223,
+  "cinitMethod": 53222,
+  "iinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "993b64585201a0323e61d98e8ea1914172716c9a37ce08b3089de3f9b6bb2d2c",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "deleteValue",
+      "traitKind": "method",
+      "methodIndex": 53225,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Class",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "d28f47e7710184f03ae73f70a6d664a73f140dd20eb4854535e488bac5e12f2c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getValue",
+      "traitKind": "method",
+      "methodIndex": 53226,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Class",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "4e4840ac21004b9903f35257d43256dda2267d9c990817c0c400eb995253b9cd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkTimer",
+      "traitKind": "method",
+      "methodIndex": 53228,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "5389a59cc14bf3310ab5bb6cc5fa7a696782f8ecc8714237fb4178a1ade09dce",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.flush",
+      "traitKind": "method",
+      "methodIndex": 53229,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "fe3c96b3dc312fa66d922cf0866828f5a544463735c9d3627b66d72fa05fbd51",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.getUuid",
+      "traitKind": "method",
+      "methodIndex": 53227,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Class",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "70b54228a81f3c37b627296c3663e19bf3cf731aa6ffc892c3519b81b3ad42a1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "saveValue",
+      "traitKind": "method",
+      "methodIndex": 53224,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Class",
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "88bf093bd46b3103c6f6d76fde073427ed58224dcbc83c43a9e88fc67cbea441",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

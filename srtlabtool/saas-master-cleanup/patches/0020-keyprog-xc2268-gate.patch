@@ -1,0 +1,196 @@
+From abf0e605b688715e8163b8203a5793064b9403b8 Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 23:12:58 +0000
+Subject: [PATCH] KeyProgTab: gate the UNVERIFIED XC2268 SEC16 write (parity
+ with ModuleSync/engine)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+KeyProgTab already resolves the BCM secret through the engine resolver
+(info.bcmSec16 = resolveBcmSec16, so it inherited the legacy-BCM fix) — no
+resolution drift. But runKeyProgPatch and runRfhBcmSync wrote XC2268 RFHUB
+SEC16 with the UNVERIFIED writeXc2268Sec16 (offset map + image checksum
+reconstructed from a screenshot) with NO acknowledgement — a real 2019+ Ram
+RFHUB could be bricked.
+
+Both now refuse the XC2268 write unless allowUnverifiedTarget is passed (same
+standard as marryModule and ModuleSync); Gen2 Yazaki stays ungated (bench-
+verified). KeyProgTab surfaces an opt-in checkbox when the patcher reports the
+UNVERIFIED block. Charger62BenchPanel is Gen2-EEE-specific so the gate never
+fires there. CI test covers refuse / acknowledge / Gen2-ungated. esbuild-valid.
+---
+ .../lib/__tests__/keyProgXc2268Gate.test.js   | 44 +++++++++++++++++++
+ artifacts/srt-lab/src/lib/keyProgWizard.js    | 30 ++++++++++++-
+ artifacts/srt-lab/src/tabs/KeyProgTab.jsx     | 17 ++++++-
+ 3 files changed, 87 insertions(+), 4 deletions(-)
+ create mode 100644 artifacts/srt-lab/src/lib/__tests__/keyProgXc2268Gate.test.js
+
+diff --git a/artifacts/srt-lab/src/lib/__tests__/keyProgXc2268Gate.test.js b/artifacts/srt-lab/src/lib/__tests__/keyProgXc2268Gate.test.js
+new file mode 100644
+index 0000000..3200aa0
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/__tests__/keyProgXc2268Gate.test.js
+@@ -0,0 +1,44 @@
++import { describe, it, expect } from 'vitest';
++import { runRfhBcmSync } from '../keyProgWizard.js';
++import { rekeyVirginBcmFromRfhub } from '../mpc5606bBcm.js';
++
++/* KeyProgTab (keyProgWizard) writes XC2268 RFHUB SEC16 with the UNVERIFIED
++ * writeXc2268Sec16 (offset map + image checksum reconstructed from a
++ * screenshot). Writing that to a real 2019+ Ram RFHUB can brick it, so — same
++ * standard as the marryModule engine and ModuleSync — it must refuse without an
++ * explicit allowUnverifiedTarget. The bench-verified Gen2 Yazaki path is
++ * ungated. */
++
++const ROOT = Uint8Array.from({ length: 16 }, (_, i) => (i * 31 + 7) & 0xff);
++const bcm = () => rekeyVirginBcmFromRfhub(new Uint8Array(65536).fill(0xFF), ROOT).bytes;
++function xc2268() {
++  const b = new Uint8Array(65536);
++  'XC22'.split('').forEach((c, i) => (b[i] = c.charCodeAt(0)));
++  'RFHUB'.split('').forEach((c, i) => (b[0x10 + i] = c.charCodeAt(0)));
++  return b;
++}
++function gen2() {
++  const b = new Uint8Array(4096);
++  b[0x500] = 0xAA; b[0x501] = 0x55; b[0x502] = 0x31; b[0x503] = 0x01;
++  return b;
++}
++const unverifiedCheck = (r) => (r.checks || []).find((c) => /UNVERIFIED/i.test(c.label) && !c.pass);
++
++describe('runRfhBcmSync — XC2268 unverified-writer gate', () => {
++  it('refuses an XC2268 RFHUB target without allowUnverifiedTarget', () => {
++    const r = runRfhBcmSync({ rfh: { data: xc2268() }, bcm: { data: bcm() }, direction: 'BCM_TO_RFH' });
++    expect(r.ok).toBe(false);
++    expect(unverifiedCheck(r)).toBeTruthy();
++  });
++
++  it('does not fire the unverified gate once acknowledged', () => {
++    const r = runRfhBcmSync({ rfh: { data: xc2268() }, bcm: { data: bcm() }, direction: 'BCM_TO_RFH', allowUnverifiedTarget: true });
++    // it may pass or fail later checks, but the UNVERIFIED-gate must be gone
++    expect(unverifiedCheck(r)).toBeFalsy();
++  });
++
++  it('does NOT gate a bench-verified Gen2 RFHUB', () => {
++    const r = runRfhBcmSync({ rfh: { data: gen2() }, bcm: { data: bcm() }, direction: 'BCM_TO_RFH' });
++    expect(unverifiedCheck(r)).toBeFalsy();
++  });
++});
+diff --git a/artifacts/srt-lab/src/lib/keyProgWizard.js b/artifacts/srt-lab/src/lib/keyProgWizard.js
+index 5edfa7f..c1e55e8 100644
+--- a/artifacts/srt-lab/src/lib/keyProgWizard.js
++++ b/artifacts/srt-lab/src/lib/keyProgWizard.js
+@@ -30,6 +30,7 @@ import {
+   writeXc2268Sec16,
+ } from './securityBytes.js';
+ import { reverse16 } from './immoSecret.js';
++import { writerGrounding, GROUNDING } from './algoProvenance.js';
+ 
+ const IMMO_BACKUP_SIZE = 24 * 8; // 192 bytes (IMMO_REC × IMMO_KC)
+ 
+@@ -328,7 +329,7 @@ export function resolvePcmOutput(pcmInData, idP, requestedChip) {
+       + 'Load a matching virgin or rerun with --pcm-chip ' + (inChip?.chipKey || '4kb') + '.' };
+ }
+ 
+-export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmChip = null } = {}) {
++export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmChip = null, allowUnverifiedTarget = false } = {}) {
+   const checks = [];
+   let allOk = true;
+   const ok = (label, pass, detail = '') => {
+@@ -494,6 +495,24 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
+       && idB.info?.bcmSec16?.bytes && !idB.info.bcmSec16.blank) {
+     const bcmSec16Bytes = new Uint8Array(idB.info.bcmSec16.bytes);
+     const isXc2268 = idR.info?.type === 'XC2268_RFHUB';
++    // Ultimate-machine gate: the XC2268 SEC16 writer is UNVERIFIED (offset map +
++    // image checksum reconstructed from a screenshot — algoProvenance.js).
++    // Writing an unverified secret to a real 2019+ Ram RFHUB can brick it, so
++    // require explicit allowUnverifiedTarget. (Gen2 Yazaki is bench-verified.)
++    if (isXc2268 && writerGrounding('writeXc2268Sec16').level !== GROUNDING.BENCH && !allowUnverifiedTarget) {
++      return {
++        ok: false,
++        checks: [...checks, {
++          label: 'XC2268 RFHUB SEC16 writer is UNVERIFIED',
++          pass: false,
++          detail: writerGrounding('writeXc2268Sec16').caveat
++            + ' — writing this to a real 2019+ Ram RFHUB can brick it. Pass allowUnverifiedTarget:true to proceed.',
++        }],
++        sharedSecret,
++        before: { bcmFullVins: beforeBcmFullVins, bcmPartials: beforeBcmPartials },
++        after: null, files: [], verifyText: '',
++      };
++    }
+     try {
+       const wr = isXc2268
+         ? writeXc2268Sec16(rfhOut, bcmSec16Bytes)
+@@ -626,7 +645,7 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
+  * patch (ok=false, files=[]). Caller is expected to gate the button on the
+  * cross-check report's `blockingErrors.length === 0`.
+  * ========================================================================== */
+-export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
++export function runRfhBcmSync({ rfh, bcm, direction, allowUnverifiedTarget = false } = {}) {
+   const checks = [];
+   let allOk = true;
+   const ok = (label, pass, detail = '') => {
+@@ -720,6 +739,13 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
+   // SEC16 writer (writeXc2268Sec16) that refreshes the image-wide CRC32
+   // at the trailing 4 bytes instead of the Gen2 crc8_65 slot checksum.
+   const isXc2268Rfh = idR.info?.type === 'XC2268_RFHUB';
++  // Ultimate-machine gate: XC2268 SEC16 writer is UNVERIFIED (algoProvenance.js)
++  // — refuse to stamp an unverified secret into a real 2019+ Ram RFHUB without
++  // explicit allowUnverifiedTarget.
++  if (isXc2268Rfh && writerGrounding('writeXc2268Sec16').level !== GROUNDING.BENCH && !allowUnverifiedTarget) {
++    return fail('XC2268 RFHUB SEC16 writer is UNVERIFIED — ' + writerGrounding('writeXc2268Sec16').caveat
++      + '. Pass allowUnverifiedTarget:true to proceed (can brick a real module).');
++  }
+   try {
+     const rfhWork = new Uint8Array(rfh.data);
+     // Gen2 marker normalization is Yazaki-only; XC2268 has no such marker.
+diff --git a/artifacts/srt-lab/src/tabs/KeyProgTab.jsx b/artifacts/srt-lab/src/tabs/KeyProgTab.jsx
+index 014110b..c09ee05 100644
+--- a/artifacts/srt-lab/src/tabs/KeyProgTab.jsx
++++ b/artifacts/srt-lab/src/tabs/KeyProgTab.jsx
+@@ -447,6 +447,7 @@ export default function KeyProgTab() {
+   const [files, setFiles] = useState({ BCM: null, RFH: null, PCM: null });
+   const [vin, setVin] = useState('');
+   const [promoteBank, setPromoteBank] = useState(false);
++  const [allowUnverified, setAllowUnverified] = useState(false);
+   const [unknownDrops, setUnknownDrops] = useState([]);
+   const [zipSummary, setZipSummary] = useState(null);
+   const [presets, setPresets] = useState([]);
+@@ -568,12 +569,17 @@ export default function KeyProgTab() {
+     try {
+       return runKeyProgPatch({
+         bcm: files.BCM, rfh: files.RFH, pcm: files.PCM,
+-        vin, promoteBank,
++        vin, promoteBank, allowUnverifiedTarget: allowUnverified,
+       });
+     } catch (e) {
+       return { ok: false, checks: [{ label: 'Patcher threw error', pass: false, detail: String(e) }], files: [], before: null, after: null };
+     }
+-  }, [files, vin, promoteBank]);
++  }, [files, vin, promoteBank, allowUnverified]);
++
++  // An XC2268 RFHUB write uses the UNVERIFIED writer; the patcher refuses it
++  // until acknowledged. Surface that as an opt-in checkbox.
++  const needsUnverifiedAck = !!(result && !result.ok
++    && (result.checks || []).some((c) => /UNVERIFIED/i.test(c.label) && !c.pass));
+ 
+   const checksAllGreen = !!(result && result.ok && Array.isArray(result.checks)
+     && result.checks.length > 0 && result.checks.every((c) => c.pass));
+@@ -1147,6 +1153,13 @@ export default function KeyProgTab() {
+             )}
+           </div>
+ 
++          {needsUnverifiedAck && (
++            <label style={{ display: 'block', margin: '0 0 12px', fontSize: 12, color: C.er, fontWeight: 600 }}>
++              <input type="checkbox" checked={allowUnverified} onChange={(e) => setAllowUnverified(e.target.checked)} style={{ marginRight: 6 }} />
++              This RFHUB is XC2268 (2019+ Ram) and its SEC16 writer is UNVERIFIED — writing it can brick the module. Proceed anyway.
++            </label>
++          )}
++
+           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+             {/* Checklist */}
+             <div>
+-- 
+2.43.0
+

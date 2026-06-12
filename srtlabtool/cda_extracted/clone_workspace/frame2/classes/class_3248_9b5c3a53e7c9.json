@@ -1,0 +1,87 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3248,
+  "className": "PrivateNs.DefaultCommandFactoryRegistry",
+  "classNameNormalized": "PrivateNs.DefaultCommandFactoryRegistry",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.messaging.command.CommandFactoryRegistry"
+  ],
+  "iinitMethod": 50575,
+  "cinitMethod": 50571,
+  "iinitBytecode": {
+    "codeLength": 28,
+    "codeSha256": "82d1fa92d3fef5c17eb71673dd7282d32884458c427e56d1559ca2547b368089",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addCommandFactory",
+      "traitKind": "method",
+      "methodIndex": 50573,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "org.spicefactory.parsley.core.messaging.command.CommandFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "2511cabf6177a619bdfef02885a6a2531d0813d8189cf81e1adb3ea40a4f9972",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "addParent",
+      "traitKind": "method",
+      "methodIndex": 50572,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.command.CommandFactoryRegistry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "6b8ba83d9986a3bd5e68aa8ed59828ed9869241e3f08a717bf9dda50a4b9f733",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getCommandFactory",
+      "traitKind": "method",
+      "methodIndex": 50574,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "org.spicefactory.parsley.core.context.LookupStatus"
+      ],
+      "returnType": "org.spicefactory.parsley.core.messaging.command.CommandFactory",
+      "hasBody": true,
+      "codeLength": 252,
+      "bytecode": {
+        "codeLength": 252,
+        "codeSha256": "43721b42ae671bbdb9a1d5af8ba497478fadebdd96fadaac19ee7e6ad9682d52",
+        "bytecodeLineCount": 16
+      }
+    }
+  ],
+  "staticMembers": []
+}

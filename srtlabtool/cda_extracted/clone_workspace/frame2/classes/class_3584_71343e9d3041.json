@@ -1,0 +1,388 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3584,
+  "className": "com.diagnosticProcedures.view.components.ImageComponent",
+  "classNameNormalized": "com.diagnosticProcedures.view.components.ImageComponent",
+  "superName": "spark.components.Group",
+  "superNameNormalized": "spark.components.Group",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.view.IScreenComponent",
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 53852,
+  "cinitMethod": 53848,
+  "iinitBytecode": {
+    "codeLength": 376,
+    "codeSha256": "e870534d1a26467f31a7e4d0b9c41fbcd6c99ac8957f7ad53fc3cb62f9996401",
+    "bytecodeLineCount": 24
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "__displayImage_click",
+      "traitKind": "method",
+      "methodIndex": 53862,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "d2d207861391c0a22bd796eeae08c64bc898b24bc1347b971ff5b0b2d6e44032",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__displayImage_mouseOut",
+      "traitKind": "method",
+      "methodIndex": 53864,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "7ecedc04545e39650e843231b6d84ef511f2a3e70fe38d314f80a6e26fbb0fff",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__displayImage_mouseOver",
+      "traitKind": "method",
+      "methodIndex": 53863,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "0a04bc648a63882c4bcc87af2481518d973858c4cd9efb00cfa58862f1efd151",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "bundleName",
+      "traitKind": "getter",
+      "methodIndex": 53875,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3aae61113071d11abcb99c2f8d12ec234433b5a8c7f439679422e0dea77c59e4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "bundleName",
+      "traitKind": "setter",
+      "methodIndex": 53876,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5cf90814f88e50d6c9c5f14149573764062aeec52fcffef3661addda7e462e70",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.view.components:ImageComponent.addPopUp",
+      "traitKind": "method",
+      "methodIndex": 53858,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "737622e1cb05b1bfc5b0ffcd74bfa7a269fc1f7bca496510ca2c734c2660f244",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.view.components:ImageComponent.imageLoaded",
+      "traitKind": "method",
+      "methodIndex": 53857,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "82646c0fb3397fe0f295d59e613414638f182ac0070b40f5b551e90b8e40459a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.view.components:ImageComponent.source",
+      "traitKind": "getter",
+      "methodIndex": 53877,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9d82832aa7f20dc891fe99426b75f8bc80b26c780d164ad5fe56a199477cedf9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.view.components:ImageComponent.source",
+      "traitKind": "setter",
+      "methodIndex": 53878,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "f25b15a5c3e08f68c1c3d60b4898cff2c4c98e6160f547bb8ec66616a60a422b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "displayImage",
+      "traitKind": "getter",
+      "methodIndex": 53871,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "eece1309139e0d434a33774764de77e01ece6ac38eb40cd775fcc7a7534ac061",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "displayImage",
+      "traitKind": "setter",
+      "methodIndex": 53872,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "bb61114f770eb11a2bc6de67bf17b6a06860c77a4a370fa85111dbf88d923bcb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "glowFilter",
+      "traitKind": "getter",
+      "methodIndex": 53873,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.filters.GlowFilter",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2c9e4d42b06cc3db8d2d1fcb09bc21d8320c4b1e038782049b5e8ac62ad4f975",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "glowFilter",
+      "traitKind": "setter",
+      "methodIndex": 53874,
+      "methodName": "",
+      "paramTypes": [
+        "spark.filters.GlowFilter"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "de2631b8b58278bb3af7e9c39009ee88d379e9524b56b95a8880ccbc32131804",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 53854,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 53853,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "3d6c3d9a0fef1ad792f75110775c37c8b36c315dadc2bd35287d76ea802a18eb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ImageComponent_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 53870,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "8befab310946d72a3436c46d100dd1572b6ad4a3f9d06baf7eea65c6d35091fa",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs._ImageComponent_GlowFilter1_i",
+      "traitKind": "method",
+      "methodIndex": 53859,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.filters.GlowFilter",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "8aaa0555797fab9121e130caab4d6dbc4c7648321eedabbd1a136f21be0e1232",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ImageComponent_HorizontalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 53860,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.HorizontalLayout",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "e0431a23817dab39a2d63aef17b59d9d1e2430b3e03c862a0de4db1709b5c60b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ImageComponent_Image1_i",
+      "traitKind": "method",
+      "methodIndex": 53861,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 114,
+      "bytecode": {
+        "codeLength": 114,
+        "codeSha256": "715a3a723406107a8f171febfc2500ee9fde8a543044b971ccb87e0cfe61e5c3",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "xml",
+      "traitKind": "getter",
+      "methodIndex": 53855,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xml",
+      "traitKind": "setter",
+      "methodIndex": 53856,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 135,
+      "bytecode": {
+        "codeLength": 135,
+        "codeSha256": "835f5918fea4bd008d8fca8413dd03a5681c8a4f2750a312d4f58d913bc074ce",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 53849,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "f985eddcfc2783ef9ab6631255c0685cc375f932537938ccac1ba4267bba5a27",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

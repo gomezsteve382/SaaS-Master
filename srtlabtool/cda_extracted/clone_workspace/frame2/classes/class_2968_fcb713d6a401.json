@@ -1,0 +1,101 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2968,
+  "className": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportProcessorHTMLImpl",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportProcessorHTMLImpl",
+  "superName": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportProcessor",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportProcessor",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.reports.customdisplay.ICustomDisplayReportProcessor"
+  ],
+  "iinitMethod": 47691,
+  "cinitMethod": 47690,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports.customdisplay.removeChunk",
+      "traitKind": "method",
+      "methodIndex": 47695,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "af934795909e30710e8e3512080f851298dec86493698f1aefef37a3ee9ec2cf",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports.customdisplay.sanitizeFile",
+      "traitKind": "method",
+      "methodIndex": 47694,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "e48b578b71c20fd1b153050ee8ec0b08794058c337f73ac01f4a08f2fd12ba5c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "getCustomDisplayReports",
+      "traitKind": "method",
+      "methodIndex": 47692,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "2d0941887efb0f2b61693b177849a721586c18a54c5bc9f75d3c4d79183be200",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "processFile",
+      "traitKind": "method",
+      "methodIndex": 47693,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "d49392fca637de942fbbe4f541ade217dee01133c13ddc2db13f38fc8c7e6ae8",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

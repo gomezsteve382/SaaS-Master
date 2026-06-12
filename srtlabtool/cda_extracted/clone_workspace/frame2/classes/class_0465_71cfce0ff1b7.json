@@ -1,0 +1,855 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 465,
+  "className": "mx.managers.ToolTipManagerImpl",
+  "classNameNormalized": "mx.managers.ToolTipManagerImpl",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IToolTipManager2"
+  ],
+  "iinitMethod": 9554,
+  "cinitMethod": 9552,
+  "iinitBytecode": {
+    "codeLength": 115,
+    "codeSha256": "939757a5b06bcde15116318db9c971f8ba73cf4c2875ab57dd14cdbcd40cdde7",
+    "bytecodeLineCount": 8
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createToolTip",
+      "traitKind": "method",
+      "methodIndex": 9589,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Number",
+        "Number",
+        "String",
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "mx.core.IToolTip",
+      "hasBody": true,
+      "codeLength": 253,
+      "bytecode": {
+        "codeLength": 253,
+        "codeSha256": "3c0db4b6aa52886e5f5f17acb97342310e0cbe085ccc2b31388b341b8b349a09",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "currentTarget",
+      "traitKind": "getter",
+      "methodIndex": 9555,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "301e4ec9d09199a2d9dc99cd2cb6d91b7fa9541636ae10908f96103c7ef7a32d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentTarget",
+      "traitKind": "setter",
+      "methodIndex": 9556,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "28c3ba427e407c66b1a93717872090b41605334a4bb4a70fcb75569ca634c0b2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentToolTip",
+      "traitKind": "getter",
+      "methodIndex": 9557,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IToolTip",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "b8ecc708960b2db2dfd8bc74735bf21c784d5073b1faf767e392cb758e5ed692",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentToolTip",
+      "traitKind": "setter",
+      "methodIndex": 9558,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IToolTip"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "79f2c6358d0367453d4db8d122d05ce9b3cb0676f6ca37d7d1cd5a8f7593a3c0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "destroyToolTip",
+      "traitKind": "method",
+      "methodIndex": 9590,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IToolTip"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "1caf9ca87ccd4b8bd1f14895a6510aff613bbfc97aeabb08ee4f5e50ba0ee643",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "enabled",
+      "traitKind": "getter",
+      "methodIndex": 9559,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "eb53971ea82cfced4c575662d8a7cd70686129546e76c11f6d20d5ceba4dfc3e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enabled",
+      "traitKind": "setter",
+      "methodIndex": 9560,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "546f8672f5c25692d1d7cd67b1ef05896ca535a58e6067a637a05e5cedbcde47",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hideDelay",
+      "traitKind": "getter",
+      "methodIndex": 9561,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9535a5913dffa5f0056973a2bd6a3448396f94373fee6bc5491f5a21823d7e97",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hideDelay",
+      "traitKind": "setter",
+      "methodIndex": 9562,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c1b664870fa0d6c551a58b86fe6bfe16efb6321775ddc9f68e6cb4e308e9325d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hideEffect",
+      "traitKind": "getter",
+      "methodIndex": 9563,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.effects.IAbstractEffect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "2bd9ba29db3b0b8504f79c0438934e952bd1a82c4194147202f384fc75195fe8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hideEffect",
+      "traitKind": "setter",
+      "methodIndex": 9564,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.IAbstractEffect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "80eb594c39f46bcc3fca8e8ff9a242fc8894aa343bf00605932ce28e7656f777",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.changeHandler",
+      "traitKind": "method",
+      "methodIndex": 9603,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "75b37ce0702b14f4e3fcb8b9d6bd60214b804ae2d1a4e165eb5e79705fa33d8b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.checkIfTargetChanged",
+      "traitKind": "method",
+      "methodIndex": 9579,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "db646833c52fd22455addfd28b3e276adf168e0bc43b36f9444d0860c8bbfc36",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createTip",
+      "traitKind": "method",
+      "methodIndex": 9582,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 227,
+      "bytecode": {
+        "codeLength": 227,
+        "codeSha256": "541d3a577020b9445c7470bc6e2ceb79da536ee4fd49afdc23aac1294b955fd1",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.effectEndHandler",
+      "traitKind": "method",
+      "methodIndex": 9601,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "7006d7ad96733bcff7dbda760d7578806632c40e580cab15f6c752cdfb6b37e9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.errorTipMouseOutHandler",
+      "traitKind": "method",
+      "methodIndex": 9598,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "b72624f761b81c295457fb8ab39abaadd05a01161d6e62ae3c668653cece7856",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.errorTipMouseOverHandler",
+      "traitKind": "method",
+      "methodIndex": 9597,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "ed8d2d636f8bc9674d33adc85599cf28b76f011c61d1115690b0f75b64982fd0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.findTarget",
+      "traitKind": "method",
+      "methodIndex": 9580,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 171,
+      "bytecode": {
+        "codeLength": 171,
+        "codeSha256": "913962411fa8ac76422e86be615fabfb690ddf37f4768466d53a85dcab912b7e",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getSystemManager",
+      "traitKind": "method",
+      "methodIndex": 9593,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "mx.managers.ISystemManager",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "88fa73e806bbf1b15c850b71374824ef3349ea812c482500e4e1e51d58b045d5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.hideEffectEnded",
+      "traitKind": "method",
+      "methodIndex": 9592,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "3eae487ca206fd4091689b1760591bd3a378b3c64aa8bb9d47c68fbd499fe167",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.hideTimer_timerHandler",
+      "traitKind": "method",
+      "methodIndex": 9600,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9960eed7e1b0067aa51e5eaa477fe0a1e7aaa1b873486a8ed2fe1754c1422f55",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.hideTip",
+      "traitKind": "method",
+      "methodIndex": 9587,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 159,
+      "bytecode": {
+        "codeLength": 159,
+        "codeSha256": "9981d3cc006a78a0932b22b66a90809f3bcc4556892344626d45b07b1f38bde2",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.initialize",
+      "traitKind": "method",
+      "methodIndex": 9573,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "721ccb666c42f61f35da2bd6c859d3a04e0de94bed4641ef01b907416043babf",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.initializeTip",
+      "traitKind": "method",
+      "methodIndex": 9583,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 195,
+      "bytecode": {
+        "codeLength": 195,
+        "codeSha256": "7f3eb9aa764abf6f33de1b54007384bbc1029839158799bceac42c9d3dde5d84",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.positionTip",
+      "traitKind": "method",
+      "methodIndex": 9585,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 991,
+      "bytecode": {
+        "codeLength": 991,
+        "codeSha256": "b3d39ae8e6bfad4192e9ee9d69a122d02f80e4ac7103d979a42b56a9b9d05332",
+        "bytecodeLineCount": 62
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.reset",
+      "traitKind": "method",
+      "methodIndex": 9588,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 250,
+      "bytecode": {
+        "codeLength": 250,
+        "codeSha256": "e242246a085e4c4944b5d0485d8242960ae26652f44ca61175d2c07deb46c8c5",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.showEffectEnded",
+      "traitKind": "method",
+      "methodIndex": 9591,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "1b075a2d2f243fbd086896b58a4ef920c692be23739084fb89e93d89cc0e31e2",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.showTimer_timerHandler",
+      "traitKind": "method",
+      "methodIndex": 9599,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "8b260791c931c79d46e3447299165b8d1bc83470ba6bbb5dda1120acb03bdfe4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.showTip",
+      "traitKind": "method",
+      "methodIndex": 9586,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 122,
+      "bytecode": {
+        "codeLength": 122,
+        "codeSha256": "6d2ec5ef57a2d5d636facf7b9cb05be44b85253385513134ffd6212bd5f55d26",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.systemManager_mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 9602,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "75b37ce0702b14f4e3fcb8b9d6bd60214b804ae2d1a4e165eb5e79705fa33d8b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.targetChanged",
+      "traitKind": "method",
+      "methodIndex": 9581,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 249,
+      "bytecode": {
+        "codeLength": 249,
+        "codeSha256": "dfb7808a3dedbcbcd2a62c5c1009e61701560fe68f4f18685232b69a880d53be",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.toolTipMouseOutHandler",
+      "traitKind": "method",
+      "methodIndex": 9596,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "b72624f761b81c295457fb8ab39abaadd05a01161d6e62ae3c668653cece7856",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.toolTipMouseOverHandler",
+      "traitKind": "method",
+      "methodIndex": 9595,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "ed8d2d636f8bc9674d33adc85599cf28b76f011c61d1115690b0f75b64982fd0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.getGlobalBounds",
+      "traitKind": "method",
+      "methodIndex": 9594,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.display.DisplayObject",
+        "Boolean"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "8c3a13f2bc814d8c77d5d479f8c5669dcfee717441d6cfa4cf03eedf1dd7ed9f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.hideImmediately",
+      "traitKind": "method",
+      "methodIndex": 9578,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "d0ab09c0d4b37fc9ae49968c60d8012bd3c10fac08b189833e90c5915ceef76c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseIsOver",
+      "traitKind": "method",
+      "methodIndex": 9576,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "6b26f8905302b24a568d1b164afc5bc78d773d7de672d4a583e84ff768f43854",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.showImmediately",
+      "traitKind": "method",
+      "methodIndex": 9577,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "06b0f3a113db8e1ff93b51843be00f1bf035ca7480456995b161b8c6707a13e3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "registerErrorString",
+      "traitKind": "method",
+      "methodIndex": 9575,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 127,
+      "bytecode": {
+        "codeLength": 127,
+        "codeSha256": "470551e7deb1244bd5bfd626851b87286aebd2e780b4ab9b32219ea8ba338edc",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "registerToolTip",
+      "traitKind": "method",
+      "methodIndex": 9574,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 127,
+      "bytecode": {
+        "codeLength": 127,
+        "codeSha256": "36294e4cea51bd19867345b6761849457ce3a80d1a7e4e0fb40852b1ad55b4f7",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "scrubDelay",
+      "traitKind": "getter",
+      "methodIndex": 9565,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7fd8956f4fd75d221610bdf9d4a68455597138fc14d3251d5f826cba7434d6a9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "scrubDelay",
+      "traitKind": "setter",
+      "methodIndex": 9566,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fe627b8f670543f958e4ed2b1acd08ea2efad941ff79f3a8ce06708d7c0391b6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showDelay",
+      "traitKind": "getter",
+      "methodIndex": 9567,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1df8388bd79c936ec04530658f82b0ac613480c1c6a95307418075a464a412b2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showDelay",
+      "traitKind": "setter",
+      "methodIndex": 9568,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ab70090a98759ae59ccccdd4d6c919307fd99ec6b29290d7d86e6b832984ab19",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showEffect",
+      "traitKind": "getter",
+      "methodIndex": 9569,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.effects.IAbstractEffect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f8e39338ed66fadd1f01289cfaa5328fe5a53071e2eeadb0907ba863607ce939",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showEffect",
+      "traitKind": "setter",
+      "methodIndex": 9570,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.IAbstractEffect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "8610c56ac170efe1d0920fb7e907094af6b816b437ad184478256cb3bc7bf867",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sizeTip",
+      "traitKind": "method",
+      "methodIndex": 9584,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IToolTip"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "b1e8e08ad73b726ca0c5192a760a3312ddd440c361aef91c8d78f655d0b4789d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "toolTipClass",
+      "traitKind": "getter",
+      "methodIndex": 9571,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "be6c5a9b5e40270255c83916b2feb8b68d9bd076375f3dcf16c01a32c3ef765a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toolTipClass",
+      "traitKind": "setter",
+      "methodIndex": 9572,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bf3fa7f9488debfc3ec876a611bb00aaf0ed6baa0f086bf85d31fdedc4c513ae",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 9553,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.IToolTipManager2",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "7d1fbec7d2f8c0021836d9d84661808d429aa00fed659d0294f276c2f969ec42",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

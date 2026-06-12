@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3362,
+  "className": "com.diagnosticProcedures.logging.LoggingNavigateToPageNode",
+  "classNameNormalized": "com.diagnosticProcedures.logging.LoggingNavigateToPageNode",
+  "superName": "com.diagnosticProcedures.node.NavigateToPageNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.NavigateToPageNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.logging.LoggingNode"
+  ],
+  "iinitMethod": 51743,
+  "cinitMethod": 51742,
+  "iinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "22e3bef9818919c4a6f9a8df3579f4ac3c180d07dab19bb20193103e6ede37de",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.logging:LoggingNavigateToPageNode.processFault",
+      "traitKind": "method",
+      "methodIndex": 51746,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.Fault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "22cd30e6159a503c908e2c09f322ce5aa6ef45d0460109a959c7ece43887f540",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "performStores",
+      "traitKind": "method",
+      "methodIndex": 51747,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "cc592134b3aa0282d77161cc2e397d3447bd805db5f796ad9013daa023d75f57",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51744,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "2a2ba12f510ef098b4670c9218334df68d6dae39bc63c5da4ef5e5fdad32795b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "processResult",
+      "traitKind": "method",
+      "methodIndex": 51745,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "0d82bac25fc743ec9ab7045ebab8f4315649d9f1ee2d43f9a22fb72c9007eb32",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

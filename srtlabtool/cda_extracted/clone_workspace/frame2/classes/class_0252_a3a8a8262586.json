@@ -1,0 +1,189 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 252,
+  "className": "org.spicefactory.parsley.core.view.ViewSettings",
+  "classNameNormalized": "org.spicefactory.parsley.core.view.ViewSettings",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 5908,
+  "cinitMethod": 5894,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.addViewLifecycle",
+      "traitKind": "method",
+      "methodIndex": 5905,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.addViewRootHandler",
+      "traitKind": "method",
+      "methodIndex": 5903,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.autoremoveComponents",
+      "traitKind": "getter",
+      "methodIndex": 5897,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.autoremoveComponents",
+      "traitKind": "setter",
+      "methodIndex": 5898,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.autoremoveViewRoots",
+      "traitKind": "getter",
+      "methodIndex": 5895,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.autoremoveViewRoots",
+      "traitKind": "setter",
+      "methodIndex": 5896,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.autowireComponents",
+      "traitKind": "getter",
+      "methodIndex": 5899,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.autowireComponents",
+      "traitKind": "setter",
+      "methodIndex": 5900,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.autowireFilter",
+      "traitKind": "getter",
+      "methodIndex": 5901,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.view.ViewAutowireFilter",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.autowireFilter",
+      "traitKind": "setter",
+      "methodIndex": 5902,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.view.ViewAutowireFilter"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.getViewRootHandlers",
+      "traitKind": "method",
+      "methodIndex": 5904,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.LookupStatus"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.newViewLifecycle",
+      "traitKind": "method",
+      "methodIndex": 5906,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "org.spicefactory.parsley.core.context.LookupStatus"
+      ],
+      "returnType": "org.spicefactory.parsley.core.view.ViewLifecycle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.view:ViewSettings.viewProcessor",
+      "traitKind": "getter",
+      "methodIndex": 5907,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.bootstrap.Service",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

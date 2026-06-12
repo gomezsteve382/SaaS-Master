@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3390,
+  "className": "deng.utils.ChecksumUtil",
+  "classNameNormalized": "deng.utils.ChecksumUtil",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51893,
+  "cinitMethod": 51889,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "e0dbb198a7165c6f1ee7c3fcae2311882d99c61a4f8ce8655b4b8f222cc260bc",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "Adler32",
+      "traitKind": "method",
+      "methodIndex": 51892,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint",
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 248,
+      "bytecode": {
+        "codeLength": 248,
+        "codeSha256": "10038e58b4b2f0a6bb9663f6a291e5957eb833b9d813f327321873328fd57547",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "CRC32",
+      "traitKind": "method",
+      "methodIndex": 51891,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint",
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "15005b777c5f698fd5ca6cd02ee69494538dfc4cf42607f68d17b47878e2fd0d",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.makeCRCTable",
+      "traitKind": "method",
+      "methodIndex": 51890,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "3441bfe1939a2227d6f825bfc4bfc101ef89864b7e42f4e08b6f6d7d8b7b711a",
+        "bytecodeLineCount": 7
+      }
+    }
+  ]
+}

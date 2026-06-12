@@ -1,0 +1,116 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2004,
+  "className": "com.chrysler.cda.event.message.proxi.GetComServicesForProxiViewMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.proxi.GetComServicesForProxiViewMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.event.message.diagnostic.ecu.IFindReadWriteComServicesMessage"
+  ],
+  "iinitMethod": 37106,
+  "cinitMethod": 37102,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "a78be2d602de64af3d90459a18c91d5c709c3f0e4ffc49f394b4f2a4a89e24e5",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 36,
+    "codeSha256": "32af04d7cd234ddeebc9898252b702e84c6aa72c6201afeaf5d750429dee4f85",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 37108,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5f30025beecb7e9360b76b25b83fbb60c0dbed1597267bd056f3de7aac191263",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selector",
+      "traitKind": "getter",
+      "methodIndex": 37107,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "057a6cc0915317a9d1e95d66f3608d6dd84a948d77604b11ec714dc2a69e8a01",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "For102AEOL",
+      "traitKind": "method",
+      "methodIndex": 37105,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.proxi.GetComServicesForProxiViewMessage",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "04b92685e88b956eb4af26f62f39f92bd31420e5ba6d36b3651f18287d5c85c1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ForEOL",
+      "traitKind": "method",
+      "methodIndex": 37104,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.proxi.GetComServicesForProxiViewMessage",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "cab990d4d11af59dfdf08b5ec87b351fc609b9001c41dda94216e9a68e000eb1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ForProxi",
+      "traitKind": "method",
+      "methodIndex": 37103,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.proxi.GetComServicesForProxiViewMessage",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "87a03b88fbf71400350ca7acfb8109e4fffa7f435130c0578cfdf7dface54360",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

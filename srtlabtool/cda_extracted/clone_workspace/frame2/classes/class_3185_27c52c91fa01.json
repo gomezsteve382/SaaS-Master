@@ -1,0 +1,133 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3185,
+  "className": "com.hurlant.crypto.symmetric.XTeaKey",
+  "classNameNormalized": "com.hurlant.crypto.symmetric.XTeaKey",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.symmetric.ISymmetricKey"
+  ],
+  "iinitMethod": 50145,
+  "cinitMethod": 50143,
+  "iinitBytecode": {
+    "codeLength": 43,
+    "codeSha256": "f04e263904cf26d396fc32d78c7439b3ac2e1d75c009a5e6d7376515d66f682b",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decrypt",
+      "traitKind": "method",
+      "methodIndex": 50148,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 181,
+      "bytecode": {
+        "codeLength": 181,
+        "codeSha256": "8f67e47348bd435c6fb30e4b475af44be02e0c6811b672b006815708155c7dad",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 50149,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "893ce88d29ad773d158038b3cece8be36e93566d09710b48dde4bfafede39f80",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "encrypt",
+      "traitKind": "method",
+      "methodIndex": 50147,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 176,
+      "bytecode": {
+        "codeLength": 176,
+        "codeSha256": "25318b6af9307af52385bcdba98e2650879fcfcd8f127e9b8d36f6a9e154f643",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "getBlockSize",
+      "traitKind": "method",
+      "methodIndex": 50146,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 5,
+      "bytecode": {
+        "codeLength": 5,
+        "codeSha256": "9c0391e0d6224036ffc871dbcd4328cb410db6334d0c790f2bec890d62bf485f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 50150,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b942875de1fde16c14cdcb57fcdfe7765628eaed79420bc29ad1b65c183f6d50",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "parseKey",
+      "traitKind": "method",
+      "methodIndex": 50144,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.hurlant.crypto.symmetric.XTeaKey",
+      "hasBody": true,
+      "codeLength": 131,
+      "bytecode": {
+        "codeLength": 131,
+        "codeSha256": "7f3f1233c9a700be4f5e486cb08a8485d43b038ed705c73b90fa263c3caa9190",
+        "bytecodeLineCount": 9
+      }
+    }
+  ]
+}

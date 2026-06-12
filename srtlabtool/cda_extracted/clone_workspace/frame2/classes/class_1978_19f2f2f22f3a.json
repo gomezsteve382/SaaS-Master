@@ -1,0 +1,242 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1978,
+  "className": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportItemRenderer",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.reports.customdisplay.CustomDisplayReportItemRenderer",
+  "superName": "spark.components.supportClasses.ItemRenderer",
+  "superNameNormalized": "spark.components.supportClasses.ItemRenderer",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 36733,
+  "cinitMethod": 36729,
+  "iinitBytecode": {
+    "codeLength": 348,
+    "codeSha256": "23de5ac4ab92e77a5151f65f9bdc009f78ac21a2baeb48fb4c3793ed8c57de63",
+    "bytecodeLineCount": 22
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "__deleteButton_click",
+      "traitKind": "method",
+      "methodIndex": 36740,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4c40156d79a8f00f8f4b310cc87e6bb91ace3bd062c7dbc506f9f4e32404fab3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "container",
+      "traitKind": "getter",
+      "methodIndex": 36745,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "52d774700845a037d6c1bc9deb2f6f44c2d6f069106282fbf87a3519f57c9a9c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "container",
+      "traitKind": "setter",
+      "methodIndex": 36746,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "6d2150a86078a77685ce72a10dadeae5f80a7ec3c87c874d4d8d8c5c58cb73b4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "deleteButton",
+      "traitKind": "getter",
+      "methodIndex": 36747,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.IconButton",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fca6f80254de176c35ede7a63709bbb6e53212f935aebdbb83e6e8f0154dfd06",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "deleteButton",
+      "traitKind": "setter",
+      "methodIndex": 36748,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.IconButton"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "6e3819e37613f7b00ee4cce1ac4fae189bcb150d31c9e083d763c686799bc872",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 36735,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 36734,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "5e65ac36a2cb1f6dfc5d850bd3af5383722afc136aa4867e2e3d927253391d4d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._CustomDisplayReportItemRenderer_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 36744,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "63746ff1be31fe4f46e5982baedec4fdf22ac69c14e6595a0aaa9d244f905b17",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._CustomDisplayReportItemRenderer_Group1_i",
+      "traitKind": "method",
+      "methodIndex": 36737,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "3653eb7d700010a2430feb41d9ff6fea65bf338e22de4fe9d5f28fc0ed90c25b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CustomDisplayReportItemRenderer_IconButton1_i",
+      "traitKind": "method",
+      "methodIndex": 36739,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.IconButton",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "ea4fbf426c773efe2d41dd94166e2333329acb0ff7a14fdb723891d3f147e4f1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._CustomDisplayReportItemRenderer_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 36738,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "06ad594a474a552daca6b0935d8f16eb56263fcb40aa109e73338902c6fd2d94",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchRemove",
+      "traitKind": "method",
+      "methodIndex": 36736,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "14384fd6f3422018c2dae62dfe2318db71ae94981c2ec4ae930b1e233481480e",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 36730,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "4b066aa14a2f6b3686e9fa4ac4c805391dacacd32c370d4f04821e3900378c79",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 789,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.ReadMemoryCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.ReadMemoryCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 15310,
+  "cinitMethod": 15308,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "80f6f875ea7ea64a4d3910b0dbf5bd93a7f3f49c2e210d7cf9f3d1c47975800a",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onReadMemoryMessage",
+      "traitKind": "method",
+      "methodIndex": 15309,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.ReadMemoryMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 168,
+      "bytecode": {
+        "codeLength": 168,
+        "codeSha256": "ba6df3cb70cc640c68fa145e0708a9e830d1a63f7f519fe798d2d5be08087324",
+        "bytecodeLineCount": 11
+      }
+    }
+  ],
+  "staticMembers": []
+}

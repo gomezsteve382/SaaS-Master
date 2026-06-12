@@ -1,0 +1,622 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2937,
+  "className": "com.chrysler.skins.TitledBorderBoxSkin",
+  "classNameNormalized": "com.chrysler.skins.TitledBorderBoxSkin",
+  "superName": "spark.components.supportClasses.Skin",
+  "superNameNormalized": "spark.components.supportClasses.Skin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 47411,
+  "cinitMethod": 47407,
+  "iinitBytecode": {
+    "codeLength": 466,
+    "codeSha256": "44e2668d99c9315c2d2bdff475aa07d0af3734e1351093d0fcec42258bf8718d",
+    "bytecodeLineCount": 30
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "background",
+      "traitKind": "getter",
+      "methodIndex": 47430,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fb62fbb0543104f6cefaf98d3196d3c0c214854310621efa48266a7a0ffb27ce",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "background",
+      "traitKind": "setter",
+      "methodIndex": 47431,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "e373476c2e80c9629cc0b565e961bc9f46e687e7954c4e428b33e2ca3e2edcbe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "bgFill",
+      "traitKind": "getter",
+      "methodIndex": 47432,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f3b1dabc1ace42b06d0a047a9579cff0691be2828b9222f656aef855b4093b05",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "bgFill",
+      "traitKind": "setter",
+      "methodIndex": 47433,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "41317db46e88c3ef5b71eec9e35598e90eb1e0d18ee6c45c1bbc0aa03af342db",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "border",
+      "traitKind": "getter",
+      "methodIndex": 47434,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "07b752162dbb7d5efddb7035b8b68d633060ac17558b0b99150941680f4303e2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "border",
+      "traitKind": "setter",
+      "methodIndex": 47435,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Path"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "03f43c0651f827859325565706741627d05f494f2279bff6b89bcd08c72bfee7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "borderStroke",
+      "traitKind": "getter",
+      "methodIndex": 47436,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "45849479cdb22e6e909b678e24c765933e593f4146b2133a8a1cf63e1f482ce2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "borderStroke",
+      "traitKind": "setter",
+      "methodIndex": 47437,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColorStroke"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "fa46cec5baf9abbb38b08aa7635ed2a423e2d378651848f8acde669fdf8634df",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.skins:TitledBorderBoxSkin.measure",
+      "traitKind": "method",
+      "methodIndex": 47414,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "44d6de3b10c40d59ee2ddc968faf3838234400d70198ae74025197977a7cb6a9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.skins:TitledBorderBoxSkin.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 47415,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1296,
+      "bytecode": {
+        "codeLength": 1296,
+        "codeSha256": "24e27d08c803fd02474a95bf21685d04620d990b1fa97b18b9da69d6f77f3ba2",
+        "bytecodeLineCount": 81
+      }
+    },
+    {
+      "traitName": "contentGroup",
+      "traitKind": "getter",
+      "methodIndex": 47438,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a02b36dcca5b7a94d851d61df7335673ee6922b49687d4e92e7696fb459d2597",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "contentGroup",
+      "traitKind": "setter",
+      "methodIndex": 47439,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "a7c7d5126900f6ae823bbbfbc3ae16321613595de4294d2ce3b79d3d30b32074",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dropShadow",
+      "traitKind": "getter",
+      "methodIndex": 47440,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.RectangularDropShadow",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b515cf510f3f312d0dd479de71603e274600d53b6f4eb6276689b7ba5a3fac85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dropShadow",
+      "traitKind": "setter",
+      "methodIndex": 47441,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.RectangularDropShadow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "39d2eaa6dc6c107a6f32faad6a734def706be681707dbcf4e487d4772fc0ccdd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 47448,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.components.TitledBorderBox",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a1aff0288bff4579df5039705e1bbad82bed4cf614466927fd23763708da89c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 47449,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.components.TitledBorderBox"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "9074ccdc0fef796d211a3dfa043e297909dbea81da34222e51207450ca9bc161",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 47413,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 47412,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b2052e3b09976c255f9fb158aa945c8c192615d13de44fcb49ffb625e4d71c42",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "noTitleBorder",
+      "traitKind": "getter",
+      "methodIndex": 47442,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9d6ade0049d89c5f7755f1406098ecb98080f7e55d4e25c112bd4cf8d2c2d144",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "noTitleBorder",
+      "traitKind": "setter",
+      "methodIndex": 47443,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "611b2e1d2f85f2929ae235513aaf76b5c9433b42fceab22d7baf85c34a236258",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "noTitleBorderStroke",
+      "traitKind": "getter",
+      "methodIndex": 47444,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1c37190b83241188f927d867f46fd81d87b70536c72785e292b67e1534c35983",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "noTitleBorderStroke",
+      "traitKind": "setter",
+      "methodIndex": 47445,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColorStroke"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "7cd2a602df95ff9e363b4cf11c1b4287faf9d961c399244b0f7d9257bece7376",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_BasicLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 47426,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.BasicLayout",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "7d40009c36434da001a7a7bf479eb2403935c2886fee00170e178ae285711ab5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 47429,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "672753bb0de5ef0aab0bedb6f196aedc2382acfeaeb25870c5364d87cd30625b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_Group1_i",
+      "traitKind": "method",
+      "methodIndex": 47425,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "6c4cae4947edde43d8c284b07817a65e0414e7663e673f9101ed7f2897bd43af",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 47424,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "465b5230e51cb87943d5a21c324505e8fc8f04506233267e151799e85fdc8e8f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_Path1_i",
+      "traitKind": "method",
+      "methodIndex": 47420,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "bfeb5579dc8c8fba1455f22918ed06fccf5acdf6937de594c40af0125007cb84",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_Rect1_i",
+      "traitKind": "method",
+      "methodIndex": 47418,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "2fdf22618ce3e20c4c04a0b51d41367654d696c6bd2d184bc921b01458e9b854",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_Rect2_i",
+      "traitKind": "method",
+      "methodIndex": 47422,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "2f75a08d47d051c10646991326e5731c89639b4f50b875928169c9a37c3768e0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_RectangularDropShadow1_i",
+      "traitKind": "method",
+      "methodIndex": 47417,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.RectangularDropShadow",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "277d9b5d65ce93eb138e67abbdc752bcade3580a246781fd9d03dc1291cc370e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_SolidColor1_i",
+      "traitKind": "method",
+      "methodIndex": 47419,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "bde9744f210d22cbf6833615a1345b31dac37c09fac652a9deb0fd9c9c2de219",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_SolidColorStroke1_i",
+      "traitKind": "method",
+      "methodIndex": 47421,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "23d8f07398e0c44d0444df9b141e9a3b1f7e67f8ba89ca9a5901f36f0018b2e9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitledBorderBoxSkin_SolidColorStroke2_i",
+      "traitKind": "method",
+      "methodIndex": 47423,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "4cdfb71f192767eec9349147291c2b0a30643eba8aa9b1c549d8d3edfc991745",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.copyLayoutStyle",
+      "traitKind": "method",
+      "methodIndex": 47416,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 162,
+      "bytecode": {
+        "codeLength": 162,
+        "codeSha256": "fc64ccba04a17b8a2f16c96eac9247830b96261ba99161d73b04c79ff382d5b4",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "titleLabel",
+      "traitKind": "getter",
+      "methodIndex": 47446,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7c0e97abe925a0a5616070cf11ae14f5cd955abc3137909c5e65a08f5f5efd59",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "titleLabel",
+      "traitKind": "setter",
+      "methodIndex": 47447,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Label"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "78aff18cd39ade0258ba7a6662b55ea0953b9e4f338e2363f39264861700c02f",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 47408,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "83b42ca5ea803717a1b838eff85e797234dbfae0cf5cb385b0a299c8123b705a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

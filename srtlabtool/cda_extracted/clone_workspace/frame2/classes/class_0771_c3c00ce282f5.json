@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 771,
+  "className": "com.chrysler.cda.application.LocaleCommand",
+  "classNameNormalized": "com.chrysler.cda.application.LocaleCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 14843,
+  "cinitMethod": 14839,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 22,
+    "codeSha256": "b38f0943c20ee325b946aea747cc0559965350b46ed2dd44d78e30db83db3537",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getLocales",
+      "traitKind": "method",
+      "methodIndex": 14840,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.GetServerLocalesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "0cd71769e524ab016242139bc71cf27eeb861ec2b9b8bfcc7d27fb1ea447e1d0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onFault",
+      "traitKind": "method",
+      "methodIndex": 14842,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.GetServerLocalesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "f2a74a8137fdd421c3d65a979040055ff017a0e4174dcfdb72845768c80953cc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onResult",
+      "traitKind": "method",
+      "methodIndex": 14841,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.GetServerLocalesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 101,
+      "bytecode": {
+        "codeLength": 101,
+        "codeSha256": "905caa1dd3cd73e80ec05a5db7a443a680e3b06b520c31d2e08d08c54eae1694",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,103 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3890,
+  "className": "org.spicefactory.parsley.processor.messaging.receiver.MessageBinding",
+  "classNameNormalized": "org.spicefactory.parsley.processor.messaging.receiver.MessageBinding",
+  "superName": "org.spicefactory.parsley.processor.messaging.receiver.AbstractObjectProviderReceiver",
+  "superNameNormalized": "org.spicefactory.parsley.processor.messaging.receiver.AbstractObjectProviderReceiver",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.messaging.receiver.MessageTarget"
+  ],
+  "iinitMethod": 56893,
+  "cinitMethod": 56891,
+  "iinitBytecode": {
+    "codeLength": 204,
+    "codeSha256": "eecb6c6c2f3dcf37f170e17e4c7c7854e055d2622a6120c70ff44d6f4bbe7159",
+    "bytecodeLineCount": 13
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "handleMessage",
+      "traitKind": "method",
+      "methodIndex": 56896,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.MessageProcessor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "a4c555201c88b61d2f01a474ee61f89637a08645e9042a750d10b4e7d5d8370c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "messageProperty",
+      "traitKind": "getter",
+      "methodIndex": 56895,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.lib.reflect.Property",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5174c93e710051f04fdc305a177c1bb59447039faa7191a33f19194d9fcd1e89",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "targetProperty",
+      "traitKind": "getter",
+      "methodIndex": 56894,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.lib.reflect.Property",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "69050372933b13df2df75059843b2e27949ddd107400c9ef53057fce498c680f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "newFactory",
+      "traitKind": "method",
+      "methodIndex": 56892,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "org.spicefactory.lib.reflect.ClassInfo",
+        "String",
+        "*",
+        "int"
+      ],
+      "returnType": "org.spicefactory.parsley.processor.messaging.MessageReceiverFactory",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "8e1e2cc6062b7dbf339af066b6359cb5b65472cf0906c542f50ad43d368432b6",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

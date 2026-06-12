@@ -1,0 +1,86 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3875,
+  "className": "org.spicefactory.parsley.dsl.lifecycle.impl.DefaultAsyncInitBuilder",
+  "classNameNormalized": "org.spicefactory.parsley.dsl.lifecycle.impl.DefaultAsyncInitBuilder",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "sync",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.dsl.lifecycle.AsyncInitBuilder",
+    "org.spicefactory.parsley.dsl.impl.ObjectDefinitionBuilderPart"
+  ],
+  "iinitMethod": 56793,
+  "cinitMethod": 56789,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "5799b0352d3a49a6c996f48e1f374d85005a3eb5bc7ad11b5524d48719865ee3",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "apply",
+      "traitKind": "method",
+      "methodIndex": 56792,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 113,
+      "bytecode": {
+        "codeLength": 113,
+        "codeSha256": "fa12ef3279ef35f787901e9aa5ff0e75dc70d59da9ebaf0e85fec21c9ad133cc",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "completeEvent",
+      "traitKind": "method",
+      "methodIndex": 56790,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.lifecycle.AsyncInitBuilder",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "4bee38cd66ada5f7ef429dec52d8a2a71a7e5524f7fc63e57cca2a35fcd7e50e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "errorEvent",
+      "traitKind": "method",
+      "methodIndex": 56791,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.lifecycle.AsyncInitBuilder",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "3ee93a5424aa345c78c6792c01fc00c394ec5b02eca0dfbd6d5283096357755a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

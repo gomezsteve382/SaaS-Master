@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3665,
+  "className": "PrivateNs.DefaultGlobalScopeState",
+  "classNameNormalized": "PrivateNs.DefaultGlobalScopeState",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.state.GlobalScopeState"
+  ],
+  "iinitMethod": 55045,
+  "cinitMethod": 55040,
+  "iinitBytecode": {
+    "codeLength": 42,
+    "codeSha256": "a4e25df7bf2a68118496af1d3f042a9b946fa552df9ddd47171e73e6941ea3dc",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getScopeById",
+      "traitKind": "method",
+      "methodIndex": 55041,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.core.scope.Scope",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "a37792eb6a4f182047099506d51c230d7b9190ca7e709c4ce116c801cc4d0f24",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getScopesByName",
+      "traitKind": "method",
+      "methodIndex": 55042,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "ef3cb1be9f727e6debf9437ae724193e9bcea22c9dc9ea6398e103c41e391e13",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "nextUuidForName",
+      "traitKind": "method",
+      "methodIndex": 55043,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "c743c117edd799d1570f456e9fffe5fbac5932b51b81498fb96b798386a267c2",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "reset",
+      "traitKind": "method",
+      "methodIndex": 55044,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "4508936cfb20326186aebd868506f0cc18bdbdb9911a13c8df8e03e235d06b84",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

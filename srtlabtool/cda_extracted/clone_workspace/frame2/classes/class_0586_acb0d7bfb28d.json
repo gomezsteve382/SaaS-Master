@@ -1,0 +1,187 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 586,
+  "className": "mx.states.OverrideBase",
+  "classNameNormalized": "mx.states.OverrideBase",
+  "superName": "mx.utils.OnDemandEventDispatcher",
+  "superNameNormalized": "mx.utils.OnDemandEventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.states.IOverride"
+  ],
+  "iinitMethod": 11319,
+  "cinitMethod": 11318,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "apply",
+      "traitKind": "method",
+      "methodIndex": 11321,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.UIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 11320,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initializeFromObject",
+      "traitKind": "method",
+      "methodIndex": 11323,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5db54b1309c65ef26bfb49e706c24622e49cc740b19a3f73b5e95f36be19993e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.states:OverrideBase.addContextListener",
+      "traitKind": "method",
+      "methodIndex": 11325,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "9bbf61dd8d077f4431f6956b00b92fe407a321244beed63a063c8b7a68759613",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.states:OverrideBase.context_propertyChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 11327,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "f9da8b219b89cd21e8de5ed2886dd9a6328f9989c01212dd3e20b4778cb0285f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.states:OverrideBase.enableBindings",
+      "traitKind": "method",
+      "methodIndex": 11328,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.core.UIComponent",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 246,
+      "bytecode": {
+        "codeLength": 246,
+        "codeSha256": "f15f7085b9b223dfcad1776fe040c7154b69ca8cac4ed27851d234521d7b2058",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "mx.states:OverrideBase.getOverrideContext",
+      "traitKind": "method",
+      "methodIndex": 11324,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.core.UIComponent"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "a3f36feddf40e8df73c9035efdb70ddb7c618fe4993c81834f25466303b6612d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.states:OverrideBase.removeContextListener",
+      "traitKind": "method",
+      "methodIndex": 11326,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "ac0e99db2c01905d2fc79503e1ab4fcfef1f6824eb49c9cf4fc65355ab6c379e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "remove",
+      "traitKind": "method",
+      "methodIndex": 11322,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.UIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

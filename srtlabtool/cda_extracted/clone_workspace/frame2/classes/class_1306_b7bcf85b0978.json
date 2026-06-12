@@ -1,0 +1,601 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1306,
+  "className": "spark.components.supportClasses.DropDownListBase",
+  "classNameNormalized": "spark.components.supportClasses.DropDownListBase",
+  "superName": "spark.components.List",
+  "superNameNormalized": "spark.components.List",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 28416,
+  "cinitMethod": 28415,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "f15e40dd1549db225c8a35265c03919d72bac2c7763771f0cb4c60cb81e03c9f",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 55,
+    "codeSha256": "ba38d532dc5d9ff73ab81940fd86052daa74b3f1dbd46a9e8da36f3a06e815d1",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [
+    {
+      "traitName": "allowMultipleSelection",
+      "traitKind": "setter",
+      "methodIndex": 28417,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "closeDropDown",
+      "traitKind": "method",
+      "methodIndex": 28437,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "4b4bba73cd8d24d280ceeeea6ef05f7d09f1299c077fb9a2bde07a2280b7a4ef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataProvider",
+      "traitKind": "setter",
+      "methodIndex": 28418,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.IList"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "20965664792535f086fb4024bbf5815f5528693e2a7457a0a6874893496e06a2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dragEnabled",
+      "traitKind": "setter",
+      "methodIndex": 28419,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dragMoveEnabled",
+      "traitKind": "setter",
+      "methodIndex": 28420,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dropEnabled",
+      "traitKind": "setter",
+      "methodIndex": 28421,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.changeHighlightedSelection",
+      "traitKind": "method",
+      "methodIndex": 28439,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 123,
+      "bytecode": {
+        "codeLength": 123,
+        "codeSha256": "4f9ef1125ad463710ec6445c1e8561c1315beaf3aa0b30e0e40348df7e314dca",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.dropDownController_openHandler",
+      "traitKind": "method",
+      "methodIndex": 28446,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.DropDownEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "ec5a5b429c5f47c15ede691655c1258f79dafb682f884846e8fd2d42a559bb84",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.findKey",
+      "traitKind": "method",
+      "methodIndex": 28441,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 197,
+      "bytecode": {
+        "codeLength": 197,
+        "codeSha256": "f1250c7eac07c773315018ddcf923eb2826b82eabefba7f90bc7d443a2db84bf",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.isItemIndexSelected",
+      "traitKind": "method",
+      "methodIndex": 28435,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "943d6e9d1cfb654e5d09daf47298c720ef7b0182d1864f64458b955bb99fe77e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.open_updateCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 28447,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "6844d7b3aba60337dda741d4a5b212b58f7548f359e68fb82815b5b329e4f129",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.positionIndexInView",
+      "traitKind": "method",
+      "methodIndex": 28440,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "5065f52f66477b181be65509853bf232db8164d8e31bceff65d7cb96c366cb05",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.updateLabelDisplay",
+      "traitKind": "method",
+      "methodIndex": 28438,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.userProposedSelectedIndex",
+      "traitKind": "getter",
+      "methodIndex": 28428,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "84d0ad54c0cd141d69e6c298893f7d07008277c34a3ea128d18fcedab111a19d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.userProposedSelectedIndex",
+      "traitKind": "setter",
+      "methodIndex": 28427,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "cdea8188a37774c3770f3916318956f590a54ae160cd01beacbf533f18b34b8b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isDropDownOpen",
+      "traitKind": "getter",
+      "methodIndex": 28426,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "c6207e5bf16378ca0719a2f9736fbb0fb397cd879cd52ed380b93833d0ed007f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "labelField",
+      "traitKind": "setter",
+      "methodIndex": 28422,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "6390e04a56ce6dd8f25b775f5a1d2d4cf4c06fad576835860be3cd2972da81b1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "labelFunction",
+      "traitKind": "setter",
+      "methodIndex": 28423,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "7c81533769c1e51ea4b334153bc9402fe61f579b92771410b4cb6af643a9e6ba",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "openDropDown",
+      "traitKind": "method",
+      "methodIndex": 28436,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "de1ba4dd2bdbf57c94065f5a04c6b451b0b4519df179962c54daf690003cbf6e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.close_updateCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 28449,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "fa9d8e6a496ff9bd69fe9d5b758b0a11ebdb5bc7cb929343f8c1385d02f03b6e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 28430,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "51aebdcd1f2ccf05184aa00443567cdaf8911c45234e93dda6b6af848556b480",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.commitSelection",
+      "traitKind": "method",
+      "methodIndex": 28434,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "506eb6dc87b91525e60fe88651c03ef3fa07a85c904c9e840c695f446d2221fa",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.dataProvider_collectionChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 28442,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "3a5f64aec8bc2788b3d0a0e84f317710d7dbe9fd10e74ac1e4d6467e81dd1ddf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.dropDownController",
+      "traitKind": "getter",
+      "methodIndex": 28424,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.supportClasses.DropDownController",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8f613a4f237f6e633f87e33b996fa1769b1fd5b7f7b125ace9f10055fa3076b5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.dropDownController",
+      "traitKind": "setter",
+      "methodIndex": 28425,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.supportClasses.DropDownController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "261e6a688c0e141c588418eb258e1c40e2aafb344123a1841ee907c7a8d9402e",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.dropDownController_closeHandler",
+      "traitKind": "method",
+      "methodIndex": 28448,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.DropDownEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "c5fef9e3479fb33504e03f0729721debd231257295411126fb0ff3a7b9ca0ad9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.focusOutHandler",
+      "traitKind": "method",
+      "methodIndex": 28445,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "63e0dbd122ed9e3a325df873e784d238a6dcc29d1c011c5bfd3b7669837ee059",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.getCurrentSkinState",
+      "traitKind": "method",
+      "methodIndex": 28433,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "3fb15e6d66de9f08abaf821c6ab43fe8f98585f39d9a91bd52477dc144c74d6f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.initializeAccessibility",
+      "traitKind": "method",
+      "methodIndex": 28429,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "44d122ca76f6b4d7b6925b4e8913d3b625709e5ad30d79dc207b9facf43fa00b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.item_mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 28443,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "d2d666707db945ee654c4796fa7ed978a8d19586e544c6f574fbf6aff8ba5620",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.keyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 28444,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 689,
+      "bytecode": {
+        "codeLength": 689,
+        "codeSha256": "96ca82f0f8ab6e69dd1fad0df86d986976ef0e8bdbd53aba5b63154d483312d4",
+        "bytecodeLineCount": 44
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.partAdded",
+      "traitKind": "method",
+      "methodIndex": 28431,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "138c04bd63a74d95f9b2a2ab5f68f4f8673ccf72d3c053a51678af0c73139225",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.partRemoved",
+      "traitKind": "method",
+      "methodIndex": 28432,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "18aca89d5a19c39ca51f8564a8e8bdf29ff27f60e00c0c372c47b311e190c3c3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:DropDownListBase.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 28450,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a2c1104942bc10092dd8100fb060b957beec0d73923b7cc485b34056eb7cdb73",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

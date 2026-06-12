@@ -1,0 +1,167 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3667,
+  "className": "org.spicefactory.parsley.core.messaging.impl.DefaultMessageReceiverCache",
+  "classNameNormalized": "org.spicefactory.parsley.core.messaging.impl.DefaultMessageReceiverCache",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.messaging.MessageReceiverCache"
+  ],
+  "iinitMethod": 55054,
+  "cinitMethod": 55053,
+  "iinitBytecode": {
+    "codeLength": 81,
+    "codeSha256": "a2397910ac3b9399f549cd505bb6de669fb2171229535964cffdc54cb6cba95a",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "6b0b8419d69128f0b3b095e9cc9952da723247e0a4eb61a5ccf4eecf6ad0e1b5",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "checkNewCollection",
+      "traitKind": "method",
+      "methodIndex": 55057,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.impl.MessageReceiverCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "9c335509734058af21d117c68e689fb0d80bcbd88942d0b9f24e22fe42f455d2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getReceivers",
+      "traitKind": "method",
+      "methodIndex": 55060,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.Message",
+        "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "454f2bcfea91b77572eef4256907035e6a32ab99ebb28f5c560c3e7826f9bcda",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getSelectorValue",
+      "traitKind": "method",
+      "methodIndex": 55056,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "669de27bfe04d9c885bafb76e05fe9f90345acc35bb64ecbe2bc2d62870ef275",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.addListener",
+      "traitKind": "method",
+      "methodIndex": 55058,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.impl.MessageReceiverCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "d1a59393e7a7c6176990ad23b4d4117eb0cebda9f4d7acb667261058add8b006",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.collectionChanged",
+      "traitKind": "method",
+      "methodIndex": 55059,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "84761b27332bc6a400e166f564bebbf53c993ddc3a84e50501b254d1d5431b20",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.getSelectorMap",
+      "traitKind": "method",
+      "methodIndex": 55061,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind"
+      ],
+      "returnType": "PrivateNs.SelectorMap",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "e9d1195fbf1f6e7452db2094d66d659843b54a935014eac4b2cba0f35b6ef730",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.setSelectorProperty",
+      "traitKind": "method",
+      "methodIndex": 55055,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 161,
+      "bytecode": {
+        "codeLength": 161,
+        "codeSha256": "c3cc15f0bcb5f2eaf06d3bf0435f7f0ebae53b8c1f5f2cd0fc1ba319ca453a02",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "release",
+      "traitKind": "method",
+      "methodIndex": 55062,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "be4c90807adeb5a9589bb44a00d7bd21ebfa903401f734e1c66749d52a8923bb",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

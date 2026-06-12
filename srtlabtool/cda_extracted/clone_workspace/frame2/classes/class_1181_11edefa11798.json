@@ -1,0 +1,796 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1181,
+  "className": "com.chrysler.cda.presentation.component.devices.UpdateOS",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.devices.UpdateOS",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.infrastructure.IState",
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 26678,
+  "cinitMethod": 26674,
+  "iinitBytecode": {
+    "codeLength": 417,
+    "codeSha256": "32bd49d53ee1a0f3c5af412ae37ac9e203a5d237cccb0fad8323b4b429f283fe",
+    "bytecodeLineCount": 27
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "89c8573abdf6c2135379703632db2e6f0ecd0e65aab657cf14acb6903c6b682e",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___UpdateOS_AbstractWindow1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 26723,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "de328d7d311dd21fb275916449b361773bc3d32f7cfab146e21c242ecf06795c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___UpdateOS_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 26703,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "ccf8aed81e6cca20ca5379b67d02eaebb40ff940149fb3752f9e49fb7e12aff8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___UpdateOS_Button2_click",
+      "traitKind": "method",
+      "methodIndex": 26705,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "068a66e443115de804fd637ce17888ab8d1b05d7c25d7eac58f332a60da9d0d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___UpdateOS_Button3_click",
+      "traitKind": "method",
+      "methodIndex": 26716,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "9ba91819dabe9dc208b120a4bc74c513de2ec481bf78f0194a1be13d6bfd76aa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___UpdateOS_Button4_click",
+      "traitKind": "method",
+      "methodIndex": 26722,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "068a66e443115de804fd637ce17888ab8d1b05d7c25d7eac58f332a60da9d0d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 26755,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "256839cc1d31fb809e74f2c59b4da4d152db3c96cc81d4b5983b2eeb66997a27",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 26756,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "0e44bbae3a3b88a4c8679d67efa7ed232fa4ae4132c2057f9d861cb5f511e512",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "clearState",
+      "traitKind": "method",
+      "methodIndex": 26684,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "3840072e16fe8e6b120c66330736da3f59a503067ed0cb168d239cb9cd74e96e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.devices:UpdateOS.closeButton_clickHandler",
+      "traitKind": "method",
+      "methodIndex": 26685,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "12440136299bf35856a37996ae47d12bd3c67c48ccf3d0d2c8f5e347f6c4d610",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.devices:UpdateOS.osUpdateStartConfirmClickHandler",
+      "traitKind": "method",
+      "methodIndex": 26687,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "3f99f0ee0890f9dcfa25ffd8cdcfa62904055ad6d3c68b82c1732056b31516f1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.devices:UpdateOS.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 26750,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5910b0a702042b65fff057883e4a558f5452b70bdd703740a4d6d93a60b0bcfb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.devices:UpdateOS.update",
+      "traitKind": "method",
+      "methodIndex": 26688,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "653c9146bc1d588243c6c354f632f0e932b052c55dd404d2992d111e28842646",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "disableFilter",
+      "traitKind": "getter",
+      "methodIndex": 26751,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.filters.ColorMatrixFilter",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b23b7e2d42ffc08a4c847591c3b4a5f4ae6c70890a625f9ebea4f5eefdbe1afc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disableFilter",
+      "traitKind": "setter",
+      "methodIndex": 26752,
+      "methodName": "",
+      "paramTypes": [
+        "spark.filters.ColorMatrixFilter"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "eff0b6efae15f9af6da944499c58d08a0236cba7ff5ab3a90b2f34f34673e457",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 26763,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3fded53df9a95c548c871327586032085a965a28c6ffa83910c1d432043ef425",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 26764,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "865a759e1667d73945da8c44f1628957e4965d607cc70c4bc9f79af43fbf2918",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 26680,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 26679,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "c9ca127108ae35e3a1ddee99f059f178ff20a3d91859312ba1eae339efe121d5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 26690,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "f54fcc78d712006c2bd808ee67895f61abcdb2c314e63f644798ee953a43f8ba",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Array4_c",
+      "traitKind": "method",
+      "methodIndex": 26708,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "a94448ca20463bf22795bc27cb8fadd67deeaaa9db11d690ac2df7aa256b7770",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Array5_c",
+      "traitKind": "method",
+      "methodIndex": 26719,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "c30ed04cbfe1cc600638913d18ce1930ddfa53466662d7854c5ab1eb3fb9ed93",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 26749,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 644,
+      "bytecode": {
+        "codeLength": 644,
+        "codeSha256": "f128938f4105ca33be1c6ed28df3ca4c942af307f6be14e8f149509d962787fc",
+        "bytecodeLineCount": 41
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 26702,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "c1d5935696940f4b91809e6aad5efc6ba0a39071ab59a229b58fc4230fc03b53",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 26704,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "b742376ba65bdf975a3061f2d1307fb160d0a243f57f54a658db620d4cd046e6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Button4_i",
+      "traitKind": "method",
+      "methodIndex": 26721,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "92dafa61e8d0ceb9e91f3eb09570f1933843ad3f80c5b99a0385d6c0821cc52b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_ColorMatrixFilter1_i",
+      "traitKind": "method",
+      "methodIndex": 26689,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.filters.ColorMatrixFilter",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "eed1b244dcb037111a73f964b9f042dee9bcf58f069f6097b6b01e1dfc158c2c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Form1_c",
+      "traitKind": "method",
+      "methodIndex": 26700,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.containers.Form",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "a51f184c325fc0a88f7548227fb3dd4ee449bd7a36d93e761c5102a25f428475",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_HGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 26701,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "4f7f2d833eec3c5583c08997b6dc5752eb73e9065ae373da4697b8d37e4de040",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 26692,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "a7fc712dba1d0f75dac0edb02e4a6e44c144f8a9ece2e83684bc8a83ebf19b23",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Label5_i",
+      "traitKind": "method",
+      "methodIndex": 26720,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "2e4b30c72ecec76fa2c214d704d1a8c0d556769868f6e898899b967f435ddd11",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_Panel1_i",
+      "traitKind": "method",
+      "methodIndex": 26707,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Panel",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "e8d8ca06ece69360d7b11f7a4f148b043c96b301606c8e061eb2fc4e8cb697ea",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_ProgressBar1_i",
+      "traitKind": "method",
+      "methodIndex": 26706,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.ProgressBar",
+      "hasBody": true,
+      "codeLength": 104,
+      "bytecode": {
+        "codeLength": 104,
+        "codeSha256": "d4093640f2158fa7cd14488a2d228db8b3612bd6b48008648b9f7b9f057d4b9b",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_SkinnableContainer1_i",
+      "traitKind": "method",
+      "methodIndex": 26717,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.SkinnableContainer",
+      "hasBody": true,
+      "codeLength": 114,
+      "bytecode": {
+        "codeLength": 114,
+        "codeSha256": "d9b029d746e30365b5536a2ad66eca75e86a3efa70677afaea1fc5b9be7ab450",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_VBox1_c",
+      "traitKind": "method",
+      "methodIndex": 26715,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.containers.VBox",
+      "hasBody": true,
+      "codeLength": 176,
+      "bytecode": {
+        "codeLength": 176,
+        "codeSha256": "03a4967b16dd75fbf5349b9da1514022fb47bc82ed8e12cc080adf473b447fd8",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 26718,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "2f768a33da97e65c3d2d31d744e811ffe4a86bd755c080910b55f09c606ea94d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._UpdateOS_VGroup1_i",
+      "traitKind": "method",
+      "methodIndex": 26691,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "c557b01f92155b5f3406e1bc7bd2b8431d80e07f007c3a48c1fe3e30473d399c",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.creationComplete",
+      "traitKind": "method",
+      "methodIndex": 26686,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "a133be29cf8262bec13f9374d7d6074e43fc1766286e6673f602aa676c974daf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "updateDisplay",
+      "traitKind": "getter",
+      "methodIndex": 26753,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "aacb9267eb840163daa2d4d0b630cd33c81ca4c0a5a476b65699193a34906772",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "updateDisplay",
+      "traitKind": "setter",
+      "methodIndex": 26754,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.VGroup"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "36cfed435cda676215a752427ce57ce700f9fe6ccc23920295b57a428da3c3f6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "updateModel",
+      "traitKind": "getter",
+      "methodIndex": 26761,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.devices.model.UpdateModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4e09c275338dca34396087b6f241c5cb01726e44a1956c075a2c9fe87eac33cb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "updateModel",
+      "traitKind": "setter",
+      "methodIndex": 26762,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.devices.model.UpdateModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "cba56b20649a5ea9659927f3978818ed23ca50b7ad7237a904e5a943cdbc7809",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "updatePodOSMessageError",
+      "traitKind": "method",
+      "methodIndex": 26683,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.util.UpdatePodOSMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 181,
+      "bytecode": {
+        "codeLength": 181,
+        "codeSha256": "4bc77d87b24bce9e0b7f09b691ed4f6742b3b6fc6fd91a4884d39652d1c7d3c7",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "updatePodOSMessageResult",
+      "traitKind": "method",
+      "methodIndex": 26681,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.util.UpdatePodOSMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "b76ef35805ac7e6c313561affde41eb8f533eab8344ff26040f1cce30a420bd2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "updating",
+      "traitKind": "getter",
+      "methodIndex": 26759,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e2e8f1b87dd40cd951143fa64e1ac85570c15939acc6314c737b007dfb07ee56",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "updating",
+      "traitKind": "setter",
+      "methodIndex": 26760,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "da6dda8d533f5c3a4880bd18230c0cbe92e28b1caca3952b72896abbc0dca4a6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "uploading",
+      "traitKind": "getter",
+      "methodIndex": 26757,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "88836906999896337136f76104335182559fb59f01e4b1eb41a0d6c8b4f2a790",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "uploading",
+      "traitKind": "setter",
+      "methodIndex": 26758,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "3147dd03435f6d46befdb068caab546d0f28e93ad24ae38e45c458f9fca7c816",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 26675,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "8683fb840760d11204c6c9370c19cc4d4eb9e4ba5d95fd4ca6871e70acb65fbb",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

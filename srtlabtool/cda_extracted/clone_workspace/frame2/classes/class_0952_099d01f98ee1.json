@@ -1,0 +1,175 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 952,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.ReadCalibration",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.ReadCalibration",
+  "superName": "spark.components.NavigatorContent",
+  "superNameNormalized": "spark.components.NavigatorContent",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.ICalibrationView"
+  ],
+  "iinitMethod": 19279,
+  "cinitMethod": 19269,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "4872da19771eaee1cd16c26c57a540f8dd053acf8620527c609b4a548d61f8cc",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clearState",
+      "traitKind": "method",
+      "methodIndex": 19273,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "091150eb7081aab7d74afce17cb0b30d26eba3516f6b2a0d571776d99343d1e2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration:ReadCalibration.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 19278,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "edf013e117ba1aea97c5c2da9a16c16083ff8814987efddc26a60bab39b0c092",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "getter",
+      "methodIndex": 19276,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.ReadCalibrationController",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c84c10d35b9fb01ef91a1b8820a3f616b6608bd11f600130c5ace17d10b410f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "setter",
+      "methodIndex": 19277,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.ReadCalibrationController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "d737b9a1b19898000f2562f04ed8ee4f6bd83949c884d75b5dfaee2852de6bfe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 19270,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "db8d9b973d2a20c566afbf4b83d48ab7b18a0d92c66806dcfbb13c528a39fbfb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 19274,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.ReadCalibrationPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "47fd3a61ebbeab7b36e9b5aa393feac642de5a4916515673d4eab410e0b96942",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 19275,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.ReadCalibrationPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "421d367543d5e17c8851dd2797357b57b62ea6c5b5e5ad460019794736e497af",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "prepare",
+      "traitKind": "method",
+      "methodIndex": 19271,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "72b50884d60bc11287a97ec6357aa3a37e94097fecad24a210e1d2cb7dd34fe3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setDiagnosticContext",
+      "traitKind": "method",
+      "methodIndex": 19272,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.DiagnosticContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "0a701978fdaa008f83107c2c8dc3313bbd65d5854eb3bc92796e847e7296a2fe",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,325 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 840,
+  "className": "com.chrysler.cda.presentation.component.htmlViewer.MessageOfTheDay",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.htmlViewer.MessageOfTheDay",
+  "superName": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "superNameNormalized": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 16670,
+  "cinitMethod": 16666,
+  "iinitBytecode": {
+    "codeLength": 411,
+    "codeSha256": "2348bc0e034bd13e595ab412ef398b15e0f86b79329b57636369dc53959686bf",
+    "bytecodeLineCount": 26
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "d4f955a5f3b7f4b6ed9da900dd0ec216f1de2bef25d68fd27979c74642055f24",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___MessageOfTheDay_PopupAbstractWindow1_close",
+      "traitKind": "method",
+      "methodIndex": 16681,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.CloseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "65fefaf3566f82280644a063e21f65bc9284ebef5a4e12474b465a697224a38c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__htmlViewer_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 16680,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f7af15b6c0d89194151c755d8799f46caf52f14c3d4f2fa838f62a672cf9919b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.htmlViewer:MessageOfTheDay.locationChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 16674,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "23a6a6bb1a7b9de5f16e88db8ca04d198d8367defaa8d9f59249869e62b1c09a",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.htmlViewer:MessageOfTheDay.onClose",
+      "traitKind": "method",
+      "methodIndex": 16676,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.CloseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "3f73c34a59a69bf3ec3a348fc22673fa31f44f5e9ad914397996ab24de06b935",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.htmlViewer:MessageOfTheDay.onCreationOfHTML",
+      "traitKind": "method",
+      "methodIndex": 16675,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "6882b7cf307422a1369641ba8f3954e16642c6cfeb0326d9629e838d1734488b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.htmlViewer:MessageOfTheDay.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 16684,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5d0322c60a3c7280b8c2e740c36b3a6c8d3c83296f4d5aaf2a1e74f57638256e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "htmlViewer",
+      "traitKind": "getter",
+      "methodIndex": 16685,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.HTML",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "55148965a3ac99bd48b628baceaf64d973496c80ea25012e56220d0329d5c447",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "htmlViewer",
+      "traitKind": "setter",
+      "methodIndex": 16686,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.HTML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "12f75d33735395544fe00691b0abe90fd5574d54263e56241b8d3d860d130098",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 16687,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "14351be53042f7a662d7112a126ace012743b0dff690d8d98a71577ec75ad39e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 16688,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "cf988d666f436905aa999dc73b39a5b9694b4873820abce5250cc783b7d902d0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 16672,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 16671,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "12b3e929dd2e6842ddbe12752687ddc4f21528abf8a97437cc1bb637ca4d8733",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._MessageOfTheDay_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 16678,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "5fc9f4a76e467ab825fbad01b77f07c9752dfc4148c7cf70a8ec74fcc529fe30",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._MessageOfTheDay_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 16683,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "2be90dd6fd69e7384a91a80095380b5869660ab00eac100126badf4338a3db21",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._MessageOfTheDay_ConfigureTag1_i",
+      "traitKind": "method",
+      "methodIndex": 16677,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.flex.tag.view.ConfigureTag",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "a8a873def92fbe4d1f425af3cef84834f3931bf773e9e086db67054ddc144bd0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._MessageOfTheDay_HTML1_i",
+      "traitKind": "method",
+      "methodIndex": 16679,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.HTML",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "3025220fa3c765a6acce1c0eb242c57148a294b557210ca9bdf07ad5eff444ed",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "urlLocation",
+      "traitKind": "setter",
+      "methodIndex": 16673,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cabbb0486d6394fc526e56ab7c18ddb164a1ce4ad572571ab5b6690ba8da5294",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 16667,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "40ac341820fa64ffc90a27103921257ea969f32157b53dddcd3e3f6ec5e2c909",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 159,
+  "className": "spark.components.windowClasses.TitleBar",
+  "classNameNormalized": "spark.components.windowClasses.TitleBar",
+  "superName": "spark.components.supportClasses.SkinnableComponent",
+  "superNameNormalized": "spark.components.supportClasses.SkinnableComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 3305,
+  "cinitMethod": 3303,
+  "iinitBytecode": {
+    "codeLength": 47,
+    "codeSha256": "c2a06242fc6f688e92a942164d14532d814a29285d982fcc36bb1702213789e2",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 45,
+    "codeSha256": "75420f808690dc7a0504d2b8d2644a9e806ddbaf8b372436f200c78c15651f53",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "PrivateNs.button_mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 3318,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ab734ccd2736d1e82776aa02c28cce143483e238a06c1e380095f5881219b49a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.closeButton_clickHandler",
+      "traitKind": "method",
+      "methodIndex": 3321,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "a6ace001c827d0e049c2a2dac797bcca69cbece96719dd4d86e2cac56c0133ad",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.maximizeButton_clickHandler",
+      "traitKind": "method",
+      "methodIndex": 3320,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "78216f90885d8e28d614928531a56bf79823ed095afdd86f82b0077354021119",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.minimizeButton_clickHandler",
+      "traitKind": "method",
+      "methodIndex": 3319,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "734b515217843e2d29e20867602974d03d5bc8c10c89c173347b463991d26349",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 3316,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "7499c54588b4315af56a6c4eedc65043afe0a95ced4fe5eab67ceccc6372126e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.partRemovedHandler",
+      "traitKind": "method",
+      "methodIndex": 3323,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.SkinPartEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "d9a1f0548321374350f86a9c068d15e61aad8ad1a8bf323ae1542d331cda6ee1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.window",
+      "traitKind": "getter",
+      "methodIndex": 3310,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IWindow",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "0c87b46d425c2cefac48545fa467cf6f8341769a1b7d728e1daa03e7d2b277f6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.window_displayStateChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 3322,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.NativeWindowDisplayStateEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "04a4af389d274d5b7f9eb5fccedeb8a15d2cae8a426ed4c010f98d6927f9a2e8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.windowClasses:TitleBar.attachSkin",
+      "traitKind": "method",
+      "methodIndex": 3311,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "73a199b27097c1efab5b4348466999a8deb01e3f4a300ccc672d0d879740737a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.components.windowClasses:TitleBar.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 3314,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "556475e71193b696e0018e4d9e5f0a8e4bd3d337f3d3e000863d1669006faf9c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "spark.components.windowClasses:TitleBar.doubleClickHandler",
+      "traitKind": "method",
+      "methodIndex": 3317,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "58ad59c6bb80b6c5fe4104ad19718be4f9d0cbf31a562efd952e6b06c91273e3",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.components.windowClasses:TitleBar.getCurrentSkinState",
+      "traitKind": "method",
+      "methodIndex": 3315,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "02a3305f7f2aace62d0ac30b977fc872dfd30642da03f0a4a22d7c8978a40ca2",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "spark.components.windowClasses:TitleBar.partAdded",
+      "traitKind": "method",
+      "methodIndex": 3312,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 284,
+      "bytecode": {
+        "codeLength": 284,
+        "codeSha256": "16353f4e65fa8efa240a64a53b0e127fd642ed91b7523b4a374e9d1654513141",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "spark.components.windowClasses:TitleBar.partRemoved",
+      "traitKind": "method",
+      "methodIndex": 3313,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 182,
+      "bytecode": {
+        "codeLength": 182,
+        "codeSha256": "7e4e35a62899e96f127f1e326b60fc3e333b5568ca51f6b1aa385127d27fe33d",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "spark.components.windowClasses:TitleBar.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 3324,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5f3c4ef0650c6571fbdc0d0bcbaede64c37499613a92c99ed2c9812d14410aaf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "title",
+      "traitKind": "getter",
+      "methodIndex": 3306,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c0e2354c0be2fea018a1c015833bca25eb2b3634862b0c8a957bdce930f4e998",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "title",
+      "traitKind": "setter",
+      "methodIndex": 3307,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "7cfdcf9bfa34da3e02fe947e47366e0f4a49fd789813480aac5316448dc49146",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "titleIcon",
+      "traitKind": "getter",
+      "methodIndex": 3308,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1eb2203ed0155f9c82af8e700ff242532982ff97fb2d1e9b5e297870d7e744eb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "titleIcon",
+      "traitKind": "setter",
+      "methodIndex": 3309,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "a4671ebfed3b1cdf0b310136bdf40adbac1c5519931ddd9a9c5c87ad3c877aa9",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.isMac",
+      "traitKind": "method",
+      "methodIndex": 3304,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "56d050d86372b30be0bee01fcc864e6883b7955f5ccd3a5bd90fcb08f0bc709b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,538 @@
+{
+  "frame": "frame1",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 8,
+  "className": "mx.core.IUIComponent",
+  "classNameNormalized": "mx.core.IUIComponent",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "mx.core.IFlexDisplayObject"
+  ],
+  "iinitMethod": 314,
+  "cinitMethod": 270,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.core:IUIComponent.baselinePosition",
+      "traitKind": "getter",
+      "methodIndex": 271,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.document",
+      "traitKind": "getter",
+      "methodIndex": 272,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.document",
+      "traitKind": "setter",
+      "methodIndex": 273,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.enabled",
+      "traitKind": "getter",
+      "methodIndex": 274,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.enabled",
+      "traitKind": "setter",
+      "methodIndex": 275,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.explicitHeight",
+      "traitKind": "getter",
+      "methodIndex": 276,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.explicitHeight",
+      "traitKind": "setter",
+      "methodIndex": 277,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.explicitMaxHeight",
+      "traitKind": "getter",
+      "methodIndex": 278,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.explicitMaxWidth",
+      "traitKind": "getter",
+      "methodIndex": 279,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.explicitMinHeight",
+      "traitKind": "getter",
+      "methodIndex": 280,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.explicitMinWidth",
+      "traitKind": "getter",
+      "methodIndex": 281,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.explicitWidth",
+      "traitKind": "getter",
+      "methodIndex": 282,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.explicitWidth",
+      "traitKind": "setter",
+      "methodIndex": 283,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.focusPane",
+      "traitKind": "getter",
+      "methodIndex": 284,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Sprite",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.focusPane",
+      "traitKind": "setter",
+      "methodIndex": 285,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Sprite"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.getExplicitOrMeasuredHeight",
+      "traitKind": "method",
+      "methodIndex": 311,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.getExplicitOrMeasuredWidth",
+      "traitKind": "method",
+      "methodIndex": 310,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.includeInLayout",
+      "traitKind": "getter",
+      "methodIndex": 286,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.includeInLayout",
+      "traitKind": "setter",
+      "methodIndex": 287,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.initialize",
+      "traitKind": "method",
+      "methodIndex": 308,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.isPopUp",
+      "traitKind": "getter",
+      "methodIndex": 288,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.isPopUp",
+      "traitKind": "setter",
+      "methodIndex": 289,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.maxHeight",
+      "traitKind": "getter",
+      "methodIndex": 290,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.maxWidth",
+      "traitKind": "getter",
+      "methodIndex": 291,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.measuredMinHeight",
+      "traitKind": "getter",
+      "methodIndex": 292,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.measuredMinHeight",
+      "traitKind": "setter",
+      "methodIndex": 293,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.measuredMinWidth",
+      "traitKind": "getter",
+      "methodIndex": 294,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.measuredMinWidth",
+      "traitKind": "setter",
+      "methodIndex": 295,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.minHeight",
+      "traitKind": "getter",
+      "methodIndex": 296,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.minWidth",
+      "traitKind": "getter",
+      "methodIndex": 297,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.owner",
+      "traitKind": "getter",
+      "methodIndex": 298,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObjectContainer",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.owner",
+      "traitKind": "setter",
+      "methodIndex": 299,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObjectContainer"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.owns",
+      "traitKind": "method",
+      "methodIndex": 313,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.parentChanged",
+      "traitKind": "method",
+      "methodIndex": 309,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObjectContainer"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.percentHeight",
+      "traitKind": "getter",
+      "methodIndex": 300,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.percentHeight",
+      "traitKind": "setter",
+      "methodIndex": 301,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.percentWidth",
+      "traitKind": "getter",
+      "methodIndex": 302,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.percentWidth",
+      "traitKind": "setter",
+      "methodIndex": 303,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.setVisible",
+      "traitKind": "method",
+      "methodIndex": 312,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.systemManager",
+      "traitKind": "getter",
+      "methodIndex": 304,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.ISystemManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.systemManager",
+      "traitKind": "setter",
+      "methodIndex": 305,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.ISystemManager"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.tweeningProperties",
+      "traitKind": "getter",
+      "methodIndex": 306,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUIComponent.tweeningProperties",
+      "traitKind": "setter",
+      "methodIndex": 307,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

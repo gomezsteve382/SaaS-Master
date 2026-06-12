@@ -1,0 +1,192 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3512,
+  "className": "org.spicefactory.parsley.binding.impl.DefaultBindingManager",
+  "classNameNormalized": "org.spicefactory.parsley.binding.impl.DefaultBindingManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.binding.BindingManager"
+  ],
+  "iinitMethod": 53214,
+  "cinitMethod": 53204,
+  "iinitBytecode": {
+    "codeLength": 42,
+    "codeSha256": "0917986d333b3d25a68c30193320813416b0543805270c4e390fe9dcbf20b03c",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addPublisher",
+      "traitKind": "method",
+      "methodIndex": 53205,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.binding.Publisher"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "d3a995d3079bc5ec197ed36f6bcd046f2e8de31130f9030663787989014a3edd",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "addSubscriber",
+      "traitKind": "method",
+      "methodIndex": 53209,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.binding.Subscriber"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "fcea9d9bb18ca0784baeecc762bc02da22f3e784a9f5fe8fb07ce1c8927d69e1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.doAddPublisher",
+      "traitKind": "method",
+      "methodIndex": 53206,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.binding.Publisher",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 162,
+      "bytecode": {
+        "codeLength": 162,
+        "codeSha256": "27328fb41eca83408dd9989ee407d401ac289160e6b1e6d292c697e4024da818",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.doAddSubscriber",
+      "traitKind": "method",
+      "methodIndex": 53210,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.binding.Subscriber",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 127,
+      "bytecode": {
+        "codeLength": 127,
+        "codeSha256": "1d7acddf2811ad5be9ba5afe08ec3c4c4558622a77230b7f2c2280b2df0c6944",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.doRemovePublisher",
+      "traitKind": "method",
+      "methodIndex": 53208,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.binding.Publisher",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "d385b465a11e74d4d2d96d03689ef58f9c5587344feb6d325bf4ea91c9ee6b92",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.doRemoveSubscriber",
+      "traitKind": "method",
+      "methodIndex": 53212,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.binding.Subscriber",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "60111818367265b23eac7b7a9eb49953e3ad74926bd9005941eefeb5daec0df0",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.getCollection",
+      "traitKind": "method",
+      "methodIndex": 53213,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.ClassInfo",
+        "Boolean"
+      ],
+      "returnType": "org.spicefactory.parsley.binding.impl.SubscriberCollection",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "1318af83d936db167a3d1936db9f7cafeb8fe692393a2fd5fe0b796de29bfdde",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "removePublisher",
+      "traitKind": "method",
+      "methodIndex": 53207,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.binding.Publisher"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "6907d484b5b6e8ec49e6a5eb73e6760581e4690ab94bdc541856a991c64a0dcc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeSubscriber",
+      "traitKind": "method",
+      "methodIndex": 53211,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.binding.Subscriber"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "cf11e70ddb1774f7584af4fbc1eb8db12553a5e761b4043d912eaece9caadac0",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

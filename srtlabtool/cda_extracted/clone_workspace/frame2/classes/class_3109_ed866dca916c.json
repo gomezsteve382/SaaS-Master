@@ -1,0 +1,188 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3109,
+  "className": "wde.common.services.impl.XMLSocketService",
+  "classNameNormalized": "wde.common.services.impl.XMLSocketService",
+  "superName": "wde.common.services.impl.AbstractService",
+  "superNameNormalized": "wde.common.services.impl.AbstractService",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49329,
+  "cinitMethod": 49318,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 43,
+    "codeSha256": "55d2e44347f76bba7300ed380f82338cd24ab41e39cf3210c2b9449ba8899058",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "close",
+      "traitKind": "method",
+      "methodIndex": 49326,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.error.ServiceFault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "7fbf8d824c23a16c148a9b7fe1828c2c6503022fd22b75fc3cd55b2aed575c34",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "cookieId",
+      "traitKind": "getter",
+      "methodIndex": 49319,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e49af45ab2a294477b7025d4789910110ccd661369701e55e6033b097a64e658",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cookieId",
+      "traitKind": "setter",
+      "methodIndex": 49320,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a0efe8584eb266cab0fee5ff162144ed7d9437dc5b19d94992af25da2e421e96",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cookieString",
+      "traitKind": "getter",
+      "methodIndex": 49322,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "2adad6e31f17138b5f260582588801bc4fffb28d2b2466cd52db7120faaedc6a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasId",
+      "traitKind": "getter",
+      "methodIndex": 49321,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "7ddc602c2033eeb248c63fe39f37d424a7c63652d7565a8bde7f634eb91ac9d7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.resetCookie",
+      "traitKind": "method",
+      "methodIndex": 49327,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "a1d25c0930b5bd5f791518bdd65dea0729ee1b3f04603265ee3345cdb62afe35",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.setNextCookieId",
+      "traitKind": "method",
+      "methodIndex": 49325,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "db734869b07a7cc17d9b615a9cda25bb099b8b312f87d1d4ff5cb7ae63a204d7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "resolveURL",
+      "traitKind": "method",
+      "methodIndex": 49324,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "502bbd7d958d1e95851a0cbe7596f93f063a67aa4b9adf0014035b97672c957e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "result",
+      "traitKind": "method",
+      "methodIndex": 49328,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.DataEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "4131faeb447e158546f2eba445acef80ba6ebd24b7b17f185a83cf3b8f368245",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 49323,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "c2716160d9a7752e23b87641bf14e28a729a67751b8f0076d122806e8c015e1a",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

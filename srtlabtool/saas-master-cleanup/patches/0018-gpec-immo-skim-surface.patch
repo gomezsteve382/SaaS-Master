@@ -1,0 +1,142 @@
+From da76c74ee54bf1f7fdad5008ab3cac16bb579774 Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 21:09:02 +0000
+Subject: [PATCH] GPEC immo: surface the SKIM (0x0011) immobilizer enable byte
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The GPEC immo analyzer showed VIN + SEC6 + marker but never the SKIM byte
+@0x0011 — the immobilizer enable/disable flag (0x80=ENABLED, 0x00/0x02=
+DISABLED/bypassed). So a PCM could read SEC6-SET / IMMO-SYNC yet have the immo
+BYPASSED and look fully paired. Confirmed on the corpus: several real GPEC2A
+dumps are IMMO-SYNC / SEC6-SET but SKIM=0x00 (bypassed).
+
+analyzeGpec2aPcm now returns a skim block, adds SKIM ON/DISABLED to the state
+verdict + state.skimEnabled, and emits a WARNING note when bypassed. Read-only:
+the immo fix never writes 0x0011 (a real sync leaves it untouched, per the
+bench golden). The info already existed in fileUtils/crossValidate; this
+surfaces it in the dedicated immo panel. CI test covers 0x80/0x00/0x02.
+---
+ .../src/lib/__tests__/gpec2aSkim.test.js      | 45 +++++++++++++++++++
+ .../srt-lab/src/lib/gpec2aPcmAnalyzer.js      | 27 ++++++++++-
+ 2 files changed, 71 insertions(+), 1 deletion(-)
+ create mode 100644 artifacts/srt-lab/src/lib/__tests__/gpec2aSkim.test.js
+
+diff --git a/artifacts/srt-lab/src/lib/__tests__/gpec2aSkim.test.js b/artifacts/srt-lab/src/lib/__tests__/gpec2aSkim.test.js
+new file mode 100644
+index 0000000..9666464
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/__tests__/gpec2aSkim.test.js
+@@ -0,0 +1,45 @@
++import { describe, it, expect } from 'vitest';
++import { analyzeGpec2aPcm } from '../gpec2aPcmAnalyzer.js';
++
++/* The GPEC immo analyzer must surface the SKIM enable byte @0x0011: 0x80 =
++ * immobilizer ENABLED (secret enforced), 0x00/0x02 = DISABLED (bypassed). A PCM
++ * can read SEC6-set/IMMO-SYNC yet have SKIM off — the secret then isn't
++ * enforced — so the analyzer flags it instead of looking fully paired. The immo
++ * fix itself never writes 0x0011 (far from the SEC6 region); this is read-only. */
++
++function gpec2a(skimByte) {
++  const b = new Uint8Array(4096);
++  const vin = '2C3CDXBG1KH100001';
++  for (let i = 0; i < 17; i++) b[i] = vin.charCodeAt(i);   // VIN @0x0000 → canonical GPEC2A
++  b[0x0011] = skimByte;
++  return b;
++}
++
++describe('analyzeGpec2aPcm — SKIM (0x0011) immobilizer enable surfacing', () => {
++  it('reports SKIM ENABLED (0x80) with no bypass warning', () => {
++    const a = analyzeGpec2aPcm(gpec2a(0x80));
++    expect(a.skim).toBeTruthy();
++    expect(a.skim.enabled).toBe(true);
++    expect(a.skim.state).toBe('ENABLED');
++    expect(a.state.skimEnabled).toBe(true);
++    expect(a.state.verdict).toContain('SKIM ON');
++    expect((a.notes || []).some((n) => /SKIM.*BYPASSED/.test(n.text))).toBe(false);
++  });
++
++  it('reports SKIM DISABLED (0x00) and warns immo is bypassed', () => {
++    const a = analyzeGpec2aPcm(gpec2a(0x00));
++    expect(a.skim.enabled).toBe(false);
++    expect(a.skim.state).toBe('DISABLED');
++    expect(a.state.skimEnabled).toBe(false);
++    expect(a.state.verdict).toContain('SKIM DISABLED');
++    const warn = (a.notes || []).find((n) => /SKIM.*BYPASSED/.test(n.text));
++    expect(warn).toBeTruthy();
++    expect(warn.tag).toBe('WARNING');
++  });
++
++  it('treats the alternate disabled value 0x02 as DISABLED', () => {
++    const a = analyzeGpec2aPcm(gpec2a(0x02));
++    expect(a.skim.enabled).toBe(false);
++    expect(a.skim.state).toBe('DISABLED');
++  });
++});
+diff --git a/artifacts/srt-lab/src/lib/gpec2aPcmAnalyzer.js b/artifacts/srt-lab/src/lib/gpec2aPcmAnalyzer.js
+index 10295a7..6283337 100644
+--- a/artifacts/srt-lab/src/lib/gpec2aPcmAnalyzer.js
++++ b/artifacts/srt-lab/src/lib/gpec2aPcmAnalyzer.js
+@@ -164,6 +164,24 @@ export function analyzeGpec2aPcm(bytes) {
+     };
+   }
+ 
++  /* ── SKIM immobilizer enable byte @0x0011 ──
++   * 0x80 = ENABLED (PCM enforces the immo secret); 0x00 / 0x02 = DISABLED
++   * (immo BYPASSED — the PCM ignores the secret and starts regardless). The
++   * immo fix only writes the SEC6 secret; it does NOT change SKIM (a real sync
++   * leaves it untouched, per the bench golden). But syncing SEC6 on a PCM whose
++   * SKIM is DISABLED is moot — the secret won't be enforced — so surface it. */
++  let skim = null;
++  if (sz > 0x0011) {
++    const b = bytes[0x0011];
++    skim = {
++      offset: 0x0011,
++      byte: b,
++      hex: '0x' + b.toString(16).toUpperCase().padStart(2, '0'),
++      enabled: b === 0x80,
++      state: b === 0x80 ? 'ENABLED' : (b === 0x00 || b === 0x02) ? 'DISABLED' : 'UNKNOWN',
++    };
++  }
++
+   /* ── EEPROM / chip ── */
+   const chip = pcmChipFromSize(sz);
+   const eeprom = {
+@@ -194,10 +212,12 @@ export function analyzeGpec2aPcm(bytes) {
+             : 'SEC6 DAMAGED'
+     );
+   }
++  if (skim) stateParts.push(skim.enabled ? 'SKIM ON' : 'SKIM ' + skim.state);
+   const state = {
+     verdict: stateParts.join(' / '),
+     validVinCount,
+     immoSync: immo ? immo.synced : false,
++    skimEnabled: skim ? skim.enabled : null,
+   };
+ 
+   /* ── Family / confidence ── */
+@@ -238,6 +258,11 @@ export function analyzeGpec2aPcm(bytes) {
+         : `IMMO not synced — marker ${immo.currentHex}, expected ${immo.expectedHex}`,
+     });
+   }
++  if (skim) {
++    notes.push(skim.enabled
++      ? { tag: 'IMMO', text: 'SKIM @0x0011 = 0x80 (ENABLED) — immobilizer active' }
++      : { tag: 'WARNING', text: `SKIM @0x0011 is ${skim.hex} (${skim.state}) — immobilizer BYPASSED; a SEC6 sync will not be enforced until SKIM is enabled (0x80).` });
++  }
+ 
+   /* ── Internal IDs / signatures ── */
+   const identity = extractRfhPflashIdentity(bytes) || {};
+@@ -253,7 +278,7 @@ export function analyzeGpec2aPcm(bytes) {
+     dt23_081C: asciiField(bytes, 0x081c, 7) || null,
+   };
+ 
+-  return { ok: canonical, canonical, family, eeprom, state, sec6, immo, notes, vinRows, ids };
++  return { ok: canonical, canonical, family, eeprom, state, sec6, immo, skim, notes, vinRows, ids };
+ }
+ 
+ /* ── Donor → PCM SEC6 derivation ─────────────────────────────────────────
+-- 
+2.43.0
+

@@ -1,0 +1,156 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1038,
+  "className": "wde.common.services.IServicesDescriptor",
+  "classNameNormalized": "wde.common.services.IServicesDescriptor",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 22466,
+  "cinitMethod": 22455,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.createAllServices",
+      "traitKind": "method",
+      "methodIndex": 22465,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.IList",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.createService",
+      "traitKind": "method",
+      "methodIndex": 22464,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "wde.common.services.IService",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.getGlobalProperty",
+      "traitKind": "method",
+      "methodIndex": 22460,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.getServiceProperty",
+      "traitKind": "method",
+      "methodIndex": 22462,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.isLoaded",
+      "traitKind": "getter",
+      "methodIndex": 22458,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.loadDescriptor",
+      "traitKind": "method",
+      "methodIndex": 22463,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.path",
+      "traitKind": "getter",
+      "methodIndex": 22456,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.path",
+      "traitKind": "setter",
+      "methodIndex": 22457,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.setGlobalProperty",
+      "traitKind": "method",
+      "methodIndex": 22459,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "wde.common.services:IServicesDescriptor.setServiceProperty",
+      "traitKind": "method",
+      "methodIndex": 22461,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,252 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1270,
+  "className": "com.chrysler.cda.domain.CANFDSingleton",
+  "classNameNormalized": "com.chrysler.cda.domain.CANFDSingleton",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 28075,
+  "cinitMethod": 28073,
+  "iinitBytecode": {
+    "codeLength": 33,
+    "codeSha256": "05a9bec590e1a558e88c634fe38bffe0d8a0e07bcf19c5b81b5c6b064a0c38eb",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 28081,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "6945fde8efc63a58c314d86b8788f1fcbb208a1f037f4a200f21fffd1143aadc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "canFDNetworkInterfaceSelected",
+      "traitKind": "getter",
+      "methodIndex": 28078,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "656c391adaf9ff07a2f9c05eaa40cd4bbe5e60724eef62282d9e648f57751c42",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "canFDNetworkInterfaceSelected",
+      "traitKind": "setter",
+      "methodIndex": 28079,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "044d8de0ec9536f2315bcc3fb65fa616c42279475ef2b83002d8f49a830e32fc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "disableCANFD",
+      "traitKind": "getter",
+      "methodIndex": 28076,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "abb5d4e2b5bde1f0b570e12b6188e85b11b309f312c9ea5613351cc8e60b1b08",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disableCANFD",
+      "traitKind": "setter",
+      "methodIndex": 28077,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "1d2c6b6f88adf065b99fe0abcd653d94d43c3e1ee7f92eeabc6d35d4139a65ce",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 28083,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "122cdd4be4bc43ab3e3d25361439ddbcb9b2e17e83bb28bf86e730610ab46a10",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 28084,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "d6819bcb47fb77ffee0b82b42f3a1fbc630d44c7dd26f34081e522769a71d730",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isFdCapable",
+      "traitKind": "getter",
+      "methodIndex": 28087,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3a90493ad5da6859196d3fd7e7ec0dd155a21a8cb125c468bfb1191945985a13",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isFdCapable",
+      "traitKind": "setter",
+      "methodIndex": 28086,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "c08842d0e9d829856e6c820f394903fc5b48da447608d0fd3bc9b767697f2ca0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 28082,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "2c1c48f94be3e83ae9e6773647ff2edd3643a6a0c643d62015c09a1edd024f15",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useCANFD",
+      "traitKind": "getter",
+      "methodIndex": 28080,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "4329d224c596c89363024ac5af73acde2bd73d71329e811e58fe42329aaf28c3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 28085,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "429477871950b10a58d1576ca9a9035d2be747797d44ff2a4120e1ae25b1fa94",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "GetInstance",
+      "traitKind": "method",
+      "methodIndex": 28074,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CANFDSingleton",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "e2c326986e4e3bd3e7f06a7d1a7a4a12c6ba2e1851cbb5b0c1c79b4db86a4c1f",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

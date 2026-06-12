@@ -1,0 +1,426 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1919,
+  "className": "spark.collections.SortField",
+  "classNameNormalized": "spark.collections.SortField",
+  "superName": "mx.styles.AdvancedStyleClient",
+  "superNameNormalized": "mx.styles.AdvancedStyleClient",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.collections.ISortField"
+  ],
+  "iinitMethod": 36009,
+  "cinitMethod": 36008,
+  "iinitBytecode": {
+    "codeLength": 46,
+    "codeSha256": "e9140101ee879204222fb2aba43f74d3d4a2df524eb8fc4796eb3478ccc9ebf7",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "arraySortOnOptions",
+      "traitKind": "getter",
+      "methodIndex": 36010,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "ce3db624221f293a3ca56ab7d33c0deabf7e0eba2740573398e4afd0ee29af61",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "compareFunction",
+      "traitKind": "getter",
+      "methodIndex": 36011,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "691064390d8285cf0e20e294b7f9cb2cdfaa7b69578d6365b2d5cba883c39ed0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "compareFunction",
+      "traitKind": "setter",
+      "methodIndex": 36012,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "0727be0cf0f5f4630cbd817ad496d104e3dfbcb86f632a022bb263775d8774c3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "descending",
+      "traitKind": "getter",
+      "methodIndex": 36013,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3fe791a6f6fa4e16e7dc6cbddd6b9518cea866dadb44ed320b4d3a1834f7642f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "descending",
+      "traitKind": "setter",
+      "methodIndex": 36014,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "91e147cc42d3fe9bc8351985adeda096f89d0fcb59ab8fb4e66b209e1a68e0e8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getStyle",
+      "traitKind": "method",
+      "methodIndex": 36020,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "bf4813ee5825270bcc04e24dde7849fe8718e82c93db2590ffeb03d28dbc89f4",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "initializeDefaultCompareFunction",
+      "traitKind": "method",
+      "methodIndex": 36024,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 394,
+      "bytecode": {
+        "codeLength": 394,
+        "codeSha256": "1e48d21fb09e22a2faf1c04c086456ec9cef39f7d20753acb8c07a099adf5a9c",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "name",
+      "traitKind": "getter",
+      "methodIndex": 36015,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d0897708fad41c0d8004bfac940abaeabc9f2712078a42793acda33f6c76563f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "name",
+      "traitKind": "setter",
+      "methodIndex": 36016,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "39e745733b9ca1580e1789f12e4263a0e87e37c3e4b919318fcb753a24cc4863",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "numeric",
+      "traitKind": "getter",
+      "methodIndex": 36017,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "376715ff1c3b49450ce287166d8093f312f8ee6216ff9d9ecd9760742fa37f5d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "numeric",
+      "traitKind": "setter",
+      "methodIndex": 36018,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "8955309d3d81a08adf6f626ae05d8b0ba7ecc3f74e36a712f1ed11dd30601a0d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.dateCompare",
+      "traitKind": "method",
+      "methodIndex": 36030,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 152,
+      "bytecode": {
+        "codeLength": 152,
+        "codeSha256": "3f33f61cdd39f1cf1e5152ab377a15150d2b2abba8a7b1e6b2c3b03c55da86a3",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.ensureStyleSource",
+      "traitKind": "method",
+      "methodIndex": 36027,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "c8c5d6815b4f7afbd3f68aaf655b2b0c590df9310da3b005bd11cbdf0b3133c4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.localeChanged",
+      "traitKind": "method",
+      "methodIndex": 36033,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "bd4ea36dae358704ec18eca0fa262aebd59853cd0aa315dc0e17e6be9a61ef54",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.nullCompare",
+      "traitKind": "method",
+      "methodIndex": 36028,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 460,
+      "bytecode": {
+        "codeLength": 460,
+        "codeSha256": "d778d1e9c534033558d597cfacdd8556e98b12aa222bc40ad962e8d662871f39",
+        "bytecodeLineCount": 29
+      }
+    },
+    {
+      "traitName": "PrivateNs.numericCompare",
+      "traitKind": "method",
+      "methodIndex": 36029,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "4abb0d83b4acc6131d66e98460c1cea2dedb2fa866163fac84b6540473f2fe40",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.stringCollator",
+      "traitKind": "getter",
+      "methodIndex": 36026,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.globalization.SortingCollator",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "9f70b4b6b98e5fea98861a7fec646cacd3320fd4ee41526d66fa90e4172d55b9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.stringCompare",
+      "traitKind": "method",
+      "methodIndex": 36031,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 142,
+      "bytecode": {
+        "codeLength": 142,
+        "codeSha256": "2771a5abcc50ffefcd0c75c656a7109bf332228b3e3ff4582f3545ab3bb07d15",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.xmlCompare",
+      "traitKind": "method",
+      "methodIndex": 36032,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 182,
+      "bytecode": {
+        "codeLength": 182,
+        "codeSha256": "d871b0673a3ec1513e66c08f653424648bfbc08edbd9df34d553584a99956556",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "reverse",
+      "traitKind": "method",
+      "methodIndex": 36025,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "42ec780e6da56fa48c5e235e842bc629f548423d53ec047b03d92cb394521af8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setStyle",
+      "traitKind": "method",
+      "methodIndex": 36021,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "72e7949cc9a582194b5cd98e9aee81f60748fa70e48a32241f0aa42a70487cad",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 36022,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "c7e7dec4fd5ec5e93e199cc42eaa42a68fd412dace56e38fc6ddb79de77598a0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 36023,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "d5ba1785df3585c713ab6009d6d8898ab1d32da8f7017f183253539b3e4c4564",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "usingCustomCompareFunction",
+      "traitKind": "getter",
+      "methodIndex": 36019,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cd99659a64352b00f4b6308465865edc890a93ac1dd369bb9d702ab5eefa1402",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,541 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 984,
+  "className": "com.chrysler.cda.presentation.util.SystemNotificationLog",
+  "classNameNormalized": "com.chrysler.cda.presentation.util.SystemNotificationLog",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 20489,
+  "cinitMethod": 20485,
+  "iinitBytecode": {
+    "codeLength": 396,
+    "codeSha256": "a2fe4c58b77a93a570f89599aa89e397d3277a93c57592745e0104e3372d145d",
+    "bytecodeLineCount": 25
+  },
+  "cinitBytecode": {
+    "codeLength": 75,
+    "codeSha256": "06c918520bc00f1f4b69c0c2cdb2e34a2328d2c84ee7a8a42c6e3ed6ca9d2437",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___SystemNotificationLog_AbstractWindow1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 20514,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "e23b8a78cbdd62b2a2b406673b706924ca53581f3bdf78e246a0832f6606f01a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___SystemNotificationLog_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 20511,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "dc48d1b79dcc2bbfa9998f7d36db3ab934848a3a56f6f32254e87862e2c5f0c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___SystemNotificationLog_Button2_click",
+      "traitKind": "method",
+      "methodIndex": 20513,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "2795a748a816aab6060928017d992e18f92cd33731da3923bd906b2d179308fc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "addSystemNotificationLog",
+      "traitKind": "method",
+      "methodIndex": 20492,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.view.SystemNotificationLogMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "d4de4e9637c8fc802a1294042477d375bb3aba35546347fc60fa776746bef1a8",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:SystemNotificationLog.addSystemNotificationElement",
+      "traitKind": "method",
+      "methodIndex": 20497,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "549017260b163f44e2b68ac8748c849a8c95bce42930077d9800e0464ee881d3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:SystemNotificationLog.clearAndClose",
+      "traitKind": "method",
+      "methodIndex": 20498,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "75a0ba406e429d72eb653ad1c2fefe83ce296ec47d61e31a44b9026869a7cd79",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:SystemNotificationLog.limitDisplay",
+      "traitKind": "getter",
+      "methodIndex": 20500,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "756e97ed07b0cdbb14f9b463e86daaf6b69ab4d5f9f62700bf4aad6b96108d39",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:SystemNotificationLog.onCreation",
+      "traitKind": "method",
+      "methodIndex": 20499,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "766c4b297f49bd951091b9828d877d7f66b3aee17081efb13561861f87dd14a6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:SystemNotificationLog.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 20520,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "aaf13ffd3cf33412e09b4c38b5e56dabe8e8df85408590e6258bb82f0173cc0e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 20523,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b52add64da5d08a0ff02d68d1541838e66e8ac81f83d3a6a9f5c66f11a2bbd59",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 20524,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "37c39f7c52dbe166ec19416638fadd45611897659adae851078f76da5eb83ac9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 20491,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 20490,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "c1a1f48a7c70d1141423a2788f904f1fcae343e4f2d990f5c6b643495747191d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 20502,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "8e69847a544c159210bc29f9de6f71d58a3cf54e662f53955cf6dbe1f152c3d7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_Array2_c",
+      "traitKind": "method",
+      "methodIndex": 20509,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "8e48efd155b1b02e11d8bbcccca6b024129001053fe5e272da45e1e22d26a9f7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 20519,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "bfccea8a166da76708833227de1113a70486a8766de07361534ca3ba72899855",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 20510,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "6830296b7426f9c404c8e946b438f1610b131b4393f6298e0e4d9e949147c598",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 20512,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "9840426a1d663f36074a224183d464458f3637254227d3a5b1646bec24819530",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_Group1_i",
+      "traitKind": "method",
+      "methodIndex": 20505,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "9f321e35703cf64fee479dbdf72cd49fffb6a4b197b75b4de41931c9e46c9707",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_HorizontalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 20508,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.HorizontalLayout",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "fbe1483bb78dea91bb77dce75900b8519c2e1b68c36462dd57e840cf5991cca3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 20503,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "44b1fbeb30a3835cd1ac2e077ebc7274c5b7574fe108e12e03b6d64ecea5fe44",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_Scroller1_c",
+      "traitKind": "method",
+      "methodIndex": 20504,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "a1e7ccb4cd6676cf80f69007561e6ec92b237f8f2ad856a00b88f24d6a34e4b1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_SkinnableContainer1_c",
+      "traitKind": "method",
+      "methodIndex": 20507,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.SkinnableContainer",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "5b41beda2ad64afe55dfc3be8edcb1d7db9d8574b3a9d7ffade9d701855d6562",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 20501,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "79cf9da3dc1ea3d922555b2cd7dd1b1c3cd0daf4bf92a832b382d9e26a02bf3e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._SystemNotificationLog_VerticalLayout2_c",
+      "traitKind": "method",
+      "methodIndex": 20506,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "77768197b34676c159fb7fd388756d485d170886f1c82743afc6934749938681",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "queuedMessagesCount",
+      "traitKind": "getter",
+      "methodIndex": 20495,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5ce3cda6416a21bdc002da488cbb813f55a79b2db05cf22394318facf9c08cd2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "queuedMessagesCount",
+      "traitKind": "setter",
+      "methodIndex": 20494,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "3b3cbe83b77e0a239ed300ea8dab7a8edce63bdbd28a29751912e3f84d4c7e0a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeSystemNotificationLog",
+      "traitKind": "method",
+      "methodIndex": 20493,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.view.SystemNotificationLogMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "ee3ffd75b0e132e7776f0e62408111bf07f5780a0998ba2b2f13f70d9b3e45ad",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "systemNotificationHolder",
+      "traitKind": "getter",
+      "methodIndex": 20521,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f00919a3e9bed091f79feb8b31a0198e1c5ca6c06abc46a479fac15c412ae63a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "systemNotificationHolder",
+      "traitKind": "setter",
+      "methodIndex": 20522,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a7184b96346c7ec05a5c59f5dfb7b166918b195e369d0b836eb81e30f5a4b881",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "winId",
+      "traitKind": "getter",
+      "methodIndex": 20496,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ac263dd05f72e2c86d6df21b48f45bcd3fa2cbbe40fe7a6c6889c5239c88b71c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 20486,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "ce5d7bd31530fc33114fd730ff5da545f664ba5e3a269a73e710009610286b3d",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

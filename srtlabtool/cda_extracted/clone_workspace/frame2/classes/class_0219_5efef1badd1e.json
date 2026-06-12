@@ -1,0 +1,1238 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 219,
+  "className": "spark.components.Scroller",
+  "classNameNormalized": "spark.components.Scroller",
+  "superName": "spark.components.supportClasses.SkinnableComponent",
+  "superNameNormalized": "spark.components.supportClasses.SkinnableComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IFocusManagerComponent",
+    "mx.core.IVisualElementContainer"
+  ],
+  "iinitMethod": 4388,
+  "cinitMethod": 4387,
+  "iinitBytecode": {
+    "codeLength": 130,
+    "codeSha256": "3a37e0f330aeb017692613ac1d7b6245485d106443741642569544394b1406b3",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 130,
+    "codeSha256": "aacf70a084a0ab3a4857dd7db73d5b640b66dc0a70708b14ed0db305897870d2",
+    "bytecodeLineCount": 9
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addElement",
+      "traitKind": "method",
+      "methodIndex": 4409,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement"
+      ],
+      "returnType": "mx.core.IVisualElement",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "41c933084fcc89bb54dea57641899fa9049ae5f128d2a0a29a99eebe53f5542b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "addElementAt",
+      "traitKind": "method",
+      "methodIndex": 4410,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement",
+        "int"
+      ],
+      "returnType": "mx.core.IVisualElement",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "41c933084fcc89bb54dea57641899fa9049ae5f128d2a0a29a99eebe53f5542b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "ensureElementIsVisible",
+      "traitKind": "method",
+      "methodIndex": 4397,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "7c2303d424f832097d54b749eeed2ccaac58c1387327eced9ce27d7c361c476c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getElementAt",
+      "traitKind": "method",
+      "methodIndex": 4407,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "mx.core.IVisualElement",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "4adb29fd58f6777543eea3d25fcfcf573ccce75492c0e061a0ec10e682f46833",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getElementIndex",
+      "traitKind": "method",
+      "methodIndex": 4408,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "dbf9bffb661f715bff32a9bd860001db53730f53ea3bfaca231c49486ead9b14",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "horizontalScrollBar",
+      "traitKind": "getter",
+      "methodIndex": 4456,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HScrollBar",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3eb12fb50917253ade67df23bca9b91376d9f4d3dac896cf0f687f9144a538f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "horizontalScrollBar",
+      "traitKind": "setter",
+      "methodIndex": 4457,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.HScrollBar"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "199e5202f683f193f9a12dfcb914388691efff89ad4c26dd400ad2df701394f4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.adjustScrollPositionAfterSoftKeyboardDeactivate",
+      "traitKind": "method",
+      "methodIndex": 4454,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "045054d5253304435043a6ee7e2844ec7dc1f3a50fff953405f8d9910d64c149",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.enableTextSelectionAutoScroll",
+      "traitKind": "method",
+      "methodIndex": 4445,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "12cbc514b5c689acf4a0eafdcc6e149b38b170bcc03d331552375322150ee802",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.performDrag",
+      "traitKind": "method",
+      "methodIndex": 4440,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 520,
+      "bytecode": {
+        "codeLength": 520,
+        "codeSha256": "1dec4a7abb3c301204e9ae7db60027b0ba1a27229a0e714e0a03e97f34b2e645",
+        "bytecodeLineCount": 33
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.performThrow",
+      "traitKind": "method",
+      "methodIndex": 4442,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "97d62dba044720ae5fd78ceecb42259aa68443d37fad57ac257e7a9591a47d5d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.scrollerLayout",
+      "traitKind": "getter",
+      "methodIndex": 4418,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.supportClasses.ScrollerLayout",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "98750df3b2c5fc37adfa3bdb4e9755a7d1031c420910126b1a0daa98222cc71d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setUpTextSelectionAutoScroll",
+      "traitKind": "method",
+      "methodIndex": 4446,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "c0922d8bbb15949c533e8172e926e729148fc56c19e5d54363a3685c3e2492f6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.stopTextSelectionAutoScroll",
+      "traitKind": "method",
+      "methodIndex": 4447,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "53fe326ff6ce7c4cd4b20ac29572dfd6fd843772bb3101baf7e9e7ebd5745517",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "measuredSizeIncludesScrollBars",
+      "traitKind": "getter",
+      "methodIndex": 4395,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "dfac58f0d286e3f37082692c005804bc693373d4905d5ff29bc6234ea52df1c0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "measuredSizeIncludesScrollBars",
+      "traitKind": "setter",
+      "methodIndex": 4396,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "d73601ee28d1e7670047e95be4d55da346c0b4d571265d8c0ba86baaa6076f6c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "minViewportInset",
+      "traitKind": "getter",
+      "methodIndex": 4393,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "32553ce68ba7c45f5d77546c461917b8def061e25b9367577b2a501067a2f262",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "minViewportInset",
+      "traitKind": "setter",
+      "methodIndex": 4394,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "160d6263e4d008bdb585e554c039c9928214d1bdab0730363674e555d9976440",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "numElements",
+      "traitKind": "getter",
+      "methodIndex": 4406,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "d4e44335fb84f790dc7b8652747387cd13439690a0830d453831de703fc15515",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.addedToStageHandler",
+      "traitKind": "method",
+      "methodIndex": 4449,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "950a76c27e754670bbbed788cf1db52480366a66d9bd54857ac99ab6162881c8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.addKeyframe",
+      "traitKind": "method",
+      "methodIndex": 4422,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.SimpleMotionPath",
+        "Number",
+        "Number",
+        "spark.effects.easing.IEaser"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "373d369273ea8c73977f974ba18518c564743685872b19cb73eb57476f16a26b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.calculateThrowEffectTime",
+      "traitKind": "method",
+      "methodIndex": 4421,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 188,
+      "bytecode": {
+        "codeLength": 188,
+        "codeSha256": "f6c6977bec408f26ac9b5c25e8c4e0954cec7bd21347331a78156829bbb91739",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.caretBoundsChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 4455,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.CaretBoundsChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "b561f145b927e33ef0d27929855dabb79ac21ba7fe1bea87535d9b6d8847a12d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkScrollPosition",
+      "traitKind": "method",
+      "methodIndex": 4400,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 522,
+      "bytecode": {
+        "codeLength": 522,
+        "codeSha256": "4192c282bf679c0bcf673962482563d72881ef8538236aae9bdb489aea00bcad",
+        "bytecodeLineCount": 33
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkScrollPositionsOnUpdateComplete",
+      "traitKind": "method",
+      "methodIndex": 4401,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "016547ffcd23646c29ef934e488872d45cf567243f82d3cdde0f8eb85cc9db63",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.createThrowMotionPath",
+      "traitKind": "method",
+      "methodIndex": 4423,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "spark.effects.animation.SimpleMotionPath",
+      "hasBody": true,
+      "codeLength": 685,
+      "bytecode": {
+        "codeLength": 685,
+        "codeSha256": "42e3b32990ee16ae65cc1945b2d174e0fc084c7049de871a8ecf0e4a09f862ff",
+        "bytecodeLineCount": 43
+      }
+    },
+    {
+      "traitName": "PrivateNs.ensureElementPositionIsVisible",
+      "traitKind": "method",
+      "methodIndex": 4398,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement",
+        "flash.geom.Rectangle",
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 489,
+      "bytecode": {
+        "codeLength": 489,
+        "codeSha256": "27255b79c50a16445c1700dc910e5fbc1b858756c79952b89b85f1502650855a",
+        "bytecodeLineCount": 31
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMotionPathCurrentVelocity",
+      "traitKind": "method",
+      "methodIndex": 4399,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.MotionPath",
+        "Number",
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "5353e7d911ac855c4882e83c78abcb5e679d72d8de9fab90317a412b202735b9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.hideScrollBarAnimation_effectEndHandler",
+      "traitKind": "method",
+      "methodIndex": 4444,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "e715c4f6cf64fa071e9f4219016815e4b5b7c5b27ce50b5ba0f497eba62e8e41",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.hideScrollBars",
+      "traitKind": "method",
+      "methodIndex": 4425,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 180,
+      "bytecode": {
+        "codeLength": 180,
+        "codeSha256": "6768d6dc86fba9c114dc6590a3320f922a0325e6ea613c7e6758c348f6dc2eb1",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.installTouchListeners",
+      "traitKind": "method",
+      "methodIndex": 4419,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "98a6b4e7b1074e1a3b25160d12404addb74f152061153712974ce697f254e522",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.installViewport",
+      "traitKind": "method",
+      "methodIndex": 4391,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "003052c25b6fea2716bc4434300221b6d5405e357cb99f8f9815a22941c3c7aa",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.invalidateSkin",
+      "traitKind": "method",
+      "methodIndex": 4417,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "223fa4e5727c1aa443089ea0a30ba4216c738c24e39a8df0f003bcb44f152ca5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 4439,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "a1717008b572fe015e1687fb76a0eb473e79ec7d514746665a6fae5ba396ce86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.orientationChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 4405,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "34313773395c18c342810f1fb932e92c6bea8e83bc124da6136db6fb5acd4938",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.removedFromStageHandler",
+      "traitKind": "method",
+      "methodIndex": 4450,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "7492c75e387096e235e540ffba027d87f193b992b1e2a95a4a4b7bd7a16478f5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.setUpThrowEffect",
+      "traitKind": "method",
+      "methodIndex": 4424,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 702,
+      "bytecode": {
+        "codeLength": 702,
+        "codeSha256": "f1e7a4b2822fe7f2e7bc9e62d8acf1340520a261a1a35373b55b4da0bb53c038",
+        "bytecodeLineCount": 44
+      }
+    },
+    {
+      "traitName": "PrivateNs.skin_mouseWheelHandler",
+      "traitKind": "method",
+      "methodIndex": 4433,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 390,
+      "bytecode": {
+        "codeLength": 390,
+        "codeSha256": "8076dfd0c4681384891cc76912841f2ebf0c1ad76070522b813a1b75cc52c80f",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "PrivateNs.snapContentScrollPosition",
+      "traitKind": "method",
+      "methodIndex": 4436,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 157,
+      "bytecode": {
+        "codeLength": 157,
+        "codeSha256": "67693b5e00562354fbf90b1261715a79fb9553e568d14b1c7c23eb99025b8268",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.softKeyboardActivateCaptureHandler",
+      "traitKind": "method",
+      "methodIndex": 4452,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SoftKeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "55f2dd531951d7c30c1d78b19c3691a8371935c4e708dd1e430b25dcc59d7a0e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.softKeyboardActivateHandler",
+      "traitKind": "method",
+      "methodIndex": 4451,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SoftKeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 178,
+      "bytecode": {
+        "codeLength": 178,
+        "codeSha256": "0d7b725b92389cc72292c9204c5bfad59cc54082dd717a452ff37a3f40e5c030",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.softKeyboardDeactivateHandler",
+      "traitKind": "method",
+      "methodIndex": 4453,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SoftKeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "4e4f292569fcdc52b6c7b487985dc9cd546a9f6c5801bf6f2ff4c42990a1c974",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopThrowEffectOnMouseDown",
+      "traitKind": "method",
+      "methodIndex": 4437,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "282c390da9de987dfc6b325cf36eec47a9a5d89d0c5d8374cadb1b657135c5a5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.textSelectionAutoScrollTimerHandler",
+      "traitKind": "method",
+      "methodIndex": 4448,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 345,
+      "bytecode": {
+        "codeLength": 345,
+        "codeSha256": "96860b84c1a9211920e173a071b8d6f78ed7afd530be4200c185281702fa5f8e",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "PrivateNs.throwEffect_effectEndHandler",
+      "traitKind": "method",
+      "methodIndex": 4441,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "323733e77e5d4918524d650082e16d41d625940f5df3778afb816a77b57ee949",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.touchInteractionEndHandler",
+      "traitKind": "method",
+      "methodIndex": 4443,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.TouchInteractionEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "5d9351322b92121570857a1173e4720632dd9314a64ba8c93401915fd7571b98",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.touchInteractionStartHandler",
+      "traitKind": "method",
+      "methodIndex": 4435,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.TouchInteractionEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 253,
+      "bytecode": {
+        "codeLength": 253,
+        "codeSha256": "2e625c6c6cf78a16d219dc6e7d4e674d7b43ba1a466577586068eef519b72a1e",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.touchInteractionStartingHandler",
+      "traitKind": "method",
+      "methodIndex": 4434,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.TouchInteractionEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "e4ee5dded750db863d10ce68892fc138c8f93eb4b28000f8678dbfe164ce1809",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.touchScrolling_captureMouseHandler",
+      "traitKind": "method",
+      "methodIndex": 4438,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 293,
+      "bytecode": {
+        "codeLength": 293,
+        "codeSha256": "2ceddd9397efd30ce62c89433fe616453042aaca6ce1d63df29bc2d21920b143",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "PrivateNs.uninstallTouchListeners",
+      "traitKind": "method",
+      "methodIndex": 4420,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "fab38af9835b74339431c8b7636c890a44da4eb9aff40efc7813cbfcfa99c866",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.uninstallViewport",
+      "traitKind": "method",
+      "methodIndex": 4392,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "01a24933a73d2575164e43735d2cbbabd007abd8ff3dfefa04237f7caddfa70c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.viewport_propertyChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 4402,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 124,
+      "bytecode": {
+        "codeLength": 124,
+        "codeSha256": "60de81253fccd9ca2f46cb813b2379c68b5b27de9ebb58f8ec26087ee2f4d1f1",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "removeAllElements",
+      "traitKind": "method",
+      "methodIndex": 4413,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "41c933084fcc89bb54dea57641899fa9049ae5f128d2a0a29a99eebe53f5542b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeElement",
+      "traitKind": "method",
+      "methodIndex": 4411,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement"
+      ],
+      "returnType": "mx.core.IVisualElement",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "41c933084fcc89bb54dea57641899fa9049ae5f128d2a0a29a99eebe53f5542b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeElementAt",
+      "traitKind": "method",
+      "methodIndex": 4412,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "mx.core.IVisualElement",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "41c933084fcc89bb54dea57641899fa9049ae5f128d2a0a29a99eebe53f5542b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setElementIndex",
+      "traitKind": "method",
+      "methodIndex": 4414,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "41c933084fcc89bb54dea57641899fa9049ae5f128d2a0a29a99eebe53f5542b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components:Scroller.attachSkin",
+      "traitKind": "method",
+      "methodIndex": 4428,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "0931a3061efabcfd3c7a8c18792fe175122e01f3895e04beb2b9d234f35cf96b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components:Scroller.createChildren",
+      "traitKind": "method",
+      "methodIndex": 4426,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "009eb4e0113ba94c7a080d0bba897c596cb7f34bce63affa64ec285cbc22a720",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "spark.components:Scroller.detachSkin",
+      "traitKind": "method",
+      "methodIndex": 4429,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "eb65c4d66df97a55e5bee3aad0775f0ba94e941158afe6ef573c8d65f2738f2c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components:Scroller.focusInHandler",
+      "traitKind": "method",
+      "methodIndex": 4403,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f5b71fa8f0808c98878d2f3fb8bf15bb79039a1e99ceb5f28798c6429621b5ad",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.components:Scroller.focusOutHandler",
+      "traitKind": "method",
+      "methodIndex": 4404,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "6e580909ee46ccd1a0be000f1bc3470e912cfd26afec72e66b07fbec1d705960",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components:Scroller.keyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 4432,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 930,
+      "bytecode": {
+        "codeLength": 930,
+        "codeSha256": "59ecef3a960616c5392916977429b5261506ea445ef3360952fd882e0a33dd00",
+        "bytecodeLineCount": 59
+      }
+    },
+    {
+      "traitName": "spark.components:Scroller.partAdded",
+      "traitKind": "method",
+      "methodIndex": 4430,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 132,
+      "bytecode": {
+        "codeLength": 132,
+        "codeSha256": "33e2d0cca14d77b0a2361aa7c1c75d484dd7825db915d463c6d88e1d63968771",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "spark.components:Scroller.partRemoved",
+      "traitKind": "method",
+      "methodIndex": 4431,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "0635cbefa5606f8146bd4ce029fce7f9353aa4b3f1706ed7f7e93dcea5447007",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components:Scroller.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 4460,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "6b9f34f36863d1a56d2f2be4d2d2961d640663031cf77bea107b8dad29d9e33f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 4427,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 257,
+      "bytecode": {
+        "codeLength": 257,
+        "codeSha256": "0e734a26675ec39aca2819c79f98df72b2dfc74b9f65617b0f7819bf4f8bf8d8",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "swapElements",
+      "traitKind": "method",
+      "methodIndex": 4415,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement",
+        "mx.core.IVisualElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "41c933084fcc89bb54dea57641899fa9049ae5f128d2a0a29a99eebe53f5542b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "swapElementsAt",
+      "traitKind": "method",
+      "methodIndex": 4416,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "41c933084fcc89bb54dea57641899fa9049ae5f128d2a0a29a99eebe53f5542b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "verticalScrollBar",
+      "traitKind": "getter",
+      "methodIndex": 4458,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VScrollBar",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "2db2d8c8da3d5840a679165bd33533855784ef018580ac59533a763eef90bf57",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "verticalScrollBar",
+      "traitKind": "setter",
+      "methodIndex": 4459,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.VScrollBar"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "6a0800e6145487a5b5793c4e1110641a2e9aa1df93b259aca81be2d793a3c9b0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "viewport",
+      "traitKind": "getter",
+      "methodIndex": 4389,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.core.IViewport",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "2b11fb25d8b6eb9f5aaed22ddbc4837bdbbfbfcd0e73955325d6639ed65fdec7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "viewport",
+      "traitKind": "setter",
+      "methodIndex": 4390,
+      "methodName": "",
+      "paramTypes": [
+        "spark.core.IViewport"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "df4f66e68f79ce075b137c89099841c4339bbf64c039ad4b261eb02b55038209",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

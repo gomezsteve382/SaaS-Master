@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3147,
+  "className": "PrivateNs.PollCommandMessageResponder",
+  "classNameNormalized": "PrivateNs.PollCommandMessageResponder",
+  "superName": "mx.messaging.MessageResponder",
+  "superNameNormalized": "mx.messaging.MessageResponder",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49834,
+  "cinitMethod": 49833,
+  "iinitBytecode": {
+    "codeLength": 44,
+    "codeSha256": "a878cb9fe60cd88290621ce621f2de46845b89413ca8cd47d41448777ab56fcf",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "PollingChannel.as$154:PollCommandMessageResponder.resultHandler",
+      "traitKind": "method",
+      "methodIndex": 49835,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 537,
+      "bytecode": {
+        "codeLength": 537,
+        "codeSha256": "9e96d30501daa2f4fe4ef711898ac485e1f6506f3985d402f7de0e09f9d32de0",
+        "bytecodeLineCount": 34
+      }
+    },
+    {
+      "traitName": "PollingChannel.as$154:PollCommandMessageResponder.statusHandler",
+      "traitKind": "method",
+      "methodIndex": 49836,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 192,
+      "bytecode": {
+        "codeLength": 192,
+        "codeSha256": "9be7f9f1f1b191bd529c8d189d607660d0dc49039e52e6c60fbfe686db35402e",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.channelPropertyChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 49837,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "f5c963a391871db87ae63186085ef98783b8be847b008524ac8308b36e2c5fce",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.doPoll",
+      "traitKind": "method",
+      "methodIndex": 49838,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 123,
+      "bytecode": {
+        "codeLength": 123,
+        "codeSha256": "69e06f7a19fd14b9c932ad101f17464bc92ba250d4be00c2d234e0d048ba8005",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

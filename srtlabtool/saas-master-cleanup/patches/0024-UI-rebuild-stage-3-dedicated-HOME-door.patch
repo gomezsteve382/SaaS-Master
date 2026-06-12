@@ -1,0 +1,179 @@
+From 622bca47910e5e803111ef0ce339e0509d2b5279 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 12 Jun 2026 12:41:06 +0000
+Subject: [PATCH 24/25] UI rebuild stage 3: dedicated HOME door
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Landing on Diagnose no longer lights the REFERENCE door. dumps becomes a
+pinned HOME button above the six job doors (not a member of any job, so
+JOB_OF.dumps is undefined and no door highlights); it's excluded from the
+Advanced drawer. REFERENCE's primary is now backups (gets a stable
+backups-tab root testid). Nav guard gains a HOME test — 16 nav tests green.
+---
+ .../src/__tests__/workspaceNav.ui.test.jsx    | 17 +++++++-
+ .../srt-lab/src/components/CommandShell.jsx   | 40 +++++++++++++++++--
+ artifacts/srt-lab/src/tabs/BackupsTab.jsx     |  2 +-
+ artifacts/srt-lab/src/workspaceJobs.js        | 12 ++++--
+ 4 files changed, 61 insertions(+), 10 deletions(-)
+
+diff --git a/artifacts/srt-lab/src/__tests__/workspaceNav.ui.test.jsx b/artifacts/srt-lab/src/__tests__/workspaceNav.ui.test.jsx
+index 88e224f..a55246c 100644
+--- a/artifacts/srt-lab/src/__tests__/workspaceNav.ui.test.jsx
++++ b/artifacts/srt-lab/src/__tests__/workspaceNav.ui.test.jsx
+@@ -22,7 +22,7 @@ import { render, screen, cleanup, fireEvent, act } from '@testing-library/react'
+ 
+ import App from '../App.jsx';
+ import { PRIMARY_NAV, FOOTER_NAV } from '../components/CommandShell.jsx';
+-import { JOB_OF } from '../workspaceJobs.js';
++import { JOB_OF, HOME } from '../workspaceJobs.js';
+ 
+ // Each rail door opens a JOB. `job` is the mode-strip id that always renders
+ // for that door; optional `testid` is a stable root testid on the primary tab.
+@@ -32,7 +32,7 @@ const PRIMARY_EXPECT = {
+   keyprog:   { job: 'keys' },
+   flasher:   { job: 'flash' },
+   obd:       { job: 'live', testid: 'live-obd-tab' },
+-  dumps:     { job: 'ref', testid: 'dumps-pcm-target-chip-selector' },
++  backups:   { job: 'ref', testid: 'backups-tab' },
+ };
+ 
+ // FOOTER_NAV links (still reached via rail-footer-<key>).
+@@ -84,6 +84,19 @@ describe('Workspace navigation (full shell, job-flow model)', () => {
+     }
+   });
+ 
++  it('HOME (Diagnose) is pinned above the job doors and is not a job', () => {
++    enterWorkspace();
++    // The HOME button renders the Diagnose landing (dumps) ...
++    const homeBtn = screen.getByTestId(`rail-${HOME.key}`);
++    expect(homeBtn).toBeTruthy();
++    act(() => { fireEvent.click(homeBtn); });
++    expect(screen.getByTestId('dumps-pcm-target-chip-selector')).toBeTruthy();
++    // ... and HOME is deliberately NOT a job (no door lights for it).
++    expect(JOB_OF[HOME.key]).toBeUndefined();
++    // The job-card hero on the landing exposes the six doors.
++    expect(screen.getByTestId('job-cards')).toBeTruthy();
++  });
++
+   describe('PRIMARY_NAV job doors render their destination', () => {
+     for (const item of PRIMARY_NAV) {
+       const { job, testid } = PRIMARY_EXPECT[item.key];
+diff --git a/artifacts/srt-lab/src/components/CommandShell.jsx b/artifacts/srt-lab/src/components/CommandShell.jsx
+index 6c09336..e7cc9b4 100644
+--- a/artifacts/srt-lab/src/components/CommandShell.jsx
++++ b/artifacts/srt-lab/src/components/CommandShell.jsx
+@@ -5,7 +5,7 @@ import {
+   Cpu, Zap, BookOpen,
+ } from 'lucide-react';
+ import {MasterVinContext} from '../lib/masterVinContext.jsx';
+-import {JOBS, JOB_OF, JOB_BY_ID} from '../workspaceJobs.js';
++import {JOBS, JOB_OF, JOB_BY_ID, HOME} from '../workspaceJobs.js';
+ 
+ /* SRT command-center design tokens (graduated from the approved canvas mockup). */
+ const T = {
+@@ -74,9 +74,9 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect})
+   const toggleSection = (key) => setExpanded((s) => { const n = new Set(s); n.has(key) ? n.delete(key) : n.add(key); return n; });
+   const sectionOpen = (key, count) => (q ? count > 0 : (expanded.has(key) || key === JOB_OF[activeTab]));
+ 
+-  // Everything that isn't one of the five primary panes belongs here.
++  // Everything that isn't a job door primary or the HOME landing belongs here.
+   const advancedTabs = useMemo(
+-    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)),
++    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id) && t.id !== HOME.key),
+     [tabs],
+   );
+ 
+@@ -312,7 +312,7 @@ export default function CommandShell({
+   const [drawerOpen, setDrawerOpen] = useState(false);
+ 
+   const advancedCount = useMemo(
+-    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)).length,
++    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id) && t.id !== HOME.key).length,
+     [tabs],
+   );
+ 
+@@ -425,6 +425,38 @@ export default function CommandShell({
+             PER-VEHICLE WORKFLOW
+           </div>
+ 
++          {/* HOME / Diagnose landing — pinned above the job doors. It is not a
++              job, so landing here lights HOME (not a job door). */}
++          {(() => {
++            const isActive = activeTab === HOME.key;
++            return (
++              <button
++                type="button"
++                data-testid={`rail-${HOME.key}`}
++                onClick={() => onSelect(HOME.key)}
++                style={{
++                  display: 'flex', alignItems: 'center', gap: 11, width: '100%', textAlign: 'left',
++                  padding: '11px 11px', borderRadius: 10, cursor: 'pointer', border: 'none',
++                  marginBottom: 4,
++                  background: isActive ? T.red : 'transparent',
++                  color: isActive ? '#fff' : T.ink,
++                  boxShadow: isActive ? '0 6px 16px -6px rgba(211,47,47,.6)' : 'none',
++                  fontFamily: "'Nunito',sans-serif",
++                }}
++                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#F4F1EC'; }}
++                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
++              >
++                <Stethoscope size={19} style={{flexShrink: 0, opacity: isActive ? 1 : 0.7}} />
++                <span style={{lineHeight: 1.2, minWidth: 0}}>
++                  <span style={{display: 'block', fontWeight: 800, fontSize: 13.5}}>{HOME.label}</span>
++                  <span style={{display: 'block', fontSize: 11, opacity: isActive ? 0.85 : 0.55}}>{HOME.sub}</span>
++                </span>
++              </button>
++            );
++          })()}
++
++          <div style={{height: 1, background: T.line, margin: '6px 8px 8px'}} />
++
+           {PRIMARY_NAV.map((item) => {
+             // Door lights up when the active tab belongs to this job — so
+             // drilling into a member tab (e.g. BCM under READ) keeps the
+diff --git a/artifacts/srt-lab/src/tabs/BackupsTab.jsx b/artifacts/srt-lab/src/tabs/BackupsTab.jsx
+index 45eb23b..1aa5b9a 100644
+--- a/artifacts/srt-lab/src/tabs/BackupsTab.jsx
++++ b/artifacts/srt-lab/src/tabs/BackupsTab.jsx
+@@ -1204,7 +1204,7 @@ export default function BackupsTab() {
+   backups.forEach(b => { moduleCounts[b.module] = (moduleCounts[b.module] || 0) + 1; });
+ 
+   return (
+-    <div>
++    <div data-testid="backups-tab">
+       <Card style={{
+         background: "linear-gradient(135deg,#0A3D1A 0%,#1E6F3A 40%,#00BFA5 100%)",
+         color: "#fff", marginBottom: 18,
+diff --git a/artifacts/srt-lab/src/workspaceJobs.js b/artifacts/srt-lab/src/workspaceJobs.js
+index 4f51f96..4e75a9f 100644
+--- a/artifacts/srt-lab/src/workspaceJobs.js
++++ b/artifacts/srt-lab/src/workspaceJobs.js
+@@ -61,14 +61,20 @@ export const JOBS = [
+   {
+     id: 'ref',
+     label: 'REFERENCE',
+-    sub: 'Dumps · catalogs · research',
+-    primary: 'dumps',
+-    members: ['dumps', 'backups', 'samples', 'workflow', 'investigation',
++    sub: 'Backups · catalogs · research',
++    primary: 'backups',
++    members: ['backups', 'samples', 'workflow', 'investigation',
+               'alfaobd', 'alfaintel', 'binintel', 'dispatchcov', 'unlockcov',
+               'canuniverse', 'patterns', 'kg', 'sigdisc', 'cda6db', 'exttools'],
+   },
+ ];
+ 
++/* The Diagnose landing. It is a HOME destination, not a job — pinned above the
++ * job doors in the rail — so landing on it lights HOME, not a job door. It is
++ * deliberately NOT a member of any job (JOB_OF.dumps is undefined), and is
++ * excluded from the Advanced drawer (it's the home screen, not a tool). */
++export const HOME = { key: 'dumps', label: 'Diagnose', sub: 'Drop → verdict → fix' };
++
+ /* Rail / drawer order. */
+ export const JOB_ORDER = JOBS.map((j) => j.id);
+ 
+-- 
+2.43.0
+

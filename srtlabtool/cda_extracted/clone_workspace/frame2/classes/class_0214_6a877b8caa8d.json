@@ -1,0 +1,637 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 214,
+  "className": "com.chrysler.skins.buttons.IconToggleButtonSkin",
+  "classNameNormalized": "com.chrysler.skins.buttons.IconToggleButtonSkin",
+  "superName": "spark.skins.SparkButtonSkin",
+  "superNameNormalized": "spark.skins.SparkButtonSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 4314,
+  "cinitMethod": 4310,
+  "iinitBytecode": {
+    "codeLength": 978,
+    "codeSha256": "9745e051bf8351b38cd15029a65d0483b78da46326d406963fb52ae9b28c426d",
+    "bytecodeLineCount": 62
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_IconToggleButtonSkin_Image1",
+      "traitKind": "getter",
+      "methodIndex": 4333,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "96eaf29134fb5433b2de1f7d2659562c7760b80edb3cabd80b6d2b400837ac24",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_IconToggleButtonSkin_Image1",
+      "traitKind": "setter",
+      "methodIndex": 4334,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f0816345dd8d9d9bc6db6952c1e23d055c4b68bb1ccbd16873583bc0bf88e1de",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_IconToggleButtonSkin_Image2",
+      "traitKind": "getter",
+      "methodIndex": 4335,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "26062d49fe84d61d7dd894d78451542dbf78040eae79fbc237f0b28599e8e2d1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_IconToggleButtonSkin_Image2",
+      "traitKind": "setter",
+      "methodIndex": 4336,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9af25118eb6ec05d08789754adbb5a6ff98cf3a734de151cf7b7727c46482841",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_IconToggleButtonSkin_Image3",
+      "traitKind": "getter",
+      "methodIndex": 4337,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "12ebfad659e12ead08b656691efdb427e400ad4f46c2508edafe385aca140edf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_IconToggleButtonSkin_Image3",
+      "traitKind": "setter",
+      "methodIndex": 4338,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "fb0b056606bd23828cc61f288996a1801e2b287ec68ba8a2bdf2c4bcc96e99c2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_IconToggleButtonSkin_Image4",
+      "traitKind": "getter",
+      "methodIndex": 4339,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "6b1f4b60962e064ff66108730db16d265c72596fb101eb355afde1efa5b61c4a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_IconToggleButtonSkin_Image4",
+      "traitKind": "setter",
+      "methodIndex": 4340,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e2957688501ab658644387da30ea153ce4eca72b64763d1636f6aead51b42e78",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_IconToggleButtonSkin_Image5",
+      "traitKind": "getter",
+      "methodIndex": 4341,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1322316ebc2fb7b7240ccbac8af223f147a43c928b5de2864964b20156b0789b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_IconToggleButtonSkin_Image5",
+      "traitKind": "setter",
+      "methodIndex": 4342,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "27f62ebed9b3aee91145bd3dbccbdd42f12aaf1d4e102f64a934dd752f71db15",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.skins.buttons:IconToggleButtonSkin.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 4317,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 268,
+      "bytecode": {
+        "codeLength": 268,
+        "codeSha256": "df04c7c760df28a2589e65deca11083a4d09100a5854f0c214f656d79dd2e75a",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 4316,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 4315,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "95b1913dc277143c5b55bb61a7899b42ab6ba82b46dbc95762a8cb14e7ba6554",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 4332,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 139,
+      "bytecode": {
+        "codeLength": 139,
+        "codeSha256": "e0752e5d3f0e8283fb8be645461493828da9b2ee93599df15f17050ab650645c",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_Image1_i",
+      "traitKind": "method",
+      "methodIndex": 4318,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "5e635b003903caaa46ea9c14039cbf6ec1485c236916172567f838674038d753",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_Image2_i",
+      "traitKind": "method",
+      "methodIndex": 4319,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "fd881ec0e05b93636d1f919edbe3618e3e19be1a2dd712a1d7bcfb950f35251d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_Image3_i",
+      "traitKind": "method",
+      "methodIndex": 4320,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "6cbca526468fd95c6ceb8851dbf2b0e0004df045eb75974d19dff7f67471e69d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_Image4_i",
+      "traitKind": "method",
+      "methodIndex": 4321,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "c0d1afa40fd88a3e60567ead1e228c3aff6bb9348804e9cb00fddfa3784df9d2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_Image5_i",
+      "traitKind": "method",
+      "methodIndex": 4322,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "909c87b842348eccf6348a1ad64d96ddfa1078916d2225c65b08d4c589bd7515",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_Rect1_i",
+      "traitKind": "method",
+      "methodIndex": 4323,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "0975fa1b8ad06efcfc367a0d4b364199280521716b663b74640ec6b024ab8d8f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_Rect2_i",
+      "traitKind": "method",
+      "methodIndex": 4325,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "fb2651820651f760636b7b57f7047e630ce8dc0c3bf5aebeed45a9490f11a3a1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_SolidColor1_c",
+      "traitKind": "method",
+      "methodIndex": 4324,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "347c8bcf6a5eb6b3724e75fa4606b4fcb2ae860cfd7b1acdd86087a75516a225",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._IconToggleButtonSkin_SolidColor2_c",
+      "traitKind": "method",
+      "methodIndex": 4326,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "cc1b41cdb814936bfbfa742a61d1b826c59b5cac7507075e1b690e3ec704f18b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.disabledImage",
+      "traitKind": "getter",
+      "methodIndex": 4353,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "26b92416375477946a4985489a17937af8430d6ccf3825153c88e02489cbf960",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.disabledImage",
+      "traitKind": "setter",
+      "methodIndex": 4354,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0405b2359142e06bea5429ac84688cc0db14521d02629cf8b2a156bb6ec14ec3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.downImage",
+      "traitKind": "getter",
+      "methodIndex": 4349,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1f249d5e65c7fe92173f3895b0b040a981f5a2c05545325f9336c51d443dbf06",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.downImage",
+      "traitKind": "setter",
+      "methodIndex": 4350,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a78f316b42d2af1e7f65fe4e6190be412ec9f4a4aa6d530034916c57414d87dc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.overImage",
+      "traitKind": "getter",
+      "methodIndex": 4351,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1f849c74ce1be4055a001477d8cd58771143e1338133c6168b742a8ab62a3b2f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.overImage",
+      "traitKind": "setter",
+      "methodIndex": 4352,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "d6f0a0a82760702d22187a3450166186477b98f9888ddaffe2cba7403eee30e9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.selectedImage",
+      "traitKind": "getter",
+      "methodIndex": 4355,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "75385c14cd488a2b98e68bdc85139ad178c42cdc98047ce93cfb0ae6ff442064",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.selectedImage",
+      "traitKind": "setter",
+      "methodIndex": 4356,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "34375b5f3fa42c579206cefd8f3191bb23852e5117e1c84345eaba02aac2f9b5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.upImage",
+      "traitKind": "getter",
+      "methodIndex": 4347,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "913f485843f46bea9a83d2fd211e52d3d5a65523b417a1d0f785832ff0943af0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.upImage",
+      "traitKind": "setter",
+      "methodIndex": 4348,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "6fc2c29c367a0c80e0248e640bf99f99f3f98d2fc5b4f012a75d4379f33bea6c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "selectedAndDownFill",
+      "traitKind": "getter",
+      "methodIndex": 4343,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1355db90b9d1100d47ada916f454e6995ae53b6a11becb33337a3e6525c751c0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selectedAndDownFill",
+      "traitKind": "setter",
+      "methodIndex": 4344,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "b45ae95940eec59b25d75fe5fa82cb3a07ed90b1c3169dbae3b6e9107507a5d1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "selectedAndOverFill",
+      "traitKind": "getter",
+      "methodIndex": 4345,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "51ffd8d8a2d18c52695556584ad909d051e902d42e99d2dc59928b426c933bf9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selectedAndOverFill",
+      "traitKind": "setter",
+      "methodIndex": 4346,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "588b30a88459d3d39a20ee1174d5f19442dddbdcbbb6a21c87b18721cf023818",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 4311,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "9dbfcdefe45382f26dfb83f6a20d5b34200722bb95b9dec85fbe3419ce32065c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

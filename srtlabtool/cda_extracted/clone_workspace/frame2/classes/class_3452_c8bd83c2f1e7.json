@@ -1,0 +1,116 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3452,
+  "className": "mx.messaging.ConsumerMessageDispatcher",
+  "classNameNormalized": "mx.messaging.ConsumerMessageDispatcher",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 52854,
+  "cinitMethod": 52852,
+  "iinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "706b6834ea440aad8124d409ac6e4362f10761bb76512bdedba87dd3b2ed6947",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "isChannelUsedForSubscriptions",
+      "traitKind": "method",
+      "methodIndex": 52855,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.Channel"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "8c89173ae8dd9897641f5d891dbe5e104b7725af1fb6564a5d2a9b2fdf5194fb",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.messageHandler",
+      "traitKind": "method",
+      "methodIndex": 52858,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.events.MessageEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 322,
+      "bytecode": {
+        "codeLength": 322,
+        "codeSha256": "8abf33675e2d4e4a69a180b678ba558053399d345ff5d23b6d4e36335f88b18b",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "registerSubscription",
+      "traitKind": "method",
+      "methodIndex": 52856,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.AbstractConsumer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "31e8ddbccaf000f85b7189c2668b6c4eacebb53ee450ec31124887e541ca9662",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "unregisterSubscription",
+      "traitKind": "method",
+      "methodIndex": 52857,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.AbstractConsumer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 131,
+      "bytecode": {
+        "codeLength": 131,
+        "codeSha256": "9128e5b10fe1d223c3e516b45dd240f5d8f680080d90eef635ec953224512308",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 52853,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.ConsumerMessageDispatcher",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "71d3adc0691f3cfe0d18b20f008a36bfc2220ca05606b28cd7c48457b8f9943e",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

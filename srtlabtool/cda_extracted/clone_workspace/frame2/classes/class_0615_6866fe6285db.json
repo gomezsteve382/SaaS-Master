@@ -1,0 +1,322 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 615,
+  "className": "com.chrysler.core.infrastructure.communication.ErrorMitigator",
+  "classNameNormalized": "com.chrysler.core.infrastructure.communication.ErrorMitigator",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 11703,
+  "cinitMethod": 11685,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 673,
+    "codeSha256": "98bae295379044153dd87bbf5a53d3c3b42b8f31c734566d4f282e38bef3f9e8",
+    "bytecodeLineCount": 43
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication:ErrorMitigator.mitigatedErrorCollectionToString",
+      "traitKind": "method",
+      "methodIndex": 11701,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "0da4df36ad3cccd5058efeefac281e432d01db32f7b5417c153be6800f838487",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "mitigateCollectionOfErrorsAsFault",
+      "traitKind": "method",
+      "methodIndex": 11698,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.rpc.Fault",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "cc53a47cddd65e0df625787180ec1b3d86b4c142e7086e60ad8a177877c39bdf",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "mitigateErrorCollection",
+      "traitKind": "method",
+      "methodIndex": 11700,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 118,
+      "bytecode": {
+        "codeLength": 118,
+        "codeSha256": "2dd7c2340ac754733900532994c3b97155aca796c0e3cd618f4dca94b0d4fe59",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "mitigateSingleErrorAsFault",
+      "traitKind": "method",
+      "methodIndex": 11697,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.rpc.Fault",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "afc1e00594f0aa40aa6388d4b6403bcfd2c682d68908a7c6ff7271cdbc45412e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mitigateSingleErrors",
+      "traitKind": "method",
+      "methodIndex": 11699,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4a379c90a632936829565e16098db6c230bb6555dd7ae73d7ec7a6eb82ab32da",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.produceBlockElement",
+      "traitKind": "method",
+      "methodIndex": 11702,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "2e440be1d7c380b89002eaf4cb11d6b031f19e15849ae6c3f8287ac6356b02d0",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "hasError",
+      "traitKind": "method",
+      "methodIndex": 11691,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "5f8be9b2a948596d567b0eac714b91722a84170c43e1f0fe1d743bcaed9e8ab0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hasMultipleErrors",
+      "traitKind": "method",
+      "methodIndex": 11693,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "7532d18af34fdbfa28e52d77df884a12d395dc5f6019f7f8063c28b8c4e3d9f2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "hasSingleError",
+      "traitKind": "method",
+      "methodIndex": 11692,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "d808d512f89ffaa7951dadd2289a0f5f79f6d57ac610a9608d89958db3f3206d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 11687,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a5635f82eeb2b382962bfc6161bbcdf1cf7e79235cab886e50fc8dd4b67cf05c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 11686,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "bae15f789b85856c511a011c4ea8219c9aec2d3386bca62bd27a12f75d66d9a7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isMitigatedError",
+      "traitKind": "method",
+      "methodIndex": 11689,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 950,
+      "bytecode": {
+        "codeLength": 950,
+        "codeSha256": "62266ccccf610bfe236948c5bac47dccfa31869d8d310ed722b9f9ddba27aaa5",
+        "bytecodeLineCount": 60
+      }
+    },
+    {
+      "traitName": "mitigateMixedCollectionOfSuccessesAndErrors",
+      "traitKind": "method",
+      "methodIndex": 11690,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "4121c15679747f3a16a17c0d7ce97714757c3206c903e1c885b48f33abfd1a30",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "mitigateMultipleErrors",
+      "traitKind": "method",
+      "methodIndex": 11695,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "383278aa57da9a02ee8ff4881a7f5e05fc41c15500c027d229eb3446801e41c1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mitigateMultipleErrorsPlus",
+      "traitKind": "method",
+      "methodIndex": 11694,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "__AS3__.vec.Vector<com.chrysler.core.infrastructure.communication.MitigatorError>",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "ba350e7f741a4a855388e85d946caf6ddf0cb584e410786e2773cc67d9fe09a2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mitigateRequest",
+      "traitKind": "method",
+      "methodIndex": 11696,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "com.chrysler.core.infrastructure.communication.MitigatorError",
+      "hasBody": true,
+      "codeLength": 4000,
+      "bytecode": {
+        "codeLength": 4000,
+        "codeSha256": "b37b8399c938980099d378a41ec224a05ae2e58fd03da70c521789c567233d66",
+        "bytecodeLineCount": 250
+      }
+    },
+    {
+      "traitName": "resolveString",
+      "traitKind": "method",
+      "methodIndex": 11688,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Array"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "7020462575efc13c2bd1e512e207750d88d9bcab3e6ba08fd264b1a41edeaf52",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,362 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 304,
+  "className": "mx.accessibility.AdvancedDataGridAccImpl",
+  "classNameNormalized": "mx.accessibility.AdvancedDataGridAccImpl",
+  "superName": "mx.accessibility.ListBaseAccImpl",
+  "superNameNormalized": "mx.accessibility.ListBaseAccImpl",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 6700,
+  "cinitMethod": 6696,
+  "iinitBytecode": {
+    "codeLength": 31,
+    "codeSha256": "e98cc9fe9716246ee3f22136c4b912ace29b04fb852b57c6d00bbee5af432ba7",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 154,
+    "codeSha256": "6fbe85659a522996903fa2b275642221bf0b2936ae7e8130e970417a54474128",
+    "bytecodeLineCount": 10
+  },
+  "instanceMembers": [
+    {
+      "traitName": "accDoDefaultAction",
+      "traitKind": "method",
+      "methodIndex": 6706,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 378,
+      "bytecode": {
+        "codeLength": 378,
+        "codeSha256": "8bda2bab11e0eb1ac0b8b26b4db9b1de6b59a5bda4b5bdd1ca69e5fd56a7dfe5",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "accLocation",
+      "traitKind": "method",
+      "methodIndex": 6708,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 292,
+      "bytecode": {
+        "codeLength": 292,
+        "codeSha256": "ed5cb1c066b4628fecf4ee37c3445271424a56899002771182bf145d86f1cb79",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "accSelect",
+      "traitKind": "method",
+      "methodIndex": 6711,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "b5c03fc27363b31d19114da2e95e37fd231a04a47ced9882150b6f941082fa92",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "get_accDefaultAction",
+      "traitKind": "method",
+      "methodIndex": 6705,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 221,
+      "bytecode": {
+        "codeLength": 221,
+        "codeSha256": "1e8d9e06ff3a80586a9bcae84f986def6d5ac5350d6e479883154f31dd35edfa",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "get_accFocus",
+      "traitKind": "method",
+      "methodIndex": 6710,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 281,
+      "bytecode": {
+        "codeLength": 281,
+        "codeSha256": "c0eb5438b40c67cb41c160aa5c577fce3f4da6f56a200fe5f6e5b20f1e3a036b",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "get_accRole",
+      "traitKind": "method",
+      "methodIndex": 6702,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 154,
+      "bytecode": {
+        "codeLength": 154,
+        "codeSha256": "3f8c0bf3f3a62856a2a8a0f41fddba276df98624224f2f7735e7fb7b30b83448",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "get_accSelection",
+      "traitKind": "method",
+      "methodIndex": 6709,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 270,
+      "bytecode": {
+        "codeLength": 270,
+        "codeSha256": "09e04da76ce8551992643eda2851dc4d28d9493e2937c21c24816fbbe2fa2271",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "get_accState",
+      "traitKind": "method",
+      "methodIndex": 6704,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 942,
+      "bytecode": {
+        "codeLength": 942,
+        "codeSha256": "8735ef57dfe6ed6de089d5811d76f52dae81eff8885024673d4f0b26194b3cc5",
+        "bytecodeLineCount": 59
+      }
+    },
+    {
+      "traitName": "get_accValue",
+      "traitKind": "method",
+      "methodIndex": 6703,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 157,
+      "bytecode": {
+        "codeLength": 157,
+        "codeSha256": "1a3c022e3e0c5924b190093a86c60483c0acbf8c5c33ab5d315ac50f53deccc3",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "getChildIDArray",
+      "traitKind": "method",
+      "methodIndex": 6707,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "437a00e8c98860f88a0a0a5533df674f26ecda8adb543178ff19baa40352c194",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "mx.accessibility:AdvancedDataGridAccImpl.eventHandler",
+      "traitKind": "method",
+      "methodIndex": 6713,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 630,
+      "bytecode": {
+        "codeLength": 630,
+        "codeSha256": "7e3c05e3e4f60f8495f871cb5ef96e65a07d01d736887ecce9cddcd998698122",
+        "bytecodeLineCount": 40
+      }
+    },
+    {
+      "traitName": "mx.accessibility:AdvancedDataGridAccImpl.eventsToHandle",
+      "traitKind": "getter",
+      "methodIndex": 6701,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "c5190b272569bfb0b6717c4770c2669df71e14d3f8748b7b9023c18f0f881579",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.accessibility:AdvancedDataGridAccImpl.getName",
+      "traitKind": "method",
+      "methodIndex": 6712,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 1114,
+      "bytecode": {
+        "codeLength": 1114,
+        "codeSha256": "ff6ef5dcae91991ce9b779ec08ff998da1e48ab9a8bf7f1f5ec751fed512e48f",
+        "bytecodeLineCount": 70
+      }
+    },
+    {
+      "traitName": "PrivateNs.getItemAt",
+      "traitKind": "method",
+      "methodIndex": 6714,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "8765495423c81132ad710bc7f5d3e679399c64a665013ab2e2622007438ce433",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMOfN",
+      "traitKind": "method",
+      "methodIndex": 6715,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 235,
+      "bytecode": {
+        "codeLength": 235,
+        "codeSha256": "976981888c17f2e53624b77e82e9cbaf99aa493f1bd32af076e51964ae1adf72",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.getRole",
+      "traitKind": "method",
+      "methodIndex": 6717,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.AdvancedDataGrid"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "6ed97c723cf2412a3f2e498152064cfca79f7b5f0edbe700466654ccaa686a45",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.getValueForHeader",
+      "traitKind": "method",
+      "methodIndex": 6716,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.AdvancedDataGrid"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 273,
+      "bytecode": {
+        "codeLength": 273,
+        "codeSha256": "39c831b9a5a97a2b56b979c8e935d2d8f326144c657aa645bf30d6917a14528b",
+        "bytecodeLineCount": 18
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "enableAccessibility",
+      "traitKind": "method",
+      "methodIndex": 6699,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createAccessibilityImplementation",
+      "traitKind": "method",
+      "methodIndex": 6698,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.UIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ea26c4f289c3482d845be815ad57b4991d224159295f6dc85d8e61fb5d84ea95",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.hookAccessibility",
+      "traitKind": "method",
+      "methodIndex": 6697,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "86561f287bfe4c759159c4b25d3e87755ad36f5e919d3f3624c2005b764720ce",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

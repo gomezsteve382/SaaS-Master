@@ -1,0 +1,822 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 154,
+  "className": "spark.components.supportClasses.ButtonBase",
+  "classNameNormalized": "spark.components.supportClasses.ButtonBase",
+  "superName": "spark.components.supportClasses.SkinnableComponent",
+  "superNameNormalized": "spark.components.supportClasses.SkinnableComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IFocusManagerComponent"
+  ],
+  "iinitMethod": 3195,
+  "cinitMethod": 3194,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "c6aa5d736d84d9c4abdb14a7ca018a32b607379b39da8d9e3feac088be16b485",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 33,
+    "codeSha256": "d31fc1209c018340766af207bf8226d72f2769fb173a3b9735579de3df6785fc",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "autoRepeat",
+      "traitKind": "getter",
+      "methodIndex": 3198,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "08262b670bf4ae3cf9bdf509e1c2bf680e257bfff8bb13b67e303cc568355257",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "autoRepeat",
+      "traitKind": "setter",
+      "methodIndex": 3199,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "9a69ec5d144e58d06fa8bdcf15ea7b3084205fc19b6533ad2b6d329c926e8aed",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "baselinePosition",
+      "traitKind": "getter",
+      "methodIndex": 3196,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "1dbbbb194482ceb801e41ed91c4d585d04245529df7b4c7c90a55cab75234d00",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "content",
+      "traitKind": "getter",
+      "methodIndex": 3200,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4aba7a10b73a38dabbaa6c89449591fb995b712a4fdd0febf8e0abeedec4342d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "content",
+      "traitKind": "setter",
+      "methodIndex": 3201,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "7025389b26737cae7007540f439b2b1b34acd6825b1dd9be706ee09e26b139ad",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.keepDown",
+      "traitKind": "method",
+      "methodIndex": 3204,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "17428572cf7e44a67abe5782cdbd57b465c1b1789089465ea850879f45790398",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "label",
+      "traitKind": "getter",
+      "methodIndex": 3208,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "c691a8fbc8bdd30a8c0f64edf0b326c34109520e53f10ed2e43f8892c93eea39",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "label",
+      "traitKind": "setter",
+      "methodIndex": 3207,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3ffa2614818512198dce60ad4cf6b9e3ebb516764f3ddd0df69f2596d5324c8a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSystemMouseHandlers",
+      "traitKind": "method",
+      "methodIndex": 3220,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "1a6d92c78bc4db3b6935c29ed6b6dc1b118b01cb470672b2584aee82d2d96a3e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.autoRepeat_timerDelayHandler",
+      "traitKind": "method",
+      "methodIndex": 3239,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "db143e90f7f24e439ff912114cd0a4dbff6c5aabaa4abc8dd8c056d8f6f70878",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.autoRepeat_timerHandler",
+      "traitKind": "method",
+      "methodIndex": 3240,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "320373933f2ee66731e5e52d78680533117580e27c6b3ac59ff384727a0abc47",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkAutoRepeatTimerConditions",
+      "traitKind": "method",
+      "methodIndex": 3224,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "087e9cb544337a27d923dd46fde903661abb5c80e00d7011959af1664878c59b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.invalidateButtonState",
+      "traitKind": "method",
+      "methodIndex": 3223,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "7d1bdcd53b268de4a6b3993c875ac9ee50bbb9309bc1d234adb1fdcb467fa50b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.isDown",
+      "traitKind": "method",
+      "methodIndex": 3222,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "09666b1a7846ff642e08785797a48e75a978369e3265ae3550abd26d841afadb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.labelDisplay_isTruncatedChangedHandler",
+      "traitKind": "method",
+      "methodIndex": 3243,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "a0a4770098332305a6da5bdc37bd9cf9f7d3eabea0ab2fe48bffd3594502560e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseDownSelectTimer_timerCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 3241,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9943ea921d0d9e75e7724ec1c7104ee43d42655c8f9d1d5156a03249c2f65126",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseUpDeselectTimer_timerCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 3242,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "50bcdc76c3a52eb1f77f9888450aee127e4f8e782e49d9ac94456fc3641c4bb6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeSystemMouseHandlers",
+      "traitKind": "method",
+      "methodIndex": 3221,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "99f7ce2aac7d731a95dcfc9ff67052b32bdc4207b385fbb1d38701209de97071",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.startAutoRepeatTimer",
+      "traitKind": "method",
+      "methodIndex": 3225,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "60b844c5f697736d2e656cbf9a2156cb059d032a6bcede9bd8e5d7529af9ab3e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.startDeselectButtonAfterDelayTimer",
+      "traitKind": "method",
+      "methodIndex": 3229,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "b45583455b0bdd304e79c575ead2c503febf860e1c882fc9cb7dc0dbe7fa4a90",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.startSelectButtonAfterDelayTimer",
+      "traitKind": "method",
+      "methodIndex": 3227,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "2cdd7dbc5567ebc2da6c08b8bcade104ecc37c037e1bd09d089090790b134400",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopAutoRepeatTimer",
+      "traitKind": "method",
+      "methodIndex": 3226,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "401e6b8b333f619313c7df6cf14b9a9d0f9047d47c9826868f696b1c74d49468",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopDeselectButtonAfterDelayTimer",
+      "traitKind": "method",
+      "methodIndex": 3230,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "c8b53f131c4eafb9ae2f4afa6d9e2547251617c52627e43dfbfd6e2e38078152",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopSelectButtonAfterDelayTimer",
+      "traitKind": "method",
+      "methodIndex": 3228,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "2576e0539c6a344c7d96f69d78eeb0338d11d40b81baf4c33ae54b6c45677a5d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.systemManager_mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 3238,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "37528102ce8f6c041b7ddb2ecd8ee5fbd7d600e3dede1f3f17c3a084052b77dc",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.touchInteractionStartHandler",
+      "traitKind": "method",
+      "methodIndex": 3235,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.TouchInteractionEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "a2c19d59c8d6b5d17a285c0994ea8a378e84a3371941d3c41e6fe59b0a5d8d25",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.addHandlers",
+      "traitKind": "method",
+      "methodIndex": 3219,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "add145591cbcd1d43a20fca179392958a0b1ef053571b93e104e694a90ff33ea",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.buttonReleased",
+      "traitKind": "method",
+      "methodIndex": 3231,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.clickHandler",
+      "traitKind": "method",
+      "methodIndex": 3237,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 3214,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "4eecfd9b8e7aabb94fbd21099a29159b522c6695c573ca51398de44c463781d7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.focusOutHandler",
+      "traitKind": "method",
+      "methodIndex": 3232,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "82f6e49d5c64ab67ed4181ddbfa68ca5f12f6ddf804ae6686793cb1e241f2725",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.getCurrentSkinState",
+      "traitKind": "method",
+      "methodIndex": 3217,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "a16a6308887a91d0efd81ee845062eb19556b0e2c9de95f28fb73f4bf9c0bcc3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.hovered",
+      "traitKind": "getter",
+      "methodIndex": 3202,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "321d7fb994c862aae26bd975e82caf94a65cdcd3d4e2707b299b4bebc6320c87",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.hovered",
+      "traitKind": "setter",
+      "methodIndex": 3203,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "ed99df3ecf53f76a7a04a3dfdc00a268e6b6d4d970facac2ed97cb69e5f3df21",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.initializeAccessibility",
+      "traitKind": "method",
+      "methodIndex": 3213,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "fdbed083ecdea35aa27cde40e600936033f11f51ec4620aad199165f2026b598",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.keyboardPressed",
+      "traitKind": "getter",
+      "methodIndex": 3205,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d8a948ca60130527ae7fee4426a0a7eedd1cb943fc3122bf42b2cb919ff92d23",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.keyboardPressed",
+      "traitKind": "setter",
+      "methodIndex": 3206,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "eb1710e2461fe68837cd9fa386eb756ad08e8803c65c2f5d980f6bbfacc0278e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.keyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 3233,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "44de12747d8a65f2bcafba9090c6b089859b151116ccfca283b041c92bf4226d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.keyUpHandler",
+      "traitKind": "method",
+      "methodIndex": 3234,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "8c87ca4042140dd8384facb743232550f44c8b021b268091e20a9cd02c297568",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.mouseCaptured",
+      "traitKind": "getter",
+      "methodIndex": 3209,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fd8b2c98f49139490a2550c84cf0f07690818c15aa39f678e0fe57c7597345b8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.mouseCaptured",
+      "traitKind": "setter",
+      "methodIndex": 3210,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "414a2dcfd4a2805f925096d4dd534aa8103a36e1193e531cf1d0254aef3c7784",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.mouseEventHandler",
+      "traitKind": "method",
+      "methodIndex": 3236,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 409,
+      "bytecode": {
+        "codeLength": 409,
+        "codeSha256": "e783ac8044458e248d2d71b3265956c691a1e6f7c5096ac6e798dd64df42ca22",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.partAdded",
+      "traitKind": "method",
+      "methodIndex": 3215,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "ae28fbf3c70a6569d97ddaf6ab7941eed91ea0eb3bc2594ce4b0f65ee00f01be",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.partRemoved",
+      "traitKind": "method",
+      "methodIndex": 3216,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "581c5ba36929eab469c96003cd2f7ac8c1090e2126b90193fd03264c0297c292",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ButtonBase.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 3244,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d73fdfd4a5b8e62cea3cbc2488fd1705798194b87fab017ff6b76381a1da3fe2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stickyHighlighting",
+      "traitKind": "getter",
+      "methodIndex": 3211,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "46f0bc3a8d6b3f85b6f51ceae486df16ed48addeea8c38bfb502040c0d4e0cb9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stickyHighlighting",
+      "traitKind": "setter",
+      "methodIndex": 3212,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "df7f42b9ffcc45ca4847344e7bffc03aa4f0bbd0650944301c4ec17d841b0d80",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 3218,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "68178d61f699c92ad226bc2e3fa8e4ea761057ebdae665a54dc0b8f1c962c928",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "toolTip",
+      "traitKind": "setter",
+      "methodIndex": 3197,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "320c240d5a0b619961191318a3eb3fd167d3280b3ac883b43335de0c8b3e9edb",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

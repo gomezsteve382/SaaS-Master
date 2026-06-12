@@ -1,0 +1,557 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 772,
+  "className": "com.chrysler.cda.application.start.StartCDAVehicleModeCommand",
+  "classNameNormalized": "com.chrysler.cda.application.start.StartCDAVehicleModeCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 14880,
+  "cinitMethod": 14845,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "ef4fb03e91f79e90195b76c5cc563d7944a534a5adccbc6693494272069d735c",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "7cf6aa4c8aa45be5025e3d634e02a464989f1cdc0616bfe42200f6bd218657da",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 14875,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "322ab27f8c75db96fa87d019e07ddaf17b58618ce91bf315ad0750789204797b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 14873,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "919b6b08f9825f5363dbbb9d65772951538af15eeaaea6f158bdeda2003cefca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 14874,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a9156820ec77e90e5444398369c731d9d2662af00ca2cf27709090b4d7183dc1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.start:StartCDAVehicleModeCommand.vehicleModeDispatches",
+      "traitKind": "method",
+      "methodIndex": 14869,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "4598ce004789c2e16b9d76242ef757f25ce749c1dd25fad7230574357f536771",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "determineProxiSettings",
+      "traitKind": "method",
+      "methodIndex": 14860,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "a6b0c4d72b445ba29de59004378718f96d1f29b316f6538ec7c1b48d1c46a90c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 14876,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "3f75296f7c8d028d8318f460ac7e3326fc9587fae4358671160ba9de7db19e59",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 14877,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "a78ab7af6ea8ee44553b9769116b016be03f01c3141c0f5aca56146eeb2a3787",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 14871,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "213a06758b7aebce83e2b09de04285d1b8c7158848b7bdcd85bd43ef6a60eacb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 14872,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0b331987ae0ee87f89407e7c78cb8ed5c71f82bae7dcaa155477aef2d0675981",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onConfirmVerificationError",
+      "traitKind": "method",
+      "methodIndex": 14868,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "64be0160f901fa3956ff35650c3857e7a9700e3c87602a98fa29a7d98f1d0c79",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onConfirmVerificationSuccess",
+      "traitKind": "method",
+      "methodIndex": 14867,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 580,
+      "bytecode": {
+        "codeLength": 580,
+        "codeSha256": "b627f6ae73bdea30b38f0fd385a1ce00eba62695aeca912f2f19df3bf8b0b37b",
+        "bytecodeLineCount": 37
+      }
+    },
+    {
+      "traitName": "onDetermineProxiSettingsError",
+      "traitKind": "method",
+      "methodIndex": 14862,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "10f34b034cef6358bc2cd2a1a8162eecea70e33f34be56d328ad6aec24424c88",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onDetermineProxiSettingsResult",
+      "traitKind": "method",
+      "methodIndex": 14861,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "d3e5572fa102507224d088ac789e5d2eb346df293444bf8735677bd0c490f251",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindYearBodyInfo",
+      "traitKind": "method",
+      "methodIndex": 14847,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "736febff74b323dc17b91e061816129393d33a68adf30e8b21147604d4211e1f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onFindYearBodyInfoRetry",
+      "traitKind": "method",
+      "methodIndex": 14851,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "736febff74b323dc17b91e061816129393d33a68adf30e8b21147604d4211e1f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onFindYearBodyInfoWithYearBody",
+      "traitKind": "method",
+      "methodIndex": 14848,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "9937c7ab20cc7a71a7049ecce72521cecd17cab0bec0334f11dd5179177f49f2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onGetVin",
+      "traitKind": "method",
+      "methodIndex": 14863,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "dc1afc75a4b03364c5bbd55099358f82e48c7a3e25ca5ec467d6285c7dae85e3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onGetYBList",
+      "traitKind": "method",
+      "methodIndex": 14854,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "c95a31eff80cd38fd2db73cb72da81a014a88fb4774ea7149b8570d5f5e96e8d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onInitializeWDEVehicleMode",
+      "traitKind": "method",
+      "methodIndex": 14870,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "847115df4faea1e2292c30cf06064806710994604ee0ebb29b95acce4bbf5ef6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 14878,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "1049a97f761f6dbecd9ccb43f309add185c5b0cb7bd431f711e527c4247c4bef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "startCDA",
+      "traitKind": "method",
+      "methodIndex": 14846,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "a9b3985fd4fcfd6ce1fa3dd3b76c9c1e313f0d94da93ba811b892a1894e9e7bf",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "vinMessageError",
+      "traitKind": "method",
+      "methodIndex": 14865,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 120,
+      "bytecode": {
+        "codeLength": 120,
+        "codeSha256": "4d003e774b1b7d880eb836169e89a003847a6726cfaf051f2ad71988c7aa9cc0",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "vinMessageResult",
+      "traitKind": "method",
+      "methodIndex": 14864,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "bbf9ce37f8bb8ca0fd18bdf4fbbfad108f80a6f68e1b20ff61aeb0c9c7703ad7",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 14879,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "9b180d90cfacb9dbd53fa019b3bd6ae7ab7e9fe090a0da9491756b9bfbb92aa0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "YBListMessageError",
+      "traitKind": "method",
+      "methodIndex": 14859,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "3b515c688c4040d5531799d6b80de7679e11a841d57f3f49eda5c52c4840a245",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "YBListMessageResult",
+      "traitKind": "method",
+      "methodIndex": 14858,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 338,
+      "bytecode": {
+        "codeLength": 338,
+        "codeSha256": "42d55651586c080bee550e27ce54921cb7e91fe123909f0f7441d83e7de51c1f",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "yearBodyMessageError",
+      "traitKind": "method",
+      "methodIndex": 14850,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 140,
+      "bytecode": {
+        "codeLength": 140,
+        "codeSha256": "ce719ee5379d4e730d1bf1e93d3a5e55518aacd147243297bc47b5eebdd6d473",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "yearBodyMessageResult",
+      "traitKind": "method",
+      "methodIndex": 14849,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 114,
+      "bytecode": {
+        "codeLength": 114,
+        "codeSha256": "185db0a297cfbfc85ef7d7aa281ddf07a9df2dfbf048a4f5aeaada200c9e5f48",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "yearBodyRetryMessageError",
+      "traitKind": "method",
+      "methodIndex": 14853,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "3458ae6a51ffa0fb22f76a2daf85fec058c13868cc6134e6ae85c34a70d8176d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "yearBodyRetryMessageResult",
+      "traitKind": "method",
+      "methodIndex": 14852,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.start.StartCDAMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "f93fb8bd409d497669928018bf60af63adb896cecd1f5fba55fda00ce1b5dc29",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,48 @@
+{
+  "playbooks": [
+    {
+      "id": "workspace_audit",
+      "name": "Workspace Audit",
+      "description": "Inspect the workspace, summarize important files, and produce an execution note.",
+      "inputs": [
+        "objective"
+      ],
+      "steps": [
+        {
+          "id": "inspect",
+          "title": "Inspect workspace",
+          "agentId": "operator",
+          "message": "inspect this workspace for {{objective}}"
+        },
+        {
+          "id": "summarize",
+          "title": "Summarize findings",
+          "agentId": "empire_architect",
+          "message": "Using the prior result, create a focused execution summary. Prior result: {{previousResult}}"
+        }
+      ]
+    },
+    {
+      "id": "developer_build_loop",
+      "name": "Developer Build Loop",
+      "description": "Scan a workspace, plan a software change, and prepare approved build actions.",
+      "inputs": [
+        "objective"
+      ],
+      "steps": [
+        {
+          "id": "scan",
+          "title": "Scan repo",
+          "agentId": "developer",
+          "message": "scan repo for {{objective}}"
+        },
+        {
+          "id": "plan",
+          "title": "Create build plan",
+          "agentId": "developer",
+          "message": "Using the prior result, create a software build plan for {{objective}}. Prior result: {{previousResult}}"
+        }
+      ]
+    }
+  ]
+}

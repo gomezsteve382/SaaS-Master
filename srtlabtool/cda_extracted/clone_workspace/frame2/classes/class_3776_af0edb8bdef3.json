@@ -1,0 +1,123 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3776,
+  "className": "memorphic.xpath.parser.XPathTokenizer",
+  "classNameNormalized": "memorphic.xpath.parser.XPathTokenizer",
+  "superName": "memorphic.parser.Tokenizer",
+  "superNameNormalized": "memorphic.parser.Tokenizer",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56082,
+  "cinitMethod": 56079,
+  "iinitBytecode": {
+    "codeLength": 232,
+    "codeSha256": "f469c6d22a5ffb76b998bf4e816f1f285f967db8771d982ad3c837fd83114c74",
+    "bytecodeLineCount": 15
+  },
+  "cinitBytecode": {
+    "codeLength": 171,
+    "codeSha256": "170e2b43cabe97897e6e370d178f7fbd4a97c56d9472b556cf166dbd7d5baaa1",
+    "bytecodeLineCount": 11
+  },
+  "instanceMembers": [
+    {
+      "traitName": "memorphic.xpath.parser:XPathTokenizer.createToken",
+      "traitKind": "method",
+      "methodIndex": 56084,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.TokenPattern",
+        "String",
+        "int",
+        "memorphic.parser.Token"
+      ],
+      "returnType": "memorphic.parser.Token",
+      "hasBody": true,
+      "codeLength": 390,
+      "bytecode": {
+        "codeLength": 390,
+        "codeSha256": "580d841cada9ed571727edf9246596d60e3cea1b38b18fc206a9dbdb8a2c9b8e",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "PrivateNs.isExprToken",
+      "traitKind": "method",
+      "methodIndex": 56083,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 260,
+      "bytecode": {
+        "codeLength": 260,
+        "codeSha256": "a5f5ad987becd08a0d956af64129c854cbf17627a8b40535d4b3536005b9fbbb",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.resolveNCName",
+      "traitKind": "method",
+      "methodIndex": 56085,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int"
+      ],
+      "returnType": "memorphic.parser.Token",
+      "hasBody": true,
+      "codeLength": 377,
+      "bytecode": {
+        "codeLength": 377,
+        "codeSha256": "6448de94c8e56e656eb7fffc6a770b70ffc38d4e0237a584512b64f3cfdda463",
+        "bytecodeLineCount": 24
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.isFunctionName",
+      "traitKind": "method",
+      "methodIndex": 56080,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "c6d2a57c2c2b3a2815fdfd024e7ec263c850950c9619532cff1b1df811468d2b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.tokenMayPrecedeOperator",
+      "traitKind": "method",
+      "methodIndex": 56081,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.Token"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 226,
+      "bytecode": {
+        "codeLength": 226,
+        "codeSha256": "54cd8bcabcacaa763a9766b709a097f27d7a3e55a0b7e0ab9bbc63502f1145ad",
+        "bytecodeLineCount": 15
+      }
+    }
+  ]
+}

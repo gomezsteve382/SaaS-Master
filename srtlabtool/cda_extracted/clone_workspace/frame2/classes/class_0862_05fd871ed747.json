@@ -1,0 +1,84 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 862,
+  "className": "com.chrysler.cda.application.QuickBarCommand",
+  "classNameNormalized": "com.chrysler.cda.application.QuickBarCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 17125,
+  "cinitMethod": 17124,
+  "iinitBytecode": {
+    "codeLength": 294,
+    "codeSha256": "1fb6929c2007215c00c823b8b883955e53b58a6e6b3cb6be58fbcedf42a8092c",
+    "bytecodeLineCount": 19
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application:QuickBarCommand.dispatchWindowMessage",
+      "traitKind": "method",
+      "methodIndex": 17128,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "6b0bb649cef1790157cbccbf3765835e22cebd38568d1e674ac4849d1f863e3d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application:QuickBarCommand.quickBarMessageHandlerForPopups",
+      "traitKind": "method",
+      "methodIndex": 17127,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.QuickBarMessage"
+      ],
+      "returnType": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "c1ccd2870ed0695ad8ebccbbf77b4027d9593afc93d85b72e5dc7a7e4e89ec64",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "quickBarMessageHandler",
+      "traitKind": "method",
+      "methodIndex": 17126,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.QuickBarMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 238,
+      "bytecode": {
+        "codeLength": 238,
+        "codeSha256": "0247ae6280f48ea8dd992e1241cc230e762707eeaff64f518c5ada1f3d37c9d7",
+        "bytecodeLineCount": 15
+      }
+    }
+  ],
+  "staticMembers": []
+}

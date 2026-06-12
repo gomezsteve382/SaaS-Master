@@ -1,0 +1,212 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2945,
+  "className": "org.spicefactory.parsley.dsl.core.MethodBuilder",
+  "classNameNormalized": "org.spicefactory.parsley.dsl.core.MethodBuilder",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 47537,
+  "cinitMethod": 47520,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.command",
+      "traitKind": "method",
+      "methodIndex": 47530,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageHandlerBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.commandComplete",
+      "traitKind": "method",
+      "methodIndex": 47533,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageReceiverBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.commandError",
+      "traitKind": "method",
+      "methodIndex": 47531,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageReceiverBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.commandResult",
+      "traitKind": "method",
+      "methodIndex": 47532,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageReceiverBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.destroyMethod",
+      "traitKind": "method",
+      "methodIndex": 47528,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.factory",
+      "traitKind": "method",
+      "methodIndex": 47526,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.initMethod",
+      "traitKind": "method",
+      "methodIndex": 47527,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.injectAllByType",
+      "traitKind": "method",
+      "methodIndex": 47521,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.injectById",
+      "traitKind": "method",
+      "methodIndex": 47523,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.MethodBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.injectByType",
+      "traitKind": "method",
+      "methodIndex": 47522,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.MethodBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.injectFromDefinition",
+      "traitKind": "method",
+      "methodIndex": 47524,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.DynamicObjectDefinition"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.MethodBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.messageError",
+      "traitKind": "method",
+      "methodIndex": 47534,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageErrorBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.messageHandler",
+      "traitKind": "method",
+      "methodIndex": 47535,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageHandlerBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.messageInterceptor",
+      "traitKind": "method",
+      "methodIndex": 47536,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageReceiverBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.observe",
+      "traitKind": "method",
+      "methodIndex": 47529,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.lifecycle.ObserveMethodBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.dsl.core:MethodBuilder.value",
+      "traitKind": "method",
+      "methodIndex": 47525,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.MethodBuilder",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

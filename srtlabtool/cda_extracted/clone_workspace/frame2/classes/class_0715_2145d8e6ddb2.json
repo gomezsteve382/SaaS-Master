@@ -1,0 +1,109 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 715,
+  "className": "flashx.textLayout.operations.CutOperation",
+  "classNameNormalized": "flashx.textLayout.operations.CutOperation",
+  "superName": "flashx.textLayout.operations.FlowTextOperation",
+  "superNameNormalized": "flashx.textLayout.operations.FlowTextOperation",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 14106,
+  "cinitMethod": 14105,
+  "iinitBytecode": {
+    "codeLength": 22,
+    "codeSha256": "0c8661adae96ee5fcc2040c7944b435c3018cf10942745f0f268f8e32c3b86f3",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "doOperation",
+      "traitKind": "method",
+      "methodIndex": 14107,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "4f1219bf5494c51557b9dd41a9d624f1f6349c39c302b771a33e95b542f71e54",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 14109,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "0ae6a60bd2cf2ad7b8d224e6278d1c886e95258f1d6575871d4bb3a405c76e60",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "scrapToCut",
+      "traitKind": "getter",
+      "methodIndex": 14110,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.TextScrap",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "cc3bfb79d8a4ce508f3b025d5d3c8a16a6f4c5b18dbd8cf9fa74d6c2f9d05b08",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "scrapToCut",
+      "traitKind": "setter",
+      "methodIndex": 14111,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.TextScrap"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "23362c3fe7c56bedd75d7aa155478fd97dcaae6c945c1cd51c9e0f450f52963c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 14108,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "e7a7a6c3ecbe545c97426d7c1d52f9166ca85c4039b7cfdebb13bcd34153390c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

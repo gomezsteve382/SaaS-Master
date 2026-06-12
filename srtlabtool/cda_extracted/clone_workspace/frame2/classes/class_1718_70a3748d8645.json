@@ -1,0 +1,236 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1718,
+  "className": "org.spicefactory.parsley.core.registry.ObjectDefinitionRegistry",
+  "classNameNormalized": "org.spicefactory.parsley.core.registry.ObjectDefinitionRegistry",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 33667,
+  "cinitMethod": 33649,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.builders",
+      "traitKind": "getter",
+      "methodIndex": 33663,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.builder.ObjectDefinitionBuilderFactory",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.containsDefinition",
+      "traitKind": "method",
+      "methodIndex": 33653,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.context",
+      "traitKind": "getter",
+      "methodIndex": 33661,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.context.Context",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.createObjectProvider",
+      "traitKind": "method",
+      "methodIndex": 33665,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.core.context.provider.ObjectProvider",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.decoratorAssemblers",
+      "traitKind": "getter",
+      "methodIndex": 33666,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.domain",
+      "traitKind": "getter",
+      "methodIndex": 33650,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.system.ApplicationDomain",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.freeze",
+      "traitKind": "method",
+      "methodIndex": 33659,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.frozen",
+      "traitKind": "getter",
+      "methodIndex": 33660,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.getAllDefinitionsByType",
+      "traitKind": "method",
+      "methodIndex": 33656,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.getDefinition",
+      "traitKind": "method",
+      "methodIndex": 33654,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinition",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.getDefinitionByType",
+      "traitKind": "method",
+      "methodIndex": 33655,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinition",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.getDefinitionCount",
+      "traitKind": "method",
+      "methodIndex": 33651,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "uint",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.getDefinitionIds",
+      "traitKind": "method",
+      "methodIndex": 33652,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.properties",
+      "traitKind": "getter",
+      "methodIndex": 33662,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.ConfigurationProperties",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.registerDefinition",
+      "traitKind": "method",
+      "methodIndex": 33657,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.scopeManager",
+      "traitKind": "getter",
+      "methodIndex": 33664,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.scope.ScopeManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.registry:ObjectDefinitionRegistry.unregisterDefinition",
+      "traitKind": "method",
+      "methodIndex": 33658,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

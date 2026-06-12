@@ -1,0 +1,620 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2220,
+  "className": "wde.common.services.impl.AbstractService",
+  "classNameNormalized": "wde.common.services.impl.AbstractService",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "wde.common.services.IService",
+    "wde.common.logging.ILoggable"
+  ],
+  "iinitMethod": 39951,
+  "cinitMethod": 39914,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "45ff13c4d78f5259b867db006bbf8da8de9b12dc3c680f83709a8f5100839426",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 50,
+    "codeSha256": "db80aab4d85c7ed6c7c99121267d3c31078cb3cc4447d2e0163f0ae317574927",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addArgument",
+      "traitKind": "method",
+      "methodIndex": 39934,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IServiceArgument"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "5936193e082104c230ee8fa2e18f6022497a1ae16c3885dd4eec25dd3f136355",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "close",
+      "traitKind": "method",
+      "methodIndex": 39944,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.error.ServiceFault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "0f94e362cf58e4d3ffb689fd792fc1e7580e093928fc27228982d231f2f86c54",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataType",
+      "traitKind": "getter",
+      "methodIndex": 39922,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ea37e9d1f40c58542b272a9c53dbf2d9b5e50bbfed13c8f06c7f8ee014007380",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataType",
+      "traitKind": "setter",
+      "methodIndex": 39923,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "ca9b28e625d79eee34871f7481e6844a518c2335f2016cc988c9473c6c1ca89f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getArgumentByAltKeys",
+      "traitKind": "method",
+      "methodIndex": 39939,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "wde.common.services.IServiceArgument",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "c45fd615a9414cccfd189677e140cfa07a585813187ac0cee2342e976c5aad3d",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "getArguments",
+      "traitKind": "method",
+      "methodIndex": 39941,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.Dictionary",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f9c81a6cb5ad67afdbcf5442bd7bc4d53f4bb05bf0f212d323fb0c363fe3481a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getArgumentValue",
+      "traitKind": "method",
+      "methodIndex": 39936,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "7589881c6430d3f1c3e119be40fc6f8be3e45953d343fd53808617ba4c2ce1ce",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "hasArgument",
+      "traitKind": "method",
+      "methodIndex": 39937,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "b60d87ddf3e1b3c0ad3411c794262a9c773238e848363f0eae9d915486c4e4ce",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasPasswordInURL",
+      "traitKind": "getter",
+      "methodIndex": 39931,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3f61405ba8221389f80424f2d9a1af8516cc899e8d3482e125ca3d8071d6fec4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasPasswordInURL",
+      "traitKind": "setter",
+      "methodIndex": 39930,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "195c7894146a09a53469b7439ad19aacaeacae9813d30206d7355a9778868676",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "host",
+      "traitKind": "getter",
+      "methodIndex": 39918,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2874e47feea7920f3bb410b41e2c07e3eb86f0e480d16b981e03ac78866cafe9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "host",
+      "traitKind": "setter",
+      "methodIndex": 39919,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "964193302f1947b9c6b6f0403fa9429eb321a500a3cade32be1187f5a46b5290",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "logger",
+      "traitKind": "getter",
+      "methodIndex": 39915,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "ea97ee3aae8cdbef9bdab532213cde3a807b0764fd6b2f2b1d664b69e58565c1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "name",
+      "traitKind": "getter",
+      "methodIndex": 39924,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7e4d88b973af4846d5775fe66f9a28303e70c1577430a8ca27c8955e229a7759",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "name",
+      "traitKind": "setter",
+      "methodIndex": 39925,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "9839acceec2668633a38deea4a33c2184b5792fa24a8da79e0b09df39c03b84f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "open",
+      "traitKind": "method",
+      "methodIndex": 39943,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "parseData",
+      "traitKind": "method",
+      "methodIndex": 39947,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 264,
+      "bytecode": {
+        "codeLength": 264,
+        "codeSha256": "41c77deedcec888ff676b918d1bd0471034f5d4d155f4f370273d696a22b6a81",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "port",
+      "traitKind": "getter",
+      "methodIndex": 39920,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b7d32cd8b91524abf0415e3566f13a0a55181abb5b8dc720d36589ec9f126a37",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "port",
+      "traitKind": "setter",
+      "methodIndex": 39921,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f4a7cbb0a12d3d09a4ab7faacdc6311b719a15508a4beae175b6d82190a600c3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.throwNoArgumentsError",
+      "traitKind": "method",
+      "methodIndex": 39940,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "500c13b4e750ad68e934d592eb2cc8010aaa24657ad9d94d27648cc46a9e49bf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "propogateFault",
+      "traitKind": "method",
+      "methodIndex": 39945,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.Fault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "105f7ea74c482cd3679a1b80c7d16e67ea1d3026878e2cb5fb2422ab5ac3135a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "propogateResult",
+      "traitKind": "method",
+      "methodIndex": 39946,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "70270e78af9a225efba5126fc4102d87a6ccda4a774a9edd7955fe6234e85f5e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "protocol",
+      "traitKind": "getter",
+      "methodIndex": 39916,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ee675caa5d6d477d0a9644660c3c9e23553e6baa2d46fa81562091c017b76b0b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "protocol",
+      "traitKind": "setter",
+      "methodIndex": 39917,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "8ee6a574d0ee1295232ebe362dda6d09cefd62209dcee1887aa8f50ffebd8316",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeArgument",
+      "traitKind": "method",
+      "methodIndex": 39935,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "e1590ba8efa41b04a71b17a2608f3186bc53e799c36e57b69f58537c20bf416f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resolveURL",
+      "traitKind": "method",
+      "methodIndex": 39932,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "69556f3b28305804e472a2e36094da8ef692d080a97b3a54747782956dfc8ec4",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "resultContentType",
+      "traitKind": "getter",
+      "methodIndex": 39926,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "874dae37aabdb67b44177d3d3ea3c9b0355ae42864cd99733dbb7c2708c575e0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resultContentType",
+      "traitKind": "setter",
+      "methodIndex": 39927,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "c9eef7696547e02ccd8e5cf85400bad6152c4080734722d75f9984a150572385",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 39942,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serviceURI",
+      "traitKind": "getter",
+      "methodIndex": 39928,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e7bead290d3bfd2674694e83d729626bd22bd9762492994c94f6ffc8cb976f2a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serviceURI",
+      "traitKind": "setter",
+      "methodIndex": 39929,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "93364e7d0949274b48dd34cbbcf6b9594ece6d3a6254792294a79ec23b93897f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setArgumentValue",
+      "traitKind": "method",
+      "methodIndex": 39938,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "55ac8a7fa12940b9e9591cc8e0700cbc58cad862a27e981f963c9d18d06b68ee",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:AbstractService.parseJSON",
+      "traitKind": "method",
+      "methodIndex": 39949,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "840ef51120ea1b4186139149b1cb7bd0f91122bdd527baf898c85c74f4e03822",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:AbstractService.parseXML",
+      "traitKind": "method",
+      "methodIndex": 39948,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 204,
+      "bytecode": {
+        "codeLength": 204,
+        "codeSha256": "508d4b7c81ebba0fa4862731fec2cc197a321d2423bf0260e93fc997f1264344",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:AbstractService.replaceArguments",
+      "traitKind": "method",
+      "methodIndex": 39933,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 300,
+      "bytecode": {
+        "codeLength": 300,
+        "codeSha256": "ad99c0735c0421dae0c7c3e9c27005f9e775e908aa5c9169aafe4e5b9fb68cc9",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:AbstractService.throwAndLogError",
+      "traitKind": "method",
+      "methodIndex": 39950,
+      "methodName": "",
+      "paramTypes": [
+        "Error"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "9823c4884f172bccda5c5e0ea12c8e03398576dc714c37ee37d355c6d977cae0",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

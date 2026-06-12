@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2032,
+  "className": "com.chrysler.cda.domain.discovery.ConfigurationStatusVO",
+  "classNameNormalized": "com.chrysler.cda.domain.discovery.ConfigurationStatusVO",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 37606,
+  "cinitMethod": 37605,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "5716ca441981fb2a45b640dece0be21c251fb893a31f82b42cf1a02e0c1881dc",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addError",
+      "traitKind": "method",
+      "methodIndex": 37608,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "36b4458f89110eb0c09ca80371f775e11b9583f4ac56d1b708c37bdb98e44397",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "errors",
+      "traitKind": "getter",
+      "methodIndex": 37609,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b30784bf1e45b44a07b6eabf2937cd2471ff6a911c0b3760a471a890f6154a8d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isSuccessful",
+      "traitKind": "method",
+      "methodIndex": 37607,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a0142f4ce75d91001f2c953c3c710be346a90efc6c1a2fcd7df0dee245fc6e86",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.set",
+      "traitKind": "method",
+      "methodIndex": 37610,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "98dafe58f112ede18f0de407f8edfa26e66a1bcea1886132a0e15d522eecca6b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

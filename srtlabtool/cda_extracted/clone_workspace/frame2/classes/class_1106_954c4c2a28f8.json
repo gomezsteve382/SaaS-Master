@@ -1,0 +1,416 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1106,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager.FlashLogManagerPM",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager.FlashLogManagerPM",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 24032,
+  "cinitMethod": 24008,
+  "iinitBytecode": {
+    "codeLength": 36,
+    "codeSha256": "053193e3991839b45b9668f398d55b310807ff31acb83741419033618527441b",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "activeFileContents",
+      "traitKind": "getter",
+      "methodIndex": 24023,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3a28b32ec921a1cf3d8c52d34826d224b20d4dfbf8592ab90d3e1c205cffc5ed",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "activeFileContents",
+      "traitKind": "setter",
+      "methodIndex": 24024,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "fcda3555aab82f7074f86085db78ed444920ffaf2a5627451d3d7e94c1f12e09",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "activeFileName",
+      "traitKind": "getter",
+      "methodIndex": 24025,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3d5eb2ac9c696cb55b0e14669aa816728ff15a67e8438afa0d93725d44a7ba90",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "activeFileName",
+      "traitKind": "setter",
+      "methodIndex": 24026,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "c80285bc50c049dad9f1b056f9d48034cee56668d4772279e7d1b696221fe40e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 24027,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "fd424970e380bbc0361963be254b76478d82d9a2f252149068dd9fca2be294d1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "addFilesFromDir",
+      "traitKind": "method",
+      "methodIndex": 24010,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "flash.filesystem.File"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "320679addc9a0d6764922929822566c7a7081838e5afacbd61da9d2befacf102",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "clearState",
+      "traitKind": "method",
+      "methodIndex": 24009,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "b94dbd9bb213e232c833d62118ff71a2d5b2d8e684bb55548c56676e54ab5375",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager:FlashLogManagerPM.prepareCollection",
+      "traitKind": "method",
+      "methodIndex": 24016,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "54c83218c994284062af4687f3f7b3e3a43f97a140869a567c4b8c72ef887383",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager.flashLogsFilterFunction",
+      "traitKind": "method",
+      "methodIndex": 24020,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "0e373ddd8c481ff1482855ace43545f64e23e9daeea0984e1d5e7a9ed00795d4",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager.locationCancelled",
+      "traitKind": "method",
+      "methodIndex": 24018,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "32cf5b26e23b2c52a3aacdaddcaeef3fa885779b208995d7f47897d732a0f415",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager.locationSelected",
+      "traitKind": "method",
+      "methodIndex": 24017,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "8902ec3964d785293e1812c2f02f58e038c45f00287911d5989c97c65f4f8807",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.flashLogManager.removeEventListeners",
+      "traitKind": "method",
+      "methodIndex": 24019,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "0f03205b7b20461532354affa2a5858e7c66f9dcdee693baaddecac469880760",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "deleteFlashFile",
+      "traitKind": "method",
+      "methodIndex": 24015,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "dd6a4690f2308d44e6e8dcf7e7a01f814aaa9b78c031070a062102f11f30c1b7",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 24028,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "10d03ba166350db8bba936596e42d6cdf6c0dd904dbb24e6d381315a6c68a4c3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashFiles",
+      "traitKind": "getter",
+      "methodIndex": 24021,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b4b21025ae918fb4b78b93ddc47a443c167574cb77d0ca9c633cff580080acd3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashFiles",
+      "traitKind": "setter",
+      "methodIndex": 24022,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "2b8e85cbba0815a84b08e54f01648eac7eddcdefd5bc174524589699fcc0b199",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getAllCurrentFlashLogs",
+      "traitKind": "method",
+      "methodIndex": 24011,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 176,
+      "bytecode": {
+        "codeLength": 176,
+        "codeSha256": "16f139ae9c89af5a846e01573009a2f10cc4c1f8db5116a7dcf72f522d4f72d4",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 24029,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "e13538d8296e7d8ddbbce7ac6d8382bab10931d29d468a1c6da500d39e05d9dc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "loadUpActiveFileContents",
+      "traitKind": "method",
+      "methodIndex": 24012,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 142,
+      "bytecode": {
+        "codeLength": 142,
+        "codeSha256": "3aefa4c942516c869c9e599277c72fe00947da1f2b58682dd36755bb65d3493e",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 24030,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "563493a5b1c115439e01e54c719464d828fbae9d67082eef475486ced76a4899",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "saveAs",
+      "traitKind": "method",
+      "methodIndex": 24013,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "121ca361f7a4ebd84a9a6ac3c17abea7b88f568742cda6984cdc8585df2f2db5",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "updateFilter",
+      "traitKind": "method",
+      "methodIndex": 24014,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "6ef56be86369c774e28aaf956299b670ea0a6ba3d483bfa050034f5f7dc72db2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 24031,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "a32fb8bf957dadde0ea1e0fe10468bed9fc7b004d1cd3e463bb06c9d61e7fad2",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

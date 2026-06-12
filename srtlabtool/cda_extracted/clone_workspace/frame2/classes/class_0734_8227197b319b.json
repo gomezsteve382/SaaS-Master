@@ -1,0 +1,771 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 734,
+  "className": "spark.components.supportClasses.ScrollBarBase",
+  "classNameNormalized": "spark.components.supportClasses.ScrollBarBase",
+  "superName": "spark.components.supportClasses.TrackBase",
+  "superNameNormalized": "spark.components.supportClasses.TrackBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 14290,
+  "cinitMethod": 14289,
+  "iinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "2f20053fbadba39cfb05ee4c020b6929d692333f145ab5dbe2dbb7f68502ed7b",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 94,
+    "codeSha256": "e0f5bd0280aefe6fbf6f68e83252fdd1e522bbf85ed45a79875359f224c585b6",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [
+    {
+      "traitName": "changeValueByPage",
+      "traitKind": "method",
+      "methodIndex": 14311,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 120,
+      "bytecode": {
+        "codeLength": 120,
+        "codeSha256": "18a18f8da67b1a075b85ef8214ad252d7da41dea69b953be702d71596046750b",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewportContentHeightChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 14315,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewportContentWidthChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 14314,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewportHorizontalScrollPositionChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 14316,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewportResizeHandler",
+      "traitKind": "method",
+      "methodIndex": 14313,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.ResizeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewportVerticalScrollPositionChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 14317,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "maximum",
+      "traitKind": "setter",
+      "methodIndex": 14293,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "cdd1163bc758b3410dbc39eb7fd2f33caab8f61fcfd7269ad52dc0a33940f4a9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "minimum",
+      "traitKind": "setter",
+      "methodIndex": 14292,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "428394ae3aa30af3ab847cd59b54c8742ac770745e8482956cd399ff6057860c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "pageSize",
+      "traitKind": "getter",
+      "methodIndex": 14296,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fe6f0b3d6b3dd204bd1485b68878a221806b41b82f034e8ad11abe9e8a6ebad7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pageSize",
+      "traitKind": "setter",
+      "methodIndex": 14297,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "6522ae7ddc6cc76523c2c2f6b7b96993f7956e77388c8beaf79ce5472649b25e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.animationEndHandler",
+      "traitKind": "method",
+      "methodIndex": 14325,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.Animation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "306080b3a6178111832b66ac44f33029a75a2d17dc481406752b1af659dc519d",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.animationUpdateHandler",
+      "traitKind": "method",
+      "methodIndex": 14324,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.Animation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "742581a489405b3e4e82ec9ad490cf6852a153997cb63972b3424d69ce6b904c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.animator",
+      "traitKind": "getter",
+      "methodIndex": 14291,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.animation.Animation",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "000928944468350c4e14e427bc562ce63635eef27a3caa786a1213919d39dc3f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.button_rollOutHandler",
+      "traitKind": "method",
+      "methodIndex": 14333,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "25eb07d8776efd9c42fd5a31d7da0ca54c79676e7747b8c479b472a429745141",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.button_rollOverHandler",
+      "traitKind": "method",
+      "methodIndex": 14332,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "619683bf894be232cf51e773d641b8d0090ef446ee6986c8b150878eb451e226",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.nearestValidSize",
+      "traitKind": "method",
+      "methodIndex": 14303,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "4c70f4876c66ef7f841992c0bd474a202adacba94630c15816c9b9ae95082442",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.startAnimation",
+      "traitKind": "method",
+      "methodIndex": 14302,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "spark.effects.easing.IEaser",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "ab5c921b375990a785a656ffc5f390c5d611ce73b50f70f72be3a23dddc83099",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopAnimation",
+      "traitKind": "method",
+      "methodIndex": 14326,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "c5be7dde268e91b96a89941e46dd4b6965e55ae5cde0fbc6f4096dfe1b43598a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.track_mouseMoveHandler",
+      "traitKind": "method",
+      "methodIndex": 14328,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "b90ac7f44bdc05d8687e2e40dbc8e6ce7846a4599180bc801cfb0981c47bf333",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.track_mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 14329,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 228,
+      "bytecode": {
+        "codeLength": 228,
+        "codeSha256": "87485e7c764d9a2a12c1442553b6fb6c19468784ba4e98f1c60ef920669ef8b1",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.track_rollOutHandler",
+      "traitKind": "method",
+      "methodIndex": 14331,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "435e0de1602d3855a5255838321d8e887fcd680a49a438607213b3ce6f8a689d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.track_rollOverHandler",
+      "traitKind": "method",
+      "methodIndex": 14330,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "c28b7dac05bb0c1cd358e562d173fec27f4526beebf1a5a4a947201ada0e9e8b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.trackScrollTimerHandler",
+      "traitKind": "method",
+      "methodIndex": 14327,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 415,
+      "bytecode": {
+        "codeLength": 415,
+        "codeSha256": "17f55b5c357ed8ee01378d59e969797d641e844ed90e41a918b6930283b778ec",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "PrivateNs.viewport_propertyChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 14312,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "249a99b6ab3ca47ed4f2223a99b9ab7b80ca86f7ddf63f0c9f33f6fd49cdc7f0",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "snapInterval",
+      "traitKind": "setter",
+      "methodIndex": 14294,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4dcea836451d275922b06784634ff91aecee684de7542ea22a159917e8818eef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.animatePaging",
+      "traitKind": "method",
+      "methodIndex": 14322,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "2aac2da457849508194576c162502d1744d7186984bab6853f58d5397c4de9bd",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.animateStepping",
+      "traitKind": "method",
+      "methodIndex": 14323,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 139,
+      "bytecode": {
+        "codeLength": 139,
+        "codeSha256": "82200a7c9461d0047ff203bf1f2ad66586b654c0c75b75b5ae918f72957df656",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.button_buttonDownHandler",
+      "traitKind": "method",
+      "methodIndex": 14319,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 276,
+      "bytecode": {
+        "codeLength": 276,
+        "codeSha256": "61ac3d349044033c33891ab0ace979325aa95d1a8705a2aa38d01e963dd0bb8b",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.button_buttonUpHandler",
+      "traitKind": "method",
+      "methodIndex": 14320,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "e44995e36930c996cd4923423360f3aeb625cb77d7d52541e47d7a1093230dbd",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 14304,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "87b21071de42d773a6415b0ba97ffce42edc3dc5d95fa8357f38329604fa285b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.getCurrentSkinState",
+      "traitKind": "method",
+      "methodIndex": 14305,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "f18e333d91af20e93ec0aec6e647cb72d7df713d65724e7ea8bdf7e54d13dd8c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.partAdded",
+      "traitKind": "method",
+      "methodIndex": 14306,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 202,
+      "bytecode": {
+        "codeLength": 202,
+        "codeSha256": "29a5532d13b1b368439c4de2ed1e43913ef13e5e73f8efed0e8180a0c0b26c8e",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.partRemoved",
+      "traitKind": "method",
+      "methodIndex": 14307,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 186,
+      "bytecode": {
+        "codeLength": 186,
+        "codeSha256": "037a095ba1b1e0b2a59c36e5a8c97387f605cadc51e665a072d686fd20b4fa29",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.pendingValue",
+      "traitKind": "getter",
+      "methodIndex": 14298,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d4aa08d3fc9da10b3061c27694976743cfbc53a14e80e780bae8f9abf735ab92",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.pendingValue",
+      "traitKind": "setter",
+      "methodIndex": 14299,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "8bf40856a0e192f27d5297503edbfb563d1ba46160fe7311df4b8830bf2ed946",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.setValue",
+      "traitKind": "method",
+      "methodIndex": 14295,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "36f6f5909cfbe2a2405b5df8f4ab51d926d320a1911ba834d680a771d02a8f71",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 14334,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "98d18dcfd6186252592cb72948280ec13e33bafd39d3c6cf059ef903bba64cbd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.system_mouseMoveHandler",
+      "traitKind": "method",
+      "methodIndex": 14309,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 167,
+      "bytecode": {
+        "codeLength": 167,
+        "codeSha256": "4b760a6b5101dc8569941f13cd583a2a3471fadb17bd4c1fbe9ac136e4a0be05",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.system_mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 14310,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "b6e73188e7172369803ad9f85ddda73c7b59a400f86ae155fdfc3cfc4cb4693b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.thumb_mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 14318,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "72a85b04ee7cf8a6c712e0e84324f0ba2b7a69cff031a907f398381ff506883f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:ScrollBarBase.track_mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 14321,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 551,
+      "bytecode": {
+        "codeLength": 551,
+        "codeSha256": "0e23e4bb5e7c868d5cbdc38bb77ed8fd26d7bf602dc68e199c02437f180aa841",
+        "bytecodeLineCount": 35
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 14308,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "3ea627a247d003b935ed56a38f6cf885dfbdb92db5b70bb2bf55a06d627f92d1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "viewport",
+      "traitKind": "getter",
+      "methodIndex": 14300,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.core.IViewport",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c4fa58d70cd1e58cb2d58c9522c6511bae6d454218c849ac1e950ac474f624de",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "viewport",
+      "traitKind": "setter",
+      "methodIndex": 14301,
+      "methodName": "",
+      "paramTypes": [
+        "spark.core.IViewport"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 128,
+      "bytecode": {
+        "codeLength": 128,
+        "codeSha256": "791976665f5d074d94b288f0c65bd885f6de8795d6ffb87cf8fb3f8289c485b7",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

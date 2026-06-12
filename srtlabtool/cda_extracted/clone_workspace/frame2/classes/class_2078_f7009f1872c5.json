@@ -1,0 +1,353 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2078,
+  "className": "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader",
+  "classNameNormalized": "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher",
+    "com.diagnosticProcedures.util.ILogging"
+  ],
+  "iinitMethod": 38190,
+  "cinitMethod": 38170,
+  "iinitBytecode": {
+    "codeLength": 40,
+    "codeSha256": "6ed80e87ee39b2a5bbf3947bddb7bb9a950e4643b805cd74aecd84a6e8075824",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 38185,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "8d6614205cae0fc2af21429136c7ad668cc9d40738920f4cf901132eecd455fe",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "bundleNames",
+      "traitKind": "getter",
+      "methodIndex": 38177,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3567ce3b939bb2116ad84fef5956038a18e24b96c2198522bbac3ed8235d3d14",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:DiagnosticProcedureBundlesLoader.createZipObject",
+      "traitKind": "method",
+      "methodIndex": 38179,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "deng.fzip.FZip",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "43eede5038ff32cdc2ea93351de6f60c81d13a9bdcfb09e0d0f7a6db4e1da221",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:DiagnosticProcedureBundlesLoader.onLoadComplete",
+      "traitKind": "method",
+      "methodIndex": 38181,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 293,
+      "bytecode": {
+        "codeLength": 293,
+        "codeSha256": "ffd9d100803c5fde9f49625e6707de4f178d88e94c26e18911006d308841c272",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:DiagnosticProcedureBundlesLoader.setLoaded",
+      "traitKind": "method",
+      "methodIndex": 38173,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "7c068969dcd6dec04fece7bcc39e2a099fe05a6270aca17a24c8398a0845dcd0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:DiagnosticProcedureBundlesLoader.toggleEvents",
+      "traitKind": "method",
+      "methodIndex": 38180,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IEventDispatcher",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 174,
+      "bytecode": {
+        "codeLength": 174,
+        "codeSha256": "02c248dcd4fe25eb296b930b7c5aa06b5fbbd9f8eb8e4e2e29df72dfae439333",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:DiagnosticProcedureBundlesLoader.zip",
+      "traitKind": "getter",
+      "methodIndex": 38172,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "deng.fzip.FZip",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "25b049e281b7af9aa212bd1872153fd9e44203193c2a0690d33daa597c4d8fab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:DiagnosticProcedureBundlesLoader.zip",
+      "traitKind": "setter",
+      "methodIndex": 38171,
+      "methodName": "",
+      "paramTypes": [
+        "deng.fzip.FZip"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "03b451e0963b777944bc51839d6c549a1c1a34180f503f2ca3b855c86b825cca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 38187,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "58bc3903a7e0058586ba43a31243bb5f3ea1095cd43918e8cbb45656ca0944f2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getBundle",
+      "traitKind": "method",
+      "methodIndex": 38178,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.diagnosticProcedures.IDiagnosticProcedureBundle",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "c3415188107802687f54bf3cc5358632595363bb73601f40a814fcd425b27e6b",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 38188,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "9e5b4806741f8492a1785c44b2596588c0a9e5737f4b6e4eddb7f85f4af5c155",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "loaded",
+      "traitKind": "getter",
+      "methodIndex": 38174,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "895b6a8d3f3e8980e2defba08f3a1ab840e898396240ac25847b5d99f01186d8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "logger",
+      "traitKind": "getter",
+      "methodIndex": 38184,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "af793447c04df9b8d643ad74d8e765498caf9b1e0c23bb69ae58fdb5f687f219",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.onLoadError",
+      "traitKind": "method",
+      "methodIndex": 38182,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "8bc746908db59805545883e5432a2d2dbd7d71df92421604ab2dbe5540986181",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.onZipError",
+      "traitKind": "method",
+      "methodIndex": 38183,
+      "methodName": "",
+      "paramTypes": [
+        "deng.fzip.FZipErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "0fb7e225e2a819591c63fb721336d053f468865fd7fdc6b3e094d0774a893099",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 38186,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "5535e0d83cbbd12d799f45876f7b45463cc7f29e77a3c8d136634e0ee654dc44",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "url",
+      "traitKind": "getter",
+      "methodIndex": 38176,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0e59435317870e3df23a3a7270f645eda138857dc442c256c06f1c18f3cbb4a3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "url",
+      "traitKind": "setter",
+      "methodIndex": 38175,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "807acd4ba97b4233208351a9cacd6d76bd2527b9799d395aee24d27230361691",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 38189,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "63ee7ec2e27274a3bf03222ecbeceaccafb95a79f1af2eb5b41376984cb32e8f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

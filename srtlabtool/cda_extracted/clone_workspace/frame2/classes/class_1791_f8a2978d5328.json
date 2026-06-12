@@ -1,0 +1,94 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1791,
+  "className": "flashx.textLayout.operations.ClearFormatOnElementOperation",
+  "classNameNormalized": "flashx.textLayout.operations.ClearFormatOnElementOperation",
+  "superName": "flashx.textLayout.operations.FlowElementOperation",
+  "superNameNormalized": "flashx.textLayout.operations.FlowElementOperation",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 34499,
+  "cinitMethod": 34498,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "ff5d8630b013e82ede839a03fa096fa93ae9e9ed8ed2fa58c405eaac03e98e85",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "doOperation",
+      "traitKind": "method",
+      "methodIndex": 34502,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "8ab077b21d2a0551026f28590a060f7a97a3d2d08d029cdbe829e0c6a79f8bc8",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "format",
+      "traitKind": "getter",
+      "methodIndex": 34500,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.formats.ITextLayoutFormat",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e207b0c6123c79d6f55437899b537be4c3afd491a7aae7a63bda6283107685af",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "format",
+      "traitKind": "setter",
+      "methodIndex": 34501,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "de6992ac2b5735a04bacd4a6d693f7933a7ef69ff7ec46b206818c75fa910774",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 34503,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "82d07a5ec2e37db8bd796dcf938609f5b1643f3f1e239ae50f4c1ca30c6b1c1e",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

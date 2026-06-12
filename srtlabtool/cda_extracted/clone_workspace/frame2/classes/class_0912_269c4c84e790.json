@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 912,
+  "className": "com.chrysler.cda.application.jira.create.CreateJiraCommand",
+  "classNameNormalized": "com.chrysler.cda.application.jira.create.CreateJiraCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 18322,
+  "cinitMethod": 18318,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "b89643988bf8c8592ed662ce3f523517c9260237db565ddea38174d38896c826",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createJiraCommandForCDA",
+      "traitKind": "method",
+      "methodIndex": 18319,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.jira.create.CreateJiraCommandMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 133,
+      "bytecode": {
+        "codeLength": 133,
+        "codeSha256": "d558eae49733b6dd040bed9bbbb10bbac30eeb66c45d56332052fd55ee0e3794",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "createJiraCommandForCDAFromTracer",
+      "traitKind": "method",
+      "methodIndex": 18320,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.jira.create.CreateJiraForTracerCommandMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "d174d139a3782a398a1a7b4fb611893b73c08926cfda8ca0ad4fa94425eedffa",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "sendCreateJira",
+      "traitKind": "method",
+      "methodIndex": 18321,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.jira.create.ICreateJiraMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 136,
+      "bytecode": {
+        "codeLength": 136,
+        "codeSha256": "3c8f48278ac062c68a669961e902fa4b96070e6e75567f4ce84fcfe3050f7152",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": []
+}

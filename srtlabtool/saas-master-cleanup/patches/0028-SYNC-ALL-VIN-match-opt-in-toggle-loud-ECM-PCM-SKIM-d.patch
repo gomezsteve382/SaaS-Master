@@ -1,0 +1,137 @@
+From e4abb0363242cd5fd8d89ce93b6de96b0df6ac94 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 12 Jun 2026 16:41:19 +0000
+Subject: [PATCH] SYNC ALL: VIN-match opt-in toggle + loud ECM/PCM
+ SKIM-disabled warning
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+DumpsTabV2: add a 'Match VINs + recompute checksums' checkbox next to SYNC
+ALL. Checked (default) = write VIN+CRC to BCM/RFH/PCM and sync security
+(legacy behavior); unchecked = security-only sync, VINs untouched. The VIN-
+required gate relaxes when matching is off. Engine already separated VIN from
+security (engWriteBcmVin/RfhVin/PcmVin); this just surfaces the choice.
+
+crossValidate: make the GPEC2A/ECM SKIM-disabled (0x00/0x02) condition loud —
+explicit message that the engine module ignores the secret and starts
+regardless (extra-loud when SEC6 reads as paired, the deceptive case). Kept
+as a WARNING, not an export-blocking issue (SKIM default is legitimate; the
+SEC6 writers never touch it) — verified against exportSafetyGate.
+
+26 DumpsTab + 20 crossValidate/exportSafety tests green.
+---
+ artifacts/srt-lab/src/App.jsx              | 44 ++++++++++++++++------
+ artifacts/srt-lab/src/lib/crossValidate.js | 12 +++++-
+ 2 files changed, 44 insertions(+), 12 deletions(-)
+
+diff --git a/artifacts/srt-lab/src/App.jsx b/artifacts/srt-lab/src/App.jsx
+index 88af129..524d7c1 100644
+--- a/artifacts/srt-lab/src/App.jsx
++++ b/artifacts/srt-lab/src/App.jsx
+@@ -1357,6 +1357,10 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
+   const [msg, setMsg] = useState('');
+   const [err, setErr] = useState('');
+   const [rejected, setRejected] = useState([]);
++  // Separate opt-in: match VINs + recompute checksums as part of SYNC ALL.
++  // Checked → write VIN+CRC to BCM/RFH/PCM *and* sync security (legacy
++  // behavior). Unchecked → security-only sync, leave every VIN untouched.
++  const [matchVinCrc, setMatchVinCrc] = useState(true);
+ 
+   /* Task #481 — per-vehicle target-chip selector for the SYNC ALL
+    * MODULES PCM output. Bench programmers (Multi-PROG / CGDI / Xhorse)
+@@ -1528,10 +1532,14 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
+       const log=[];
+       let currentBcm = bcm.data;
+       
+-      // VIN write (all families)
+-      const vinRes = engWriteBcmVin(currentBcm, tv);
+-      currentBcm = vinRes.bytes;
+-      log.push(`BCM VIN: ${vinRes.fullPatched} full slots, ${vinRes.shortPatched} short-VIN records patched (CRC 0x${vinRes.fullCrc.toString(16).toUpperCase()} / 0x${vinRes.tailCrc.toString(16).toUpperCase()})`);
++      // VIN write (all families) — gated on the "Match VINs + checksum" opt-in.
++      if (matchVinCrc) {
++        const vinRes = engWriteBcmVin(currentBcm, tv);
++        currentBcm = vinRes.bytes;
++        log.push(`BCM VIN: ${vinRes.fullPatched} full slots, ${vinRes.shortPatched} short-VIN records patched (CRC 0x${vinRes.fullCrc.toString(16).toUpperCase()} / 0x${vinRes.tailCrc.toString(16).toUpperCase()})`);
++      } else {
++        log.push('BCM VIN: left unchanged (VIN matching off — security-only sync)');
++      }
+ 
+       // ── Security pairing — BCM is the SOURCE OF TRUTH ──
+       // The BCM holds the canonical vehicle immobilizer secret (SEC16). SYNC
+@@ -1562,9 +1570,14 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
+       
+       // RFH write (VIN + SEC16 rewritten from BCM when both sides are Gen2)
+       if(rfh){
+-        const rfhRes = engWriteRfhVin(rfh.data, tv, false);
+-        let currentRfh = rfhRes.bytes;
+-        log.push(`RFH VIN: ${rfhRes.patched} slots patched`);
++        let currentRfh = rfh.data;
++        if (matchVinCrc) {
++          const rfhRes = engWriteRfhVin(rfh.data, tv, false);
++          currentRfh = rfhRes.bytes;
++          log.push(`RFH VIN: ${rfhRes.patched} slots patched`);
++        } else {
++          log.push('RFH VIN: left unchanged (VIN matching off)');
++        }
+         if (bcmSecReal) {
+           const rfhP = engParseRfh(currentRfh);
+           if (rfhP.format === 'gen2') {
+@@ -1588,9 +1601,13 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
+       // PCM write (VIN + SEC6 if RFH available)
+       if(pcm){
+         let currentPcm = pcm.data;
+-        const pcmVinRes = engWritePcmVin(currentPcm, tv);
+-        currentPcm = pcmVinRes.bytes;
+-        log.push(`PCM VIN: ${pcmVinRes.patched} slots patched`);
++        if (matchVinCrc) {
++          const pcmVinRes = engWritePcmVin(currentPcm, tv);
++          currentPcm = pcmVinRes.bytes;
++          log.push(`PCM VIN: ${pcmVinRes.patched} slots patched`);
++        } else {
++          log.push('PCM VIN: left unchanged (VIN matching off)');
++        }
+         /* Task #399 — gate PCM download on SEC6 writer reporting ok===true.
+          * A virgin GPEC2A PCM (no AA marker, all-FF SEC6) would otherwise
+          * report 0 patches and still get shipped as "synced" to the tech. */
+@@ -1649,7 +1666,12 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
+           <input className="vin-input" value={tv} maxLength={17} placeholder={`Enter customer ${vehicle.name} VIN`} onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+(vinBad?C.er:vinGood?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}}/>
+         </div>
+         <div style={{display:'flex',flexDirection:'column',gap:8}}>
+-          <Btn onClick={runFullSync} color={vehicle.accent} disabled={!vinGood||!bcm||blockers.length>0||hasCorruptModule} title={hasCorruptModule?'Remove corrupt captures before syncing':undefined}>▶ SYNC ALL MODULES</Btn>
++          <Btn onClick={runFullSync} color={vehicle.accent} disabled={(matchVinCrc&&!vinGood)||!bcm||blockers.length>0||hasCorruptModule} title={hasCorruptModule?'Remove corrupt captures before syncing':undefined}>▶ SYNC ALL MODULES</Btn>
++          {/* Separate VIN+checksum opt-in (Task — user request). Off = security-only sync. */}
++          <label data-testid="dumps-match-vin-toggle" style={{display:'flex',alignItems:'center',gap:7,fontSize:11,fontWeight:700,color:C.ts,cursor:'pointer',userSelect:'none'}}>
++            <input type="checkbox" checked={matchVinCrc} onChange={e=>setMatchVinCrc(e.target.checked)} style={{width:15,height:15,accentColor:vehicle.accent,cursor:'pointer'}}/>
++            Match VINs + recompute checksums
++          </label>
+           <button onClick={()=>{setFiles([]);setMsg('');setErr('');}} style={{padding:'6px 14px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>CLEAR FILES</button>
+         </div>
+       </div>
+diff --git a/artifacts/srt-lab/src/lib/crossValidate.js b/artifacts/srt-lab/src/lib/crossValidate.js
+index a596996..40e5822 100644
+--- a/artifacts/srt-lab/src/lib/crossValidate.js
++++ b/artifacts/srt-lab/src/lib/crossValidate.js
+@@ -139,8 +139,18 @@ function crossValidate(modules){
+     }
+   }
+   if(gpec){
++    const skimDisabled=gpec.skimByte===0x00||gpec.skimByte===0x02;
+     if(gpec.skimByte===0x80)passed.push("GPEC2A SKIM: ENABLED (0x80)");
+-    else if(gpec.skimByte===0x00)warnings.push("GPEC2A SKIM: DISABLED (0x00) — bypassed");
++    else if(skimDisabled){
++      // Loud catch (user request): an ECM/PCM can read as fully "synced"
++      // (SEC6 populated + FF FF FF AA marker) yet have SKIM OFF, so the
++      // engine starts regardless of the secret. A naive verdict calls that
++      // "good"; we surface it as an explicit warning (NOT an export-blocking
++      // issue — SKIM at its default is legitimate; the writers never touch
++      // it) with a message spelling out the consequence, louder when paired.
++      const looksPaired=pcmPopulated(gpec);
++      warnings.push("GPEC2A/ECM SKIM @0x0011 = 0x"+(gpec.skimByte||0).toString(16).padStart(2,'0').toUpperCase()+" — IMMOBILIZER DISABLED / BYPASSED. The engine module ignores the secret and starts regardless"+(looksPaired?", even though its SEC6 reads as paired — a SEC6 sync will NOT be enforced until SKIM is re-enabled (0x80).":". Re-enable SKIM (0x80) for the immo to be enforced."));
++    }
+     /* Skip the key-consistency mismatch when the GPEC vehicle/skim key is
+      * virgin/erased (all-FF) — that's expected on a virgin GPEC, not a
+      * fault. The 0x0203 field is GPEC-internal and unrelated to the
+-- 
+2.43.0
+

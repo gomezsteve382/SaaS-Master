@@ -1,0 +1,231 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 40,
+  "className": "mx.managers.IFocusManager",
+  "classNameNormalized": "mx.managers.IFocusManager",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 1392,
+  "cinitMethod": 1374,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.managers:IFocusManager.activate",
+      "traitKind": "method",
+      "methodIndex": 1388,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.deactivate",
+      "traitKind": "method",
+      "methodIndex": 1389,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.defaultButton",
+      "traitKind": "getter",
+      "methodIndex": 1375,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IButton",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.defaultButton",
+      "traitKind": "setter",
+      "methodIndex": 1376,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IButton"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.defaultButtonEnabled",
+      "traitKind": "getter",
+      "methodIndex": 1377,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.defaultButtonEnabled",
+      "traitKind": "setter",
+      "methodIndex": 1378,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.findFocusManagerComponent",
+      "traitKind": "method",
+      "methodIndex": 1390,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.InteractiveObject"
+      ],
+      "returnType": "mx.managers.IFocusManagerComponent",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.focusPane",
+      "traitKind": "getter",
+      "methodIndex": 1379,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Sprite",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.focusPane",
+      "traitKind": "setter",
+      "methodIndex": 1380,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Sprite"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.getFocus",
+      "traitKind": "method",
+      "methodIndex": 1384,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.IFocusManagerComponent",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.getNextFocusManagerComponent",
+      "traitKind": "method",
+      "methodIndex": 1391,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "mx.managers.IFocusManagerComponent",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.hideFocus",
+      "traitKind": "method",
+      "methodIndex": 1387,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.nextTabIndex",
+      "traitKind": "getter",
+      "methodIndex": 1381,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.setFocus",
+      "traitKind": "method",
+      "methodIndex": 1385,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.IFocusManagerComponent"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.showFocus",
+      "traitKind": "method",
+      "methodIndex": 1386,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.showFocusIndicator",
+      "traitKind": "getter",
+      "methodIndex": 1382,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:IFocusManager.showFocusIndicator",
+      "traitKind": "setter",
+      "methodIndex": 1383,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

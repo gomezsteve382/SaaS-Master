@@ -1,0 +1,197 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 782,
+  "className": "com.chrysler.cda.presentation.component.reports.ScanReportsBase",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.reports.ScanReportsBase",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 15076,
+  "cinitMethod": 15074,
+  "iinitBytecode": {
+    "codeLength": 47,
+    "codeSha256": "48ac78f46a9ac59743571ecad4021751a6c4bbb8249430e3b0c7460e8d19f6e0",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "33efb44f5cd8da0cb28f2195b0377ca407b08aa3420ce91149fc06ad1618198a",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports:ScanReportsBase.browseForReports",
+      "traitKind": "method",
+      "methodIndex": 15078,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "f72dc241887002c87887908c5c6c902d45f9e234e74db1161ae57fce62505bb0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports:ScanReportsBase.fileKeyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 15081,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "fa16b1908176fcd7376204f8f6edee1f550d0e48f36c8fae5c0825b295bf10c6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports:ScanReportsBase.removeSelectedReport",
+      "traitKind": "method",
+      "methodIndex": 15080,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.reports.customdisplay.RemoveReportEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "cd3f8d5b9e0676bdb464236526f75f732334093022cf4317066a68a82cbc4448",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports:ScanReportsBase.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 15085,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f317afd884ab1fc0088deea63a967043ca74cf29bc48fc6cd45367d16f3dfa55",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onDragDrop",
+      "traitKind": "method",
+      "methodIndex": 15077,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.NativeDragEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "4bc3287420ffb24edcb7b9f2986b86e62a8aea161ff634c3e4cb8445edb8f6de",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.doSelect",
+      "traitKind": "method",
+      "methodIndex": 15079,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FileListEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "9dff42f5077e15ecc9b1a7d30f78dfd5c7a7010c80c917ea85fcb2253e489b92",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.sortDataProvider",
+      "traitKind": "method",
+      "methodIndex": 15082,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "33ecd08fdabcf8975f61c0afd05442ab3e18930ce83d078c705c5282c44a37ae",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "scanReportsPM",
+      "traitKind": "getter",
+      "methodIndex": 15083,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportsPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3b9050adf334d4e0fc67092e10abe9135afa55101fa93857a1a66f82b6b56774",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "scanReportsPM",
+      "traitKind": "setter",
+      "methodIndex": 15084,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.reports.ScanReportsPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "264211c711ea769e495804001039ec615406abd6df782060418b7dafa70ef9ab",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "onDragEnter",
+      "traitKind": "method",
+      "methodIndex": 15075,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.NativeDragEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "8f04e02e12eb17ad618dfe23219c192f649db9b9d9f28354df531ea4e72a85d8",
+        "bytecodeLineCount": 6
+      }
+    }
+  ]
+}

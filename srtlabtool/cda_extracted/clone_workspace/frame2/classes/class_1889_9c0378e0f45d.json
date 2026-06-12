@@ -1,0 +1,154 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1889,
+  "className": "org.spicefactory.parsley.core.messaging.MessageProcessor",
+  "classNameNormalized": "org.spicefactory.parsley.core.messaging.MessageProcessor",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 35548,
+  "cinitMethod": 35536,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.cancel",
+      "traitKind": "method",
+      "methodIndex": 35541,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.createCommand",
+      "traitKind": "method",
+      "methodIndex": 35546,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "org.spicefactory.parsley.core.messaging.command.Command",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.message",
+      "traitKind": "getter",
+      "methodIndex": 35537,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.proceed",
+      "traitKind": "method",
+      "methodIndex": 35547,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.resume",
+      "traitKind": "method",
+      "methodIndex": 35543,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.rewind",
+      "traitKind": "method",
+      "methodIndex": 35544,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.selector",
+      "traitKind": "getter",
+      "methodIndex": 35538,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.senderContext",
+      "traitKind": "getter",
+      "methodIndex": 35540,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.context.Context",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.sendResponse",
+      "traitKind": "method",
+      "methodIndex": 35545,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.state",
+      "traitKind": "getter",
+      "methodIndex": 35539,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.messaging.MessageState",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging:MessageProcessor.suspend",
+      "traitKind": "method",
+      "methodIndex": 35542,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

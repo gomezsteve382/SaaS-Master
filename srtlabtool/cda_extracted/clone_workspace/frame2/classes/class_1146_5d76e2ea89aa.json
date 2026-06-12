@@ -1,0 +1,145 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1146,
+  "className": "com.chrysler.cda.domain.witech.common.DiagnosticProcedureWebServiceDescriptor",
+  "classNameNormalized": "com.chrysler.cda.domain.witech.common.DiagnosticProcedureWebServiceDescriptor",
+  "superName": "com.chrysler.cda.domain.witech.WDEServicesDescriptor",
+  "superNameNormalized": "com.chrysler.cda.domain.witech.WDEServicesDescriptor",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 25384,
+  "cinitMethod": 25383,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 25388,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "39eeb7805fbbd62e6f2a3e3acc24b6efb2592e5e02493624261966c42c88c749",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 25389,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "b336c4b981d16bca252b4b07851788f29c89a53aa4562adf169ab32567626bde",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "createService",
+      "traitKind": "method",
+      "methodIndex": 25385,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "wde.common.services.IService",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "b95042bc257dec1cce9e397266aa9cb7dbbc12ba6f4278c4ee4dadeac4fb4087",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "getter",
+      "methodIndex": 25390,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.witech.model.WebServiceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8009411da8046ba391b7c485404057225927e4c029bbf5bc61c17ff229aff0b8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "setter",
+      "methodIndex": 25391,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.witech.model.WebServiceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "bde49c18a2be92c4069a2100cec3c519a0d06d079e559c4215b7072e69380d18",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "userPrinciple",
+      "traitKind": "getter",
+      "methodIndex": 25386,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.UserPrincipal",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f1f8b881c0e13d19ad966f74bd099a6c2684d5bc02fbdf92d665abf6c381d108",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "userPrinciple",
+      "traitKind": "setter",
+      "methodIndex": 25387,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.UserPrincipal"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "18428d80d7fdb52ce70a7303d9c2c71eac28147d22735095fe701973b137e995",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,131 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1917,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.CalibrationProgressUpdate",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.CalibrationProgressUpdate",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 35991,
+  "cinitMethod": 35984,
+  "iinitBytecode": {
+    "codeLength": 31,
+    "codeSha256": "ee105fe3ccb78aaa092a38dbf9f80766d3c57a61cbc2a0b7b099d30ff82457d8",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "6af0562fd5c69d8e640c1e8654a6f5c9907e19a7ca83fffadfe41f32705c6c7e",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ecuId",
+      "traitKind": "getter",
+      "methodIndex": 35988,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d5796e7dd96943ab85edc31b91cac54d8a7b9a8c6b16801ccd5acd96c217933c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "end",
+      "traitKind": "getter",
+      "methodIndex": 35990,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6fdb99a86f3269ca34924d9d18bb805e6a329cf214c0c63aab7da7317bbbbb4e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "progress",
+      "traitKind": "getter",
+      "methodIndex": 35989,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "550d7fe38423d52679bfaf2de751a86a790213b338538dfffd49756cca7e2390",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selector",
+      "traitKind": "getter",
+      "methodIndex": 35987,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8e5fcbe69657965eb6ff7bb4c64ef228a51a0842e7d958959dc549d1f739c6f1",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "Read",
+      "traitKind": "method",
+      "methodIndex": 35986,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Number",
+        "Number"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.CalibrationProgressUpdate",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "9f971f356799174aa94715c30d5cb267f3ca8ea6eb43497a571d0910dc21e83b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "Write",
+      "traitKind": "method",
+      "methodIndex": 35985,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Number",
+        "Number"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.CalibrationProgressUpdate",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "684a809e3f8c32ca7e3a5a68069ac44b85d76a8de2fee379455ab5468f2576fa",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,1011 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 913,
+  "className": "com.chrysler.cda.presentation.component.tools.CustomDisplayCreateEditPM",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.tools.CustomDisplayCreateEditPM",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 18384,
+  "cinitMethod": 18324,
+  "iinitBytecode": {
+    "codeLength": 78,
+    "codeSha256": "af21f81aa910f3fcdc12b20c929d5e78f65e3a0f017299c6d349f07276c18552",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "f6d494cdbebb40b837f5d55daea45bf09a7805f7ed44433c522f343f2737c1af",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addDDE",
+      "traitKind": "method",
+      "methodIndex": 18347,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "76979383af7275d64c42f83c6cf6b416d74878e4d2684bf4030f1dc22eb02b7d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 18379,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "3daa30f7d69a306a43a297a7dcb4c2db9ee20912430519f714eb457063e94c4f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.tools:CustomDisplayCreateEditPM.customDisplayNameExists",
+      "traitKind": "method",
+      "methodIndex": 18350,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "ce00165d6857149f2e0843ba5cfb2bb349de1edd791a7f2fb6b965abb034d2f8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.tools:CustomDisplayCreateEditPM.ddeExists",
+      "traitKind": "method",
+      "methodIndex": 18348,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.tools.CustomDisplayDDEVO"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "9d6542d39dc2756452d0da09f3efe2b2a81bd94654395a418e1eaaf76e4162f3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.tools:CustomDisplayCreateEditPM.ecuFilter",
+      "traitKind": "method",
+      "methodIndex": 18329,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "3f2f2b64d9eca0c1b894a39c69b4efc7482c2eb244694343a60824c2ea48391c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.tools:CustomDisplayCreateEditPM.ecuNoFilter",
+      "traitKind": "method",
+      "methodIndex": 18330,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "d585616625656f7803c9407d288dca461830151e2b66e2009440e239c604ef48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.tools.buildCustomDisplayDDEVOs",
+      "traitKind": "method",
+      "methodIndex": 18357,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "0fb78445f41fea09103b0386d9d84810f12eeb89e3d4467fde9807f3335bf331",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "comServices",
+      "traitKind": "getter",
+      "methodIndex": 18367,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "531cc0e6eab97fb6c0b09901ed5d9697884fd8aa3e4b6c6bf8eba4ec4d0203a7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "comServices",
+      "traitKind": "setter",
+      "methodIndex": 18368,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "fdacba2f05f6587654763d54b13e4591ff9dec4755aa88368ca310a12aaae47f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "comServiceValues",
+      "traitKind": "getter",
+      "methodIndex": 18371,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5afcc0d286b0105fc2148ff6ffd4bdac86cee62c2c7a8b7cb636cb27d5791428",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "comServiceValues",
+      "traitKind": "setter",
+      "methodIndex": 18372,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "38d9fd0886c74e3a7e43b0318b1ff51adc3926acf134706f11cdf9f5dd06bf51",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "currentEcuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 18375,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3943fa43e36f9b16bd319c30714e5cd8b26cc48ce98e0a65c1d025fbe7cf8c53",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentEcuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 18376,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "364b6e8b07fc28ab5313b0ecd2a92582116c9ef8955e260250d69640475b9f4d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "customDisplayVO",
+      "traitKind": "getter",
+      "methodIndex": 18377,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.tools.CustomDisplayVO",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "89bb742bb091b9e7dd3a01d8c29da04289778cc2af6ae56c79791ee72606b42b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "customDisplayVO",
+      "traitKind": "setter",
+      "methodIndex": 18378,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.tools.CustomDisplayVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "db56659a50639f506762dd4b59a07015c15ad60645956c10e1c3e4c4a853da48",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 18380,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "2077dc712316d96ad9ee70789d401f3870959d32e2c4f30b244056eb8e29b9e6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecus",
+      "traitKind": "getter",
+      "methodIndex": 18359,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fb51049c491bcb92f61dc771f0eba483cd4d3dd7d7321a990cb125a86901855e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecus",
+      "traitKind": "setter",
+      "methodIndex": 18360,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "8fc22cb6ff00d5101547015f106a0f4cc600291ade3cb85ebc6ed9e9a9f8e0db",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "engFiles",
+      "traitKind": "getter",
+      "methodIndex": 18363,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "09bd7b0be39796e6c5450f76b56fa9ffd74e097314913c110f5d9466b5d9c3f6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "engFiles",
+      "traitKind": "setter",
+      "methodIndex": 18364,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "3a748836d6c581dbaf6db33b59817360f4f519bace4936ccee1597ee13ed8f05",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 18381,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "003bc929f016d4372f83586387c7ca7061ed9aa9c8ae93959ece4e040a4f4b1c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "importCustomDisplay",
+      "traitKind": "method",
+      "methodIndex": 18351,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "48f745b637d5be9fe910b9fbf5d069d296f2ff3263a90595f897adf3d24e134e",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 18325,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 183,
+      "bytecode": {
+        "codeLength": 183,
+        "codeSha256": "48790b8df10f28fd4d924c347640a1d5141a9c62be4fddbe961867d58cbe3bb7",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "lookupComServiceValues",
+      "traitKind": "method",
+      "methodIndex": 18342,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.ComServiceVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 120,
+      "bytecode": {
+        "codeLength": 120,
+        "codeSha256": "0edef3d8a749f4bf1562f09da940e3789e0fef99a8364a7e09fba5164c7c301d",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "lookupEngFiles",
+      "traitKind": "method",
+      "methodIndex": 18331,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "6c92a6c6c767551d48d9da607043896fca3968c028184d3b17806ae1c57da937",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "lookupServices",
+      "traitKind": "method",
+      "methodIndex": 18334,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.EngFilesVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 261,
+      "bytecode": {
+        "codeLength": 261,
+        "codeSha256": "5b2f59e3c5229357fc62e07092d821ff22594823d21029e9c3fa3d20f2711b3e",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "onBenchtopEcuInstanceIdCustomDisplayError",
+      "traitKind": "method",
+      "methodIndex": 18338,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.tools.BenchtopEcuInstanceIdCustomDisplayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "bbf7767f24cd6a3c8e954dac3f8ce983ccadf02e7d21c52523af03217dd1af6f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBenchtopEcuInstanceIdCustomDisplayResult",
+      "traitKind": "method",
+      "methodIndex": 18337,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.tools.BenchtopEcuInstanceIdCustomDisplayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "cdccf3cc6f8d633b6896eb2f3bc09590cd45be19b7537448bc9de0a7d2c8f7d7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onEngineeringFilesCustomDisplayError",
+      "traitKind": "method",
+      "methodIndex": 18333,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.tools.EngineeringFilesCustomDisplayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "e08ea3cdab311422d6d30ff8353b90f19f01ea06f94316b6160fdf3e2722f733",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onEngineeringFilesCustomDisplayResult",
+      "traitKind": "method",
+      "methodIndex": 18332,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.tools.EngineeringFilesCustomDisplayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "04177cad3d034e02c160321c355b1b91096d286ed439abe86cc0c3ef0e1cbc7c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onFindDDEDataCustomDisplayError",
+      "traitKind": "method",
+      "methodIndex": 18345,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.FindDDEDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "716e54312ba0ddfa7a920015dfe69cbbaf3f6ee9d9b7c2542f9e5595c6b49bd3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindDDEDataCustomDisplayResult",
+      "traitKind": "method",
+      "methodIndex": 18344,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.FindDDEDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "421044429fd4e6970f6ef70d5762846a4b4252427a3182445fe8ced0f9cc63be",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onFindECUServicesComServiceError",
+      "traitKind": "method",
+      "methodIndex": 18341,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.tools.FindComServiceForCustomDisplayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "3f5641c7b3c0803198b750df77c2dee6095d3d231aa7a3efa7d91d07ca7b5457",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindECUServicesResult",
+      "traitKind": "method",
+      "methodIndex": 18340,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.tools.FindComServiceForCustomDisplayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "d3e223dd170f6c57c45206a865e08308812cd3ab84772639dd9182aadfab24ec",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onImportCustomDisplayCreateEditInit",
+      "traitKind": "method",
+      "methodIndex": 18327,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.tools.CustomDisplayCreateEditInitMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "1bec8fd9b36dbcd05a2e2f14edcf9c8c042729f478742f0b17617aa253558323",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onLookupComServices",
+      "traitKind": "method",
+      "methodIndex": 18339,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "40c18cb7a62ade88f6f6db5e01d4bd85e703b4dbd65f60833ef8e61dcdc8620d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onOpenCustomDisplayCreateEditInit",
+      "traitKind": "method",
+      "methodIndex": 18326,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.tools.CustomDisplayCreateEditInitMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ec55f4fe6a1aae8f9bd01887b4af0afd0194db1f419167a0fd197faacbd6f209",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onUpdateEcuInstanceIdCustomDisplayError",
+      "traitKind": "method",
+      "methodIndex": 18336,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.tools.UpdateEcuInstanceIdCustomDisplayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "25b978626f46e5d65f44e48c4cd0a9508c091a586146551e7cba814fee7845a0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onUpdateEcuInstanceIdCustomDisplayResult",
+      "traitKind": "method",
+      "methodIndex": 18335,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.tools.UpdateEcuInstanceIdCustomDisplayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "335bd7ff05a28616ca6fe7794d1e26fb918ee8aecccadb965801b27f9a010c23",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.addImportListeners",
+      "traitKind": "method",
+      "methodIndex": 18352,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "07b3b5cadf6b5eb74cf38af0b3619a4d290d832f6aec9ad15b35a00e712eb46f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.asCustomDisplayVO",
+      "traitKind": "method",
+      "methodIndex": 18356,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "com.chrysler.cda.domain.tools.CustomDisplayVO",
+      "hasBody": true,
+      "codeLength": 220,
+      "bytecode": {
+        "codeLength": 220,
+        "codeSha256": "19cc0a2228fa0104565c19adeb119034e918c340ff62eaa9fa8e1b36f49c17c4",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "PrivateNs.importCancelHandler",
+      "traitKind": "method",
+      "methodIndex": 18358,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "f49a4fa078d245157c4cbaf3cadeca66aa9cce24af01d6a64a1c3e6f05327c75",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.importSelectHandler",
+      "traitKind": "method",
+      "methodIndex": 18354,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "ec26b14af8bf9cb95ccf9736a765e574bde121882095774a2c9ce16a6ee7290c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.importSnapshotFile",
+      "traitKind": "method",
+      "methodIndex": 18355,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "e9b6c2f3155bb62a15a9d02a921b89bca63a5e06b9e07f57d739c178fcdb94a1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeImportListeners",
+      "traitKind": "method",
+      "methodIndex": 18353,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "1860278f4c713d9453824ce42991f8e3712019232526555503ee9c6dac942799",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "reload",
+      "traitKind": "method",
+      "methodIndex": 18328,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.tools.CustomDisplayVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 227,
+      "bytecode": {
+        "codeLength": 227,
+        "codeSha256": "1d9ddcdb1f4109560fb02979e47bc07c021ae97a06fb6adf3dcdcea8e3fa1b0d",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 18382,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "48a9cb7b96353440315ae15f5bf8e177ed9ebac2c73e11d3e60c9f6b4d48c8ac",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "saveCustomDisplay",
+      "traitKind": "method",
+      "methodIndex": 18349,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 211,
+      "bytecode": {
+        "codeLength": 211,
+        "codeSha256": "790cb998d83927d25a6da30b2dec341629c19f46455700ad4b751e9fdb538e43",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "selectedComService",
+      "traitKind": "getter",
+      "methodIndex": 18369,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecu.ComServiceVO",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ab02c90939c9a98a4e9dfaf6f691805312814488140ef9c268d9e425da84fb64",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selectedComService",
+      "traitKind": "setter",
+      "methodIndex": 18370,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.ComServiceVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "fed0da029a3fc567d09193a681d1067add57a6227cc3e6997cc54378c4eb7a71",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "selectedEcu",
+      "traitKind": "getter",
+      "methodIndex": 18361,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "dbd21a136f85df09cbabb7cac5088b33c4981ea161d2b5572b1bfe18ecf393e0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selectedEcu",
+      "traitKind": "setter",
+      "methodIndex": 18362,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f63bf3a86db8551276e37d8501ba626e94458610a151e7620a4d1c88d0e292b7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "selectedEngFile",
+      "traitKind": "getter",
+      "methodIndex": 18365,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecu.EngFilesVO",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b72172b8bde14846852a070c2707c325777ef8d5ee56ae390323990f6bfc0c8e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selectedEngFile",
+      "traitKind": "setter",
+      "methodIndex": 18366,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.EngFilesVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "24521aeacb4d65f4698e1e98c116c38f9a5d1edd229bde7a68650bfdb29a6f44",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "selectionPath",
+      "traitKind": "getter",
+      "methodIndex": 18373,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "027877b6cd2e2b326a3f8617d2f18bfb7f65759833123e86742b93821079b76e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selectionPath",
+      "traitKind": "setter",
+      "methodIndex": 18374,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "c56af7a46dfb1d1816a1012bb0149c900e19d3315f47aaf0ad2717e87aaa2a1d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setCustomDisplayName",
+      "traitKind": "method",
+      "methodIndex": 18346,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "758abfca0f520bbeee5ead07075a4760a81a617f2bc49dd3e86c9b84e9812f09",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 18383,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "d6a26c42e4ed96d3933a445fa65dc14ea395f8ef3d04ad74b5a51388684d461a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

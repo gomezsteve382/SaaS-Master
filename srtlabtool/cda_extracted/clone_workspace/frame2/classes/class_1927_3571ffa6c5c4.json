@@ -1,0 +1,148 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1927,
+  "className": "com.chrysler.cda.event.message.tools.CustomDisplayLookupDdesMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.tools.CustomDisplayLookupDdesMessage",
+  "superName": "com.chrysler.cda.event.message.LinkableMessage",
+  "superNameNormalized": "com.chrysler.cda.event.message.LinkableMessage",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 36192,
+  "cinitMethod": 36189,
+  "iinitBytecode": {
+    "codeLength": 42,
+    "codeSha256": "b7ba55a10b38519032f0bcf391a71375181823fa9b5f736f286a1c924b5ceb5c",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 82,
+    "codeSha256": "9a503571255e9f59e8e538df4aff8f716bb1b12a38dccb2b0f10ce39fd65f2d3",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addToProcessingQueue",
+      "traitKind": "method",
+      "methodIndex": 36195,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "cbd8d6cf6668f137a7faeed720c6b90d207c38e83903edbe3beebae935f074e3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 36193,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.tools.CustomDisplayLookupDdesMessage",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "7ce4b30c8a11c18ae18cfca8330b3d21e6e4acbf02f4ca64aef6f049246618ef",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "getDbname",
+      "traitKind": "method",
+      "methodIndex": 36197,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "1b59d7cfc734cde78ae1662ce1e82df859582a598cec5be0fcbce53f0de4c424",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "isProcessingComplete",
+      "traitKind": "method",
+      "methodIndex": 36194,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "00625a6f08450f48da2330d38b4744604f09bda105943b3b68d1c99f0291e1fa",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeFromProcessingQueue",
+      "traitKind": "method",
+      "methodIndex": 36196,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "3a15af5f96792fc2616c626995759284af3f730e42d9120cea97b7f80bded78c",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createCustomDisplayLookupDdesMessageForRead",
+      "traitKind": "method",
+      "methodIndex": 36190,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.tools.CustomDisplayVO"
+      ],
+      "returnType": "com.chrysler.cda.event.message.tools.CustomDisplayLookupDdesMessage",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "e88dfc5884d9711e2153d7bfa70d21a9db8ee9c06ab0f672c4780caa143ad122",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "createCustomDisplayLookupDdesMessageForWrite",
+      "traitKind": "method",
+      "methodIndex": 36191,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.tools.CustomDisplayVO"
+      ],
+      "returnType": "com.chrysler.cda.event.message.tools.CustomDisplayLookupDdesMessage",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "36992d53736573b9be4d6d28fe9761e24a4b0c6a4d66950459c6f07b31cbc90e",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

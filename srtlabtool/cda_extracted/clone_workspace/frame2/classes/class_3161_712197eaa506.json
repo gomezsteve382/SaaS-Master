@@ -1,0 +1,98 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3161,
+  "className": "com.chrysler.cda.presentation.component.proxi.file.support.HEXFileImport",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.file.support.HEXFileImport",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.proxi.file.support.IFileSupport"
+  ],
+  "iinitMethod": 49942,
+  "cinitMethod": 49937,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "4a39b54447455810adacc0f4c935157cd25e85e3031be8645185e4eee9e6ad26",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "data",
+      "traitKind": "getter",
+      "methodIndex": 49940,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8e067a181010002c93a1c8003eb153d47a883bc747198e31649e244c2706b51f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "parseFileContents",
+      "traitKind": "method",
+      "methodIndex": 49941,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 221,
+      "bytecode": {
+        "codeLength": 221,
+        "codeSha256": "bf67841c56ffd211fb5ad2633053d72a585204e6e3d419d70fd543c4ffdff919",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "proxiType",
+      "traitKind": "getter",
+      "methodIndex": 49939,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3a283d060cb0d67e195c2488336b76497ab2dbb6b0680aba7e196a58a46703f4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "proxiType",
+      "traitKind": "setter",
+      "methodIndex": 49938,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a02609c6a1970336a95a10cd203be093a8b02ad7864f1a9ac8607d1cc546b70a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

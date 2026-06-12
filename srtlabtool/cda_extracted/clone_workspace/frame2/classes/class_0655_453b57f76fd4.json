@@ -1,0 +1,221 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 655,
+  "className": "flashx.textLayout.operations.FlowOperation",
+  "classNameNormalized": "flashx.textLayout.operations.FlowOperation",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.undo.IOperation"
+  ],
+  "iinitMethod": 12337,
+  "cinitMethod": 12336,
+  "iinitBytecode": {
+    "codeLength": 11,
+    "codeSha256": "9f110865f9302f999be0e879776cc8fa2429653ba652335a2b28f8b4054f6de9",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "beginGeneration",
+      "traitKind": "getter",
+      "methodIndex": 12344,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7cddb2be8c5e0263141de820389575ffc00325d33b54f8b59c253d47902b6803",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "canUndo",
+      "traitKind": "method",
+      "methodIndex": 12342,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "d585616625656f7803c9407d288dca461830151e2b66e2009440e239c604ef48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "doOperation",
+      "traitKind": "method",
+      "methodIndex": 12340,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "8bd91b4d6662c2af4743360fdfdadd0ffd59568f99d5771831541eb0e40a633f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "endGeneration",
+      "traitKind": "getter",
+      "methodIndex": 12345,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "6b932287634ecbc4b49b36a501e93ef0bbdf8b870fa7ebee4a12e7ef3a6e6813",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.merge",
+      "traitKind": "method",
+      "methodIndex": 12349,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.operations.FlowOperation"
+      ],
+      "returnType": "flashx.textLayout.operations.FlowOperation",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.setGenerations",
+      "traitKind": "method",
+      "methodIndex": 12348,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "8570822ebf9c3a7dd354f8ce151555dee4743efec82a3c60c851bea27e686cb1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "performRedo",
+      "traitKind": "method",
+      "methodIndex": 12347,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "12623f5c05174aff6085b703edce848e087ab82781e361771f3fbb24fac08c81",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "performUndo",
+      "traitKind": "method",
+      "methodIndex": 12346,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "f8c22d6b468c5b6968e6b4d4d1b9256e575d945c6d2c9e6afd88d1f366e9f8ff",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 12343,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "textFlow",
+      "traitKind": "getter",
+      "methodIndex": 12338,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.TextFlow",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5c84fdf75d4af738c543ee233155eb39e5176db64e5875b9db91e8800679f5f7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "textFlow",
+      "traitKind": "setter",
+      "methodIndex": 12339,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "15ecaf19065ad5f37e266b79888f8ad6b9a512afb21926369ebac0c05cf1f553",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 12341,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

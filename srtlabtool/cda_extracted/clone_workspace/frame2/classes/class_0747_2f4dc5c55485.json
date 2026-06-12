@@ -1,0 +1,445 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 747,
+  "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.UpliftModel",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.UpliftModel",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 14508,
+  "cinitMethod": 14482,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "dc51e9148b7985e1baeb488532b9dad594b09c8109f8436788a79377865a78fd",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 14503,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "b0d3d351341f2f2016fbe77a78ec0c4f77c7002ac14368c608e0f8e0a30d5ee4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "authenticating",
+      "traitKind": "getter",
+      "methodIndex": 14501,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a7e2f5b0b681da09a2476ea1b12853c6360c709733ee36441ba78f4347e8933c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "authenticating",
+      "traitKind": "setter",
+      "methodIndex": 14502,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "ec5da579c669b2541d83a6e4c02a7e7cb54494fe5723240688d4ccaeead23bb3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 14504,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "84e8cb1dfeaf3f19da1bed633b000cfd526774493a85983c6718d721e8a816ec",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enableHighlevelLogin",
+      "traitKind": "getter",
+      "methodIndex": 14489,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "564076636be4ae24e20f4572f29c3a127de67e9247bb1ed4a8dcce5ba38ab8d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enableHighlevelLogin",
+      "traitKind": "setter",
+      "methodIndex": 14490,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "fe3a0fbd954f389758a9c3332a5a5a34e1ed590712443373a32548334169e1ab",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "enableUpliftButton",
+      "traitKind": "getter",
+      "methodIndex": 14493,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9197d91e9882386fc11e1709367b1aaef48c58b25dfb9579dfe92a3b0a086584",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enableUpliftButton",
+      "traitKind": "setter",
+      "methodIndex": 14494,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "7e819e63e94c0b036434d7a32c01e46ba2600a012cd3c402a1c3e99463290389",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "errorText",
+      "traitKind": "getter",
+      "methodIndex": 14499,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9d9defdd754654d4758ae78d2c6c37405ac5912ff29d7f4ad716e8ff79c341f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "errorText",
+      "traitKind": "setter",
+      "methodIndex": 14500,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "be6eda40012884ccb8dc3c58db1eedacc6fb6748568665f457103d142c25e5e2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "globalDisable",
+      "traitKind": "getter",
+      "methodIndex": 14495,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "26969e10495765e2c7a40531aca5465b6238055aa680ab0889c9067b2125e5fd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "globalDisable",
+      "traitKind": "setter",
+      "methodIndex": 14496,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "1225f4b41a0298cfb0df6ce3e0b72311d0c5f3533ef54570db0ca8653bf2c192",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 14505,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "da5b8efb1cd85cacc8a3face6db39436ea5a600676a194e7f12972b616da6452",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "highLevelNotificationText",
+      "traitKind": "getter",
+      "methodIndex": 14485,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e2cf5d81c505d9d0979896ee7ae9edc897175aef2ed4c458fc1cba97285e40c7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "highLevelNotificationText",
+      "traitKind": "setter",
+      "methodIndex": 14486,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "c785a9e8dbbb2fb7ff77154d0816f419a120a22d98f33c312c64a82b5e350569",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 14506,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "8bef4b818f4864c749af7c27030b515c38d16dd5bbc08488e43446c73d495e15",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showError",
+      "traitKind": "getter",
+      "methodIndex": 14497,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f82b68c2ef8e9cf001dec2323ca420be1a69cafecef574d91b6ac33204549f4c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showError",
+      "traitKind": "setter",
+      "methodIndex": 14498,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9921f2c773b3943c014cc66cae5587f019c06d4d3164d49472149ed4a3fe8203",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "showHighlevelLogin",
+      "traitKind": "getter",
+      "methodIndex": 14487,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "261c6119ee44b5f5f6d13eb582e4ab99a40034d9eb3ca0815a741095a92ea753",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showHighlevelLogin",
+      "traitKind": "setter",
+      "methodIndex": 14488,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "d2097ce51f98c6a25f684eb514f84efaf461a13030b18790d5e50416d83a6794",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "showHighlevelNotification",
+      "traitKind": "getter",
+      "methodIndex": 14483,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f8c41b6c1b2b9e6a0c77e77517c210247a4358978618d8d236986ad4bcecd55f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showHighlevelNotification",
+      "traitKind": "setter",
+      "methodIndex": 14484,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "fb13f28ffbc03557bdbd24f10c0afbcc22d2ec2fedb64725ce6e045969c90fba",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "showUpliftButton",
+      "traitKind": "getter",
+      "methodIndex": 14491,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b0c1e28a7fd4f13660ec4fa3f83b4c2f333048d02497cdff80731e7fa009c1ab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showUpliftButton",
+      "traitKind": "setter",
+      "methodIndex": 14492,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "580642d2b9c03b94340755c122ec4b5b9527f75c2ab0baa5e16baa2ad3bed84e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 14507,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ed37614cf357b6d572e3a74459a8af436840bce358471069d7f33bcf300fb386",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

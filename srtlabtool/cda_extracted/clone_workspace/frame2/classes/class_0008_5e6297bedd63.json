@@ -1,0 +1,552 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 8,
+  "className": "mx.core.ILayoutElement",
+  "classNameNormalized": "mx.core.ILayoutElement",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 104,
+  "cinitMethod": 62,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.core:ILayoutElement.baseline",
+      "traitKind": "getter",
+      "methodIndex": 75,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.baseline",
+      "traitKind": "setter",
+      "methodIndex": 76,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.baselinePosition",
+      "traitKind": "getter",
+      "methodIndex": 77,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.bottom",
+      "traitKind": "getter",
+      "methodIndex": 69,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.bottom",
+      "traitKind": "setter",
+      "methodIndex": 70,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getBoundsXAtSize",
+      "traitKind": "method",
+      "methodIndex": 90,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getBoundsYAtSize",
+      "traitKind": "method",
+      "methodIndex": 91,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getLayoutBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 93,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getLayoutBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 92,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getLayoutBoundsX",
+      "traitKind": "method",
+      "methodIndex": 94,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getLayoutBoundsY",
+      "traitKind": "method",
+      "methodIndex": 95,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getLayoutMatrix",
+      "traitKind": "method",
+      "methodIndex": 98,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Matrix",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getLayoutMatrix3D",
+      "traitKind": "method",
+      "methodIndex": 101,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Matrix3D",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getMaxBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 89,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getMaxBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 88,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getMinBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 87,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getMinBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 86,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getPreferredBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 85,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.getPreferredBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 84,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.hasLayoutMatrix3D",
+      "traitKind": "getter",
+      "methodIndex": 100,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.horizontalCenter",
+      "traitKind": "getter",
+      "methodIndex": 71,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.horizontalCenter",
+      "traitKind": "setter",
+      "methodIndex": 72,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.includeInLayout",
+      "traitKind": "getter",
+      "methodIndex": 82,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.includeInLayout",
+      "traitKind": "setter",
+      "methodIndex": 83,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.left",
+      "traitKind": "getter",
+      "methodIndex": 63,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.left",
+      "traitKind": "setter",
+      "methodIndex": 64,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.percentHeight",
+      "traitKind": "getter",
+      "methodIndex": 80,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.percentHeight",
+      "traitKind": "setter",
+      "methodIndex": 81,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.percentWidth",
+      "traitKind": "getter",
+      "methodIndex": 78,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.percentWidth",
+      "traitKind": "setter",
+      "methodIndex": 79,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.right",
+      "traitKind": "getter",
+      "methodIndex": 65,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.right",
+      "traitKind": "setter",
+      "methodIndex": 66,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.setLayoutBoundsPosition",
+      "traitKind": "method",
+      "methodIndex": 96,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.setLayoutBoundsSize",
+      "traitKind": "method",
+      "methodIndex": 97,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.setLayoutMatrix",
+      "traitKind": "method",
+      "methodIndex": 99,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.setLayoutMatrix3D",
+      "traitKind": "method",
+      "methodIndex": 102,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix3D",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.top",
+      "traitKind": "getter",
+      "methodIndex": 67,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.top",
+      "traitKind": "setter",
+      "methodIndex": 68,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.transformAround",
+      "traitKind": "method",
+      "methodIndex": 103,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.verticalCenter",
+      "traitKind": "getter",
+      "methodIndex": 73,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:ILayoutElement.verticalCenter",
+      "traitKind": "setter",
+      "methodIndex": 74,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,185 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3879,
+  "className": "com.hurlant.crypto.tls.BulkCiphers",
+  "classNameNormalized": "com.hurlant.crypto.tls.BulkCiphers",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56822,
+  "cinitMethod": 56812,
+  "iinitBytecode": {
+    "codeLength": 45,
+    "codeSha256": "28781786bef380b2056d37a526dd89897519d21ee154c9acb36aa0309aac9abb",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 176,
+    "codeSha256": "ee7a226f60a6ca9cabfef8b7e81f51e4087b48a36db6e33e20f840513bbaa0d3",
+    "bytecodeLineCount": 11
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "getBlockSize",
+      "traitKind": "method",
+      "methodIndex": 56820,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "4d42206ea1881cfba5e6879b969180e33761ab7507d7c8d1f703e0a1e6a24db2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getCipher",
+      "traitKind": "method",
+      "methodIndex": 56821,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "flash.utils.ByteArray",
+        "uint"
+      ],
+      "returnType": "com.hurlant.crypto.symmetric.ICipher",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "59c6a281dd3c157ec879b992a0cfb557c3b6a03adc1863a5b92b077afaf712d5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getEffectiveKeyBits",
+      "traitKind": "method",
+      "methodIndex": 56818,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "0e95c0412cb7ecc2c1f42ebb4089ec1b327ecd0452213046c80c445a2e50da21",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getExpandedKeyBytes",
+      "traitKind": "method",
+      "methodIndex": 56817,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "d0e33044ac358ad4282915e59ce745e4e032dd9b097ff694e3f30cf0766c9247",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getIVSize",
+      "traitKind": "method",
+      "methodIndex": 56819,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "cba82f4da42b1abe5e929d07ebe961a82b5d0d56882e7800211fc7fd27d7e74e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getKeyBytes",
+      "traitKind": "method",
+      "methodIndex": 56816,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "7c1d8bb1493a8a4144ce51e2d00424165d3aa85ca7845cf655a23ebdf32790b8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getType",
+      "traitKind": "method",
+      "methodIndex": 56815,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "3dc2b0dd168df39146ce37a64b96230b60e815d7044ce88b3b2a50b90ef82365",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.getProp",
+      "traitKind": "method",
+      "methodIndex": 56814,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "com.hurlant.crypto.tls.BulkCiphers",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "df981afff59ae041f236b0c01811b677230e71a2ca7733dbf5d3587c483edd59",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.init",
+      "traitKind": "method",
+      "methodIndex": 56813,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 290,
+      "bytecode": {
+        "codeLength": 290,
+        "codeSha256": "ab51f5bc087b841fe4a91b65176856896adce2269613cb20a9ac89bdc3f0ee18",
+        "bytecodeLineCount": 19
+      }
+    }
+  ]
+}

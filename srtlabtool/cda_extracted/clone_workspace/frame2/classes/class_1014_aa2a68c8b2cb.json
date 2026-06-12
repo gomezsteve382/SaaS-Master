@@ -1,0 +1,902 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1014,
+  "className": "com.chrysler.cda.application.buslog.BuslogStreamCommand",
+  "classNameNormalized": "com.chrysler.cda.application.buslog.BuslogStreamCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "buslog",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 21546,
+  "cinitMethod": 21495,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "54e7f435d1233b62ae7eccf8eb56d7b980a3724284862c5c9ad1152838a0d0ff",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "3559cfbc40e49c77c534ec5962d9ef4131985c64bf69872414e6beb6d4a47e76",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application.buslog.addEventListerners",
+      "traitKind": "method",
+      "methodIndex": 21539,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.infrastructure.communication.SocketStreamer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "3e6b201f1c2dfa10c5da18bfba107b5b23ce7685ed04659cac8c96792e9afbaf",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.buslog.onClose",
+      "traitKind": "method",
+      "methodIndex": 21543,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "b14e72ba04c5fe2835907b98361e655022067efb8a16c599a2cf9b8e02538067",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.buslog.onConnect",
+      "traitKind": "method",
+      "methodIndex": 21541,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "62761a5c6856e4435da97e5256f4ddf55f6646ccce62117173bb2d1439231eb8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.buslog.onData",
+      "traitKind": "method",
+      "methodIndex": 21542,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.infrastructure.communication.StreamEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "96fb426ec948b3c90fa9a1a66826160688bd5a70ff141c559bd0f4862e4d2d4a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.buslog.onIOError",
+      "traitKind": "method",
+      "methodIndex": 21544,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "8000c78051df6ccd3add463d7661a8569f5e7be76d911ee13662258d22cd7d54",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.buslog.onSecurityError",
+      "traitKind": "method",
+      "methodIndex": 21545,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SecurityErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "33d4c22828fba0ae0888231781ca3eb51939c4ee671b2e3a6681cc9a2a919fe7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.buslog.removeEventListerners",
+      "traitKind": "method",
+      "methodIndex": 21540,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.infrastructure.communication.SocketStreamer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "87bd75794a6739f1f8c764de9ffdda89066fd9cc0fe0568fdd9d45bc2f04fc11",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 21496,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "7ace2767fd47923bed74aed916282c38a78193ed1bbb5f1c3991d1dce1a0839f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onBuslogAddFilter",
+      "traitKind": "method",
+      "methodIndex": 21509,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 129,
+      "bytecode": {
+        "codeLength": 129,
+        "codeSha256": "acceae06298b7c0293625e80fcec92be69469f76086114fba89914735df02964",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onBuslogAddFilters",
+      "traitKind": "method",
+      "methodIndex": 21508,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "48b206ef2b73a8e4e60360881da1d37454d8ea7123facda6cda57d3029bcfba0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogAddPeriodicMessage",
+      "traitKind": "method",
+      "methodIndex": 21520,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "10b11db3bb842bed4e218d80f9b9a023049d3bb24074e3204d4b90a4bd47cc3a",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "onBuslogAddPeriodicMessages",
+      "traitKind": "method",
+      "methodIndex": 21519,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "e3667981a78000af69a583386c3f9d0465dc910e0f852211d82cbfc35c5c7c30",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "onBuslogClose",
+      "traitKind": "method",
+      "methodIndex": 21500,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "2f0c43e67bbf114e695beee2ad4555f8274f3b12a66023d4fa9ef9ec1ba74f58",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onBuslogCloseError",
+      "traitKind": "method",
+      "methodIndex": 21502,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "ed1efea7aba8794669f3528e5825d9843077e9942a0e45f66803653d5b2cafe0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onBuslogCloseResult",
+      "traitKind": "method",
+      "methodIndex": 21501,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "a8fc47c42b2a94a6e094f8b331312530682b51fbc116e12407b8bf6860b428bc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onBuslogCount",
+      "traitKind": "method",
+      "methodIndex": 21506,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "0abc8d11eae9b575d85345fcadf01cecb867bce8d3cc60ff0f71d738846143ba",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogDisableChannel",
+      "traitKind": "method",
+      "methodIndex": 21530,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "e0882e2cf1fb4562a91bb54a862b02c5dd377a069a5d1606e3b3e3b78f5fbc4a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogDisableChannelError",
+      "traitKind": "method",
+      "methodIndex": 21532,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "9b830f69b5e1b35f701c95f04e452826821c124c8f1f862ce8ff4dffa0e85c34",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogDisableChannelResult",
+      "traitKind": "method",
+      "methodIndex": 21531,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "874565d58a42f017ac7dfb923c17867164ad7a94fd00dc4c0751fa5426aab4e3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onBuslogEnableChannel",
+      "traitKind": "method",
+      "methodIndex": 21527,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "90e9e08fb76f3ac3f8a636d1817d1579ccad4615327c239a0eba2a6865ce1dd0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogEnableChannelError",
+      "traitKind": "method",
+      "methodIndex": 21529,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "24b8c9be33805b99a6823be0596e510b95da4c04beb60c32a31080870308f35e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogEnableChannelResult",
+      "traitKind": "method",
+      "methodIndex": 21528,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "73c346e2a13dc3e60a95e555308103081819598967f79e8e6de2b642c2fbb6ca",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onBuslogGet",
+      "traitKind": "method",
+      "methodIndex": 21507,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "ceb349d8f6fef8ef5f995138baa401cc634927c816fc34f4af615113af3c672a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onBuslogGetFilters",
+      "traitKind": "method",
+      "methodIndex": 21516,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "cd287ba7b691e6eab87fd5dc3f9288b1d720ccc730cf136660bca632b4635b8e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogGetPeriodicMessages",
+      "traitKind": "method",
+      "methodIndex": 21533,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "1c7cacb763256a9f7b10f2c7c62aebe1f90b34d1f5c165bc40ae21cf6fb4a0a5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogOpen",
+      "traitKind": "method",
+      "methodIndex": 21497,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.StartBusLoggerMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "90157bbba08f600022225efb8b8e9c00bf0080fb82fe36c96f92a3bfccbd6517",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onBuslogOpenError",
+      "traitKind": "method",
+      "methodIndex": 21499,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.StartBusLoggerMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "3b30ec21c4becdd56804f753d7d03e018a7410d93252cfac6d0d256d5dc43b8a",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onBuslogOpenResult",
+      "traitKind": "method",
+      "methodIndex": 21498,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.StartBusLoggerMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 176,
+      "bytecode": {
+        "codeLength": 176,
+        "codeSha256": "bc49b6b4c0060a3ec62ad47ec36b1bbd14ec72d0fb741af83fe6f138673eb29c",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "onBuslogRemoveFilter",
+      "traitKind": "method",
+      "methodIndex": 21513,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 120,
+      "bytecode": {
+        "codeLength": 120,
+        "codeSha256": "100500a8ae08f9523e2e82a2d969d53805f4e3f7d1d1820dc39dfd9fbbd0a669",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "onBuslogRemoveFilters",
+      "traitKind": "method",
+      "methodIndex": 21512,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "8d5d7839f30edfb34ab3ab7e6cce18b281f849bc87385b805468b81c4efa5f08",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "onBuslogRemovePeriodicMessage",
+      "traitKind": "method",
+      "methodIndex": 21524,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "58e05cf7e0760f83336c8427ee034b1c8850d9fcc3bb267e14a50db3fd101a72",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "onBuslogRemovePeriodicMessages",
+      "traitKind": "method",
+      "methodIndex": 21523,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "3d6c20edcff19dda2a801ea9b6432de28eb0860f1cab92d9a8cf3e3e74406b86",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "onBuslogSendMessage",
+      "traitKind": "method",
+      "methodIndex": 21536,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "92064768910da72a135141a09eb692f9dd09a89935a6c7faf63bd27178624f24",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onBuslogStart",
+      "traitKind": "method",
+      "methodIndex": 21504,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "02c317e413bff2775317d820a60a65a8751bd4debfe4e24e281824fb31d32786",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogStop",
+      "traitKind": "method",
+      "methodIndex": 21505,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "827be960559f053024a7acc3c1afc1bcb25aea3b4bfa23a7188a17a24d0c37b9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogStreamAddFilterError",
+      "traitKind": "method",
+      "methodIndex": 21511,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "cab5873341086c6ea6fb898092d7e0f018fa2d068d8d319f0289c889e517a6b0",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "onBuslogStreamAddFilterResult",
+      "traitKind": "method",
+      "methodIndex": 21510,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "ffe89df87e5aacd8bcf56e4de09592230347458e0b5ae8646cc25808d98f13ea",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "onBuslogStreamAddPeriodicMessageError",
+      "traitKind": "method",
+      "methodIndex": 21522,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "76d03887144cc4f8a129664a7cd4e70a67f6f3518fa63f43f20a4f7c5b9b0722",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onBuslogStreamAddPeriodicMessageResult",
+      "traitKind": "method",
+      "methodIndex": 21521,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "15743b1dc71008c9b24faf852870b6edd1a5eb3e99cd8477fea00a6c70359f16",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "onBuslogStreamGetFiltersError",
+      "traitKind": "method",
+      "methodIndex": 21518,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "bf0ed2f37810ed6b8b188a106904e5473af09183aabcc2b8c063499620401106",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogStreamGetFiltersResult",
+      "traitKind": "method",
+      "methodIndex": 21517,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "50a5cabb04a42f67a32bca7160a2d8b0b16f40d24b9e4a9b1e3b904497377351",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onBuslogStreamGetPeriodicMessagesError",
+      "traitKind": "method",
+      "methodIndex": 21535,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "1125f5d89793f68cd37d830431278c57cdc0229988a09327558ebe3a2392b7ac",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogStreamGetPeriodicMessagesResult",
+      "traitKind": "method",
+      "methodIndex": 21534,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "247d48428ceb7a81c70950a90eccb69f095e3ef758759fb4aefb0bafdc06b9a2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onBuslogStreamRemoveFilterError",
+      "traitKind": "method",
+      "methodIndex": 21515,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "5bac3b15780fb0679899fb19f12cf966c9bd9eed8c595552dea773b3ab2be451",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onBuslogStreamRemoveFilterResult",
+      "traitKind": "method",
+      "methodIndex": 21514,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "7342bd1ccb9c10e5141fb8acc35c65e3012a22c55a17d04f96b7bc1880d3a7a7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onBuslogStreamRemovePeriodicMessageError",
+      "traitKind": "method",
+      "methodIndex": 21526,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "996e4317edd4d6cce92a6c2d875a87ac0418a7dd3986e58c60cb4d68625a9180",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onBuslogStreamRemovePeriodicMessageResult",
+      "traitKind": "method",
+      "methodIndex": 21525,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "dca63af86222b255d2edb41276200230e8d94cb5558fd09b13a7b65fdf9beedb",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "onBuslogStreamSendMessageError",
+      "traitKind": "method",
+      "methodIndex": 21538,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "76d03887144cc4f8a129664a7cd4e70a67f6f3518fa63f43f20a4f7c5b9b0722",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onBuslogStreamSendMessageResult",
+      "traitKind": "method",
+      "methodIndex": 21537,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "fa8066e77cad6917c5a1904b70b8633cdc7bbfad924140ec0c15f73bb9029499",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.createToken",
+      "traitKind": "method",
+      "methodIndex": 21503,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "359184f398669f7b99d8b6628c9c9de547c12ebb5a1e1faf17b9239ac60d32bb",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

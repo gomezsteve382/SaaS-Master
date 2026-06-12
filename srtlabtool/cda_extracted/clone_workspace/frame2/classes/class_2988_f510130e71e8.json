@@ -1,0 +1,340 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2988,
+  "className": "com.chrysler.cda.presentation.component.proxi.components.home.alignment.renderers.ProxiAlignmentDataGridColumnActionItemRenderer",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.home.alignment.renderers.ProxiAlignmentDataGridColumnActionItemRenderer",
+  "superName": "mx.controls.dataGridClasses.MXDataGridItemRenderer",
+  "superNameNormalized": "mx.controls.dataGridClasses.MXDataGridItemRenderer",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 47944,
+  "cinitMethod": 47940,
+  "iinitBytecode": {
+    "codeLength": 376,
+    "codeSha256": "55584e020ddd897d5bf72c5356245a10a7fbc31b10d982900925bcabd366ba7a",
+    "bytecodeLineCount": 24
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "__alignButton_click",
+      "traitKind": "method",
+      "methodIndex": 47955,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "79a1e50bd8bbe09af228c79db346e7bf07d32212134c4f78871410def52d7128",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__candidate_change",
+      "traitKind": "method",
+      "methodIndex": 47952,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "95e8690db4513f8bda080ce77c004465f0025656f55c940e82a38a21e27fbbeb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "alignButton",
+      "traitKind": "getter",
+      "methodIndex": 47960,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bfa8abe2bba1b51e4fe1fe3247bfe0ca02494ef8d2d60b35136fb89af9c28cc8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "alignButton",
+      "traitKind": "setter",
+      "methodIndex": 47961,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "93a9c66d8b8d9ce43992c9ce4a48e00bdca9aef3b30b6e9c40ecf9e98f6be6b1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "candidate",
+      "traitKind": "getter",
+      "methodIndex": 47962,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.CheckBox",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "dc8c1653b040283d6f92c21150583b30a333de3a4ee153c67a48df9ad2044274",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "candidate",
+      "traitKind": "setter",
+      "methodIndex": 47963,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.CheckBox"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "106086afc16fc0cc7b55bb07aea43921c88ce0d182932352305a4e0ea4c1ffc5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.home.alignment.renderers:ProxiAlignmentDataGridColumnActionItemRenderer.alignButtonClicked",
+      "traitKind": "method",
+      "methodIndex": 47948,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "a698543632ec881239758de6c35deeb64106c8bb725b716d09925a327d6bbbd7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.home.alignment.renderers:ProxiAlignmentDataGridColumnActionItemRenderer.checkBoxChangedHandler",
+      "traitKind": "method",
+      "methodIndex": 47947,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "02fb2d1a0bd2fb8b9c22425337ea641edbab37f13770ba125b04932a1c54efa8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "setter",
+      "methodIndex": 47949,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "2de8e3b82964dd133993a44d8b5158d56dfe678ad597eac839b98aa3f9b02a36",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 47964,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e745d169e59c7051049f7852e36369a12faae20ff27b4985eb5156a3433f130b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 47965,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "8e31f9845e8420e6f80c96c3b031b8c898760cc11203c76b9f3fdc57fd2cbee4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 47946,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 47945,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "6c7a9c2aff19f6b4ecee04331f9f41cb962993ddc899160edfa04bb525b34e4e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiAlignmentDataGridColumnActionItemRenderer_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 47959,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "3f0a4ec9c5acfec5f4e0350e212768bb6848e44e222c8684f2ea25eb84053eda",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiAlignmentDataGridColumnActionItemRenderer_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 47954,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "92c525a0212ce39ae51f8ffd27c457abf75c9325ce9ada7fbcc60a3628c7d3ba",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiAlignmentDataGridColumnActionItemRenderer_CheckBox1_i",
+      "traitKind": "method",
+      "methodIndex": 47951,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.CheckBox",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "bb5c696c98f8c4f78637d7330fd74845f2b056fd8c40908c9796412454abac5b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiAlignmentDataGridColumnActionItemRenderer_HorizontalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 47950,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.HorizontalLayout",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "92d9c4c3863e53375747efee9c92a0277b10e42b9040482bbce7988f1b4c0f5d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiAlignmentDataGridColumnActionItemRenderer_Spacer1_c",
+      "traitKind": "method",
+      "methodIndex": 47953,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "d189e400ca22c60c05ee5326af50d2ec91a95103db722f432807b64665813edc",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 47941,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "be3d8d1cc4bcec3369f6a7656c0c83e85ec36111df367df6efa6d6cb15bb5141",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

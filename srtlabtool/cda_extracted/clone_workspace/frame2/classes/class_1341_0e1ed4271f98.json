@@ -1,0 +1,166 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1341,
+  "className": "mx.utils.MediaQueryParser",
+  "classNameNormalized": "mx.utils.MediaQueryParser",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 29653,
+  "cinitMethod": 29650,
+  "iinitBytecode": {
+    "codeLength": 86,
+    "codeSha256": "9f1fc705eb6f31764d5cafbccf2990b248a34cd310d7c4d829714409d402a704",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 60,
+    "codeSha256": "e0b341a6317986e472084d024679b7c144be49c92c02ea6f5c2148b6ce806335",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [
+    {
+      "traitName": "parse",
+      "traitKind": "method",
+      "methodIndex": 29654,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 403,
+      "bytecode": {
+        "codeLength": 403,
+        "codeSha256": "4d95f461ba924daf6b0d15b30f34a3e8bde8aa34ff6d43e70ea67cb153862f90",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "PrivateNs.deHyphenate",
+      "traitKind": "method",
+      "methodIndex": 29658,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "30fad5fc0ae851716180f1f4f576cfcdf2ad03400e8ec620a8dedca2443c7e30",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.evalExpressions",
+      "traitKind": "method",
+      "methodIndex": 29656,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 445,
+      "bytecode": {
+        "codeLength": 445,
+        "codeSha256": "8bfc285dd9c1d50c264243d64e682817930e986bbf2e4858fe0042d8b0cfb77c",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "PrivateNs.getPlatform",
+      "traitKind": "method",
+      "methodIndex": 29659,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "33cc1b60f3403deb7f7cd895f59370df140e0b03e609f3509586b70564fbc01d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.normalize",
+      "traitKind": "method",
+      "methodIndex": 29657,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 170,
+      "bytecode": {
+        "codeLength": 170,
+        "codeSha256": "f5dda9aa211ba18a1b176d5a8cb5afcd8532f6fe85a5e2c2dd3ce0ada2ef18ec",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.tokenizeMediaQuery",
+      "traitKind": "method",
+      "methodIndex": 29655,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 406,
+      "bytecode": {
+        "codeLength": 406,
+        "codeSha256": "db90a2fe8efc6710754a8761ac4bc4cf74d925cb04c0a5f9fbc55c8e4938d91e",
+        "bytecodeLineCount": 26
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "instance",
+      "traitKind": "getter",
+      "methodIndex": 29651,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.utils.MediaQueryParser",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "69adb0975881a5ea20e77096a5d3b0ea5e05bb861ad4db2a2f310477ec77b38f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "instance",
+      "traitKind": "setter",
+      "methodIndex": 29652,
+      "methodName": "",
+      "paramTypes": [
+        "mx.utils.MediaQueryParser"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "5ca7efa8b5600a0eeed9ad7cdde7d845394d12db8476b555b67b416db1c52cea",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

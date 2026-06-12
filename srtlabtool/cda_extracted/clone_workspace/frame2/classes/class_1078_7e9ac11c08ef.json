@@ -1,0 +1,66 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1078,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs.FindDTCsCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.dtcs.FindDTCsCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23428,
+  "cinitMethod": 23425,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "881d2dbe73269c56e4bf6dcf12a56837c4a0110b6ff9f21f16f18301cdd9667b",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onFindDTCs",
+      "traitKind": "method",
+      "methodIndex": 23426,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCsMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "25537b6dd7323550894a7461f0ce9342df1284ed6f04ec92597924a7fb98b880",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindReportDTCs",
+      "traitKind": "method",
+      "methodIndex": 23427,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.report.RequestDTCForReportMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "25537b6dd7323550894a7461f0ce9342df1284ed6f04ec92597924a7fb98b880",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,211 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3858,
+  "className": "org.spicefactory.parsley.dsl.messaging.impl.DefaultMessageReceiverBuilder",
+  "classNameNormalized": "org.spicefactory.parsley.dsl.messaging.impl.DefaultMessageReceiverBuilder",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.dsl.messaging.MessageReceiverBuilder",
+    "org.spicefactory.parsley.dsl.impl.ObjectDefinitionBuilderPart"
+  ],
+  "iinitMethod": 56699,
+  "cinitMethod": 56693,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "0e6ea8f7c26cdef80fea91fb6080a7cc698c379d8f452a0bd26aa667b7fff4a2",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "apply",
+      "traitKind": "method",
+      "methodIndex": 56704,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "7bac733ff47b199e247a6ac1418754b7abd9649a81176543ec53cf1d8d474797",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "order",
+      "traitKind": "method",
+      "methodIndex": 56703,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageReceiverBuilder",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "5390ee08584c6c95b714fcc5bb8df31a520415477528d53425c3b99640a36e90",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "scope",
+      "traitKind": "method",
+      "methodIndex": 56700,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageReceiverBuilder",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "41ddcc5d8d4c3419db217d525fbdd3484bef4fb56ef462cf287a86f0e067985e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selector",
+      "traitKind": "method",
+      "methodIndex": 56702,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageReceiverBuilder",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "a84689294063bf02d94961e5b874e4772f5950d009d1ba859340427be553008a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "type",
+      "traitKind": "method",
+      "methodIndex": 56701,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.MessageReceiverBuilder",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "b3dee7590b73f45a13eebeac539f32e73de254156f789fd040e8b3416adde663",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "forCommandComplete",
+      "traitKind": "method",
+      "methodIndex": 56698,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Method",
+        "org.spicefactory.parsley.config.Configuration"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.impl.DefaultMessageReceiverBuilder",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "41d1d7b742beccff2aaa182f70b610b769ab501115fa12e426fd0bf2097722a2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "forCommandError",
+      "traitKind": "method",
+      "methodIndex": 56697,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Method",
+        "org.spicefactory.parsley.config.Configuration"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.impl.DefaultMessageReceiverBuilder",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "4d57fbafa69e678d4724dda7669e54342ae68a2333fdc62086633210e12bd3fb",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "forCommandResult",
+      "traitKind": "method",
+      "methodIndex": 56696,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Method",
+        "org.spicefactory.parsley.config.Configuration"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.impl.DefaultMessageReceiverBuilder",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "1c31cddadeb20a363e79273044ee15f2e1069e31a352d9d1f6ac402a70ceaca6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "forCommandStatus",
+      "traitKind": "method",
+      "methodIndex": 56694,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Property",
+        "org.spicefactory.parsley.config.Configuration"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.impl.DefaultMessageReceiverBuilder",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "3386f9b9c9bf78e7c04809a917063cfd7610095d693182a4aef9ba86cf89cf30",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "forMessageInterceptor",
+      "traitKind": "method",
+      "methodIndex": 56695,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Method",
+        "org.spicefactory.parsley.config.Configuration"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.messaging.impl.DefaultMessageReceiverBuilder",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "327e32564d59c3f9fb55324737168177c4bb6a398fb6bad1ebc9b1858d93d8cd",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

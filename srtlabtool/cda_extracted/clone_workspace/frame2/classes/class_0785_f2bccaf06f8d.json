@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 785,
+  "className": "com.chrysler.cda.application.state.ResetStateCommand",
+  "classNameNormalized": "com.chrysler.cda.application.state.ResetStateCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 15231,
+  "cinitMethod": 15227,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "db2861792f44522a19059c6b7a6171c1a98015e1b1ec95639b64056f02e25945",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "SetResetState",
+      "traitKind": "method",
+      "methodIndex": 15228,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.ResetStateMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "0bc38f58be424dbfd19c76991b3e7e89c29aa20836e58788bfae798702f42e05",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "SetResetStateKO",
+      "traitKind": "method",
+      "methodIndex": 15230,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.ResetStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "1d19e0853c3ca6ee40dfbd0a4d754f6c3d512f9fdf076250aef5823a7dd5f547",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "SetResetStateOK",
+      "traitKind": "method",
+      "methodIndex": 15229,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.ResetStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "77fff37d712a3b7a480d8b074ae1ceb76a1be756c370b11a5db19044553e369c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

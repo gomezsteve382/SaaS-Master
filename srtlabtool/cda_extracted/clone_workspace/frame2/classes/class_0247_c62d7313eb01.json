@@ -1,0 +1,151 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 247,
+  "className": "spark.layouts.BasicLayout",
+  "classNameNormalized": "spark.layouts.BasicLayout",
+  "superName": "spark.layouts.supportClasses.LayoutBase",
+  "superNameNormalized": "spark.layouts.supportClasses.LayoutBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 5809,
+  "cinitMethod": 5805,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.virtualLayoutSupported",
+      "traitKind": "getter",
+      "methodIndex": 5810,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "8bd91b4d6662c2af4743360fdfdadd0ffd59568f99d5771831541eb0e40a633f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "measure",
+      "traitKind": "method",
+      "methodIndex": 5812,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 925,
+      "bytecode": {
+        "codeLength": 925,
+        "codeSha256": "7cddc7aeb98547b43fbaf238933a279e34eb8660ae8945c36a37eba4bde13a4c",
+        "bytecodeLineCount": 58
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkUseVirtualLayout",
+      "traitKind": "method",
+      "methodIndex": 5811,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "c44536914f44f3299bda1906dc9f97076e0ce2402e97b7da76681becaf8783c9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 5813,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1189,
+      "bytecode": {
+        "codeLength": 1189,
+        "codeSha256": "60026d14f98ba35d27a32a5818d7c991b569a74b28bdcc9c5f5641573e5042ef",
+        "bytecodeLineCount": 75
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.constraintsDetermineHeight",
+      "traitKind": "method",
+      "methodIndex": 5807,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.ILayoutElement"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "8539d1ad2fb4b74d73e63f73c58b68d6f437dfa48262206d8e6e7002249a2011",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.constraintsDetermineWidth",
+      "traitKind": "method",
+      "methodIndex": 5806,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.ILayoutElement"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "f591b7693ddb28d5e091e6bb84bd97b8bbb9d7f9e75fe7f199f13cda367e588e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.maxSizeToFitIn",
+      "traitKind": "method",
+      "methodIndex": 5808,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "458e722df66bf4fc47c015fbab720b4d4f9bf2bb4b95189fa524815b20943054",
+        "bytecodeLineCount": 5
+      }
+    }
+  ]
+}

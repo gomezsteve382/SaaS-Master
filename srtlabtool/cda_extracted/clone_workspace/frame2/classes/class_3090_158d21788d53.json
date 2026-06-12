@@ -1,0 +1,253 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3090,
+  "className": "com.diagnosticProcedures.vo.PortDataVO",
+  "classNameNormalized": "com.diagnosticProcedures.vo.PortDataVO",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 49096,
+  "cinitMethod": 49082,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "207748d807920d53ae5000cbdcd12b832d02e6ab24c0dcc1f15fadd56bb09454",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 49091,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "e54d6f1f00f8d278e3c455b501479a69322f24de58b51ccab27d49dd8126ca5f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 49092,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "9e766255d0067eaa0792930fc8743c355643a2e8aa0b4b279c86ebdabe246e72",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ftpPort",
+      "traitKind": "getter",
+      "methodIndex": 49085,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "580174f02deeac1b32633e44bf15e2ef090729f54f3ee2cc711187fddaedf199",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ftpPort",
+      "traitKind": "setter",
+      "methodIndex": 49086,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "6719792d0cea97aa174f4c5a4f44d8c9cf83620498b4fabc96b28d1275d65dfc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 49093,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "2de49aead063d48872254c86a2ef95e38b943c3b2d9f68a2afbcae748a3a12a2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "httpPort",
+      "traitKind": "getter",
+      "methodIndex": 49083,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6870105c0415786758609ee88da224a5bea4c3d612270ecbf6ea8040695e25d9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "httpPort",
+      "traitKind": "setter",
+      "methodIndex": 49084,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "07c8b219ef3761a53ef930ccdf08242f278267ce967246c3143d5fefba876e9f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 49094,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "ad60ac266e9d5828510b97e7336cb963cd0d6ae8981f7038d6d61d09fe44d189",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wdeHttpPort",
+      "traitKind": "getter",
+      "methodIndex": 49089,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "edbd19874b5bf6412c0a64b122c66b1a59d14d77a80204ebb49d497fc5a5cbe5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wdeHttpPort",
+      "traitKind": "setter",
+      "methodIndex": 49090,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "2d45e10e88661434b1b993c59d8cbf58cf03e013e1b9f6f49221a9cc91104afa",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 49095,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "e4ecbfbea2d62a3e08d2aaccaf1ffda65205d10176e9b603d0f3a33b34113539",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xmlPort",
+      "traitKind": "getter",
+      "methodIndex": 49087,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "99f0f412c0527286711afd5a0ea240b9d91e6f88e02607c65413eb6ce78e6d2c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xmlPort",
+      "traitKind": "setter",
+      "methodIndex": 49088,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "47bd9a17f0e82828ac46d7d2d660d7951ece11a8cbc0cf024314e65c2d8f3de4",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

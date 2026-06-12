@@ -1,0 +1,200 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 641,
+  "className": "mx.logging.AbstractTarget",
+  "classNameNormalized": "mx.logging.AbstractTarget",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.logging.ILoggingTarget",
+    "mx.core.IMXMLObject"
+  ],
+  "iinitMethod": 12209,
+  "cinitMethod": 12208,
+  "iinitBytecode": {
+    "codeLength": 39,
+    "codeSha256": "cad61f86655b8eba0ec7b10154ceb47cde4bde343eb0c0ede8fcafcd1e547885",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addLogger",
+      "traitKind": "method",
+      "methodIndex": 12215,
+      "methodName": "",
+      "paramTypes": [
+        "mx.logging.ILogger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "b214edc41091f9a1b8c4953884fcbd7fda5a8003000fbf1a79cf68b12dfbe805",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "filters",
+      "traitKind": "getter",
+      "methodIndex": 12210,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b1e96f9f6f0e93d7639823f09aa629ecd26724e8839105a687c99c07f4a81b99",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "filters",
+      "traitKind": "setter",
+      "methodIndex": 12211,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 242,
+      "bytecode": {
+        "codeLength": 242,
+        "codeSha256": "5c0e2761b32cde9a1295b72c2c96891370dbd6cefdc346dd5262bc2cac68ba82",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "id",
+      "traitKind": "getter",
+      "methodIndex": 12212,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ae13a51caedecdee841ee32c08660862d1e79f85f16bf51b633b037c470fe096",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialized",
+      "traitKind": "method",
+      "methodIndex": 12217,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "37af166fe96f3e6ccc91ee3bd67bc6f48aea5d6023d80e3ced7b3c50b9a3a452",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "level",
+      "traitKind": "getter",
+      "methodIndex": 12213,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7383bd21e11ffbf74e7e51d3be00c9a980b81720377244d8c031514e3a477a0d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "level",
+      "traitKind": "setter",
+      "methodIndex": 12214,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "edacee293f5c368d4ee6fcca7f7e7e9ccb378e4064310d2a26c8292e43610382",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "logEvent",
+      "traitKind": "method",
+      "methodIndex": 12218,
+      "methodName": "",
+      "paramTypes": [
+        "mx.logging.LogEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.logHandler",
+      "traitKind": "method",
+      "methodIndex": 12219,
+      "methodName": "",
+      "paramTypes": [
+        "mx.logging.LogEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "7dce4f3371df998764bcd6115491c7746bc57a37d5efd4ef5346c1d28460926a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeLogger",
+      "traitKind": "method",
+      "methodIndex": 12216,
+      "methodName": "",
+      "paramTypes": [
+        "mx.logging.ILogger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "47ac41296157463e985542f50bbffc9f6af44e9a77f8a17aa7b1a0d33cd04a72",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

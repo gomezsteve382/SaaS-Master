@@ -1,0 +1,394 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 81,
+  "className": "mx.core.LayoutElementUIComponentUtils",
+  "classNameNormalized": "mx.core.LayoutElementUIComponentUtils",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 1858,
+  "cinitMethod": 1837,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "234956ffa12d6c844d2a8b6db370e6d26159f6550f8630aa545473830ad402af",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "getBoundsXAtSize",
+      "traitKind": "method",
+      "methodIndex": 1850,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 171,
+      "bytecode": {
+        "codeLength": 171,
+        "codeSha256": "548d92694e8f6f6cf80fdbb3c042698e305bf27235d1721bfeea788fe55e38ca",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "getBoundsYAtSize",
+      "traitKind": "method",
+      "methodIndex": 1851,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 171,
+      "bytecode": {
+        "codeLength": 171,
+        "codeSha256": "a5163cd766365c3606c39629fc8d853a8da2259c44324c47d225ead06864d6a2",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "getLayoutBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 1853,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "f984b63c9d591663eadc0063bf241fb0c318732b2649dfae0d438bfee97d6d64",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "getLayoutBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 1852,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "ea4b5047a7e7d7356b1c6899853bb00d822912161b16b86d753fd85ba2c9fb47",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "getLayoutBoundsX",
+      "traitKind": "method",
+      "methodIndex": 1854,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 134,
+      "bytecode": {
+        "codeLength": 134,
+        "codeSha256": "c2e4a2e59321a869f9f241588bd72fcf4fc251d6ea1823ffb35eb37a190f7a9b",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "getLayoutBoundsY",
+      "traitKind": "method",
+      "methodIndex": 1855,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 134,
+      "bytecode": {
+        "codeLength": 134,
+        "codeSha256": "e3bb30357f18d6689a0ea4075bee8650e2569fce661d1598a275b104d07df741",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "getMaxBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 1849,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "db3c36944a35071c23b92112dbc258a2648b740436fe1c0cf98effd5355721e8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getMaxBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 1848,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "894a77123cc849f4cb8b5e36d88e826e582c1f5b1d77b33fb5e89310fe9ab1f0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getMinBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 1847,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "9a03e0a48cbcb18ff7c17f7935a25c341b35db91c53ac3c76e55c283b2156acb",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getMinBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 1846,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "8a1170d3c8160bcc72f1a46166ca56e54008bfca75b73e7cdd660eef1d3e6c16",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getPreferredBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 1845,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "2330acf51257091ff97fae2595c2c7684eba31f8daea7a5809376306ac86a6b1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getPreferredBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 1844,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "26129deffe572957b25291a7cef463f36f8e4ccbca509c078353b2b52dd06d4e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMaxUBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 1843,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "be1c3e469d5b3007aec687901c4bbe8c95de18058a3e851c3ee1b6d2b1e6db47",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMaxUBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 1842,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "dc0fc3adce45b1bc432aa96f27e180c74f108a2b79f2b825d4110e440ef62577",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMinUBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 1841,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 148,
+      "bytecode": {
+        "codeLength": 148,
+        "codeSha256": "05a9c4eaaf101048ea7b06d975a927f470359503edff6e178c2d0b75dfea866e",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMinUBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 1840,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 148,
+      "bytecode": {
+        "codeLength": 148,
+        "codeSha256": "2145185b36ce62b6e7bcccba6fed8c7479b59a0d85d2c9569931b03a1ce415fa",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.getPreferredUBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 1839,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "4a2415d1423dde9a9d4c3559bcfdc43457c0119e66b46622f8f6eee586fec86d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getPreferredUBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 1838,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "bb636e0217216e0839af0a719d897035951c8b235384f5e8e3d35abdc717b53a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setLayoutBoundsPosition",
+      "traitKind": "method",
+      "methodIndex": 1856,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "94cb2d317fce373f5e7f3aeb987e21dae340e8604870fac46e2445dc6a9716ee",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setLayoutBoundsSize",
+      "traitKind": "method",
+      "methodIndex": 1857,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 292,
+      "bytecode": {
+        "codeLength": 292,
+        "codeSha256": "e4631af1d572d6f3da5063c6d4df59bd5f3a9531186437e232d7a8b6f1bbdfb2",
+        "bytecodeLineCount": 19
+      }
+    }
+  ]
+}

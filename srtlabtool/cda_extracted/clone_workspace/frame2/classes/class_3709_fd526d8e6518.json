@@ -1,0 +1,243 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3709,
+  "className": "mx.rpc.soap.SOAPConstants",
+  "classNameNormalized": "mx.rpc.soap.SOAPConstants",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55429,
+  "cinitMethod": 55421,
+  "iinitBytecode": {
+    "codeLength": 349,
+    "codeSha256": "0e9d2bf0865bb9b548cb5ca58cbd6d17ce23573ddb091a381e2e21f3f7eec1d7",
+    "bytecodeLineCount": 22
+  },
+  "cinitBytecode": {
+    "codeLength": 353,
+    "codeSha256": "f16bfa0bdb4b5dbe7e91d727af4843ca0ad4f0fd10497d4bd3f205f5a0ccd7ab",
+    "bytecodeLineCount": 23
+  },
+  "instanceMembers": [
+    {
+      "traitName": "contentType",
+      "traitKind": "getter",
+      "methodIndex": 55430,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9e4fcff3f4f39f0611d93c1a3eb6a425822957b74bcb5c3cd2fb9a89211cd5ec",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "encodingNamespace",
+      "traitKind": "getter",
+      "methodIndex": 55432,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Namespace",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ecf9a52a16650aff2ef906a308689201f90a3b91a0a93921a8936a6a855a41dd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "encodingURI",
+      "traitKind": "getter",
+      "methodIndex": 55431,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "4c7d9a96f42130120102353e87e22629ed948f37d4bcec765aaaef69ebdd8d9c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "envelopeNamespace",
+      "traitKind": "getter",
+      "methodIndex": 55434,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Namespace",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "94abe1f6dc130d2dde20522214fdd64e5e4e9ea2d594f15ef54bfb8e2cdeb38a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "envelopeURI",
+      "traitKind": "getter",
+      "methodIndex": 55433,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "6b8b67e068f36b18d03a6a2b7273e7a084b23315934f36869eabd1a21235910a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getSOAPEncodingToken",
+      "traitKind": "method",
+      "methodIndex": 55435,
+      "methodName": "",
+      "paramTypes": [
+        "QName"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "03fb8a13fe0f153a4fe2aa90327ae31f9e6fb15704b0a48b6433d35bfbff6cbf",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getConstants",
+      "traitKind": "method",
+      "methodIndex": 55422,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "mx.rpc.soap.SOAPConstants",
+      "hasBody": true,
+      "codeLength": 311,
+      "bytecode": {
+        "codeLength": 311,
+        "codeSha256": "e899f16fa902d15194687e52bf6fe488302c06de7efa3154503f72741d47f46f",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "getCustomSOAPType",
+      "traitKind": "method",
+      "methodIndex": 55424,
+      "methodName": "",
+      "paramTypes": [
+        "QName"
+      ],
+      "returnType": "mx.rpc.soap.types.ICustomSOAPType",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "8cdc65a6e13a944ec3235769f306d0fd3d553933c3033593657f84d51d859647",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "isSOAPEncodedType",
+      "traitKind": "method",
+      "methodIndex": 55423,
+      "methodName": "",
+      "paramTypes": [
+        "QName"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "c9ad46c07f7f385dc18f719f301ff8ff65dd5baff48a0c35691428e12d72b8ba",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getKey",
+      "traitKind": "method",
+      "methodIndex": 55427,
+      "methodName": "",
+      "paramTypes": [
+        "QName"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e22dd552d990be36ee357e288bb8fcc59ddf5101794a37e9c5c9e4858b301555",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.initCustomSOAPTypes",
+      "traitKind": "method",
+      "methodIndex": 55428,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "abe051dde66cb687bb7381a42c5a2ddfbd7f247cff63b4026c65abd98f231c28",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "registerCustomSOAPType",
+      "traitKind": "method",
+      "methodIndex": 55425,
+      "methodName": "",
+      "paramTypes": [
+        "QName",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "96d4623408344628e11106c7c7e73b5e1af1df79301686553fc4d780a354c0a5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "unregisterCustomSOAPType",
+      "traitKind": "method",
+      "methodIndex": 55426,
+      "methodName": "",
+      "paramTypes": [
+        "QName"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "c528b99ae64be7b2c87b6903b6350a874c105850832c175696c399f394bd802d",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

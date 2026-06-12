@@ -1,0 +1,69 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3508,
+  "className": "org.spicefactory.parsley.core.state.manager.GlobalContextManager",
+  "classNameNormalized": "org.spicefactory.parsley.core.state.manager.GlobalContextManager",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 53181,
+  "cinitMethod": 53177,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.core.state.manager:GlobalContextManager.addContext",
+      "traitKind": "method",
+      "methodIndex": 53178,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.Context",
+        "org.spicefactory.parsley.core.bootstrap.BootstrapConfig",
+        "org.spicefactory.parsley.core.scope.ScopeInfoRegistry"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.state.manager:GlobalContextManager.getBootstrapConfig",
+      "traitKind": "method",
+      "methodIndex": 53180,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.Context"
+      ],
+      "returnType": "org.spicefactory.parsley.core.bootstrap.BootstrapConfig",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.state.manager:GlobalContextManager.getInheritedScopes",
+      "traitKind": "method",
+      "methodIndex": 53179,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.Context"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

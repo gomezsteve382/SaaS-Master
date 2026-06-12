@@ -1,0 +1,197 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3575,
+  "className": "com.diagnosticProcedures.view.components.TableComponent",
+  "classNameNormalized": "com.diagnosticProcedures.view.components.TableComponent",
+  "superName": "spark.components.DataGrid",
+  "superNameNormalized": "spark.components.DataGrid",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.view.IScreenComponent"
+  ],
+  "iinitMethod": 53659,
+  "cinitMethod": 53658,
+  "iinitBytecode": {
+    "codeLength": 60,
+    "codeSha256": "5310a2bc33e7014eaaf84b1b5bfeca7dbf8104ac39876919c20ff994ceab512d",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 106,
+    "codeSha256": "f7df492cc12e43f227600a57057abeac9fc13289da0aa247afc504bfc036398d",
+    "bytecodeLineCount": 7
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.view.components:TableComponent.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 53669,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "665c24be78f68d9de2bb54f666b92cdaf4c3016dff5931061a29ab62ae402d63",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "createDataFromIdSelectorPathContext",
+      "traitKind": "method",
+      "methodIndex": 53665,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "mx.collections.ArrayList",
+      "hasBody": true,
+      "codeLength": 533,
+      "bytecode": {
+        "codeLength": 533,
+        "codeSha256": "f3a4f4f4aa3eb677b3e11c16598fb2701c728c92c6e82c0eae91673ef4460212",
+        "bytecodeLineCount": 34
+      }
+    },
+    {
+      "traitName": "createDataFromSelectorPathContext",
+      "traitKind": "method",
+      "methodIndex": 53664,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "mx.collections.ArrayList",
+      "hasBody": true,
+      "codeLength": 493,
+      "bytecode": {
+        "codeLength": 493,
+        "codeSha256": "527c7c5a9718b1bcefe025ccc60f907b7b1a3de150b7623e0917675680e11f5f",
+        "bytecodeLineCount": 31
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 53661,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 53660,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "0932b881dfff4c40a67c78af0de58205036b226d7f00720f86e7256604a83538",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._TableComponent_DataItem1_c",
+      "traitKind": "method",
+      "methodIndex": 53668,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.utils.DataItem",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "4113aff6d1b8ee3272ddf19bcb5938cc6b34eb5f1f18b3b1b812af1e1ac5e268",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.markParentAsRowContext",
+      "traitKind": "method",
+      "methodIndex": 53667,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "2b30572b997ecb29711240212ed7b12a0adc2c47e3ad51596b5f0fae92e67b80",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.populateXpathQueryMap",
+      "traitKind": "method",
+      "methodIndex": 53666,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "a3ef2a745db11108bbf3aece926bde45079234841a1b610571c695f3e892ba53",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "xml",
+      "traitKind": "getter",
+      "methodIndex": 53663,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "d8efa62fa2b3b86bf98cb6a0e5407e2d882ed15e4de705c77cd7f9e6d8b36c26",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "xml",
+      "traitKind": "setter",
+      "methodIndex": 53662,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 560,
+      "bytecode": {
+        "codeLength": 560,
+        "codeSha256": "3e76c7cd70bfaa9f9e029d79038c581aade5bd6709c1b225f7eed3aa887e1e93",
+        "bytecodeLineCount": 35
+      }
+    }
+  ],
+  "staticMembers": []
+}

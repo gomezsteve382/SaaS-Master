@@ -1,0 +1,207 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 987,
+  "className": "com.chrysler.cda.presentation.component.help.VersionInformationPM",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.help.VersionInformationPM",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 20558,
+  "cinitMethod": 20547,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "ed0b059538e825998d2b2b73466a4efe734ff681c205dfba1021169e48e2775a",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 20553,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "df64a582ab944ee28ca5f757e7e0928c502e86f3cbe1270ea1a19e6da7d9c941",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 20554,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "54a880b5916d8baaa2f24363dc85a58a009adf9de3135bd6f2f54a5bd9924754",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 20555,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "be952f8642b14444a818a415e7181a647c48562c193f243937d3ed1e5693fd47",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onGetVersion",
+      "traitKind": "method",
+      "methodIndex": 20548,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.help.GetVersionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "02c4f896ee76fbee1ed4c5994e3118973b8e94f6c53a7778a1e15cac9c9c569a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 20556,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "435279bea1b930599baf3cc8a81c170cf350f0af21b6209907010b966952db8a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "vrFlashDesktopVersion",
+      "traitKind": "getter",
+      "methodIndex": 20549,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b9c6f1e5cab87b255a53d7d24d91254b5fbbd19a520cdb60961d806d818cf95e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "vrFlashDesktopVersion",
+      "traitKind": "setter",
+      "methodIndex": 20550,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a80a9f727a8a8c66750f4e6676f408ce96a6d8bd347c335beb1fd695add44913",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "vrFlashPODVersion",
+      "traitKind": "getter",
+      "methodIndex": 20551,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ae086b6b76119359553a38a7c2f0e3a4d25370dae21ed4bf4817996f934a8fca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "vrFlashPODVersion",
+      "traitKind": "setter",
+      "methodIndex": 20552,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "d4b30cadc2faeac1ced8855a6d3665d0da99837d8f6977421b443445284f66c4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 20557,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "f58f151899b3dce587b9cff7b82258dc1225e1d16ed005213d510e87849b6f97",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

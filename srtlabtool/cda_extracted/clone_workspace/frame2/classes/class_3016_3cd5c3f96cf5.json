@@ -1,0 +1,394 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3016,
+  "className": "com.diagnosticProcedures.ProcedureNodeFactory",
+  "classNameNormalized": "com.diagnosticProcedures.ProcedureNodeFactory",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.IProcedureNodeFactory"
+  ],
+  "iinitMethod": 48336,
+  "cinitMethod": 48335,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "c041ac6c6cfc8c6f6412835d911be838c5936a49041036aa4ab2b8fe9bdc37ad",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "7986c89cab79f9159b47fdedba125c64b9ceb11ca413b66c46269a2cc3045593",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createCall",
+      "traitKind": "method",
+      "methodIndex": 48353,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "8d424e5c80de84e4ad1f51f97a7d49f13274f9ee41e94a322d9eb6659be04351",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createCallFlashNode",
+      "traitKind": "method",
+      "methodIndex": 48338,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "38a0ca1752effd6d8be4bc08a4760d80d3b74de122b9bca082414ddd43b3c726",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createClientOperation",
+      "traitKind": "method",
+      "methodIndex": 48354,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "2871eb16b1c71d344b5e836489d4e35eaf201bfb4074c69c3fe063599a1b16fb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createCookieNode",
+      "traitKind": "method",
+      "methodIndex": 48342,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "279e3e2d7d2758bcceae9c2d04fbd040d24f10cf9e2da433636be9f3f518350a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createDecision",
+      "traitKind": "method",
+      "methodIndex": 48344,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "c3fd9e7c8c95c1e7f4ea0717b8dada17c510644155ba772a0dd76c167925d8e4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createDelay",
+      "traitKind": "method",
+      "methodIndex": 48352,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "d5f9c4e7869c77a2e99f5ce4e7f2ab664337137323bd0000a7d1e2687014332f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createDone",
+      "traitKind": "method",
+      "methodIndex": 48355,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "27bd257cb978bfc9235c44f4420a749d1d8070d867b6bcdad6aebc05526e98eb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createEncryptedIONode",
+      "traitKind": "method",
+      "methodIndex": 48341,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "e1288daf14be6af65297e4934c5be4582c418a0dcef1a88679dd24f1c661aeaf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createEval",
+      "traitKind": "method",
+      "methodIndex": 48345,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "9f816934c287b066f0f35dc3ab69fb07f27938d17a8c20970f067c7e4553057e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createGoToPage",
+      "traitKind": "method",
+      "methodIndex": 48351,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "6a75dcad4b5e03158d73202e90018b0a621b8b68e6c8537f4f4472752921987f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createIONode",
+      "traitKind": "method",
+      "methodIndex": 48340,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "4e98bd3320deac9c6154e4d41973ff3ebd773a3c4d6fde34e9aa281e778cf3f3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createSessionNode",
+      "traitKind": "method",
+      "methodIndex": 48356,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "d677061277d5efc177f36093adbca6867ab2ddcdf6ce8f1d200132bc0dc47354",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createStart",
+      "traitKind": "method",
+      "methodIndex": 48343,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "b54cfb2393ea5adec164cf6b36622db47807af10fa56de4f1ddf7870e56aec60",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createStringTranslationNode",
+      "traitKind": "method",
+      "methodIndex": 48339,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "ac75c8b0c8a6b68035fcb66770d9727d12822fdff31bfb7c06f61f05ac86bfe1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createUser",
+      "traitKind": "method",
+      "methodIndex": 48346,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "8c40ef5d2726ea277418f907db4d66dc645b95328b52c4416a83bc00d5f2fff0",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createVehicle",
+      "traitKind": "method",
+      "methodIndex": 48349,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "b99009c27828b5eeaf184daaf847e3f5b59a522ec9e2af2a19806326298496f5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:ProcedureNodeFactory.createWeb",
+      "traitKind": "method",
+      "methodIndex": 48350,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "9808e38eb2de94b1cca4078b0451f99cab0e76645dc0d0abcf421d8d15b73968",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "createProcedureNode",
+      "traitKind": "method",
+      "methodIndex": 48337,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 654,
+      "bytecode": {
+        "codeLength": 654,
+        "codeSha256": "96b33eb43de675963a20f1c7c95e0b72eef82f6578bdca14c90ee5ad3af34043",
+        "bytecodeLineCount": 41
+      }
+    },
+    {
+      "traitName": "PrivateNs.createUserLoop",
+      "traitKind": "method",
+      "methodIndex": 48347,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "0a01d2606f25cadc6c2ea5bb865e503421f503d4463b8e181f1f5b9f42f6052e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.createUserStop",
+      "traitKind": "method",
+      "methodIndex": 48348,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureInterpreter",
+        "XML"
+      ],
+      "returnType": "com.diagnosticProcedures.node.ProcedureNode",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "cb35ca0575833e47b646461e613b3e8b1badd7828bab7b9236939470fe9ff368",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

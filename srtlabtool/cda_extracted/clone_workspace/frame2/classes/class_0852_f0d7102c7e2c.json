@@ -1,0 +1,173 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 852,
+  "className": "com.chrysler.cda.application.buslog.ConfigurationStoreCommand",
+  "classNameNormalized": "com.chrysler.cda.application.buslog.ConfigurationStoreCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "buslog",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 16876,
+  "cinitMethod": 16866,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application.buslog:ConfigurationStoreCommand.keys",
+      "traitKind": "method",
+      "methodIndex": 16871,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "93bc2db5f66048b12d4f0a92299ac6969c356c28a133695db0bb22d147f7afe9",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.buslog:ConfigurationStoreCommand.loadData",
+      "traitKind": "method",
+      "methodIndex": 16874,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "e7e37854520e6f4cd93e838e3a61a6dde99872f3466e03ab01b2db549cc6c266",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.buslog:ConfigurationStoreCommand.removeData",
+      "traitKind": "method",
+      "methodIndex": 16875,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "30f78a38a05c0bc34a98b0a3f64703415351684ec125b433174c182bea4a9de6",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.buslog:ConfigurationStoreCommand.saveData",
+      "traitKind": "method",
+      "methodIndex": 16873,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "com.chrysler.cda.event.message.buslog.ConfigurationStoreRequestMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 220,
+      "bytecode": {
+        "codeLength": 220,
+        "codeSha256": "f29bc0ee99fa61d5d9f5b754bd6d7baeac8f81affb59703cca5c522e3595de25",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "onClose",
+      "traitKind": "method",
+      "methodIndex": 16869,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.CloseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 273,
+      "bytecode": {
+        "codeLength": 273,
+        "codeSha256": "5c93cbb47f2c8cf6014420631e97c2007bd894de983be868696d2413d5d07b60",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "onLoadConfigurationMessage",
+      "traitKind": "method",
+      "methodIndex": 16868,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.ConfigurationStoreRequestMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "ff197b365465c298e92b8f71c2b6417a02d240aa433bdd7e32113f9113156a13",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onRemove",
+      "traitKind": "method",
+      "methodIndex": 16870,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "062683ef449de2de0491ea3a64e477c5ee669d763148d786857115718f207c2c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onSaveConfigurationMessage",
+      "traitKind": "method",
+      "methodIndex": 16867,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.ConfigurationStoreRequestMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 104,
+      "bytecode": {
+        "codeLength": 104,
+        "codeSha256": "1f6592934b2c9d974e9c8f79cfb86a235549158cb810b06d14717dfb6fc72833",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": []
+}

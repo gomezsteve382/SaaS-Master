@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1866,
+  "className": "flashx.textLayout.conversion.PlainTextImporter",
+  "classNameNormalized": "flashx.textLayout.conversion.PlainTextImporter",
+  "superName": "flashx.textLayout.conversion.ConverterBase",
+  "superNameNormalized": "flashx.textLayout.conversion.ConverterBase",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.conversion.ITextImporter"
+  ],
+  "iinitMethod": 35272,
+  "cinitMethod": 35271,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "b865f88aca06eeb7098d278cb48ea35b0f680e749320d00c9e28312a4f7badbb",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "configuration",
+      "traitKind": "getter",
+      "methodIndex": 35274,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.IConfiguration",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6138fb63061e5a992fd3174eaf7aecf5612131780ab51523d55510570a6b5954",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "configuration",
+      "traitKind": "setter",
+      "methodIndex": 35275,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.IConfiguration"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "e95d06af46f9b1f3fab8fc063b6ad9d474f2bea2abd711e2e4475e16cf2c275b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.conversion:PlainTextImporter.importFromString",
+      "traitKind": "method",
+      "methodIndex": 35276,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flashx.textLayout.elements.TextFlow",
+      "hasBody": true,
+      "codeLength": 268,
+      "bytecode": {
+        "codeLength": 268,
+        "codeSha256": "07dbe6c7ac3a139bb08045e3cb0c267aff36cb26b8a848e9fdb9d746788f6259",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "importToFlow",
+      "traitKind": "method",
+      "methodIndex": 35273,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "flashx.textLayout.elements.TextFlow",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "2be0a8ef46d228a9240d280dae3f616d8465748fdf867cdeca4db3b6b584b5b3",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

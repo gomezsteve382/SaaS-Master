@@ -1,0 +1,1411 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 661,
+  "className": "flashx.textLayout.edit.SelectionManager",
+  "classNameNormalized": "flashx.textLayout.edit.SelectionManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.edit.ISelectionManager"
+  ],
+  "iinitMethod": 12479,
+  "cinitMethod": 12472,
+  "iinitBytecode": {
+    "codeLength": 45,
+    "codeSha256": "c5106813bef114148da636f501744f31c60ffa216f559ac25cb6e1b4ce543090",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "absoluteEnd",
+      "traitKind": "getter",
+      "methodIndex": 12505,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "43b53a444ac3284ea8e715846def9603a9218d66bf4694a7d09d78c7345d9a79",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "absoluteStart",
+      "traitKind": "getter",
+      "methodIndex": 12504,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "185a0c6bd207008b30d340cc9fb64b608c5ee0ae83c5342f71a8dd133ba013c6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "activateHandler",
+      "traitKind": "method",
+      "methodIndex": 12525,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "0dd0dc4239c23faac67036afbfa23fbee6c9cd58df436ce4a635fd0505d51de3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "activePosition",
+      "traitKind": "getter",
+      "methodIndex": 12503,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "56406800c6dc34d4ce576add82643d1a1454a2fdf1b455e2826765b4ebdacf50",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "anchorPosition",
+      "traitKind": "getter",
+      "methodIndex": 12502,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "941a344caebb7d8ea6c4e0ac7c68575098c4dbe5cf4fa816e112dca6d4b51916",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentSelectionFormat",
+      "traitKind": "getter",
+      "methodIndex": 12489,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionFormat",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "3800ef732eb085717180a5f2bd504587478d5572966df1db0ed270141d2e70e9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "deactivateHandler",
+      "traitKind": "method",
+      "methodIndex": 12526,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "c99392932bd17c29c0b6d3a850fa5edae4dc8554b939e32007524d29a594b64b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "doOperation",
+      "traitKind": "method",
+      "methodIndex": 12527,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.operations.FlowOperation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 310,
+      "bytecode": {
+        "codeLength": 310,
+        "codeSha256": "e976eb48f79933a40b43c51661f6fa5a6d7f21701a8a678cf589468a6bff59fe",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "editHandler",
+      "traitKind": "method",
+      "methodIndex": 12528,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "6754e5c5044a0fb389e02537dd0289c1c34a9d4eef15b9d077c1ab531535eb87",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "editingMode",
+      "traitKind": "getter",
+      "methodIndex": 12486,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "17aef38787d9a0adf4a510d006035e38c9ad443761172531955cd6f8345b3991",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.edit:SelectionManager.enterFrameHandler",
+      "traitKind": "method",
+      "methodIndex": 12544,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5356db22075b23ca946f0a501332d7c698fc2198ddecd14dc28685023996ef8d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.edit:SelectionManager.pointFormat",
+      "traitKind": "getter",
+      "methodIndex": 12478,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.formats.ITextLayoutFormat",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "24732ee4c3873c9bbc9384fb30653ae79bc08b02a5bd03679aba274afa0e6f9c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.edit:SelectionManager.setMouseCursor",
+      "traitKind": "method",
+      "methodIndex": 12501,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "fac076799fd564d91dac714c7fd6b689670f853ffbc570451e325f2811c3eb91",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flushPendingOperations",
+      "traitKind": "method",
+      "methodIndex": 12548,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focusChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 12545,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focused",
+      "traitKind": "getter",
+      "methodIndex": 12488,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "b187eb0b969e0751dfe39bcead2d295d52716579fd116c4e383767c540618a4c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focusedSelectionFormat",
+      "traitKind": "getter",
+      "methodIndex": 12491,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionFormat",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9620199b9f77f5ff8b7a9b54b9c3a646d9c0d00107725666efab149ea20ba7e8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "focusedSelectionFormat",
+      "traitKind": "setter",
+      "methodIndex": 12490,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "e7c72108e03c12f2bade30381d40eb293bd361e2ea7697c1819bdbf38203791e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "focusInHandler",
+      "traitKind": "method",
+      "methodIndex": 12523,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "e52c3db15a1d0f32cc0b963906d3d8a81f8728eee489ccbe38869c550a1697b6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "focusOutHandler",
+      "traitKind": "method",
+      "methodIndex": 12524,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "0c0749455008028564a274e91cb0f5191a413b58d951e1f40213bd4ddc51309e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getCommonCharacterFormat",
+      "traitKind": "method",
+      "methodIndex": 12549,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange"
+      ],
+      "returnType": "flashx.textLayout.formats.TextLayoutFormat",
+      "hasBody": true,
+      "codeLength": 120,
+      "bytecode": {
+        "codeLength": 120,
+        "codeSha256": "89a489492aa09c770c61031ad3f5309dcc0263bdec93992833cbca47d715aaa3",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "getCommonContainerFormat",
+      "traitKind": "method",
+      "methodIndex": 12551,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange"
+      ],
+      "returnType": "flashx.textLayout.formats.TextLayoutFormat",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "ef9de2dc15a3aa27e82a7d162149799e057bcb265f9ee75aebb9bd481a725ace",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getCommonParagraphFormat",
+      "traitKind": "method",
+      "methodIndex": 12550,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange"
+      ],
+      "returnType": "flashx.textLayout.formats.TextLayoutFormat",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "74ee9bfd50911c9f9d23fed8c1692482b7b1866d10121145491123a82ec7cfce",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getSelectionState",
+      "traitKind": "method",
+      "methodIndex": 12480,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "b7ddaff104817cd741f6d4ccbcabe2508d68b6219f799156219e7758bbbda1d4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hasSelection",
+      "traitKind": "method",
+      "methodIndex": 12482,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "498d0ffb64a1a623e327644c0cea9d7b17c89787286ca0ed9578e2f496da941a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.cloneSelectionFormatState",
+      "traitKind": "method",
+      "methodIndex": 12498,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.ISelectionManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "78741d31c9be6744dbf704316a42f0c3d90ae8d456ed96bdf591114d3dfddb68",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.createMark",
+      "traitKind": "method",
+      "methodIndex": 12553,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.Mark",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "f219b279f3d59de46610864cd629b7db1c34d551e6a7d17857116005fc349b15",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.handleMouseEventForSelection",
+      "traitKind": "method",
+      "methodIndex": 12517,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "357b3f2518248f752b906d1a8e18f82e2d516bda37bd79a58129031f108515ac",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.removeMark",
+      "traitKind": "method",
+      "methodIndex": 12554,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.Mark"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "6ec3d28a285f0ba54cdda5375768c58166e9e0131990ed81baae3dd32e1d23f5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.selectionChanged",
+      "traitKind": "method",
+      "methodIndex": 12513,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "29d2bfd584324b476829b8d56e900d8ec3f8ef3a6fa9c7ec2781c17b62a81ba7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.selectionFormatState",
+      "traitKind": "getter",
+      "methodIndex": 12496,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1e6aa9f57655e3bf6b94b092e4395617570a492ce5d29dfa5ff0e56476b47dd9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.setNewSelectionPoint",
+      "traitKind": "method",
+      "methodIndex": 12514,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "flash.display.InteractiveObject",
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "7cc05a4bec993658087da9e80717bd54fb5784031c05cf7ec778bb9b02e88d63",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.setSelectionFormatState",
+      "traitKind": "method",
+      "methodIndex": 12497,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "0ca3c6072d00d05c2f106ed5870a5538d023e6600c6b976a8be93dccbcd7069f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "imeStartCompositionHandler",
+      "traitKind": "method",
+      "methodIndex": 12542,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IMEEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "inactiveSelectionFormat",
+      "traitKind": "getter",
+      "methodIndex": 12495,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionFormat",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "35da7cfed46fe11a21e461df98a07a282312d948610f953d9a1d7fe266c312cc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "inactiveSelectionFormat",
+      "traitKind": "setter",
+      "methodIndex": 12494,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "84f9de626bb0b5b0bcb00c6e597be065de42890f48dd66f9c86eb38fd47138ee",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "isRangeSelection",
+      "traitKind": "method",
+      "methodIndex": 12483,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "8161c28d3e778011fcac3d158541c3968647f32f7501df64891bedaf3a1d9632",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "keyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 12538,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 310,
+      "bytecode": {
+        "codeLength": 310,
+        "codeSha256": "a4834eeeddf396106bcc0c861f08da5402a3eaa2ea06cd16c4907adb4b18a069",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "keyFocusChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 12540,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "keyUpHandler",
+      "traitKind": "method",
+      "methodIndex": 12539,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "menuSelectHandler",
+      "traitKind": "method",
+      "methodIndex": 12546,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ContextMenuEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 223,
+      "bytecode": {
+        "codeLength": 223,
+        "codeSha256": "166fadec71f85c892ff31dd5c5f43fe5b1581c243c86cd28666a7c3aba5be363",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "mouseDoubleClickHandler",
+      "traitKind": "method",
+      "methodIndex": 12520,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 384,
+      "bytecode": {
+        "codeLength": 384,
+        "codeSha256": "d076519549a1989ac2d299de1ecc15178d2135377e2cdfc5ac3c15c3b12c0631",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 12515,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "d74afed1e4d9d0c36f945acc8a3e62eece605f7c075549eec6ac08b9e48fac33",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mouseMoveHandler",
+      "traitKind": "method",
+      "methodIndex": 12516,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "169ccb543646ddea8654ed170a9c3478cfe702a703b77823f3ef1f2c310103ba",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mouseOutHandler",
+      "traitKind": "method",
+      "methodIndex": 12522,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "8a0cd4f012f6b45503a03f60daea3514572f2d7e5b18e830a65785a607a2a0e5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mouseOverHandler",
+      "traitKind": "method",
+      "methodIndex": 12521,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "7dcd25cf40cabfad51765f612f9f80fd859ea9845ed6d824ccc26b5c15b6b01f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 12518,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "6b562c0e38630d2fc1056c8dd5349caf148edcd02a368eea0a323d612ab41f53",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mouseWheelHandler",
+      "traitKind": "method",
+      "methodIndex": 12547,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "notifyInsertOrDelete",
+      "traitKind": "method",
+      "methodIndex": 12555,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "751a8c0b99f17e9ac67ddba5862771629f6af0d73cb6f03adf5208a854eefb4e",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSelectionShapes",
+      "traitKind": "method",
+      "methodIndex": 12510,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 174,
+      "bytecode": {
+        "codeLength": 174,
+        "codeSha256": "b7dbf7a890252a4eec9a42208558adbce56a0228647a51a9056fcc8b3a945a6c",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.atBeginningWordPos",
+      "traitKind": "method",
+      "methodIndex": 12519,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.ParagraphElement",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "8fbd29ec10b35a4c33fcf55736cf65a2d1c9aae98acec93067382b90609bdcda",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.clear",
+      "traitKind": "method",
+      "methodIndex": 12509,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "91231fd8f47cc8946c3a02bfe06868d0a18efdc984956175658070b16d483491",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.clearSelectionShapes",
+      "traitKind": "method",
+      "methodIndex": 12511,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "07ca14f5689ac92ac966bb90bd420463675a13cc297734e3f3b9ab9cfdd59e5a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleDownArrow",
+      "traitKind": "method",
+      "methodIndex": 12532,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 247,
+      "bytecode": {
+        "codeLength": 247,
+        "codeSha256": "353d07c1271a6bdc47cd34d83230f1490e17fc81d53cf4f95390b3024c533a46",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleEndKey",
+      "traitKind": "method",
+      "methodIndex": 12534,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "76e7de556b6558bc9453f20e283f5f8fe30491f9a43b76bb0628d23d1aa1717f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleHomeKey",
+      "traitKind": "method",
+      "methodIndex": 12533,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "baf81d0caec5e7da815889d98fa345ca8d4586e457aefe4cd9ed01e219e0a689",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleKeyEvent",
+      "traitKind": "method",
+      "methodIndex": 12537,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 445,
+      "bytecode": {
+        "codeLength": 445,
+        "codeSha256": "bda04633f10df50de133b75b59e53d5d8c58adbf41cf1478ea20c942daef9653",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleLeftArrow",
+      "traitKind": "method",
+      "methodIndex": 12529,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 247,
+      "bytecode": {
+        "codeLength": 247,
+        "codeSha256": "410fc0f08a65716900896f35a0013609c2f7a626e9f16ab6a4fe25a25e0691f4",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.handlePageDownKey",
+      "traitKind": "method",
+      "methodIndex": 12536,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "fb6bed2f1f3d9f19215ee4a49b87d6c63b4afe4c0e2cedc13a62371701615a7f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.handlePageUpKey",
+      "traitKind": "method",
+      "methodIndex": 12535,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "2c7d0cc0b2ab0c66eb60f9e4768c4d8c3d080afd0facc6766d9e94f6a8167241",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleRightArrow",
+      "traitKind": "method",
+      "methodIndex": 12531,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 247,
+      "bytecode": {
+        "codeLength": 247,
+        "codeSha256": "4b092c8416df5d8ac112c8ec3f8041a47a465dfd2abc2e13844c6fa02d0fffe9",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleUpArrow",
+      "traitKind": "method",
+      "methodIndex": 12530,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 247,
+      "bytecode": {
+        "codeLength": 247,
+        "codeSha256": "883c5745c639cf80dcca6dfa19123a1526fc7b8dbc0395a5967b5e18aa0891c8",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.internalSetSelection",
+      "traitKind": "method",
+      "methodIndex": 12508,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int",
+        "int",
+        "flashx.textLayout.formats.ITextLayoutFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 127,
+      "bytecode": {
+        "codeLength": 127,
+        "codeSha256": "741444847a0a317e54b6b92ebac006ebf49a9f4cd485d053ebae55f2c1383a58",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.selectionPoint",
+      "traitKind": "method",
+      "methodIndex": 12499,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "flash.display.InteractiveObject",
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 188,
+      "bytecode": {
+        "codeLength": 188,
+        "codeSha256": "5cbd5e308d2153cdc3a04ca1469a398254be8e42c7b94a4d52cf01caa7ad8a7e",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateSelectionAndShapes",
+      "traitKind": "method",
+      "methodIndex": 12552,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "4fbdd06cd812e87492ec180fe03ed6144e7ebd2d61bcb8bcd1d8bf06f1112452",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "refreshSelection",
+      "traitKind": "method",
+      "methodIndex": 12512,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "6289d5f7c721760b3daa1efa7cf2ac93ff3f41400c0fcc29ad6d559f048a2046",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "selectAll",
+      "traitKind": "method",
+      "methodIndex": 12506,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "453a017f898eff61c53f47ae038bc0f4165cfb380ce0d403f515b8cb197adf9e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selectRange",
+      "traitKind": "method",
+      "methodIndex": 12507,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "ea788908d62e55859d5c4ef2507fc41f16455a5e3cf8b8865a868aba88fc7713",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setFocus",
+      "traitKind": "method",
+      "methodIndex": 12500,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "3d5e4eed407d60dc0ccfb951f9918a64eba4e98471048c781736b452493231c3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setSelectionState",
+      "traitKind": "method",
+      "methodIndex": 12481,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "6c61e073e05a62059eb7e88373d3826ed1b6f3e4d404c4efdcdc1790b9850599",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "softKeyboardActivatingHandler",
+      "traitKind": "method",
+      "methodIndex": 12543,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "textFlow",
+      "traitKind": "getter",
+      "methodIndex": 12484,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.TextFlow",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9eddb2b91298eed942d585756094cc122f984f800a7d8ff4196f873b1d530fc8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "textFlow",
+      "traitKind": "setter",
+      "methodIndex": 12485,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "05d8f93ba19501f896649b5aadfa08a315540507773a15834a87e4ea74c67ff4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "textInputHandler",
+      "traitKind": "method",
+      "methodIndex": 12541,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TextEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "89124529b985271caf3c3cf335b6d60e1e4da07a4fe4de525188419482e2a391",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unfocusedSelectionFormat",
+      "traitKind": "getter",
+      "methodIndex": 12493,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionFormat",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "cd61bb24077ca96202a554d73949f07f441c20538e00ee6b5b412a9f77082d98",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "unfocusedSelectionFormat",
+      "traitKind": "setter",
+      "methodIndex": 12492,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "09922ce041e4cbb72e7ac6b9b6ec04bf7baa4b22681161b846c47ac03e836864",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "windowActive",
+      "traitKind": "getter",
+      "methodIndex": 12487,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "206484077020dc463217089ef316734ea668ef5734231ae12b02d2cb1afcd445",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.computeSelectionIndex",
+      "traitKind": "method",
+      "methodIndex": 12477,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "Object",
+        "Object",
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 1038,
+      "bytecode": {
+        "codeLength": 1038,
+        "codeSha256": "5ee134c763a61f72a7e94fda043a58e418a238192a9c61dbd3b7574663d6f975",
+        "bytecodeLineCount": 65
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkForDisplayed",
+      "traitKind": "method",
+      "methodIndex": 12476,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "86d6656db46a32529ef68f4046cebe824eb909fbdccf8592b5769d53c1fa7af3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.computeSelectionIndexInContainer",
+      "traitKind": "method",
+      "methodIndex": 12473,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.container.ContainerController",
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 1067,
+      "bytecode": {
+        "codeLength": 1067,
+        "codeSha256": "eaa1b99c3ad749d2bb1ed95f6b125307f73763f19183676d424a6544ecd06235",
+        "bytecodeLineCount": 67
+      }
+    },
+    {
+      "traitName": "PrivateNs.computeSelectionIndexInLine",
+      "traitKind": "method",
+      "methodIndex": 12475,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flash.text.engine.TextLine",
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 616,
+      "bytecode": {
+        "codeLength": 616,
+        "codeSha256": "de9766c76cae7ff1f656a8ba2addb053f951ce372d084d2c6b9b261282c1dae9",
+        "bytecodeLineCount": 39
+      }
+    },
+    {
+      "traitName": "PrivateNs.locateNearestColumn",
+      "traitKind": "method",
+      "methodIndex": 12474,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController",
+        "Number",
+        "Number",
+        "String",
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 398,
+      "bytecode": {
+        "codeLength": 398,
+        "codeSha256": "e81ec27b5cb4831a82050aee06193eb7b077411939d0ba6131bbf631c30aa1af",
+        "bytecodeLineCount": 25
+      }
+    }
+  ]
+}

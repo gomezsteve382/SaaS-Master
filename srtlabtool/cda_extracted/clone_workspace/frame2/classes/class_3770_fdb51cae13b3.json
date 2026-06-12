@@ -1,0 +1,289 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3770,
+  "className": "memorphic.xpath.model.BinaryOperation",
+  "classNameNormalized": "memorphic.xpath.model.BinaryOperation",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "memorphic.xpath.model.IExpression"
+  ],
+  "iinitMethod": 55984,
+  "cinitMethod": 55983,
+  "iinitBytecode": {
+    "codeLength": 627,
+    "codeSha256": "9ddd1e1adf2396dddb0978dcf857009ecebf42de540bed1c62502852254d9c73",
+    "bytecodeLineCount": 40
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "exec",
+      "traitKind": "method",
+      "methodIndex": 55985,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "bc44fd54d3d9a7d561b8940d4f82c80e70910bbbf34db1741f3912f4720acc4e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.opAdd",
+      "traitKind": "method",
+      "methodIndex": 55990,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "ec1b2377a414233e2be333fb78174cae47cf8efd7b5cab29582fdb30dadcd74e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opAND",
+      "traitKind": "method",
+      "methodIndex": 55987,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "a74ae2f980eb28fc06f26d261e0582101d6f0c20f3eed616a2eae49a3c1ce609",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.opDiv",
+      "traitKind": "method",
+      "methodIndex": 55993,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "1c7eaed4496893529ced1c7822aa734e0dd912e865e03b42bdbf37af73ae2892",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opEq",
+      "traitKind": "method",
+      "methodIndex": 55988,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "6d11df97279c7baf70940f12932fbd4448e160c908b32849e8482be16efb6a80",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opGT",
+      "traitKind": "method",
+      "methodIndex": 55996,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "5a8818a78bc294796d98223a9aba5db9fded0bbc4308d902403b14894dd8f35d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opGTEq",
+      "traitKind": "method",
+      "methodIndex": 55998,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "bc723ae7d481610ccc605dc0eaad92631b831adc04ec0b152ced375d0e0e5456",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opLT",
+      "traitKind": "method",
+      "methodIndex": 55995,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "a228e35ace4e777e91dc5d70d76f0dad591582e8adc54164057fd847777a9ebb",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opLTEq",
+      "traitKind": "method",
+      "methodIndex": 55997,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "342fc323fd0d0f362d03eb4299d8d422127cfcf5e5eca16ab94e27267c131663",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opMod",
+      "traitKind": "method",
+      "methodIndex": 55994,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "fdc5f4c497c7b22eb5e61a5a48bbbaa3af409473d18d850eaaefe255b7f6f325",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opMult",
+      "traitKind": "method",
+      "methodIndex": 55992,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "f235d8f290bd4f7ce1828d57bfed1995fd9b0b64c9e0d2544d4a20a90bd4c7d4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opNotEq",
+      "traitKind": "method",
+      "methodIndex": 55989,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "483d12f60f9abf2640e56ceffe017dbbfe6f173f9dbb2e147b8a5682b2b7302f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.opOR",
+      "traitKind": "method",
+      "methodIndex": 55986,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "2af8a671e9c12cbc59b480008d87053b6b6eefe3c3dede4995db80619554be2c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.opSubtract",
+      "traitKind": "method",
+      "methodIndex": 55991,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "81bd8ec847bc6cc3bf704c892a990d94d1fa45215668d9f8620d3cf672135001",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.opUnion",
+      "traitKind": "method",
+      "methodIndex": 55999,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "ee0107310ece49bcedc64f301f1ada05944e9883e43865d0f858d36882d7d4be",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

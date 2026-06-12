@@ -1,0 +1,281 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3149,
+  "className": "mx.messaging.channels.NetConnectionChannel",
+  "classNameNormalized": "mx.messaging.channels.NetConnectionChannel",
+  "superName": "mx.messaging.channels.PollingChannel",
+  "superNameNormalized": "mx.messaging.channels.PollingChannel",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49846,
+  "cinitMethod": 49845,
+  "iinitBytecode": {
+    "codeLength": 47,
+    "codeSha256": "a6b322c7e3620a6119c019ddce60b417c8c6a3408e50f9cecdafc227d0b903c2",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "AppendToGatewayUrl",
+      "traitKind": "method",
+      "methodIndex": 49854,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "297fb133ff6cc3ec82f8b848d04ba0b3c7d4611f6d9d4d797f947bcca8f3b8fe",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.asyncErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 49860,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.AsyncErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "df2ec51ad2fd94a3a39c88ee14c0df85695646b2cc32596b7c31c1bfe995dd30",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.connectTimeoutHandler",
+      "traitKind": "method",
+      "methodIndex": 49849,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "f1054453f3166834cfc69805aa4bbd9a2c75fd6d0329b2cddc74f4da03c552bf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.getDefaultMessageResponder",
+      "traitKind": "method",
+      "methodIndex": 49850,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageAgent",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "mx.messaging.MessageResponder",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "3e3c83da36ec66b3e53acbfeae3d6d0d96d9520760326d1eccc18aacd001071f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.internalConnect",
+      "traitKind": "method",
+      "methodIndex": 49852,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 550,
+      "bytecode": {
+        "codeLength": 550,
+        "codeSha256": "d8c949a6102e6fda8f219705174c53c6931b7781382ee0dc2fabbc9a9712fa23",
+        "bytecodeLineCount": 35
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.internalDisconnect",
+      "traitKind": "method",
+      "methodIndex": 49851,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "796ddc11053f8ff95928cb7159a8140469dd4335fa4435cc8b108e8e0c793317",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.internalSend",
+      "traitKind": "method",
+      "methodIndex": 49853,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageResponder"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 160,
+      "bytecode": {
+        "codeLength": 160,
+        "codeSha256": "62b5cb5ca8c7b273db6f85f54b31c09deba79934625697d2665b9746961f32e7",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.ioErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 49859,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "41155893effcec880f8288e3eedf0f0773af3f38dfcc836bed8dbbd5feda4d40",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.securityErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 49858,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SecurityErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "8692c5d921fafe3d33aae586f9308f69f0f126952a511d9cf13bc70cc23717d7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.shutdownNetConnection",
+      "traitKind": "method",
+      "methodIndex": 49856,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "13d1fdae660b3065d27b9b47f7e52b1864ed3d6ac83eb3c12dc030bbaa4b7bd4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:NetConnectionChannel.statusHandler",
+      "traitKind": "method",
+      "methodIndex": 49857,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.NetStatusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "netConnection",
+      "traitKind": "getter",
+      "methodIndex": 49847,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.net.NetConnection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "281e40941c4083175274782d06d90750ad92be2975c7280e7369efba2a8fcfb5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.defaultErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 49861,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.events.ErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "827894401dca1246b7b660ccdd2db4024fce19ac92c2fb899c5ff961facd3137",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "receive",
+      "traitKind": "method",
+      "methodIndex": 49855,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 179,
+      "bytecode": {
+        "codeLength": 179,
+        "codeSha256": "7b63fe0b3120e53b11057bae973fa861a072334625400f5247438198ce25737a",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "useSmallMessages",
+      "traitKind": "getter",
+      "methodIndex": 49848,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "2826774bd321fdc75cdac68570d8cb5933cf2a6048d6afb6925cf59f56eb628e",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

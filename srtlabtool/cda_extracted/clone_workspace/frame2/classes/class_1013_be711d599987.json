@@ -1,0 +1,66 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1013,
+  "className": "com.chrysler.cda.application.sync.StartSyncCommand",
+  "classNameNormalized": "com.chrysler.cda.application.sync.StartSyncCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "sync",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 21493,
+  "cinitMethod": 21490,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "e952f24a8fa73ad49d28f82f5c23a460c575facb446b804477afacf9d331fe74",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onStartSync",
+      "traitKind": "method",
+      "methodIndex": 21491,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.sync.StartSyncMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "1dda866196970e574acc4b8de2e22007b1eec685558e400fe9811a4886a5d4ec",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onStartSyncWithCredentials",
+      "traitKind": "method",
+      "methodIndex": 21492,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.sync.StartSyncMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "b386cd9e6bec460d3190a123de57e32aeab3bafef1aca3860e21e366d0bd9fb9",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

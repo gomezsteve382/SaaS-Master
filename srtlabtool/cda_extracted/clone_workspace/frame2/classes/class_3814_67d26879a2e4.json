@@ -1,0 +1,145 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3814,
+  "className": "org.httpclient.io.HttpBuffer",
+  "classNameNormalized": "org.httpclient.io.HttpBuffer",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56379,
+  "cinitMethod": 56378,
+  "iinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "3008fdc483fa797d7483e7ccfc281a831550d8381f28ca92755500ccf350bd62",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "bytesAvailable",
+      "traitKind": "getter",
+      "methodIndex": 56382,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "d73bd6434f2e1eaef283948fe3ab9928f0107b67a78922591538d72171f0cb28",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "read",
+      "traitKind": "method",
+      "methodIndex": 56381,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "88e1727a140d4ca3be0ed5bf948700b80b974abe59ce22d43b312272d13f705d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readAvailable",
+      "traitKind": "method",
+      "methodIndex": 56383,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "8c8092c58182334b1207126e475c059d2229a58cc51dbbbfd9faabfed5dd68d4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readChunks",
+      "traitKind": "method",
+      "methodIndex": 56386,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 308,
+      "bytecode": {
+        "codeLength": 308,
+        "codeSha256": "8eed83cfced138de17aa70846315d6d17a475b04b030d8a7b7a69f4f9426c825",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "readLine",
+      "traitKind": "method",
+      "methodIndex": 56384,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "b03da75c2518b49ba784df9f1fc5792dbf8831d28de83d6b62ad5c2a65c9fb95",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "truncate",
+      "traitKind": "method",
+      "methodIndex": 56385,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "11d603fffe4d8f4affbdbf5400485750c63b1e39a9be972097308c978e631122",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "write",
+      "traitKind": "method",
+      "methodIndex": 56380,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "ea3bf288b255e86cb209f1b3527c552d84f25349a7f0f0349c9624a9908b3ee0",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

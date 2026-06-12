@@ -1,0 +1,128 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1958,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCSnapshotDataMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCSnapshotDataMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 36556,
+  "cinitMethod": 36555,
+  "iinitBytecode": {
+    "codeLength": 52,
+    "codeSha256": "530f4a685339a5b0c3c7413fea07b18ab80134e07244e3254620f6c35abb9dc0",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "a4090c60c6de1f2c712c36cce7cd2e93f04e127ad75e9e12e4b2a2d8f05e3940",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ecuId",
+      "traitKind": "getter",
+      "methodIndex": 36557,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "176f43d751fdbfdf7109cff1431f176b035b5f4bcebbfa465080f48e60f826f8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "setter",
+      "methodIndex": 36558,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "7ee4357506172937fce83cc26cfb186bcf60eb850389f6cc4a579f3c1a27985d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 36561,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "70ab253e492753e81a684948c2f7cc2c9a51c4726c8b6e8f271f0fce80b10b66",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 36562,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b6fe7f382d145ac57847ac30b0e98a9e3a7197f609dee53e713e304642fce547",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hexCode",
+      "traitKind": "getter",
+      "methodIndex": 36559,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3fa675905ab8b7c7417bf99ca6152072bb8182f68b1544a5ef3a1b49565998c7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hexCode",
+      "traitKind": "setter",
+      "methodIndex": 36560,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "60127164ae98a59fdb9392e78201de9b220df7928acefa7354e9d154ef23c0ce",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

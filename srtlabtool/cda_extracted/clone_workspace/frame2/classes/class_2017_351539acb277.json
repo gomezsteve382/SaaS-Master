@@ -1,0 +1,745 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2017,
+  "className": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+  "superName": "com.chrysler.cda.event.message.LinkableMessage",
+  "superNameNormalized": "com.chrysler.cda.event.message.LinkableMessage",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.event.message.diagnostic.ecu.ITesterPresent",
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 37276,
+  "cinitMethod": 37272,
+  "iinitBytecode": {
+    "codeLength": 78,
+    "codeSha256": "071d8d9b1897f6c036b21e5c22abaf398f911bc6910e6e30f8de737b08205439",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 114,
+    "codeSha256": "438945e86cc2edce5a28b4cadc115a06e472f0ee81a69544527cd98af04f9681",
+    "bytecodeLineCount": 8
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 37312,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "a9c4a008c00852a3f0cbc765e808a36dc712a4b9ceec1dd5d812774b57516eb8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "after",
+      "traitKind": "method",
+      "methodIndex": 37287,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "436482444a27db971edd84520637c02b30011e6dfe4512ce8c6f191db8f468f5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "callbackForAuthorizationToken",
+      "traitKind": "method",
+      "methodIndex": 37301,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.ITesterPresent",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "99ebb2c3d631cc826513137fa3d0dcbe395624d49bb1fcc59c1a20964aa49d43",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "callbackWithToken",
+      "traitKind": "getter",
+      "methodIndex": 37310,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d57b71c46f2ef65a979c3116b2ee7c270faef236f4a956b195cd288b716836c0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "callbackWithToken",
+      "traitKind": "setter",
+      "methodIndex": 37311,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "d23238f948080b0a11f5e9450edbb17e5f35068360b4b2d71be1adec78bea8c1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "callNext",
+      "traitKind": "method",
+      "methodIndex": 37288,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b2fa48b328750dcad81bf2535e81eccc1b42c83a16689dd1895ae4d5111dd8b1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cancel",
+      "traitKind": "method",
+      "methodIndex": 37289,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "4ee1765dab7d3f48581077330568a7ce988ffd03cf644f11d7f7de8f1f0147ff",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "conversion",
+      "traitKind": "getter",
+      "methodIndex": 37292,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "d049da72fdfa3a813444a86f8e040ec9fba8fc63f24b80737e18c306d05588ec",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 37313,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "b8980e5fe21a04f996a10619c3e9780870757acd9ba55ab31c3a35694fa5e0e8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "getter",
+      "methodIndex": 37306,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "39019c6d372a044a451e5b02015ba61cbb0e6b9f0da10135b9e46d18053d2f14",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "setter",
+      "methodIndex": 37307,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "b03799bb0e66a8e46eed64c6e7f2a4dd75e58f2bfb2dc4c81fdab35c1eaf3c6d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 37304,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1531c25329a1f174002b965048c2013e2c96c82711f946b2ce22e7b98421202d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 37305,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "22aa18ad0152c214caf9171b64eabd7acfe61a4944e3ace93ce1e7c4b1b14618",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "expire",
+      "traitKind": "method",
+      "methodIndex": 37278,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "b524746e6de7d3666786094228575f18a0cb0c6431843f7d6f9a149f068316c6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "extendedDiagnosticMode",
+      "traitKind": "getter",
+      "methodIndex": 37295,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a77be4a96a14335a1024dd081e4361d7327ba78b04c23594ae552a1b6ce42a34",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 37314,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "07812b879e5847ac315e2e296d65b6f1f87a519309d2e1e0fd77189e7d52e2d7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ids",
+      "traitKind": "getter",
+      "methodIndex": 37290,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "beea69b6b06ad931fcc7eafb9bf2c4066e1b0eb374bf45744b2e986a468bd05e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "inExtendedDiagnosticMode",
+      "traitKind": "method",
+      "methodIndex": 37283,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "9176c6a6d9d7c61e2f6688547a018ff8b30f9c140ee2086946cf9fb0c4e0c703",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isCancelled",
+      "traitKind": "method",
+      "methodIndex": 37300,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "584bb409e4289841e626c69417629deeebd9304ea66e1c796da256f3967b250a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isPolling",
+      "traitKind": "getter",
+      "methodIndex": 37296,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "521b162b33b92e2664dcfb78cc3433079f8b2edc28652216e90a7018a7264262",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "keepPolling",
+      "traitKind": "method",
+      "methodIndex": 37280,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "5c18eb3d0c15b435f02d57bb4f1e47baeb193b0865aacc9636fea9189b8a9a18",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "periodicExpire",
+      "traitKind": "getter",
+      "methodIndex": 37297,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ec2c41e17bde3ecdc3cf5c9c90168877c360611bccb568c0837b9efa15bd69ba",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "periodicPeriod",
+      "traitKind": "method",
+      "methodIndex": 37279,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "bd390dbe0faa3cf4fd044ae06ed677832641f3fd81d4a9fcfd12e38b8dbc07fd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "poll",
+      "traitKind": "method",
+      "methodIndex": 37277,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "88d59dc64bc50e3e96da42d7d93c5f1fd86118f4d748d0cb59893b9069e3677c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.requestPropertyList",
+      "traitKind": "method",
+      "methodIndex": 37303,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "f42cc0323cc9439b74ac47b407e7b067a6c31922b5d419451c0ff52846e70161",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "refresh",
+      "traitKind": "method",
+      "methodIndex": 37284,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "7b365b69b27aff668ad94abc247c6f692697f5903df46ccd04c1406d9018c8ad",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 37315,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "266352506f9814b9f91c8dd90478fafc2d28c25940e783c880964479fa54faf3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "repeat",
+      "traitKind": "method",
+      "methodIndex": 37286,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "1c6727a71034e022f1deb6f12a83f9e0f01d51c3253694c3310423f7b54d599f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "repeatInterval",
+      "traitKind": "getter",
+      "methodIndex": 37298,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bebd2356aa3d66cd6e656018bf1f387f3860fe0525d187f721a6b8af69f6080b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "source",
+      "traitKind": "getter",
+      "methodIndex": 37299,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0927e1d7b69f2ee9e59e1293cd766248728d53168ded0ff297f1f3f3f212691c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stop",
+      "traitKind": "method",
+      "methodIndex": 37285,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "5ac78154ba4e591cbc487b2d6a61f92771625fb6ffc9d7573c1e93765779d9c6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "stopTesterPresent",
+      "traitKind": "getter",
+      "methodIndex": 37294,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "032dfb56a36ca74cba42d362aa4a6d52ea230019e39d9a220f9963bfd21bb987",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stopWithToken",
+      "traitKind": "method",
+      "methodIndex": 37302,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.ITesterPresent",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "47bea534d4325771ad1d2f03fba54eb8781d39062e5db3f160f202ae838b3dc0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "testerPresent",
+      "traitKind": "getter",
+      "methodIndex": 37293,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ec918bd8bed039c35aae2faed1bb0e39966b950cdb898d08b6e27cc5be8fc2a2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "testerPresentAlreadyStopped",
+      "traitKind": "getter",
+      "methodIndex": 37308,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f6357dfe0632f0277cc7cd4d1e1f07e06c17a91c17eed021b21f8bbdd544cef2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "testerPresentAlreadyStopped",
+      "traitKind": "setter",
+      "methodIndex": 37309,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "499c3cac9f39ca97ceae8c601607db60ae2278d23e444e6e4ac84e7e4c95e89f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "token",
+      "traitKind": "getter",
+      "methodIndex": 37275,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c7081dc0e4ba6b600f2d4d0b12c9c8544caf7b8e89c7c60d214d256ddc5e0c45",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "values",
+      "traitKind": "getter",
+      "methodIndex": 37291,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "18c3e70527d5b89cb78957f7b31b93ea088b111b84f0b710d243856d14780c9d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 37316,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "1336b0f06c2df54b0ea53aa1d60207165f13be82c22c15a5dcf55b2641593fc4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "withTesterPresent",
+      "traitKind": "method",
+      "methodIndex": 37281,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "ce66ec9cbd6a93f49e4b495d5750cb2fb5706d715c8037d796bee2fd31e5b854",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "withTesterPresentStop",
+      "traitKind": "method",
+      "methodIndex": 37282,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "e851fb4faec1514c8e76ef6a0aba980695b38441ae5eb916ce712616dfaf8d07",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "Periodic",
+      "traitKind": "method",
+      "methodIndex": 37274,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "String",
+        "String",
+        "String",
+        "String",
+        "Array"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "1b98d27fd418f9023bad7ed3d49e681e862d00b818d4eef7a44ab5ba480fcadd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "SingleShot",
+      "traitKind": "method",
+      "methodIndex": 37273,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "String",
+        "String",
+        "String",
+        "String",
+        "Array"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "ee2c4bc698d80beab07678ba6e8bcfd7d8bb5e045f945bea3fc576395269bb00",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

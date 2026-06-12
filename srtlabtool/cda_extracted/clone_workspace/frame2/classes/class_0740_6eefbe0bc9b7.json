@@ -1,0 +1,431 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 740,
+  "className": "com.chrysler.core.util.Strings",
+  "classNameNormalized": "com.chrysler.core.util.Strings",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 14408,
+  "cinitMethod": 14385,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "beginsWith",
+      "traitKind": "method",
+      "methodIndex": 14387,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "bd41b00e0186d79ead1bf1f47e66823e0fe914a6e33bdcc287435b3ed4888b65",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "contains",
+      "traitKind": "method",
+      "methodIndex": 14405,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "2303f90b093ad8d5959c00f9c5630292f7b92ce306151fa41fff206736432564",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "createEscapedXmlNode",
+      "traitKind": "method",
+      "methodIndex": 14404,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 162,
+      "bytecode": {
+        "codeLength": 162,
+        "codeSha256": "f11b8e5d238eb7c94bb36b31c291d1657190ce08bd1bebb3a4248812d43f6129",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "delimitedConcat",
+      "traitKind": "method",
+      "methodIndex": 14395,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Array"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "d311bb959e4fe624e37320b4a46372771fd1ea26bcddacc737ed512812e59bb4",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "emptyAsNull",
+      "traitKind": "method",
+      "methodIndex": 14394,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "07e8fffed210d9000a4dee94a030219630eea949eb39fb574a05c3d4fd2a05c7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "endsWith",
+      "traitKind": "method",
+      "methodIndex": 14388,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "8bf7fdcb71d6588359c1229955a286512a6213d5fd1f2d549db44f26c42d9c4f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "escapeInCDATA",
+      "traitKind": "method",
+      "methodIndex": 14403,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "7001505f7150fcd1089873162acdedd5ae2914831ab7b1fc436f4b413c61f79e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "extractPattern",
+      "traitKind": "method",
+      "methodIndex": 14407,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Array",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 153,
+      "bytecode": {
+        "codeLength": 153,
+        "codeSha256": "6a688b19733db70134b858ca4d29ba48ec00d3a38a23a3b4bbf2ed7030436c31",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "format",
+      "traitKind": "method",
+      "methodIndex": 14406,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Array"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "7a1d2b8bb0e6d2de895d192f2e0ffb96c7043da5c9bb4c81a8debe55f05b4a08",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "isEmpty",
+      "traitKind": "method",
+      "methodIndex": 14400,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "2b2056c7dc08295a89603c08d50913e556c66f46d7381b35f7768eb5bbe16266",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "nullAsEmpty",
+      "traitKind": "method",
+      "methodIndex": 14393,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "bf11960270ff8f486b8869aee27afcbd63346ea5c06723078f3d95094590c6d0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "padLeft",
+      "traitKind": "method",
+      "methodIndex": 14397,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "uint",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "af8d6dfe6d540f6113224293b8639161a5aa2fb277bb795a5f8c93a1d0312143",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "padRight",
+      "traitKind": "method",
+      "methodIndex": 14396,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "uint",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "64dc1b43c32a87e54eba9a21586932fba7f82cae2d8b9879c870dc615dd3e88a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "readDelimited",
+      "traitKind": "method",
+      "methodIndex": 14402,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "48c65391858c1ac4cbd5dac4f98a6a8641846caa7153b54971271abbb7134e7f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "replace",
+      "traitKind": "method",
+      "methodIndex": 14390,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "a7dafdf8bf87be52be945e1d4333215c6f497678ba0e5c6334fa65e8eb564355",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "replaceAll",
+      "traitKind": "method",
+      "methodIndex": 14391,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "5d04e3e3bfb11a33285d70802126bb8d8a0fbcd6411209a1a666ede11c52a858",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "replaceAt",
+      "traitKind": "method",
+      "methodIndex": 14392,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "afa5ca2c6f87a9b710ca9ef3b3551366f64672900c2b006b329b06c726dd699a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "stringsAreEqual",
+      "traitKind": "method",
+      "methodIndex": 14389,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "8ade2e82fc47252e5095350407090a5475ca8e19933c712fc4df3abb6ec34301",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "toBoolean",
+      "traitKind": "method",
+      "methodIndex": 14401,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "5c27b4bbe2e66e647444e0633cf3c5bd21cfc53e2c60091d272952f00c5f042c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "trim",
+      "traitKind": "method",
+      "methodIndex": 14386,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4bdcf9ec9f032f1d97be2499daf9ab7d2f4b4775e93136b9045c6aa603cc0129",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "trimLeft",
+      "traitKind": "method",
+      "methodIndex": 14398,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "a8040e1927aa93e03f6ca87da961d0eae4e449a19777f441906a1a8d0c3ee392",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "trimRight",
+      "traitKind": "method",
+      "methodIndex": 14399,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "0dd54306f354552fe9c41758926223ed61b8e5b8778a7938d1c05e52e223136c",
+        "bytecodeLineCount": 4
+      }
+    }
+  ]
+}

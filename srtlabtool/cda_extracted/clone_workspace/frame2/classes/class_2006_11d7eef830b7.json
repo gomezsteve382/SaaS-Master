@@ -1,0 +1,189 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2006,
+  "className": "com.chrysler.cda.infrastructure.CRCHelper",
+  "classNameNormalized": "com.chrysler.cda.infrastructure.CRCHelper",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 37125,
+  "cinitMethod": 37119,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "a1da6b9f230e8f3947fc7f17a20a5f5faf939a053148a613a5729d5c128563fb",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.infrastructure:CRCHelper.splitString",
+      "traitKind": "method",
+      "methodIndex": 37129,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "58a799f507f466e984876b6f310dc3276d59834f80dabfebb7fe940a0d408723",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.infrastructure:CRCHelper.splitStringToHex",
+      "traitKind": "method",
+      "methodIndex": 37128,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "4c1212a16e8de0689c5f08c0367e7fd9142bbefedb4fcf7c7f02eaa0867cd8ec",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "generateConfigCode",
+      "traitKind": "method",
+      "methodIndex": 37127,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "47347a8fedc2f1b1dcc0d17a9c0350317a564564746bb8cee114f11abcd8cfe9",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "performCRCOperation",
+      "traitKind": "method",
+      "methodIndex": 37126,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "e27ffdcf926ce5f57cc3127da38f6159932ff5db0123543a1eb0bd7a0f2a7de6",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "combineValues",
+      "traitKind": "method",
+      "methodIndex": 37124,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 204,
+      "bytecode": {
+        "codeLength": 204,
+        "codeSha256": "44c0e9f1aba0fc4619632695cf3c6c42ddc148a46aff72e5e09371709195f646",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "contentDefinitionFitsCRC",
+      "traitKind": "method",
+      "methodIndex": 37121,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.ComServiceVO"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 123,
+      "bytecode": {
+        "codeLength": 123,
+        "codeSha256": "84842ba2881e1ef4a1bdf570de3363bd1761200f3ecb38264da6b91a6c955718",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "getConfigurationDDE",
+      "traitKind": "method",
+      "methodIndex": 37122,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "7c5cbb9ea4f540cb3b0cfd58db83e45425400bff0ab92284639ce2fc682b9c0b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "isCRCApplicable",
+      "traitKind": "method",
+      "methodIndex": 37120,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.ComServiceVO",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "fea557e29eb06e8b4224ad54d2d76cbcfc8aff176bceacfd8bd9d1b90ad89771",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "sortComServiceValueVOsByBitPosition",
+      "traitKind": "method",
+      "methodIndex": 37123,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 168,
+      "bytecode": {
+        "codeLength": 168,
+        "codeSha256": "e3d605017058644cda353fd9744bd1f5b01d0bce4acf5cd8d30750e7016543ed",
+        "bytecodeLineCount": 11
+      }
+    }
+  ]
+}

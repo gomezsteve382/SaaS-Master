@@ -1,0 +1,427 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 663,
+  "className": "flashx.textLayout.factory.TextLineFactoryBase",
+  "classNameNormalized": "flashx.textLayout.factory.TextLineFactoryBase",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 12632,
+  "cinitMethod": 12627,
+  "iinitBytecode": {
+    "codeLength": 50,
+    "codeSha256": "6a757a9979bb96d9d9f1a22f3863f2992774e02ee3b3a65852fe461547a85261",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 16,
+    "codeSha256": "7f5a4cb4025a903018166cd5474fd41151253846112aa37df1b726a8450997fd",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "compositionBounds",
+      "traitKind": "getter",
+      "methodIndex": 12633,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "cb45d9fb3cdb01fcc43ed87415c34144aef11496dabdba867b8a3565d56d1a1b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "compositionBounds",
+      "traitKind": "setter",
+      "methodIndex": 12634,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "07f2e0eef33d4f8e7c373be31ff3a0d4d25617189b3c43825823bc7d407b887b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.factory:TextLineFactoryBase.callbackWithTextLines",
+      "traitKind": "method",
+      "methodIndex": 12647,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 141,
+      "bytecode": {
+        "codeLength": 141,
+        "codeSha256": "1c6fa4c4fd159fa25a7c1d671c1e948e11ad2ce54d5240d5fc9f8971d710199e",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.factory:TextLineFactoryBase.containerController",
+      "traitKind": "getter",
+      "methodIndex": 12646,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.container.ContainerController",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "06e43e2f90d069eb567f47e94581e6fbfef1aff5f5bbd1a845a4045804b64cd0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.factory:TextLineFactoryBase.doesComposedTextFit",
+      "traitKind": "method",
+      "methodIndex": 12648,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "uint",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 104,
+      "bytecode": {
+        "codeLength": 104,
+        "codeSha256": "54089b6ae4954830df1ec2527d7a94c5a2c88b25b186eafb89580e06b529b4c6",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.factory:TextLineFactoryBase.getNextTruncationPosition",
+      "traitKind": "method",
+      "methodIndex": 12649,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 183,
+      "bytecode": {
+        "codeLength": 183,
+        "codeSha256": "c3a8ffe355f753ed899e97260f31065d27bae924f88ca9e23afab92350929538",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.factory:TextLineFactoryBase.setContentBounds",
+      "traitKind": "method",
+      "methodIndex": 12636,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "8a81b06b281515588cd741d3e749db291d56417056dfea0d93fd6be78decbaef",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getContentBounds",
+      "traitKind": "method",
+      "methodIndex": 12635,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f4082f46addc62aaf72c2d02fb8da5c4c3f95dc11a73fbf74da8373adead04bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "horizontalScrollPolicy",
+      "traitKind": "getter",
+      "methodIndex": 12642,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d640f990801eba15e00ab21e26761236b17fd9ba189bb37490236645fe37ada7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "horizontalScrollPolicy",
+      "traitKind": "setter",
+      "methodIndex": 12643,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "25f44deca4035a2032adb0e8310328480eaa23e19834e0a88bb00205bde0dc26",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.computeLastAllowedLineIndex",
+      "traitKind": "method",
+      "methodIndex": 12651,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "178aa75aec3b76c84bc99acfb6cd169d2bc07a9838bd01e092d9f108cdbfa223",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.createFlowComposer",
+      "traitKind": "method",
+      "methodIndex": 12650,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.compose.IFlowComposer",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "af46f7a9b13b1159e12f2fe641c05f8d922fcfa7a4269a1de34534ac4998b41e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.processBackgroundColors",
+      "traitKind": "method",
+      "methodIndex": 12652,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "Function",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "ac5258ffbf7919588be97944de0c9412081aa1f1f6179872d7dfae7111c5ef38",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "isTruncated",
+      "traitKind": "getter",
+      "methodIndex": 12641,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "da8fc3244df9088ac0291561e7e33658c101bcbed4e6e0a8bf51a36a5e68e734",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "swfContext",
+      "traitKind": "getter",
+      "methodIndex": 12637,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.compose.ISWFContext",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9a001ded229eb46580a64a4b38146474fecb8a53eeb06acb7d653da1c08177eb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "swfContext",
+      "traitKind": "setter",
+      "methodIndex": 12638,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.ISWFContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "83a8af3371698ff64718394911dbc4245f4765d8c0fa18cb977f31bcccd5dce3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "truncationOptions",
+      "traitKind": "getter",
+      "methodIndex": 12639,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.factory.TruncationOptions",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "541329413dba3d9ac128b62f03f956e72be82ff3efaf30133286be05f137a483",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "truncationOptions",
+      "traitKind": "setter",
+      "methodIndex": 12640,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.factory.TruncationOptions"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3503b44aa3e60a5b2d0d351703fe1cf98ade551d792b17509bb1a467380884b9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "verticalScrollPolicy",
+      "traitKind": "getter",
+      "methodIndex": 12644,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5ae4c7a0241e7ccf72bc5748ee69cdb8e7575984dbacbdcfe80746b7e3a127a0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "verticalScrollPolicy",
+      "traitKind": "setter",
+      "methodIndex": 12645,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "edb3e634d83475bb60343a325ac7b628d838a35503b5c12672826dfb5c53a4dd",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.beginFactoryCompose",
+      "traitKind": "method",
+      "methodIndex": 12629,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.compose.SimpleCompose",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "ae06e917fa3bd88c9d5b92de86246b7791c73c3d26b26990c3b747ea09688cd8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.endFactoryCompose",
+      "traitKind": "method",
+      "methodIndex": 12630,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.SimpleCompose"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "fc194b8dc759ec03ad7e7dc72cbc1e2152fd54bc0f1cbb7853dcb358194c93a4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.getDefaultFlowComposerClass",
+      "traitKind": "method",
+      "methodIndex": 12631,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "3ecfac56870e12fb135215fdbd0efbf23d6003a3cc1a8f8270878c33cc4b5e0a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.peekFactoryCompose",
+      "traitKind": "method",
+      "methodIndex": 12628,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.compose.SimpleCompose",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "bd89f18607939aedb2ff733a0dec3d5b6252348aee5c21af6f2caef8489f8260",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

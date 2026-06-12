@@ -1,0 +1,128 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1990,
+  "className": "com.chrysler.cda.event.message.buslog.ExternalAppLoggerConsoleMessageFactory",
+  "classNameNormalized": "com.chrysler.cda.event.message.buslog.ExternalAppLoggerConsoleMessageFactory",
+  "superName": "com.chrysler.cda.event.message.ConsoleMessageFactory",
+  "superNameNormalized": "com.chrysler.cda.event.message.ConsoleMessageFactory",
+  "domainBucket": "buslog",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 36942,
+  "cinitMethod": 36940,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "06bb9768d137850fb1cd91ce38e3d2f59c3263bba89e9d5876df04b43be24059",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "failure",
+      "traitKind": "method",
+      "methodIndex": 36946,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.buslog.ExternalAppFailureMessage",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "a65a4e616d685237e0cdc9fa252c21e6cf96adb8f5da3a85a857fb1fd9a230a6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "notPresent",
+      "traitKind": "method",
+      "methodIndex": 36947,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.buslog.ExternalAppNotPresentMessage",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "5d0b94bfce7f845ac376aada688974fc24be7d4fd552a5d9ff24229317f0d0f1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "session",
+      "traitKind": "getter",
+      "methodIndex": 36941,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bcea688cef5de7a884677b7cb1fad81f13e49a4a93fa24c8abf946a582b29587",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stderr",
+      "traitKind": "method",
+      "methodIndex": 36944,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.ConsoleMessage",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "9060a7306c8ce024d05fbe851ff42661cdb843c66d879a18a7b6f9d1849ce686",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "stdout",
+      "traitKind": "method",
+      "methodIndex": 36943,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.ConsoleMessage",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "e54bdf2fd4541fad26986eb16d94421dee6fa3501f50ff0d6a572a9cff4979f9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "stdstartup",
+      "traitKind": "method",
+      "methodIndex": 36945,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.ConsoleMessage",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "2e09897838adbe22d537e77b6564f76e2dc306172084af1860c3878e92a4e1a6",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

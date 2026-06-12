@@ -1,0 +1,209 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3601,
+  "className": "mx.rpc.wsdl.WSDLOperation",
+  "classNameNormalized": "mx.rpc.wsdl.WSDLOperation",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54061,
+  "cinitMethod": 54060,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "42a4f633206242a6c6e68d0a24a34fb8b2db449ec463f7722075117ff9bcc6dc",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addFault",
+      "traitKind": "method",
+      "methodIndex": 54071,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.wsdl.WSDLMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "8f10413817ec409ada89619b60b10d2da05fedfffd2faf50a58140f028fdce65",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getFault",
+      "traitKind": "method",
+      "methodIndex": 54072,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.rpc.wsdl.WSDLMessage",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "2a0a1f94dab4128787ee42bcc8ada64d0ad1023876a11a5dd5e20b0b635ff343",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "name",
+      "traitKind": "getter",
+      "methodIndex": 54062,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5f9ad64a33f1490e99a362921ceb1a72eb92e71eb4d2af3809b93320ac2074b7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "schemaManager",
+      "traitKind": "getter",
+      "methodIndex": 54063,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.xml.SchemaManager",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4687b60dbee88769e612df27b0f48cd9347683b0296c4cebfb8ce6c980fab8d0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "schemaManager",
+      "traitKind": "setter",
+      "methodIndex": 54064,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.xml.SchemaManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "44f96c5bec23e844dc1410bccaa17f6b5dd8703850368434a95d27e221c17bc7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "soapAction",
+      "traitKind": "getter",
+      "methodIndex": 54065,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "08474a3de5513b0a433b379bed8af774bb02b380e72904c21b82d98ebe01fb66",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "soapAction",
+      "traitKind": "setter",
+      "methodIndex": 54066,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "de3143331f9ef1c45185f8b1e6e78e65c891bdae734da4efda2a5540ea2887ff",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "soapConstants",
+      "traitKind": "getter",
+      "methodIndex": 54067,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.soap.SOAPConstants",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "5b6f88beba56416b9c5bcb8aef0f94c648c52505bbbfee93bcf9d597a4c7813f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "soapConstants",
+      "traitKind": "setter",
+      "methodIndex": 54068,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.SOAPConstants"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "9b7d2668f1028977255c733e94550d62afda33901ec5c00bcc96069ea0bdd55a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wsdlConstants",
+      "traitKind": "getter",
+      "methodIndex": 54069,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.wsdl.WSDLConstants",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "7c9bcd7c7287f1927d975c22dea6ed78ececae206c134e98dfe761f0497c5a85",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "wsdlConstants",
+      "traitKind": "setter",
+      "methodIndex": 54070,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.wsdl.WSDLConstants"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a676031b4620502532d97428b782d56f555cea732972f453c9409001a1b79163",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

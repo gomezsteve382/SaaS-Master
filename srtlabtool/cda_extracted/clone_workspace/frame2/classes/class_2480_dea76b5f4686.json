@@ -1,0 +1,117 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2480,
+  "className": "PrivateNs.AuthenticationAgent",
+  "classNameNormalized": "PrivateNs.AuthenticationAgent",
+  "superName": "mx.messaging.MessageAgent",
+  "superNameNormalized": "mx.messaging.MessageAgent",
+  "domainBucket": "auth",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42803,
+  "cinitMethod": 42802,
+  "iinitBytecode": {
+    "codeLength": 51,
+    "codeSha256": "c7bfd7d4ef884ad3e621331768af1783527f36f985f7918f46fadd9b5ce2a3ed",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 53,
+    "codeSha256": "6222560e9a747493a3c3ff415d23621e9c38238f7e27c198abb96a2affe7cffd",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [
+    {
+      "traitName": "acknowledge",
+      "traitKind": "method",
+      "methodIndex": 42807,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.AcknowledgeMessage",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 101,
+      "bytecode": {
+        "codeLength": 101,
+        "codeSha256": "68ee1dcdd76df85de44f701d16a54663d20fb3524b5dcbb1953d6a9ad98ba9a9",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "fault",
+      "traitKind": "method",
+      "methodIndex": 42808,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.ErrorMessage",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "42f732b6a905160f09a0d96a6694a6c703123068f56d1803bb83ff4e78b1f6d6",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "registerToken",
+      "traitKind": "method",
+      "methodIndex": 42806,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "53e74b647b13330a4646726ae71ddfe98916529b7386806598320d5b6bc1041c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "state",
+      "traitKind": "getter",
+      "methodIndex": 42804,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "16ca5f3c45e8ec863f2956b26a79c911d4a68717b8ee6251b5e3eabb52def898",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "state",
+      "traitKind": "setter",
+      "methodIndex": 42805,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "f08d4d8cc431e717117e301d46bddc9211f2bb025d7351ddc607332d3d7adf98",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

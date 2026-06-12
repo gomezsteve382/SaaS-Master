@@ -1,0 +1,614 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 660,
+  "className": "flashx.textLayout.edit.IEditManager",
+  "classNameNormalized": "flashx.textLayout.edit.IEditManager",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "flashx.textLayout.edit.ISelectionManager"
+  ],
+  "iinitMethod": 12470,
+  "cinitMethod": 12427,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.allowDelayedOperations",
+      "traitKind": "getter",
+      "methodIndex": 12467,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.allowDelayedOperations",
+      "traitKind": "setter",
+      "methodIndex": 12468,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.applyContainerFormat",
+      "traitKind": "method",
+      "methodIndex": 12447,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.applyFormat",
+      "traitKind": "method",
+      "methodIndex": 12429,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.applyFormatToElement",
+      "traitKind": "method",
+      "methodIndex": 12448,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowElement",
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "int",
+        "int",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.applyLeafFormat",
+      "traitKind": "method",
+      "methodIndex": 12431,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.applyLink",
+      "traitKind": "method",
+      "methodIndex": 12433,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "flashx.textLayout.elements.LinkElement",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.applyParagraphFormat",
+      "traitKind": "method",
+      "methodIndex": 12446,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.applyTCY",
+      "traitKind": "method",
+      "methodIndex": 12432,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "flashx.textLayout.elements.TCYElement",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.beginCompositeOperation",
+      "traitKind": "method",
+      "methodIndex": 12458,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.changeElementID",
+      "traitKind": "method",
+      "methodIndex": 12434,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flashx.textLayout.elements.FlowElement",
+        "int",
+        "int",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.changeStyleName",
+      "traitKind": "method",
+      "methodIndex": 12435,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flashx.textLayout.elements.FlowElement",
+        "int",
+        "int",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.changeTypeName",
+      "traitKind": "method",
+      "methodIndex": 12436,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flashx.textLayout.elements.FlowElement",
+        "int",
+        "int",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.clearFormat",
+      "traitKind": "method",
+      "methodIndex": 12430,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.clearFormatOnElement",
+      "traitKind": "method",
+      "methodIndex": 12449,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowElement",
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.createDiv",
+      "traitKind": "method",
+      "methodIndex": 12452,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowGroupElement",
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "flashx.textLayout.elements.DivElement",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.createList",
+      "traitKind": "method",
+      "methodIndex": 12453,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowGroupElement",
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "flashx.textLayout.elements.ListElement",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.createSubParagraphGroup",
+      "traitKind": "method",
+      "methodIndex": 12455,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowGroupElement",
+        "flashx.textLayout.formats.ITextLayoutFormat",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "flashx.textLayout.elements.SubParagraphGroupElement",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.cutTextScrap",
+      "traitKind": "method",
+      "methodIndex": 12456,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "flashx.textLayout.edit.TextScrap",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.delayUpdates",
+      "traitKind": "getter",
+      "methodIndex": 12465,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.delayUpdates",
+      "traitKind": "setter",
+      "methodIndex": 12466,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.deleteNextCharacter",
+      "traitKind": "method",
+      "methodIndex": 12437,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.deleteNextWord",
+      "traitKind": "method",
+      "methodIndex": 12439,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.deletePreviousCharacter",
+      "traitKind": "method",
+      "methodIndex": 12438,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.deletePreviousWord",
+      "traitKind": "method",
+      "methodIndex": 12440,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.deleteText",
+      "traitKind": "method",
+      "methodIndex": 12441,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.doOperation",
+      "traitKind": "method",
+      "methodIndex": 12460,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.operations.FlowOperation"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.endCompositeOperation",
+      "traitKind": "method",
+      "methodIndex": 12459,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.insertInlineGraphic",
+      "traitKind": "method",
+      "methodIndex": 12442,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "Object",
+        "Object",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "flashx.textLayout.elements.InlineGraphicElement",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.insertText",
+      "traitKind": "method",
+      "methodIndex": 12444,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.modifyInlineGraphic",
+      "traitKind": "method",
+      "methodIndex": 12443,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "Object",
+        "Object",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.moveChildren",
+      "traitKind": "method",
+      "methodIndex": 12454,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowGroupElement",
+        "int",
+        "int",
+        "flashx.textLayout.elements.FlowGroupElement",
+        "int",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.overwriteText",
+      "traitKind": "method",
+      "methodIndex": 12445,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.pasteTextScrap",
+      "traitKind": "method",
+      "methodIndex": 12457,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.TextScrap",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.performRedo",
+      "traitKind": "method",
+      "methodIndex": 12464,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.undo.IOperation"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.performUndo",
+      "traitKind": "method",
+      "methodIndex": 12463,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.undo.IOperation"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.redo",
+      "traitKind": "method",
+      "methodIndex": 12462,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.splitElement",
+      "traitKind": "method",
+      "methodIndex": 12451,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowGroupElement",
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "flashx.textLayout.elements.FlowGroupElement",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.splitParagraph",
+      "traitKind": "method",
+      "methodIndex": 12450,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.undo",
+      "traitKind": "method",
+      "methodIndex": 12461,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.undoManager",
+      "traitKind": "getter",
+      "methodIndex": 12428,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.undo.IUndoManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.edit:IEditManager.updateAllControllers",
+      "traitKind": "method",
+      "methodIndex": 12469,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

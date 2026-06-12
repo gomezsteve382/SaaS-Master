@@ -1,0 +1,839 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2135,
+  "className": "mx.controls.HTML",
+  "classNameNormalized": "mx.controls.HTML",
+  "superName": "mx.core.ScrollControlBase",
+  "superNameNormalized": "mx.core.ScrollControlBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IDataRenderer",
+    "mx.controls.listClasses.IDropInListItemRenderer",
+    "mx.controls.listClasses.IListItemRenderer",
+    "mx.managers.IFocusManagerComponent"
+  ],
+  "iinitMethod": 38804,
+  "cinitMethod": 38802,
+  "iinitBytecode": {
+    "codeLength": 55,
+    "codeSha256": "93a1e59d04378d4943ba0b1663c4854448164bd6623ee22309137a58d46e5556",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "15518ef36d37ea37243919e9649b4bb0a660835f406978bbbac816fe593dc1b0",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cancelLoad",
+      "traitKind": "method",
+      "methodIndex": 38837,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "1b941f18cfcc9a6a53104d99b6bc59923a60521462b50b45a36b64271425d7ef",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "contentHeight",
+      "traitKind": "getter",
+      "methodIndex": 38806,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "aa63b2b82402fb87c072cf0417f7bbfdb6cc0f0d78d40c217bc8ea16f3b53564",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "contentWidth",
+      "traitKind": "getter",
+      "methodIndex": 38807,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "a6efd478724c96f8fe3c4aefe1b57b3b5da6a57ebedb7612bd7311e457bced2e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "getter",
+      "methodIndex": 38808,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c26e6c30643bb6f98788573fce57213248d2262d61cf6757f0b0376d24894786",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "setter",
+      "methodIndex": 38809,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 137,
+      "bytecode": {
+        "codeLength": 137,
+        "codeSha256": "111da2b59050891c21244915703df5c90fc619f62185656c49c3967422d492a1",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "domWindow",
+      "traitKind": "getter",
+      "methodIndex": 38819,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "14a05990be487dd0d86af0385588a9f912774e96ffb615c87cf7cec561f8ed90",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getHistoryAt",
+      "traitKind": "method",
+      "methodIndex": 38838,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flash.html.HTMLHistoryItem",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "5c2baa7841723d68c0b591988e0958248b05ee6a0c25951235f625eded79de59",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "historyBack",
+      "traitKind": "method",
+      "methodIndex": 38839,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "9c2fd1feb8b595350a94b03ce7d47d7586e0406b64d2da7bfc649ea19d124f6e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "historyForward",
+      "traitKind": "method",
+      "methodIndex": 38840,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "1eee7bf1308904f49102e02f213939f5eb6a8efe25ec831ca3c1153ef092d841",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "historyGo",
+      "traitKind": "method",
+      "methodIndex": 38841,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "47015c937966d8c61a7b605b03777aa564ca9a80c0afbd3c8766abc723b5a976",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "historyLength",
+      "traitKind": "getter",
+      "methodIndex": 38810,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "86fa73193faad8b5848b858e3b90c7badba6167a5401f375e20baf19dd793e62",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "historyPosition",
+      "traitKind": "getter",
+      "methodIndex": 38811,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "80f6d0b38f8fb9c9bd5119859c0ce6418361cd9fb334921efba4ed3b429eed98",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "historyPosition",
+      "traitKind": "setter",
+      "methodIndex": 38812,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "7bfc32b78fdcd9edf3775ca06523289db6243abd11ec9022e32d161f9af4ceb9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "htmlHost",
+      "traitKind": "getter",
+      "methodIndex": 38815,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.html.HTMLHost",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "dce31b50335a02e55ea58c9af96f3e7c71b2a16b220aebc2bb6cdf2592d737ce",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "htmlHost",
+      "traitKind": "setter",
+      "methodIndex": 38816,
+      "methodName": "",
+      "paramTypes": [
+        "flash.html.HTMLHost"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "ead2114902b5d9a58d333905d13109fdb990e92ae455553d6d6ba843984a504c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "htmlLoaderFactory",
+      "traitKind": "getter",
+      "methodIndex": 38813,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9ab45f7e4fdfc252fddd8938e83ed1f350036bef19172b711a277fe928cf0457",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "htmlLoaderFactory",
+      "traitKind": "setter",
+      "methodIndex": 38814,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "dc8cb34962670067020287b15a2c106626953edb8b0034c5051ea34cdb41d3df",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "htmlText",
+      "traitKind": "getter",
+      "methodIndex": 38817,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "46272f38c1a7fe9d9b1d3c3e48e692d668ba50e97541230a4e73f465914ca7b2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "htmlText",
+      "traitKind": "setter",
+      "methodIndex": 38818,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "e278afd8e87a187bd83d7c216f205e4144dc009d50b00c92136bb3f8e6f56254",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "imeMode",
+      "traitKind": "getter",
+      "methodIndex": 38820,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b0af5fc23ad4c135b8115543ecb4f3b0e6e378972bc403e2327ac914e9b970bf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "imeMode",
+      "traitKind": "setter",
+      "methodIndex": 38821,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "32fddfed0a607d80e5e2d8daef56da47ffcdcf14b03a230bb8d6e1c11cc2d9f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "getter",
+      "methodIndex": 38822,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.listClasses.BaseListData",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "54dc53b15ea3b1ab6d93281689b8fd8d36924ffdd2674335f022c55657f2d867",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "setter",
+      "methodIndex": 38823,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.listClasses.BaseListData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "538eecc7251370662306944aaa6b31c38c1e3fc8eabb5c634d490cdf7174d6a5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "loaded",
+      "traitKind": "getter",
+      "methodIndex": 38824,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "a6d237bf591b38742db97210f59340e69bc851ee4590b06e947a434345f507f3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "location",
+      "traitKind": "getter",
+      "methodIndex": 38825,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b7db9a9823ab0e3d6f4bdca48cf31b9d1010cee4825b49d0db476fdb46ae30e4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "location",
+      "traitKind": "setter",
+      "methodIndex": 38826,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "6d3e995098f23e6c658f8e55434056c74007cb3eca02e0c598cc087c740b0f02",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.controls:HTML.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 38834,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 190,
+      "bytecode": {
+        "codeLength": 190,
+        "codeSha256": "0667e0bf06d5cceddc25c00c4ccc941d340ab006cb79d720f21f9891cc94aa65",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "mx.controls:HTML.createChildren",
+      "traitKind": "method",
+      "methodIndex": 38833,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "16d02056612063c1b9342eaa0e378e4e73701268f94d859b121a3605641acd3d",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "mx.controls:HTML.focusInHandler",
+      "traitKind": "method",
+      "methodIndex": 38844,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 197,
+      "bytecode": {
+        "codeLength": 197,
+        "codeSha256": "181153be7b5c0fc82792694d4abaa2264f45c6e9467d69c92d71d1b24624dbc1",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "mx.controls:HTML.measure",
+      "traitKind": "method",
+      "methodIndex": 38835,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 162,
+      "bytecode": {
+        "codeLength": 162,
+        "codeSha256": "64896136a8023a6fd8cd3c7821c3c7174d8693ef1e42228d3cfffcc9c2f6622a",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "mx.controls:HTML.mouseWheelHandler",
+      "traitKind": "method",
+      "methodIndex": 38846,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "685e3eb88939a22ec3aa01aa83d73c76ecff99cc836dbfeb128621b6aa67c49c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.controls:HTML.scrollHandler",
+      "traitKind": "method",
+      "methodIndex": 38845,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "104c2cfd474bc9f234bb96e3eb41aaa9ae69344ebad7b1040e00d0c417f48b76",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.controls:HTML.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 38836,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "d57580ca7abad37d327f91b61a21bef3768347074a8e2ffcefe614676f64e019",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "paintsDefaultBackground",
+      "traitKind": "getter",
+      "methodIndex": 38827,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6db2feb055a7b7d87c991519d5a56d06c6f90646aabd1e35813e47bab870eb4a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "paintsDefaultBackground",
+      "traitKind": "setter",
+      "methodIndex": 38828,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "dde073cc61764f1a6667e69c2989116f6cdcf0b14b16a84a92d549ba239dc83b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.adjustScrollBars",
+      "traitKind": "method",
+      "methodIndex": 38843,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "8cbcc4900b985a6a26c6218a6e56a0a07321a2970f478c5a789614a529b1aa7c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.htmlLoader_completeHandler",
+      "traitKind": "method",
+      "methodIndex": 38848,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "4edd37502b08b347c5b96061f25dd9b1e100e1e4a005ba7e587deba82ba32487",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.htmlLoader_domInitialize",
+      "traitKind": "method",
+      "methodIndex": 38847,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "0fa9b26477f065c70b47aa4bd8557ba2d56d6bf1d57ae75f8a323434e910d651",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.htmlLoader_htmlBoundsChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 38851,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "8c8f56894c329ce5b1caedbfbd2fb183376b75b71cb1f6fe18345bf56910d013",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.htmlLoader_htmlRenderHandler",
+      "traitKind": "method",
+      "methodIndex": 38849,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "f6a49b0242b1bd858c72590a3d69563ebd3c99071b702a7a61fe462a91814455",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.htmlLoader_locationChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 38850,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "f4cc6c4d35438c42d8fc04362f4b724fc9af360b4a933721e5f364f45b90d99a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.htmlLoader_scrollHandler",
+      "traitKind": "method",
+      "methodIndex": 38852,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "76fbc95c0f3c20b99b2e3c1b1fda18441a735ed68d3e175dbeee9f1fbe30c1db",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.htmlLoader_uncaughtScriptExceptionHandler",
+      "traitKind": "method",
+      "methodIndex": 38853,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.HTMLUncaughtScriptExceptionEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "170364a80aec0d049a3d7c8402f56b541c05e8715f404e3b8212547215d2040d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "reload",
+      "traitKind": "method",
+      "methodIndex": 38842,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "3c003325c07787dcf13f309cc6893a9a9124c328ed249583c959486cf53b26e3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "runtimeApplicationDomain",
+      "traitKind": "getter",
+      "methodIndex": 38829,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.system.ApplicationDomain",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7493a74ff911133de738b5e60ccee1dbfe0ee32fabadded4e63ac7f5bafd4fc2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "runtimeApplicationDomain",
+      "traitKind": "setter",
+      "methodIndex": 38830,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "d13d4d92e3e87ddd0b423669a496331da56d093f56304ec3988665c394423805",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "userAgent",
+      "traitKind": "getter",
+      "methodIndex": 38831,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f5455360cd8020b64d6554c223a8e9584b1e3c5ead8cda1b0295fbfb62bf1b9a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "userAgent",
+      "traitKind": "setter",
+      "methodIndex": 38832,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "2f95bdf555637eab7a617a7f2833e234b604b4ebd7998087ff5a20933ef717d9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "verticalScrollPosition",
+      "traitKind": "setter",
+      "methodIndex": 38805,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "4a59318b570b637eece9f75777e06caaddc11bb265337b47eb1b9a754f02cb75",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "pdfCapability",
+      "traitKind": "getter",
+      "methodIndex": 38803,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "43f9d63d14b56a3f43fbad9fa6247c42e6c9526ad7db0634e42d82ffd398e9ee",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

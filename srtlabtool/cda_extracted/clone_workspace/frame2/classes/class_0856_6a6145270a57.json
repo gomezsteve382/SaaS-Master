@@ -1,0 +1,326 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 856,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.ecu.unlock.ECUUnlockPM",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.ecu.unlock.ECUUnlockPM",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.diagnostic.interfaces.IECUDiagnosticsViewPM",
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 16925,
+  "cinitMethod": 16907,
+  "iinitBytecode": {
+    "codeLength": 34,
+    "codeSha256": "2359a9e9b83173e0593455cb86ffd8fed1d29108690055a3889e5682284e0a88",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "8afc6d0ebda79648dbfb9a938bc35e3e06e955a5f777d142bbe58a0a1b9e5d08",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 16920,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "2b6c446900fde0c9516fe4a57954d769c7fe857e5f863a0ca6c22b31057bdc85",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "clearModelState",
+      "traitKind": "method",
+      "methodIndex": 16908,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "533273ea34726db8a168383f316c5e174c0647a684d66e09ee8bf7bba6c0e444",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "diagnosticContext",
+      "traitKind": "getter",
+      "methodIndex": 16916,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.DiagnosticContext",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "72e510ce2718053dac2b892c982f6136164f5077018490fb4393363adabcf990",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "diagnosticContext",
+      "traitKind": "setter",
+      "methodIndex": 16917,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.DiagnosticContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4f176e59a51ddcc14f3ac170d9c00012b0ef5ebaeaa5e49d5f7e0f950c9334ee",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 16921,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "c4f5f64fba6e421f7648f95e179405a6955636d9b88628cbdcbb462e79d39d18",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "doECUUnlockMessageError",
+      "traitKind": "method",
+      "methodIndex": 16914,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.unlock.DoEcuUnlockMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "2c2d9b23a0e9560168d9560d2b342b5a44c5d6de074abd3bde25c8e41984e8e5",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "doECUUnlockMessageResult",
+      "traitKind": "method",
+      "methodIndex": 16913,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.unlock.DoEcuUnlockMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "2d66ae10d2b109f6b5c97d216f75eb3df118d2c5484813d8f18b63f994efac0a",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "findECUUnlockInformationMessageError",
+      "traitKind": "method",
+      "methodIndex": 16912,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.unlock.FindECUUnlockInformationMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "5ca268b7896a1d892560f5da78dfe63096e6461ec3b7d83876236ad3b337df7e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "findECUUnlockInformationMessageResult",
+      "traitKind": "method",
+      "methodIndex": 16911,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.unlock.FindECUUnlockInformationMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 123,
+      "bytecode": {
+        "codeLength": 123,
+        "codeSha256": "b86e8acea6acf5dc938db190de5e7606cc1f9174e7d4057456d468803cddd82d",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 16922,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "1a3aef02e45a1aedc3f3baebb3dadb60ca2b35a12f34cbd0ff65f5921514350a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isInterestingEcuId",
+      "traitKind": "method",
+      "methodIndex": 16915,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "832523a614d449a0930b34e211b6e2eefe10d03b0d18adf856177e1ecfb1f246",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 16923,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "b0c63c2aca47a133a723a7c204e870ce15f8f5fd60444fbb6b01e06910bc8191",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "requestAllUnlockInformationForECU",
+      "traitKind": "method",
+      "methodIndex": 16909,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "ad57619aef377cdd826488860a3ee638cfe390ae9793c27bb3f194053bbe7d27",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "requestUnlock",
+      "traitKind": "method",
+      "methodIndex": 16910,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.UnlockVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "7b6d234804b3eff3dc4deb658ede3a28c8f75fec77c9c2bff45f2feee1fc0887",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "unlockList",
+      "traitKind": "getter",
+      "methodIndex": 16918,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9180ed16b79b67d97e4ca715091e7c8d143da01994a53f7e6485f49b8c5f6cd6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unlockList",
+      "traitKind": "setter",
+      "methodIndex": 16919,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "65b30a7c20ab18d1ebf33061e5aefd37f2c863409e3eb73895af455837620fa8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 16924,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "bb8665ee281d984ba53d22a9e786af1e18ee12d372f887ba64f9c8e9c6a68a61",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

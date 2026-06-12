@@ -1,0 +1,204 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1045,
+  "className": "com.chrysler.cda.application.state.StateReportCommand",
+  "classNameNormalized": "com.chrysler.cda.application.state.StateReportCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 22543,
+  "cinitMethod": 22532,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "2b278f8f845b9b81c6b8f88d22079f0795136c6098298edf12f95c6172123ba9",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onEndOfSession",
+      "traitKind": "method",
+      "methodIndex": 22541,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.ResetStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "224d3be6132115cb7e7146d6bbdf467b1177dbd5051dd651892c21dbccba5fe1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onInit",
+      "traitKind": "method",
+      "methodIndex": 22533,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "6accf339c4ec683b1b0f9d450c2ad9e420f497cfdc7fa9ee2ebabdb2c7e8c156",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "processState",
+      "traitKind": "method",
+      "methodIndex": 22540,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 716,
+      "bytecode": {
+        "codeLength": 716,
+        "codeSha256": "520d0a3be9aa20c4c3fec5a5500d4fabed097cc0669638e96dffa0803d40f0a7",
+        "bytecodeLineCount": 45
+      }
+    },
+    {
+      "traitName": "ReportTrigger",
+      "traitKind": "method",
+      "methodIndex": 22534,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.CommandStateReportMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "0bc38f58be424dbfd19c76991b3e7e89c29aa20836e58788bfae798702f42e05",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "ReportTriggerForce",
+      "traitKind": "method",
+      "methodIndex": 22537,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.CommandForceStateReportForSGWMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "0bc38f58be424dbfd19c76991b3e7e89c29aa20836e58788bfae798702f42e05",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "SetForceStateReportKO",
+      "traitKind": "method",
+      "methodIndex": 22539,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.CommandForceStateReportForSGWMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "e69af11d6ca4382e6d0069a766ab23e17dd36cb2ddcca466baeee6ed400feb3c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "SetForceStateReportOK",
+      "traitKind": "method",
+      "methodIndex": 22538,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.CommandForceStateReportForSGWMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "f046cb3c5b703b02212cc0cd3b8ccd1b268c9f91f722826063455495fc6b9d2b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "SetStateReportKO",
+      "traitKind": "method",
+      "methodIndex": 22536,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.CommandStateReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "4be2e6bcc65c897af7ca4bc9054b33aa4b8ef529895d1addb1e1a5929c521518",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "SetStateReportOK",
+      "traitKind": "method",
+      "methodIndex": 22535,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.CommandStateReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "9265bfb7b01d5898245f5b2e9202152430d63526fdbf70649c2d3e7f5a527f8b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "timerHandler",
+      "traitKind": "method",
+      "methodIndex": 22542,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "d022ebaae29f3722c88ef2407d02412b87b14b7e66d851f2e29ff2470d3fc376",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

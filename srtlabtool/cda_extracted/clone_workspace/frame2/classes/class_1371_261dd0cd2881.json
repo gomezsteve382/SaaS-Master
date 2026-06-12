@@ -1,0 +1,472 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1371,
+  "className": "spark.layouts.ConstraintLayout",
+  "classNameNormalized": "spark.layouts.ConstraintLayout",
+  "superName": "spark.layouts.supportClasses.LayoutBase",
+  "superNameNormalized": "spark.layouts.supportClasses.LayoutBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 30162,
+  "cinitMethod": 30158,
+  "iinitBytecode": {
+    "codeLength": 64,
+    "codeSha256": "d953797a8648ae8fffe19cd5828fe66c8cf6e87ed0334578267d52158e7ec58a",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "constraintColumns",
+      "traitKind": "getter",
+      "methodIndex": 30163,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "__AS3__.vec.Vector<mx.containers.utilityClasses.ConstraintColumn>",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "b71567d0224836759cbbff34c5fbc12a852c33bec9a5f740070d842eabd6984e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "constraintColumns",
+      "traitKind": "setter",
+      "methodIndex": 30164,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<mx.containers.utilityClasses.ConstraintColumn>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 155,
+      "bytecode": {
+        "codeLength": 155,
+        "codeSha256": "79fda33ff85e7daba74c836ed6489b32cb2342f421ab4832847aab4d39e23c2f",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "constraintRows",
+      "traitKind": "getter",
+      "methodIndex": 30165,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "__AS3__.vec.Vector<mx.containers.utilityClasses.ConstraintRow>",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "0bacc5b6ed09702a4285a1fa6d28d625eb5ddc28cdb5460ba1407f9afd9dedf9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "constraintRows",
+      "traitKind": "setter",
+      "methodIndex": 30166,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<mx.containers.utilityClasses.ConstraintRow>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 275,
+      "bytecode": {
+        "codeLength": 275,
+        "codeSha256": "bcd5bb38b1742df73413cbc1fd7046ec5a1a0da0a8400a6ca6e68f202c118178",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.checkUseVirtualLayout",
+      "traitKind": "method",
+      "methodIndex": 30172,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "73d953a7f68529ca99fba6df8ae9516bf40dd66c6ece8d565d34bfe436ca125f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.measureColumns",
+      "traitKind": "method",
+      "methodIndex": 30179,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "__AS3__.vec.Vector<Number>",
+      "hasBody": true,
+      "codeLength": 526,
+      "bytecode": {
+        "codeLength": 526,
+        "codeSha256": "9df2b62050bc4f887bf8e2c457e46b86440d857d3535e5947ad097bebd55ed9b",
+        "bytecodeLineCount": 33
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setColumnWidths",
+      "traitKind": "method",
+      "methodIndex": 30174,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<Number>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "865b05e4684657394d31505329bc0e7d84c98e6aefec560c6bb3199ee7fb3efd",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setRowHeights",
+      "traitKind": "method",
+      "methodIndex": 30175,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<Number>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "abee5578643569122cbada7c5f07d217dd1642b94648f21296faa05bafb05aed",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.virtualLayoutSupported",
+      "traitKind": "getter",
+      "methodIndex": 30173,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "8bd91b4d6662c2af4743360fdfdadd0ffd59568f99d5771831541eb0e40a633f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "measure",
+      "traitKind": "method",
+      "methodIndex": 30168,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 433,
+      "bytecode": {
+        "codeLength": 433,
+        "codeSha256": "37bcecc7fe8dc27fbc3682a88268d16077d870c811f021189d50cc1d7703aee1",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "PrivateNs.applyConstraintsToElement",
+      "traitKind": "method",
+      "methodIndex": 30176,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "mx.core.ILayoutElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1252,
+      "bytecode": {
+        "codeLength": 1252,
+        "codeSha256": "06f390107afa7d32e714e94b643aad602290d21e9394f6b82ad72ad12b05a28d",
+        "bytecodeLineCount": 79
+      }
+    },
+    {
+      "traitName": "PrivateNs.clearConstraintCache",
+      "traitKind": "method",
+      "methodIndex": 30185,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "7df42f8ef67499caf815d57b01e31c9369e50192380f95f1d835a4e3db3c2a2b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.constrainPercentRegionSizes",
+      "traitKind": "method",
+      "methodIndex": 30178,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<Number>",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 459,
+      "bytecode": {
+        "codeLength": 459,
+        "codeSha256": "96fff0ca10505ff9e498b1b2be3e8808832f5f9d87ab1e490967bbff7dc08ff7",
+        "bytecodeLineCount": 29
+      }
+    },
+    {
+      "traitName": "PrivateNs.measureOtherContent",
+      "traitKind": "method",
+      "methodIndex": 30182,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "__AS3__.vec.Vector<Number>",
+      "hasBody": true,
+      "codeLength": 825,
+      "bytecode": {
+        "codeLength": 825,
+        "codeSha256": "e2392845c61bc48ac66fdcb1e1698cb90d515f0f3ea9feccefc93560310490bc",
+        "bytecodeLineCount": 52
+      }
+    },
+    {
+      "traitName": "PrivateNs.measureRows",
+      "traitKind": "method",
+      "methodIndex": 30181,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "__AS3__.vec.Vector<Number>",
+      "hasBody": true,
+      "codeLength": 487,
+      "bytecode": {
+        "codeLength": 487,
+        "codeSha256": "57dc22f2a92b8259ac8999f6036b2dae922bb4507bc9532ad1c4baad8899ac50",
+        "bytecodeLineCount": 31
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseConstraints",
+      "traitKind": "method",
+      "methodIndex": 30183,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 318,
+      "bytecode": {
+        "codeLength": 318,
+        "codeSha256": "510f393dd1201e4624c7afcff3e6c1a48c4931786109b53f3fb585c5733a3a71",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseElementConstraints",
+      "traitKind": "method",
+      "methodIndex": 30184,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.ILayoutElement",
+        "flash.utils.Dictionary"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1056,
+      "bytecode": {
+        "codeLength": 1056,
+        "codeSha256": "128273c3231fd3ed45edc6fff1f2973c75e63ce2c9365edd62f1849ca9787003",
+        "bytecodeLineCount": 66
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateColumnWidthsForElement",
+      "traitKind": "method",
+      "methodIndex": 30177,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<Number>",
+        "PrivateNs.ElementConstraintInfo"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 944,
+      "bytecode": {
+        "codeLength": 944,
+        "codeSha256": "ea6107dc9bf7675bdaac89a4a615e67702fb67c0d4193874efd8da81ac54e71f",
+        "bytecodeLineCount": 59
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateRowHeightsForElement",
+      "traitKind": "method",
+      "methodIndex": 30180,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<Number>",
+        "PrivateNs.ElementConstraintInfo"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1104,
+      "bytecode": {
+        "codeLength": 1104,
+        "codeSha256": "4fdd9160d325ca69bddb866319ed904fe840944ced8d5256ea3f3651b2c422a4",
+        "bytecodeLineCount": 69
+      }
+    },
+    {
+      "traitName": "spark.layouts:ConstraintLayout.layoutContent",
+      "traitKind": "method",
+      "methodIndex": 30170,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 187,
+      "bytecode": {
+        "codeLength": 187,
+        "codeSha256": "98d165874ffa60c1c4e1713c28af7969d2800f020c91ec3631f21d1fd428bda4",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "spark.layouts:ConstraintLayout.measureAndPositionColumnsAndRows",
+      "traitKind": "method",
+      "methodIndex": 30171,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "13bf027f6b51ed1668fe313dabb057c53aa9f0c64bea7e40411bdfc1bd1ea759",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "target",
+      "traitKind": "setter",
+      "methodIndex": 30167,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.supportClasses.GroupBase"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "43dd6dc0ee488d66d2da173d00f4e5f19f5595012205ab2b494c940431d945f6",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 30169,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "da3a8eecf1423420f30e76eb6e9f4189fe3537e2c87b2915e51a35f0bd3008bb",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.constraintsDetermineHeight",
+      "traitKind": "method",
+      "methodIndex": 30160,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.ElementConstraintInfo"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "5e6466ed910654f9b2f361467cd76c4c53eceeefaaeee8a3a21d32ee9528b597",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.constraintsDetermineWidth",
+      "traitKind": "method",
+      "methodIndex": 30159,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.ElementConstraintInfo"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "152949e1b927662b7ac9845db0ebf366e22533392708cdef7b3dc4375ba1d75e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.maxSizeToFitIn",
+      "traitKind": "method",
+      "methodIndex": 30161,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "bc4a822f250948704d783fb2f70bf2e05a1c84371702f884df2584f8197a4a71",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

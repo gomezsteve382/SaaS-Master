@@ -1,0 +1,162 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3287,
+  "className": "PrivateNs.ManagedObjectImpl",
+  "classNameNormalized": "PrivateNs.ManagedObjectImpl",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.lifecycle.ManagedObject"
+  ],
+  "iinitMethod": 50915,
+  "cinitMethod": 50914,
+  "iinitBytecode": {
+    "codeLength": 28,
+    "codeSha256": "7392811acb79be976450f899afbe40b219a4d953b93020c6c312bbcbd5b85c13",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "context",
+      "traitKind": "getter",
+      "methodIndex": 50918,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.context.Context",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f14c6d6d5d762a0ac30ba9d91529e0f51101c8ea078c50d7b15a02934b9ee482",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "definition",
+      "traitKind": "getter",
+      "methodIndex": 50917,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinition",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e8bdee745235c3c77b47dcb7bd73f812990095126238d139f18b0be38df1e5c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "instance",
+      "traitKind": "getter",
+      "methodIndex": 50916,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f292bc66fff1e43df4665e561ad275ad15386bc2d7735bbb9681d36e9a020228",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "instance",
+      "traitKind": "setter",
+      "methodIndex": 50919,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a7f57fd7bbbeed61193127077663ae4d6895e2c1d65ea8cac378cf867c98a5ef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeSynchronizedObjects",
+      "traitKind": "method",
+      "methodIndex": 50923,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "ae4d379429f44d84636e6668d5a9924f095671923d61a45edd7f305e0fb784ab",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "resolveObjectReference",
+      "traitKind": "method",
+      "methodIndex": 50921,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "4e801a3fe5aff1f61396e1bdab3bba720e1549008a36d376a7240fc3e15174e1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "resolveValue",
+      "traitKind": "method",
+      "methodIndex": 50920,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "18315d9a98ef090dec83cf6095d56679c6202b4761c6857ef43f09b29b9be549",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "synchronizeLifecycle",
+      "traitKind": "method",
+      "methodIndex": 50922,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.DynamicObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "940fcbb54812688be9c809990cee4183bd566687ebf80d64a3c2443b8bd5368e",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

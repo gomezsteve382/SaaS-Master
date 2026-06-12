@@ -1,0 +1,101 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3177,
+  "className": "com.hurlant.crypto.symmetric.OFBMode",
+  "classNameNormalized": "com.hurlant.crypto.symmetric.OFBMode",
+  "superName": "com.hurlant.crypto.symmetric.IVMode",
+  "superNameNormalized": "com.hurlant.crypto.symmetric.IVMode",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.symmetric.IMode"
+  ],
+  "iinitMethod": 50078,
+  "cinitMethod": 50077,
+  "iinitBytecode": {
+    "codeLength": 8,
+    "codeSha256": "3d352a2aa78230149832a9048f92aeeb5b30d1ad96e4ab34a75ce80d4eff23ac",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decrypt",
+      "traitKind": "method",
+      "methodIndex": 50080,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "91b59e7e70d44868ba5d0386facc06d4384e2e94493f2df75549d4707f850559",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "encrypt",
+      "traitKind": "method",
+      "methodIndex": 50079,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "d2c7b1591c239189307169464b39f395338c1e3241e56ca6780b9d14011fb14c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.core",
+      "traitKind": "method",
+      "methodIndex": 50081,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 181,
+      "bytecode": {
+        "codeLength": 181,
+        "codeSha256": "3c418a537cab922170cb67e6c3c034348995e64297e4792432b6bdc5b69a8b41",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 50082,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "3fb0ae0df69e71e3d48d2e8ea9b63a48bd6d427e38ad2d0207291ead9b2d2c4b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

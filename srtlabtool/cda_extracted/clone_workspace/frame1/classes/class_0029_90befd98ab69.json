@@ -1,0 +1,624 @@
+{
+  "frame": "frame1",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 29,
+  "className": "mx.preloaders.SparkDownloadProgressBar",
+  "classNameNormalized": "mx.preloaders.SparkDownloadProgressBar",
+  "superName": "flash.display.Sprite",
+  "superNameNormalized": "flash.display.Sprite",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.preloaders.IPreloaderDisplay"
+  ],
+  "iinitMethod": 470,
+  "cinitMethod": 469,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 29,
+    "codeSha256": "10169d43558c3e306e2ce06d1c2542974c62da9fea6f586ad2863095a9080ba2",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "backgroundAlpha",
+      "traitKind": "getter",
+      "methodIndex": 473,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "26c231af12078ce0fa2cf793c42e448bf17ae3de6fc41ceee28461aff7307be8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "backgroundAlpha",
+      "traitKind": "setter",
+      "methodIndex": 474,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "585591fece0aec449b962c3fbe0f9c6c2de3fa97878fdd80622cb13ed397e620",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "backgroundColor",
+      "traitKind": "getter",
+      "methodIndex": 475,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "86dcf502d53880097ff50a363d7aca35cab91b26da94003f24144573192b8fbf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "backgroundColor",
+      "traitKind": "setter",
+      "methodIndex": 476,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "602a437758456213f067584587a206bbdd1a62797e9d19b2e003c1bb21ae7dc1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "backgroundImage",
+      "traitKind": "getter",
+      "methodIndex": 477,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9a52e99fcef3c7baf71470388eab57017c14dd9df363479420dc871fe7ebfc64",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "backgroundImage",
+      "traitKind": "setter",
+      "methodIndex": 478,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bf06996c152d6b5490828e018e3ffa3abe39f058ef14a4ef6fe83fe7e53ee26e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "backgroundSize",
+      "traitKind": "getter",
+      "methodIndex": 479,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "62f455797958cb5c251492efdfec3067164e6eabe25b13e3411bf84738dbdac5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "backgroundSize",
+      "traitKind": "setter",
+      "methodIndex": 480,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "df01a41973d706b547e92419250cd0416c5628e3defa0c2bcd7cba3886e6d24b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 486,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "bbfc9e77794d56f2c0c3864130150ff240aab97322a44be24abeb2bb631a2247",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.completeHandler",
+      "traitKind": "method",
+      "methodIndex": 499,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.createChildren",
+      "traitKind": "method",
+      "methodIndex": 487,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 478,
+      "bytecode": {
+        "codeLength": 478,
+        "codeSha256": "4264f1c1b94848fda6fdc4247232539b892e178a42891a935c8ab5317eb7675d",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.initCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 504,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "65a0ddf67cbe7e1537029d45f1c6544116e05179a114bc826d7412beb1fd00d3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.initProgressHandler",
+      "traitKind": "method",
+      "methodIndex": 503,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 141,
+      "bytecode": {
+        "codeLength": 141,
+        "codeSha256": "a5bd51ddd927d4b638a947354d1a928eee2c19d701bbef7d7a9361ab8c321c08",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.progressHandler",
+      "traitKind": "method",
+      "methodIndex": 498,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "ef7fff9e20c0bfc36e7b1a28c7895cc74b927b1184d2853fbd668d9f4a586e78",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.rslCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 501,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.RSLEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.rslErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 502,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.RSLEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 164,
+      "bytecode": {
+        "codeLength": 164,
+        "codeSha256": "9af57ac3a959db92e203b602e8f577a74f8e4110e0577752f36b685d01fabff6",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.rslProgressHandler",
+      "traitKind": "method",
+      "methodIndex": 500,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.RSLEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.setDownloadProgress",
+      "traitKind": "method",
+      "methodIndex": 489,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 315,
+      "bytecode": {
+        "codeLength": 315,
+        "codeSha256": "17da22f3829778e69d6287a1628b72aa03389b8807f71bd256e7b7ef42d1f46f",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.setInitProgress",
+      "traitKind": "method",
+      "methodIndex": 490,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 224,
+      "bytecode": {
+        "codeLength": 224,
+        "codeSha256": "7e55f22ff01820926c90e87411fa3bbb3bfa1bf4f87f23f19b96078857ca3954",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.showDisplayForDownloading",
+      "traitKind": "method",
+      "methodIndex": 493,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "c69f65fa30db419cb13b12cddae0f4d775d41bb4d5546a8927d35f3710182db4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.preloaders:SparkDownloadProgressBar.showDisplayForInit",
+      "traitKind": "method",
+      "methodIndex": 494,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "19e05dac88f581d82576acc536e750852cdc88c246843c1b1f0ec5d70d103cc7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "preloader",
+      "traitKind": "setter",
+      "methodIndex": 481,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Sprite"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "a329b6e1fac78e4bded8ddb6cc8cebf190be180b2551fd18d11b3d2367096260",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.calcBackgroundSize",
+      "traitKind": "method",
+      "methodIndex": 497,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "cf7724a92cdcd424ce85931e17e88267baebd216852e646c31cbae91b43a3ad6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getPreloaderChromeColor",
+      "traitKind": "method",
+      "methodIndex": 488,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "1f144edca4de154ca5d0fb335c90129987fbf2624d420aa25c849128df76f982",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.hide",
+      "traitKind": "method",
+      "methodIndex": 492,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.initBackgroundImage",
+      "traitKind": "method",
+      "methodIndex": 496,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 191,
+      "bytecode": {
+        "codeLength": 191,
+        "codeSha256": "b33cbe6b64dd4fc0aa1c98d22faf5590034962c05e7f23e1b3b5399bcf03f966",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.loadBackgroundImage",
+      "traitKind": "method",
+      "methodIndex": 495,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 230,
+      "bytecode": {
+        "codeLength": 230,
+        "codeSha256": "866699db6bf1166986af9e8c27b2517269c26612a389968054d5b572b7ff2968",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.loader_completeHandler",
+      "traitKind": "method",
+      "methodIndex": 505,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "f1f99c0323ac283a264c6bc2dacdff59f2049f32d0b1d688bb641bb01e5e5489",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.loader_ioErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 506,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.show",
+      "traitKind": "method",
+      "methodIndex": 491,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "cf34a912c017f1edf292bbdef5806a6c09c5588c160b21ee83d6b92fb110f5ac",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "stageHeight",
+      "traitKind": "getter",
+      "methodIndex": 482,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f82c717f3d82feeb0c3581762307ba35b15ee48558ddb1e56e85792769d59265",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stageHeight",
+      "traitKind": "setter",
+      "methodIndex": 483,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c5e19634e1a85bb3bb45f73b00922525ac10f2fc15ff01c2e4c9be5076598220",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stageWidth",
+      "traitKind": "getter",
+      "methodIndex": 484,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d8d0b9ebb542e8aaa7c7be0e54a227a56f8a4a12cc12d4f7aa26fea737071192",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stageWidth",
+      "traitKind": "setter",
+      "methodIndex": 485,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "287729ab997f06aa628b15dd64dd18bd56b6e054c0df1de1345771f842a6fce7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "visible",
+      "traitKind": "getter",
+      "methodIndex": 471,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "469f4196b3e6d7deaf6afa0fd1f058ada1f96839a85f9ee28651116ece9421d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "visible",
+      "traitKind": "setter",
+      "methodIndex": 472,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "583bf30b13afd7b8981fb50acc1908a9bc38d3cdaeed4c9a4747a548049c609e",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,135 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 975,
+  "className": "com.chrysler.cda.domain.diagnostic.procedures.RoutineDataModel",
+  "classNameNormalized": "com.chrysler.cda.domain.diagnostic.procedures.RoutineDataModel",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 20051,
+  "cinitMethod": 20044,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addRoutine",
+      "traitKind": "method",
+      "methodIndex": 20047,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "com.chrysler.cda.domain.diagnostics.ecu.offBoardRoutines.DiagnosticProcedureRoutineVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "ad5d663a4ef57548acd2d89584b60a879539aa958159ff7ee0db957672f15a13",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getPopulating",
+      "traitKind": "method",
+      "methodIndex": 20046,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "cb5ba311e31aa30003283b1ba44cb9288a9f3a555513d5d1adb438d44cf861f9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getRoutines",
+      "traitKind": "method",
+      "methodIndex": 20048,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "27fd33f4697a35f481ee8daab172f57365a4c0af8a6e9774d38b1d72c46d0071",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onClearState",
+      "traitKind": "method",
+      "methodIndex": 20049,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.EndOfSessionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "d9cbd9dd4394ba311e2f78c580cb30e7b22fc686096589cce560c62ba9303dbd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onResetRoutineMapForECU",
+      "traitKind": "method",
+      "methodIndex": 20050,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.offBoardRoutines.ClearOffBoardRoutinesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "47bebe6c80790685bc9555c0babbaaf5522fa3404b1636194e19390670209eb6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setPopulating",
+      "traitKind": "method",
+      "methodIndex": 20045,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "781e88801038e2017fa0f25593ed5eb2fbc3910a1b5d798d0fd5e81e473a867b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

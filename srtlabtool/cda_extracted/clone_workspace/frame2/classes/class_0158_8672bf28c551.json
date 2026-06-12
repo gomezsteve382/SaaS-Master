@@ -1,0 +1,165 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 158,
+  "className": "mx.managers.DragManager",
+  "classNameNormalized": "mx.managers.DragManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 3301,
+  "cinitMethod": 3292,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 60,
+    "codeSha256": "c1690879691c073e2be84452d2797ce98876e927d83226fee7c7b99703891a5a",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "acceptDragDrop",
+      "traitKind": "method",
+      "methodIndex": 3297,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "850144991173869eaf0af9b25bd31036d89b61a5629047c8ec5f40e20d2627b1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "doDrag",
+      "traitKind": "method",
+      "methodIndex": 3296,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "mx.core.DragSource",
+        "flash.events.MouseEvent",
+        "mx.core.IFlexDisplayObject",
+        "Number",
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "84db73904199b977c7ba27f215ce5828a8f6063ecd9cebcbd963bb9b9a989373",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getFeedback",
+      "traitKind": "method",
+      "methodIndex": 3299,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "7f19203d413245d3be7a50d437af122f8d10969d076c26a3d99fe9d6f0c6c9c1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.dragProxy",
+      "traitKind": "getter",
+      "methodIndex": 3294,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.dragClasses.DragProxy",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "5112c3f5a39bb0fe53e4d000bc0804eac161e6379d049c4182a3340348dd033b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.endDrag",
+      "traitKind": "method",
+      "methodIndex": 3300,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "332f1787979fa210393dc096ca49b1ed4104e1aacda1c96c286435b05336ce16",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isDragging",
+      "traitKind": "getter",
+      "methodIndex": 3295,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "ddb7f22c0a70f799c63fa1a9f25318e8783ae54b5368313d5b1704ef68f3bc4f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.impl",
+      "traitKind": "getter",
+      "methodIndex": 3293,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.IDragManager",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "f22871937254f2d3cdf063ec075254e4de7776bda440e87323a85b8e6ee7b29e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "showFeedback",
+      "traitKind": "method",
+      "methodIndex": 3298,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "b50354f118a4829e4848f72989421267c6aaf5c281816f3ab83db0c962ebbc0d",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

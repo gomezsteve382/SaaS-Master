@@ -1,0 +1,444 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1111,
+  "className": "com.chrysler.core.infrastructure.communication.HTTPAction",
+  "classNameNormalized": "com.chrysler.core.infrastructure.communication.HTTPAction",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 24184,
+  "cinitMethod": 24149,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "061996157a3a125cc06e11a3814028bf0298b75fa937ef189728752d5e46fb1b",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.completeHandler",
+      "traitKind": "method",
+      "methodIndex": 24170,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event",
+        "mx.rpc.AsyncToken",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 956,
+      "bytecode": {
+        "codeLength": 956,
+        "codeSha256": "20aa3afc5af758a84582091be22c490caaf4d1bcae4464a72acd04c81b6f0d1e",
+        "bytecodeLineCount": 60
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.httpStatusHandler",
+      "traitKind": "method",
+      "methodIndex": 24173,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.HTTPStatusEvent",
+        "mx.rpc.AsyncToken",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "096815921c8fb104aff898425559ea6efb0ba0b2698a02efeea2ebba4e0fbbfb",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.ioErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 24177,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent",
+        "mx.rpc.AsyncToken",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 230,
+      "bytecode": {
+        "codeLength": 230,
+        "codeSha256": "5bef0a29fd5560a6af6741e8193d898dec9dac53483b44c4816edb6503dc1302",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.parametersToURLVariables",
+      "traitKind": "method",
+      "methodIndex": 24160,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "flash.net.URLVariables",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "a39820dcec82641a22013f035b5b6993c397737a3c2b6402c8ddeefc4d70d85a",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.securityErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 24174,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SecurityErrorEvent",
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9447418c1a1241112e3a26714700fba84f72b408cb3c7702ef3f6dc308a2b982",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.sendURLLoader",
+      "traitKind": "method",
+      "methodIndex": 24159,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "flash.net.URLVariables",
+        "com.chrysler.core.infrastructure.communication.HTTPContext",
+        "mx.rpc.AsyncToken",
+        "flash.net.URLLoader"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "51c6ddce8f410324922fc7197c62421d0a59597f2a9ff0f77ce23984da49da31",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.validateParameters",
+      "traitKind": "method",
+      "methodIndex": 24180,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "d84ae34e3d277ca110ca539592ba17280e894d19dbaf6190726f8f5364bbfd8c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "errorResolver",
+      "traitKind": "getter",
+      "methodIndex": 24153,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.infrastructure.communication.IErrorResolver",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "08ec00d63e4faaf288923fef8ed5b76854f76a95339809a8ecabe83d3a76a679",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "errorResolver",
+      "traitKind": "setter",
+      "methodIndex": 24152,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.infrastructure.communication.IErrorResolver"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "0fcb8612fe127ba991eb1f3823266ba0c7114dcfcdc17ec2877bd94346f0ac61",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "httpActionContext",
+      "traitKind": "getter",
+      "methodIndex": 24154,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.infrastructure.communication.HTTPActionContext",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "dd907b9ab6b74eddc105ab287277f49834554db31b30c5ed405e014e3a2f8b7a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "httpActionContext",
+      "traitKind": "setter",
+      "methodIndex": 24155,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.infrastructure.communication.HTTPActionContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "509f62c1484fce2cfb84a62786814de3019ee03c2449df537a4a5d87d1133f5c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onDequeueEvent",
+      "traitKind": "method",
+      "methodIndex": 24157,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "com.chrysler.core.infrastructure.communication.HTTPActionQueueRequestDataObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "0a7127362772a4335d89326aa79e3baa4be5b5c443da67a1c45ce5565761e108",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.configureListeners",
+      "traitKind": "method",
+      "methodIndex": 24167,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.net.URLLoader",
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 186,
+      "bytecode": {
+        "codeLength": 186,
+        "codeSha256": "7dbf5c815fe2255e19630f6912986e66c2f193c57c69ce2f4ed18c6a5081f41b",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.doesTokenHaveMessage",
+      "traitKind": "method",
+      "methodIndex": 24183,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "bdc7faf77962e8377adb0488702dae1d893088441b6510ccc3e31cfe11069474",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.getURLLoaderAndRemoveEventListeners",
+      "traitKind": "method",
+      "methodIndex": 24181,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "com.chrysler.core.infrastructure.communication.CustomURLLoader",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "aeb78cf4ec40033106ccb12328905cfddabaa9f161a8d9e4121d8d29cbe8245b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.isLegalToLogThisCommand",
+      "traitKind": "method",
+      "methodIndex": 24182,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 236,
+      "bytecode": {
+        "codeLength": 236,
+        "codeSha256": "480bc359c30ff7b740951825b0b86d3d54051f0f8500e79c96f2b5a2baa6d952",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.notifyOfErrors",
+      "traitKind": "method",
+      "methodIndex": 24178,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.AsyncToken",
+        "mx.rpc.Fault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "0fe85be821b968718c9409d89f8749eb580481efe964730853ffdd453d80525c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.notifyOfWDECommunicationProblem",
+      "traitKind": "method",
+      "methodIndex": 24179,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.rpc.AsyncToken",
+        "mx.rpc.Fault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "a3ab044771b2d5dfc486e50c8f634555f8a4dabaf8ba1cd905516bf931841ff9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.openHandler",
+      "traitKind": "method",
+      "methodIndex": 24171,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event",
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "b6554592352c0febfce726f60582f3516960b0605dc3104c9186a0120f470770",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.progressHandler",
+      "traitKind": "method",
+      "methodIndex": 24172,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent",
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "f9afe0cef4b84dd855cfb26de5623de9d5d2cf9818b0a7556c19e7db2592c8ec",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 24156,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "com.chrysler.core.infrastructure.communication.HTTPContext",
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 325,
+      "bytecode": {
+        "codeLength": 325,
+        "codeSha256": "4b5379bb4a3d6a6e163125798f7cc89655d24f81920b55ee83214b813e17514f",
+        "bytecodeLineCount": 21
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.encodeParametersForPost",
+      "traitKind": "method",
+      "methodIndex": 24151,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.URLVariables"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 197,
+      "bytecode": {
+        "codeLength": 197,
+        "codeSha256": "cddf81297696c2372b268b828b5f30d6587c85ec5ffcdcc798b60e5c58e5aef2",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "SupportOperations",
+      "traitKind": "method",
+      "methodIndex": 24150,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "f7854562509a09a293ed3143e9e07f5301266cd61b8868970ec3ad44061a6fca",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

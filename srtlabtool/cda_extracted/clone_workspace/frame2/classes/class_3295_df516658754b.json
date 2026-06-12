@@ -1,0 +1,467 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3295,
+  "className": "spark.components.gridClasses.GridRowList",
+  "classNameNormalized": "spark.components.gridClasses.GridRowList",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 50999,
+  "cinitMethod": 50998,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clearColumns",
+      "traitKind": "method",
+      "methodIndex": 51023,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "6fecd6bb8891678d32362e1a284a81d45d98488ed87fd6138e4219348baaae10",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "find",
+      "traitKind": "method",
+      "methodIndex": 51010,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 242,
+      "bytecode": {
+        "codeLength": 242,
+        "codeSha256": "d5790589381195e7222e2a8d055ffb74f0cdad9b91ebad4abe9b6429b217219a",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "findNearestLTE",
+      "traitKind": "method",
+      "methodIndex": 51013,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 286,
+      "bytecode": {
+        "codeLength": 286,
+        "codeSha256": "ebb2ba9b70ac23082ce7c41737f7cee05ce4bea581cd638bbeead4f108b0e273",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "first",
+      "traitKind": "getter",
+      "methodIndex": 51000,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bc81b11f9fded2e440127140dbfa38d3cb3e778a7b0da3ead5a77a3f8a2d91c2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "head",
+      "traitKind": "getter",
+      "methodIndex": 51003,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bc81b11f9fded2e440127140dbfa38d3cb3e778a7b0da3ead5a77a3f8a2d91c2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "insert",
+      "traitKind": "method",
+      "methodIndex": 51007,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 154,
+      "bytecode": {
+        "codeLength": 154,
+        "codeSha256": "c097fa4ffcb04feff42444be1b80e9376de20f678b2b713a71fc81234ea74abc",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "insertAfter",
+      "traitKind": "method",
+      "methodIndex": 51008,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.gridClasses.GridRowNode",
+        "spark.components.gridClasses.GridRowNode"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "49e984b69bb048db9dcbbb89972b63e2cad60f3d2474fb7462ae611fa9ce13f5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "insertBefore",
+      "traitKind": "method",
+      "methodIndex": 51009,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.gridClasses.GridRowNode",
+        "spark.components.gridClasses.GridRowNode"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "01239a90b0b4807be1691936225c27cd8738b79c8ccade46b99b5034b932ad6f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "insertColumns",
+      "traitKind": "method",
+      "methodIndex": 51020,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "783ff32c98e23d60bc9434608ef27448971c5b91ccb7f88b7f6cc62dba1e0580",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "last",
+      "traitKind": "getter",
+      "methodIndex": 51001,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2166c8a6d562afafb66f6629b9a584d97b50bb6a36aae207356d75a81e142c3d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "length",
+      "traitKind": "getter",
+      "methodIndex": 51004,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c938bbe8ba4b9d02d53cad6f7dd84644d49b784bc2718828ca5bb44c20bd4030",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moveColumns",
+      "traitKind": "method",
+      "methodIndex": 51022,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "4290e7f517e5a38d0c9c7579237c363b59e91c9dcfb743e631b7a6d8642d7398",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "numColumns",
+      "traitKind": "getter",
+      "methodIndex": 51005,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6b7f1655eab8f78b02cdbcee87416c04899554dd937e17a12caf1be1510c9775",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "numColumns",
+      "traitKind": "setter",
+      "methodIndex": 51006,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "b32ffaf1f22547e1f0245927c499b9e47ef247aabc26e07d813a63936890caef",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.findAfter",
+      "traitKind": "method",
+      "methodIndex": 51011,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "spark.components.gridClasses.GridRowNode"
+      ],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "2e44e4fddf769f555e6b6f2035983654c5cad87e0f2bdce37f720203f4f13edf",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.findBefore",
+      "traitKind": "method",
+      "methodIndex": 51012,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "spark.components.gridClasses.GridRowNode"
+      ],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "74baff49765016cce00418bd3b284d5d4456faae377b3dbe9a7f91a103d511e6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.findNearestLTEAfter",
+      "traitKind": "method",
+      "methodIndex": 51014,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "spark.components.gridClasses.GridRowNode"
+      ],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "d21abb10fb2734069662fd8947c8657491e5ed9d086f094b7dfbb1d731610fac",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.findNearestLTEBefore",
+      "traitKind": "method",
+      "methodIndex": 51015,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "spark.components.gridClasses.GridRowNode"
+      ],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "4e1ea316783ced6f213c0f5ac05f3acf465beb67fa560b847572fa965d4c4349",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "push",
+      "traitKind": "method",
+      "methodIndex": 51016,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.gridClasses.GridRowNode"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "a71fc84734b5158bbbee0666f9ed83c7905d914dabdf499da7ea12cad4ce9d2e",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "remove",
+      "traitKind": "method",
+      "methodIndex": 51017,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "8b564878239f784272ce150ded4b3aff48ae6cbd1490d2eb04bc5c2d4bd1d220",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeAll",
+      "traitKind": "method",
+      "methodIndex": 51019,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "3f2bc817de17f8a24b4649040564d2cf2dc5223f3c7b53e5196871d10ee96da1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeColumns",
+      "traitKind": "method",
+      "methodIndex": 51021,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9e23f1ab84c09e29f4812ee54dbc6ad15f6bc80b1e2caee1a88fe6790c12f23e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeNode",
+      "traitKind": "method",
+      "methodIndex": 51018,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.gridClasses.GridRowNode"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "8633746a16bc192fb6c32767b018ed4da905c09064e4ddb5bed37dd35e63f260",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "tail",
+      "traitKind": "getter",
+      "methodIndex": 51002,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.gridClasses.GridRowNode",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2166c8a6d562afafb66f6629b9a584d97b50bb6a36aae207356d75a81e142c3d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toArray",
+      "traitKind": "method",
+      "methodIndex": 51025,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "46f774449d20d1590c500f15881ee6799a549ed6180203836f10cccecf1423e5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 51024,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "8ccc9134500e69e1e55747cda9c6379bdec121a849c20956fc9a9c9582569f7c",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,102 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3599,
+  "className": "mx.utils.XMLUtil",
+  "classNameNormalized": "mx.utils.XMLUtil",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54054,
+  "cinitMethod": 54049,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "createXMLDocument",
+      "traitKind": "method",
+      "methodIndex": 54050,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.xml.XMLDocument",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "895e0a2bfc89981e7288e614f961ca072cf0e1c874b446ddba5a9fd968b3dcf1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getAttributeByQName",
+      "traitKind": "method",
+      "methodIndex": 54053,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "QName"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "d34a6f440e8544dce84e0eb64655f65052782441c405bce9b34a2209caf8679b",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "qnamesEqual",
+      "traitKind": "method",
+      "methodIndex": 54051,
+      "methodName": "",
+      "paramTypes": [
+        "QName",
+        "QName"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "668d4102a3ab34eb616bcde1c866c63e03995570ce5564564bcaa8671cc72732",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "qnameToString",
+      "traitKind": "method",
+      "methodIndex": 54052,
+      "methodName": "",
+      "paramTypes": [
+        "QName"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "55ac00bffb27832fccbd218f7f38b6fadabdb79b2e4c810a600915b0d7c7790e",
+        "bytecodeLineCount": 4
+      }
+    }
+  ]
+}

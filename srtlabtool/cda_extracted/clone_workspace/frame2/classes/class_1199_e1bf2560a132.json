@@ -1,0 +1,441 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1199,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.WriteCalibrationController",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.WriteCalibrationController",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 27004,
+  "cinitMethod": 26976,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "234cbccea8071c9aea32638252d79a847ed6d041ef85bac9a4a83b0b5c476c1d",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "browseForFile",
+      "traitKind": "method",
+      "methodIndex": 26986,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 207,
+      "bytecode": {
+        "codeLength": 207,
+        "codeSha256": "ed3073869be99b13a5c4e85b7d35a1bf6efc2cc2e90f1585088ae68f8e9473a3",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "cleanup",
+      "traitKind": "method",
+      "methodIndex": 26992,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "26ea9eb1d8feb753ac653631a81865e5c4ddb4b6cc4a0bac02f53bca83442ead",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "doECUUnlockFailure",
+      "traitKind": "method",
+      "methodIndex": 26999,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.unlock.DoEcuUnlockMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "96b6a8f3c248c51ef720cde3d4665e0d34269575ff1102dba7857e5ce73401b5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "doECUUnlockSuccess",
+      "traitKind": "method",
+      "methodIndex": 26998,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.unlock.DoEcuUnlockMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "6bed39ed5d744274c608ba26d3735f2ec30d572be8a3df870d9aaf38d8e66873",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "extendedDiagnosticModeFail",
+      "traitKind": "method",
+      "methodIndex": 26995,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.ExtendedDiagnosticModeMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "6b0b4913e4ac49d4f6431b3f82ba16412bce98eb7a898cb084fbea0b45e54176",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "extendedDiagnosticModeSuccess",
+      "traitKind": "method",
+      "methodIndex": 26994,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.ExtendedDiagnosticModeMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "6b0b4913e4ac49d4f6431b3f82ba16412bce98eb7a898cb084fbea0b45e54176",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "findECUUnlockInformationFailure",
+      "traitKind": "method",
+      "methodIndex": 26997,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.unlock.FindECUUnlockInformationMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "8c104ec1abeea08c3634e4ba8008e2fb549f7b41405a76a3dd9189121e2c19a6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "findECUUnlockInformationSuccess",
+      "traitKind": "method",
+      "methodIndex": 26996,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.unlock.FindECUUnlockInformationMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 303,
+      "bytecode": {
+        "codeLength": 303,
+        "codeSha256": "c0ce28b1e903f67fdd45ba0c40284954bf31fd76958de43747e00960e098b50e",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "isInterestingEcuId",
+      "traitKind": "method",
+      "methodIndex": 27003,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "70331cfdcfa03b0b54f83fa7fce9fdb93a34497cd33f0242abf4bdd63f983c2c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "parseContent",
+      "traitKind": "method",
+      "methodIndex": 26990,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 470,
+      "bytecode": {
+        "codeLength": 470,
+        "codeSha256": "47d53d8351e79df2ef537a531d82b3762bc4c6c9e25555f121058577b1f7421e",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "readFileContents",
+      "traitKind": "method",
+      "methodIndex": 26989,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "0c87ea1d3e26f166c9385e60404a4b75cb88eb1a47c68233f0fed13ed5234b8d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "startWritingCalibrationFile",
+      "traitKind": "method",
+      "methodIndex": 26991,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 99,
+      "bytecode": {
+        "codeLength": 99,
+        "codeSha256": "dc8f6f065d11da54a5416e2bd5e30c616a3bca3619299c4ef1e60509df4fbb8d",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "testerPresentIssueComplete",
+      "traitKind": "method",
+      "methodIndex": 26993,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.TesterPresentMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "c5ee0a0a1f64a9f25bdd2a846c6a30482e98a0816fffa11e161101bfbbe2f78a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "testerPresentStoppedMessage",
+      "traitKind": "method",
+      "methodIndex": 27002,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.TesterPresentMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "uploadFile",
+      "traitKind": "method",
+      "methodIndex": 26988,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 349,
+      "bytecode": {
+        "codeLength": 349,
+        "codeSha256": "77e4c3e3462bed034a0fa0b68bf032a769bc4bfa9965851a64dfba4d0251b6f7",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "writeRawCalibrationDataMessage",
+      "traitKind": "method",
+      "methodIndex": 27000,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.WriteRawCalibrationDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 223,
+      "bytecode": {
+        "codeLength": 223,
+        "codeSha256": "86a58a37306ac099f0992deac000a11a59b359c1dc001f447d36349a59c83b5c",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "writeRawCalibrationDataMessageError",
+      "traitKind": "method",
+      "methodIndex": 27001,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.WriteRawCalibrationDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 282,
+      "bytecode": {
+        "codeLength": 282,
+        "codeSha256": "99ce2bc800b2f12ae2ccd964bbb59afacc510af698ad3a1f0e81f02d33a8fe97",
+        "bytecodeLineCount": 18
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "cleanWhiteSpace",
+      "traitKind": "method",
+      "methodIndex": 26983,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "830d92cb915839f701953645e8489d2dc5b5ad0efe5302bdadc4661ea2e67c07",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "doUDSCommandParsing",
+      "traitKind": "method",
+      "methodIndex": 26978,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 270,
+      "bytecode": {
+        "codeLength": 270,
+        "codeSha256": "5eb2147787ee2a873d3f779c27ec0a756f4034684619818ee476a530695f3dfd",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "doWKPCommandParsing",
+      "traitKind": "method",
+      "methodIndex": 26977,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 337,
+      "bytecode": {
+        "codeLength": 337,
+        "codeSha256": "e49e128dbec898cc546cedc141a30f2e80fbb66a6d96293b2fc7a95099835c4e",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "interrogateForValidCodeLine",
+      "traitKind": "method",
+      "methodIndex": 26982,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "722f878186cec29132b580af1ee8eba133bb1182e7ccf81a82ddd582fbd00474",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeComments",
+      "traitKind": "method",
+      "methodIndex": 26979,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "8ec23d348f7a41437d1cbf9ca5c0299b87c272888ecd7f8ac2f33b5bef506804",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "replaceSpaces",
+      "traitKind": "method",
+      "methodIndex": 26981,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "9290631fbccba70db88eb49c92e6a801234657d5e1f6cf46477e0caf2600c4a9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "splitOnLineBreaks",
+      "traitKind": "method",
+      "methodIndex": 26980,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "87b048fcc8271da0dfa8c29990c6b8cbb518ceb11a604ce86cf2ff90d8f4074e",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

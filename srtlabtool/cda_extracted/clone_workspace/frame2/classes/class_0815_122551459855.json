@@ -1,0 +1,64 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 815,
+  "className": "com.diagnosticProcedures.api.IBatchExecutorFactories",
+  "classNameNormalized": "com.diagnosticProcedures.api.IBatchExecutorFactories",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 15979,
+  "cinitMethod": 15975,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.api:IBatchExecutorFactories.cleanup",
+      "traitKind": "method",
+      "methodIndex": 15978,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "com.diagnosticProcedures.api:IBatchExecutorFactories.createDiagnosticProcedureBundles",
+      "traitKind": "method",
+      "methodIndex": 15976,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "com.diagnosticProcedures.api:IBatchExecutorFactories.createDiagnosticProcedureInstance",
+      "traitKind": "method",
+      "methodIndex": 15977,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "com.diagnosticProcedures.api.IDiagnosticProcedureProperties"
+      ],
+      "returnType": "com.diagnosticProcedures.DiagnosticProcedureInstance",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

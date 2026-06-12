@@ -1,0 +1,302 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1073,
+  "className": "com.chrysler.cda.presentation.component.reports.ScanReportsPM",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.reports.ScanReportsPM",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 23351,
+  "cinitMethod": 23332,
+  "iinitBytecode": {
+    "codeLength": 36,
+    "codeSha256": "9a64ba724cd916233d3ad3c0088069064f091594dcafbd7579ee38c5837ad99b",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 23346,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "67e23740145b6114891df32ff5903d76b8c8bdaedcd34432a332ce4c9a0b4ca8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "customDisplayReportFiles",
+      "traitKind": "getter",
+      "methodIndex": 23338,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a2da6c84207ef18f513eb3683133698055d5363c7f6e40084545405c9faaa0cb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "customDisplayReportFiles",
+      "traitKind": "setter",
+      "methodIndex": 23339,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "fc76d4572da2a1814fd7f07e9f941221b32e9f0fbe26ad4a7ab2495a865edb13",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 23347,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "f03e25f72d496f03293ecec74e02dc7fdd2b3967fab70640feee91219160c515",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "generateCSV",
+      "traitKind": "getter",
+      "methodIndex": 23342,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "36eb323c4a032f21defad742025e0a22285e9cb90237cd815d5b4d9054418f52",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "generateCSV",
+      "traitKind": "setter",
+      "methodIndex": 23343,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "cfdaa50c2f38e22f1c9cd3a9958cbd63b69858c8d9e37d6ce3ad528a34ef438d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 23348,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "fe8124578e00b636979a5b4a1095f1d12d121a6b55ce5e575c77e5a751ff2001",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isMakingReport",
+      "traitKind": "getter",
+      "methodIndex": 23340,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "58057930aeef29d72f8c69def8d869ab902c97a75cc096da1335e18fa262fee9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isMakingReport",
+      "traitKind": "setter",
+      "methodIndex": 23341,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "6828b644b3e57ab6f3d8885d88e9674c239f3c6cb9cad938f33bf5e9c2b4338b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 23349,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "5f1d959403d3072d2bba88bf3784262daa93cb6d20d99030749bdc33633fd22b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeFilesAt",
+      "traitKind": "method",
+      "methodIndex": 23333,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<int>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "1373fd2062e7f4e075ab43f9658204c4d1fd930fde434b7c8e3e1c5b52352b9c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "requestScanReport",
+      "traitKind": "method",
+      "methodIndex": 23334,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "b4bece08dd42b6b62fbe8d580d0dd4c8466772260c1b7daa0952d6d1a325eba1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setFiles",
+      "traitKind": "method",
+      "methodIndex": 23337,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 234,
+      "bytecode": {
+        "codeLength": 234,
+        "codeSha256": "fa3692d7e5498bfeac624706811d07742ed1bd5399eacab1958621e11e8edd18",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "status",
+      "traitKind": "getter",
+      "methodIndex": 23344,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7e56acb294c4da9d58d58e74e228c508d05c926b30d5e39b3e7f6c2400d85ae7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "status",
+      "traitKind": "setter",
+      "methodIndex": 23345,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "7a4f637c42f210d64c1905f2d31fde162ecd375da49d659719ae2f88d0cde5e9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 23350,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4e2dd2d0e502c3666413497963e23fd2303fede4bd53a94a739413b92563e90c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

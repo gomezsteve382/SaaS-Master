@@ -1,0 +1,49 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1133,
+  "className": "com.chrysler.cda.application.report.OdometerCommand",
+  "classNameNormalized": "com.chrysler.cda.application.report.OdometerCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 24851,
+  "cinitMethod": 24849,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "8f6512ff92bc132ead79140bb5558ab41e6fd92caad24b0087b96fabd0bf14b8",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "requestWellKnownElementsForReportMessage",
+      "traitKind": "method",
+      "methodIndex": 24850,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.report.RequestOdometerMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "9a1fb3869703eacc388f641cff12c06bb63b27310f9ff8b8a4de98d0a34cb837",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": []
+}

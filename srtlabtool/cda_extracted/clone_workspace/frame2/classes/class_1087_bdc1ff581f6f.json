@@ -1,0 +1,156 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1087,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.DownloadEngineeringFileCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.DownloadEngineeringFileCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23532,
+  "cinitMethod": 23522,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "dfcea18798fbcd433d2391441f9c9f307836699aff479966e3b0f848dc35fd4c",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 45,
+    "codeSha256": "dc1bbaeefe5ce6241da8216ae70ae4d9ebe63e95096097948bb8aca68c8c02ef",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onDownloadEngineeringFile",
+      "traitKind": "method",
+      "methodIndex": 23525,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 187,
+      "bytecode": {
+        "codeLength": 187,
+        "codeSha256": "3bbf56aea1266cfeaa2bc1aa8e0a3f7284c1d532b4613078b2650eb3d798f31a",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "onDownloadEngineeringFileError",
+      "traitKind": "method",
+      "methodIndex": 23530,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "42305948eb77b4cb567acedfd3f5efc5118d1d97a0a7ca087c28b3c461599b91",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onDownloadEngineeringFileRequest",
+      "traitKind": "method",
+      "methodIndex": 23528,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "d0ec6e26c7773bccefbe7b49ca15fc205e54f52096b23930f08201293c7be173",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onDownloadEngineeringFileResult",
+      "traitKind": "method",
+      "methodIndex": 23529,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "3a0235a45b50471f7db70be15b3821ba13e11535797855ce329a10a121f9c42c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.cleanup",
+      "traitKind": "method",
+      "methodIndex": 23531,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.filesystem.File"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "a867d9babbb4c72c2a85ec344dac92a2f53532e5f2f74bdf309b2f141786ed1f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.fileSelectedCallback",
+      "traitKind": "method",
+      "methodIndex": 23526,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event",
+        "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "b73c302b2b5545b908d8a631c0531b6a77cb4d33800eb6bd940fc8f20af38947",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.fileSelectionCancelledCallback",
+      "traitKind": "method",
+      "methodIndex": 23527,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event",
+        "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "3fe3b337edd80e87581a32b2bb521aace3883cea68fd67e2ce22b7c47c379d6b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

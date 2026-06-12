@@ -1,0 +1,354 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 238,
+  "className": "org.spicefactory.parsley.core.context.Context",
+  "classNameNormalized": "org.spicefactory.parsley.core.context.Context",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 5660,
+  "cinitMethod": 5633,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.addDynamicDefinition",
+      "traitKind": "method",
+      "methodIndex": 5645,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.DynamicObjectDefinition"
+      ],
+      "returnType": "org.spicefactory.parsley.core.context.DynamicObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.addDynamicObject",
+      "traitKind": "method",
+      "methodIndex": 5644,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "org.spicefactory.parsley.core.registry.DynamicObjectDefinition"
+      ],
+      "returnType": "org.spicefactory.parsley.core.context.DynamicObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.configured",
+      "traitKind": "getter",
+      "methodIndex": 5646,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.containsObject",
+      "traitKind": "method",
+      "methodIndex": 5638,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.createDynamicContext",
+      "traitKind": "method",
+      "methodIndex": 5659,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.context.DynamicContext",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.createDynamicObject",
+      "traitKind": "method",
+      "methodIndex": 5642,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.core.context.DynamicObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.createDynamicObjectByType",
+      "traitKind": "method",
+      "methodIndex": 5643,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "org.spicefactory.parsley.core.context.DynamicObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.destroy",
+      "traitKind": "method",
+      "methodIndex": 5649,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.destroyed",
+      "traitKind": "getter",
+      "methodIndex": 5648,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.domain",
+      "traitKind": "getter",
+      "methodIndex": 5653,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.system.ApplicationDomain",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.findAllDefinitionsByType",
+      "traitKind": "method",
+      "methodIndex": 5636,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "org.spicefactory.parsley.core.context.LookupStatus"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.findDefinition",
+      "traitKind": "method",
+      "methodIndex": 5634,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "org.spicefactory.parsley.core.context.LookupStatus"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinition",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.findDefinitionByType",
+      "traitKind": "method",
+      "methodIndex": 5635,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "org.spicefactory.parsley.core.context.LookupStatus"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinition",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.getAllObjectsByType",
+      "traitKind": "method",
+      "methodIndex": 5641,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.getDefinition",
+      "traitKind": "method",
+      "methodIndex": 5657,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinition",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.getDefinitionByType",
+      "traitKind": "method",
+      "methodIndex": 5658,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinition",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.getObject",
+      "traitKind": "method",
+      "methodIndex": 5639,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.getObjectByType",
+      "traitKind": "method",
+      "methodIndex": 5640,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.getObjectCount",
+      "traitKind": "method",
+      "methodIndex": 5637,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "uint",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.getObjectIds",
+      "traitKind": "method",
+      "methodIndex": 5656,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.getType",
+      "traitKind": "method",
+      "methodIndex": 5654,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Class",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.initialized",
+      "traitKind": "getter",
+      "methodIndex": 5647,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.isDynamic",
+      "traitKind": "method",
+      "methodIndex": 5655,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.parents",
+      "traitKind": "getter",
+      "methodIndex": 5650,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.scopeManager",
+      "traitKind": "getter",
+      "methodIndex": 5651,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.scope.ScopeManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.context:Context.viewManager",
+      "traitKind": "getter",
+      "methodIndex": 5652,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.view.ViewManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,224 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2194,
+  "className": "com.chrysler.core.infrastructure.ByteBuffer",
+  "classNameNormalized": "com.chrysler.core.infrastructure.ByteBuffer",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 39664,
+  "cinitMethod": 39651,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "32fd280d8cfb48200661e357d559ee77544e832655213580d8de26ff8203a299",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 30,
+    "codeSha256": "9ab4cf1a310e06299e878d45e98d0fb86c21d1540e7fcddd57b9212a1781428b",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "appendBytes",
+      "traitKind": "method",
+      "methodIndex": 39653,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "09053b1da0bed61cc3055d99914e96ed7ca69709f04af5e794f60cf99e7eaad4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "appendIDataInput",
+      "traitKind": "method",
+      "methodIndex": 39654,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "6c72728f937e323ea0264b0910717d68eccac6c08c23623d3906ab06cd48ce66",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "clear",
+      "traitKind": "method",
+      "methodIndex": 39652,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "73e4bc262bf367f47bdc5e94a00921c14cf28d3adb1882f7d30677d41cab0205",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.appendByte",
+      "traitKind": "method",
+      "methodIndex": 39655,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "1f5978bf73be8b9ed6b7143d3a2b3a6b52a255178c13ad43d8dd2cf5bd3dcb9b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.bytesAvailable",
+      "traitKind": "method",
+      "methodIndex": 39659,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "a4918754db128b8eaceb36576d6bbc1d44d450d3a946c1d2a93d140236b19820",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.length",
+      "traitKind": "method",
+      "methodIndex": 39660,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "845f98164d6d509866008ffece267f6a859c60cbbd62790fcab0c0e753595534",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.readByte",
+      "traitKind": "method",
+      "methodIndex": 39656,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "0eab28b0b2b366d33ef4d83cbf033c5d9d9d43a6ea5aedf4e033e132ebad7b97",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.readBytes",
+      "traitKind": "method",
+      "methodIndex": 39657,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "2aaac444ea9bf791ae8e254b081d69b81b84d6ddb4da8f781fc9785e608b09b6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.readMessageLength",
+      "traitKind": "method",
+      "methodIndex": 39661,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "f507ff64bae9e3a3c70341f57c5e3d51f647d928a8ab1058317ec632f77020ca",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.shrink",
+      "traitKind": "method",
+      "methodIndex": 39658,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "bae8abacd6f97d62188213a704ab6fff14e298c77f37d9d417f2ba7d4d5a9dcc",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "fetchBuslogChunkBytes",
+      "traitKind": "method",
+      "methodIndex": 39662,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "c35d9a23024febb5b15abf1029248209dae4f35b9aede2dcbf349b6a449c935a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fetchChunkBytes",
+      "traitKind": "method",
+      "methodIndex": 39663,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 142,
+      "bytecode": {
+        "codeLength": 142,
+        "codeSha256": "86d76badaf610e682ceb3958b0e6d271f6cd15a10f9174c8250185ffae00afbe",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": []
+}

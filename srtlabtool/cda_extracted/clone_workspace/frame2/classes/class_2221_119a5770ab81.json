@@ -1,0 +1,496 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2221,
+  "className": "wde.common.services.impl.RestfulService",
+  "classNameNormalized": "wde.common.services.impl.RestfulService",
+  "superName": "wde.common.services.impl.AbstractService",
+  "superNameNormalized": "wde.common.services.impl.AbstractService",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 39983,
+  "cinitMethod": 39953,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "5a9a33f3b00cb8e6a4e34a4d76cb5bc0dc1c82a0e0f4e692b30ed70e9da4f8c2",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "2c103c29c66f645b5e787c6ecbafbbada35ad94d77ca7e7244a8e65b8c1902d7",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "bodyArgs",
+      "traitKind": "getter",
+      "methodIndex": 39967,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6393377e83a10122d176613a237a684afaabb43aebe1296fcade4360a183b347",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "bodyArgs",
+      "traitKind": "setter",
+      "methodIndex": 39968,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b67a2b95c3a8c919f623f61c0dee7546fa668bba4eb9008777fe0774a0e84460",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isSecure",
+      "traitKind": "getter",
+      "methodIndex": 39955,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7a556abbf8bc82d6aca5bfeff8832fbc81a6eac330840f001c3dc97f5b6ba97d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isSecure",
+      "traitKind": "setter",
+      "methodIndex": 39956,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "9e56bc90bcfcad5448edfb010562254bef89cd64180a7c95d4d6e8e35ccd95d3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "loader",
+      "traitKind": "getter",
+      "methodIndex": 39957,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.net.URLLoader",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f222d676df01d7d734f803f874c7512eedb6a45fdfcb17cbd650218cd363f123",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "loader",
+      "traitKind": "setter",
+      "methodIndex": 39958,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.URLLoader"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "03c193786170923fcd1cc56762f43e6be7ef6608cfac195ec117711b44dcb15e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "method",
+      "traitKind": "getter",
+      "methodIndex": 39959,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0b21df59f47e945ac7554df60213e17954c626f9dc5cd245137e151a2483545c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "method",
+      "traitKind": "setter",
+      "methodIndex": 39960,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "462c674f27da31b4884fa3043cde934a28bfeb02525952dfde2959898270d6f8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.addListenersToLoader",
+      "traitKind": "method",
+      "methodIndex": 39977,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "4b67705f4b571aac506cd913aab4f76694f2149454fa44466667cf70d17706b9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.resolveLoaderDataFormat",
+      "traitKind": "method",
+      "methodIndex": 39976,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "47b52c877c283d3befb83a395b19e017071a547af578a878fe8c78142d66cd38",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "resolveURL",
+      "traitKind": "method",
+      "methodIndex": 39974,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 255,
+      "bytecode": {
+        "codeLength": 255,
+        "codeSha256": "e4832e0b7e9466663a905ecd6f317623d4555e344788a034d13d0382155f77c1",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 39971,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 305,
+      "bytecode": {
+        "codeLength": 305,
+        "codeSha256": "8aa1f71a54f9f0b6cb304bfa39e2f14f33eafa8a6dedc0b8bee43d1b832794d4",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "useAsciiAmpersandCode",
+      "traitKind": "getter",
+      "methodIndex": 39961,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d4f1143848ad651feb7672e6492b87c79a44297394179ae3e9c6adf64a7797be",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useAsciiAmpersandCode",
+      "traitKind": "setter",
+      "methodIndex": 39962,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a3285ae9805c36da39451e50a7c87545bd12556bcb47c4928a230af310280972",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useBodyQueryParameters",
+      "traitKind": "getter",
+      "methodIndex": 39963,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "65e0e26ce4c3b7eaac11781bfd91a118937c547ea19ae6e0cd902f28d9332548",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useBodyQueryParameters",
+      "traitKind": "setter",
+      "methodIndex": 39964,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "27a8d84633a70f78357b4e0c0b8140453ef44b911c7963bc37e853ff57e33511",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useCache",
+      "traitKind": "getter",
+      "methodIndex": 39965,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cf9cc094fe45d3b441283dbf20eacca90180d2d3560837d3155a88803a4ca74c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useCache",
+      "traitKind": "setter",
+      "methodIndex": 39966,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "4f358f861f7be3036d6096e39d41cf5c39587438bbb3e3e1cb9fb79464c33113",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.cacheResponseReceived",
+      "traitKind": "method",
+      "methodIndex": 39973,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.cache.CacheEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 157,
+      "bytecode": {
+        "codeLength": 157,
+        "codeSha256": "b3abf89c83c97df6bda4ed6f501c7f5be17efde993ee913fa257dec89d633d2c",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.createRequest",
+      "traitKind": "method",
+      "methodIndex": 39978,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.net.URLRequest",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "07814d580b2e337aaae28f76bf14f250be182379bce875e74730ee627ed401a5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.isAmf3",
+      "traitKind": "getter",
+      "methodIndex": 39969,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "4c6c6576bbcb0a24e308f2c32e387fcb3e276697826cbb188e84e3028788cd21",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.isJson",
+      "traitKind": "getter",
+      "methodIndex": 39970,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "dd85731be2f72a9035238e60176529698f62959c1667c459729b391ccf27566b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.parseLoaderData",
+      "traitKind": "method",
+      "methodIndex": 39982,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 132,
+      "bytecode": {
+        "codeLength": 132,
+        "codeSha256": "9b4e77e41df9ef0cab931cb73b5b881ad2fce36c9a8665ef6fbdf3eceb6feed9",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.propogateCachedResult",
+      "traitKind": "method",
+      "methodIndex": 39972,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.cache.CacheEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "11bc8704550f62cae20f815275c92cad167747aa8f8ab9ef0e8b29d59d9ad392",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.propogateFaultToCache",
+      "traitKind": "method",
+      "methodIndex": 39980,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.Fault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "5f26e760e85fe44b66fab195c5318390843dba7d90d79eb7fa955d83878bc1aa",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.propogateIOErrorFault",
+      "traitKind": "method",
+      "methodIndex": 39979,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "36fb8b95fcdd55ee563b1644593fda13b7d7a09a957d80086a05290c56068821",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.propogateSecurityFault",
+      "traitKind": "method",
+      "methodIndex": 39981,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SecurityErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "fc98117e412ffeb075b8881cce0399d217d11baca9252e750ac4d546f2149bfe",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:RestfulService.replaceArguments",
+      "traitKind": "method",
+      "methodIndex": 39975,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 270,
+      "bytecode": {
+        "codeLength": 270,
+        "codeSha256": "4c9f70862af48040c7e1606584469ba599227d47570142ab756f30b3bda53a41",
+        "bytecodeLineCount": 17
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "clearCache",
+      "traitKind": "method",
+      "methodIndex": 39954,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "2c103c29c66f645b5e787c6ecbafbbada35ad94d77ca7e7244a8e65b8c1902d7",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

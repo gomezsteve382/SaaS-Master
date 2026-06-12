@@ -1,0 +1,66 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1010,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.FindReadWriteComServicesCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.FindReadWriteComServicesCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 21448,
+  "cinitMethod": 21445,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "34e30cb40698533db08e76f5ec91da9240d1a03bbd908a77c69b25e7404bf0a1",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onFindECUComServicesClassic",
+      "traitKind": "method",
+      "methodIndex": 21446,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.IFindReadWriteComServicesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "ab1bf59badb699a6d5976c782132e8e39e536ce377d66e61231a5fc8cd48aa55",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindECUComServicesForReadWriteData",
+      "traitKind": "method",
+      "methodIndex": 21447,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.ConsolidatedReadWriteDataComServicesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "78338711dde5822d45a312064ad31fbd6a9c8aa3b4709262d1dcbbd432cf3179",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,243 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1457,
+  "className": "mx.effects.effectClasses.TweenEffectInstance",
+  "classNameNormalized": "mx.effects.effectClasses.TweenEffectInstance",
+  "superName": "mx.effects.EffectInstance",
+  "superNameNormalized": "mx.effects.EffectInstance",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 32105,
+  "cinitMethod": 32104,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "end",
+      "traitKind": "method",
+      "methodIndex": 32113,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "e74caa2be868fe846927696e62bc7a725da88b0f82956b527622c8ab08f07942",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.applyTweenStartValues",
+      "traitKind": "method",
+      "methodIndex": 32115,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "c802e44ea6d882de561ec811c4ea2806d24008cffdf40d8224303bece150aaa6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.playReversed",
+      "traitKind": "setter",
+      "methodIndex": 32106,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "8d5d1fa7ddd01cada4f15414bcca1df06cdcd85f10720e794b9e222fbfb3df2c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.effects.effectClasses:TweenEffectInstance.createTween",
+      "traitKind": "method",
+      "methodIndex": 32114,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "Object",
+        "Number",
+        "Number"
+      ],
+      "returnType": "mx.effects.Tween",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "0622afebe305b691e44aab0f126df078cd02a941efbb50b7412dd9ac212f42c2",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "onTweenEnd",
+      "traitKind": "method",
+      "methodIndex": 32118,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "9ab09960b4affca0dbd0780433939c636b2dca442f429de5e667cb0feea8bd2d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTweenUpdate",
+      "traitKind": "method",
+      "methodIndex": 32117,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pause",
+      "traitKind": "method",
+      "methodIndex": 32109,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "a03ed9bc8c4a47a46c976a728b0cfb8a25cbcbb35758060740122c6ec8b86fd7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "playheadTime",
+      "traitKind": "getter",
+      "methodIndex": 32107,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "477beb64d2fb1a8da0f1770d804b73ebc5e48034ff971134c4424d6242b332c5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "playheadTime",
+      "traitKind": "setter",
+      "methodIndex": 32108,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "c97a4e542aad2fe8b2aff17d0916bb792752606b58c1a96f64a3953c884fe536",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.tweenEventHandler",
+      "traitKind": "method",
+      "methodIndex": 32116,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.TweenEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "0fa9b26477f065c70b47aa4bd8557ba2d56d6bf1d57ae75f8a323434e910d651",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resume",
+      "traitKind": "method",
+      "methodIndex": 32111,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "30bc2d475e47c5f97a09e507a325d2bb974154823c7bd2798512f8e90c377276",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "reverse",
+      "traitKind": "method",
+      "methodIndex": 32112,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "3822cad7ab7c2266f068c51234c5c4079378adb21b783cea9d33a3e4c6648787",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "stop",
+      "traitKind": "method",
+      "methodIndex": 32110,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "864049ee3162b561fc857f3de03a3324cfe0582f8df650444a28dc2cec6a301b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

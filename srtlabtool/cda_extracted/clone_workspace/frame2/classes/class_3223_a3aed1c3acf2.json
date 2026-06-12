@@ -1,0 +1,133 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3223,
+  "className": "org.spicefactory.lib.reflect.Converters",
+  "classNameNormalized": "org.spicefactory.lib.reflect.Converters",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 50373,
+  "cinitMethod": 50366,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "addConverter",
+      "traitKind": "method",
+      "methodIndex": 50370,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "org.spicefactory.lib.reflect.Converter"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "e39ec11a209764ed9cbf9aaeb808e1acba0c88f78f0231368d24f6010dbcda17",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "convert",
+      "traitKind": "method",
+      "methodIndex": 50369,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "Class",
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 135,
+      "bytecode": {
+        "codeLength": 135,
+        "codeSha256": "056af2ae511410e8db4619f7078021b4cb573f69e784d795dc9d27bb812f5370",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "getConverter",
+      "traitKind": "method",
+      "methodIndex": 50371,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.Converter",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "ebad0ed3b1cf485496e05db9981fbd3dc3d887f34ee6a07d224377642b5fc733",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.initConverters",
+      "traitKind": "method",
+      "methodIndex": 50372,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 192,
+      "bytecode": {
+        "codeLength": 192,
+        "codeSha256": "f0e20c9ebf335541e3bc1943a1072753e8f6b106dd2f406b7ee93f4884fae68c",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "processingDomain",
+      "traitKind": "getter",
+      "methodIndex": 50367,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.system.ApplicationDomain",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "46b5175c6ad820f228c513590487953d6e51601f84bc420e4e52baf8e07dd49a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "processingDomain",
+      "traitKind": "setter",
+      "methodIndex": 50368,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "c9cc8f736e44507bc7c5884f00875077de91305952c1e221798d3d5ae2dbf02b",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

@@ -1,0 +1,496 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 99,
+  "className": "mx.effects.IEffect",
+  "classNameNormalized": "mx.effects.IEffect",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "mx.effects.IAbstractEffect"
+  ],
+  "iinitMethod": 2113,
+  "cinitMethod": 2073,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.effects:IEffect.captureEndValues",
+      "traitKind": "method",
+      "methodIndex": 2112,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.captureMoreStartValues",
+      "traitKind": "method",
+      "methodIndex": 2111,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.captureStartValues",
+      "traitKind": "method",
+      "methodIndex": 2110,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.className",
+      "traitKind": "getter",
+      "methodIndex": 2074,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.createInstance",
+      "traitKind": "method",
+      "methodIndex": 2102,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.effects.IEffectInstance",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.createInstances",
+      "traitKind": "method",
+      "methodIndex": 2101,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.customFilter",
+      "traitKind": "getter",
+      "methodIndex": 2075,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.effects.EffectTargetFilter",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.customFilter",
+      "traitKind": "setter",
+      "methodIndex": 2076,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.EffectTargetFilter"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.deleteInstance",
+      "traitKind": "method",
+      "methodIndex": 2103,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.IEffectInstance"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.duration",
+      "traitKind": "getter",
+      "methodIndex": 2077,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.duration",
+      "traitKind": "setter",
+      "methodIndex": 2078,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.effectTargetHost",
+      "traitKind": "getter",
+      "methodIndex": 2079,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.effects.IEffectTargetHost",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.effectTargetHost",
+      "traitKind": "setter",
+      "methodIndex": 2080,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.IEffectTargetHost"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.end",
+      "traitKind": "method",
+      "methodIndex": 2109,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.IEffectInstance"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.filter",
+      "traitKind": "getter",
+      "methodIndex": 2081,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.filter",
+      "traitKind": "setter",
+      "methodIndex": 2082,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.getAffectedProperties",
+      "traitKind": "method",
+      "methodIndex": 2100,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.hideFocusRing",
+      "traitKind": "getter",
+      "methodIndex": 2083,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.hideFocusRing",
+      "traitKind": "setter",
+      "methodIndex": 2084,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.isPlaying",
+      "traitKind": "getter",
+      "methodIndex": 2085,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.pause",
+      "traitKind": "method",
+      "methodIndex": 2105,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.perElementOffset",
+      "traitKind": "getter",
+      "methodIndex": 2086,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.perElementOffset",
+      "traitKind": "setter",
+      "methodIndex": 2087,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.play",
+      "traitKind": "method",
+      "methodIndex": 2104,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Boolean"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.playheadTime",
+      "traitKind": "getter",
+      "methodIndex": 2098,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.playheadTime",
+      "traitKind": "setter",
+      "methodIndex": 2099,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.relevantProperties",
+      "traitKind": "getter",
+      "methodIndex": 2088,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.relevantProperties",
+      "traitKind": "setter",
+      "methodIndex": 2089,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.relevantStyles",
+      "traitKind": "getter",
+      "methodIndex": 2090,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.relevantStyles",
+      "traitKind": "setter",
+      "methodIndex": 2091,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.resume",
+      "traitKind": "method",
+      "methodIndex": 2107,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.reverse",
+      "traitKind": "method",
+      "methodIndex": 2108,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.stop",
+      "traitKind": "method",
+      "methodIndex": 2106,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.target",
+      "traitKind": "getter",
+      "methodIndex": 2092,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.target",
+      "traitKind": "setter",
+      "methodIndex": 2093,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.targets",
+      "traitKind": "getter",
+      "methodIndex": 2094,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.targets",
+      "traitKind": "setter",
+      "methodIndex": 2095,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.triggerEvent",
+      "traitKind": "getter",
+      "methodIndex": 2096,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.Event",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.effects:IEffect.triggerEvent",
+      "traitKind": "setter",
+      "methodIndex": 2097,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

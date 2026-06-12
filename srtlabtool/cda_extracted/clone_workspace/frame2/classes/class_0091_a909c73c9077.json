@@ -1,0 +1,543 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 91,
+  "className": "mx.utils.MatrixUtil",
+  "classNameNormalized": "mx.utils.MatrixUtil",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 2033,
+  "cinitMethod": 2008,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 68,
+    "codeSha256": "e61ae16919a3931ae121dc7ab08a8ae0d3c0ac8ce52c706171c8a795737ff0ba",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "calcUBoundsToFitTBounds",
+      "traitKind": "method",
+      "methodIndex": 2026,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 1085,
+      "bytecode": {
+        "codeLength": 1085,
+        "codeSha256": "79b9fd07f13349c1d866d5c526bc202feec010671c5ed5880b238d2fd2487527",
+        "bytecodeLineCount": 68
+      }
+    },
+    {
+      "traitName": "calcUBoundsToFitTBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 2023,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "flash.geom.Matrix",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 834,
+      "bytecode": {
+        "codeLength": 834,
+        "codeSha256": "fed6dc1e222df1c129d715e5d0db2cc33dc610b63d225d014559bf24dabe9fb2",
+        "bytecodeLineCount": 53
+      }
+    },
+    {
+      "traitName": "calcUBoundsToFitTBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 2024,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "flash.geom.Matrix",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 812,
+      "bytecode": {
+        "codeLength": 812,
+        "codeSha256": "a2dd0ec25fca17c3d4ab2bbdf68501ad737ce098c7a04a4478209de46ebb39e5",
+        "bytecodeLineCount": 51
+      }
+    },
+    {
+      "traitName": "clampRotation",
+      "traitKind": "method",
+      "methodIndex": 2009,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "706464d82385d4a9be57c328b7de20a41a94c8416395d35ea3f13bab16f85478",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "composeMatrix",
+      "traitKind": "method",
+      "methodIndex": 2011,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Matrix",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "3acdcac7b5d6319527650c0ff7041969815861c1a86b91df48bb5967df2a732c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "decomposeMatrix",
+      "traitKind": "method",
+      "methodIndex": 2012,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<Number>",
+        "flash.geom.Matrix",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 275,
+      "bytecode": {
+        "codeLength": 275,
+        "codeSha256": "71f1a1c7671d6ee7af6fdeff070813b268d1c9cc7084d93a73450b4a77e37769",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "fitBounds",
+      "traitKind": "method",
+      "methodIndex": 2020,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 519,
+      "bytecode": {
+        "codeLength": 519,
+        "codeSha256": "9c9493f0575df77b20a9d53ca583a7b32b435f59cb74aa670fa4a7909d19ea7f",
+        "bytecodeLineCount": 33
+      }
+    },
+    {
+      "traitName": "getConcatenatedComputedMatrix",
+      "traitKind": "method",
+      "methodIndex": 2031,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "flash.geom.Matrix",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "5c88cffb57fa7aec8bff55d02c7a68bd357d8a766f21e9d1058668660bc320e5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getConcatenatedMatrix",
+      "traitKind": "method",
+      "methodIndex": 2030,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "flash.geom.Matrix",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f77714fc14a30197f5a993427c4b0464167f6e3ced209beb35ea0a24d7abd0c6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getEllipseBoundingBox",
+      "traitKind": "method",
+      "methodIndex": 2014,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 456,
+      "bytecode": {
+        "codeLength": 456,
+        "codeSha256": "fbba55dda4fb662b06c77b645e67144490a00bc1310b53f35de90b7ca1dcfcd1",
+        "bytecodeLineCount": 29
+      }
+    },
+    {
+      "traitName": "getQBezierSegmentBBox",
+      "traitKind": "method",
+      "methodIndex": 2015,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 443,
+      "bytecode": {
+        "codeLength": 443,
+        "codeSha256": "18835c95fa366c744c415178bf5dd6b739c0bf0c234b396cb2d1b5469214c66e",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "isDeltaIdentity",
+      "traitKind": "method",
+      "methodIndex": 2019,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "1f888fd1db1c093ab46521975fbfe7973c5bfaee0053a788985a1081a2cbc731",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "isEqual",
+      "traitKind": "method",
+      "methodIndex": 2027,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 140,
+      "bytecode": {
+        "codeLength": 140,
+        "codeSha256": "01e025ca91f51dbbba7f1989f47a442a3634dd9ab188cc0de012778ad8edcb32",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "isEqual3D",
+      "traitKind": "method",
+      "methodIndex": 2028,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix3D",
+        "flash.geom.Matrix3D"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 427,
+      "bytecode": {
+        "codeLength": 427,
+        "codeSha256": "e3bb3db6604ce1ddb5aadf93bf2ce29151ce6cb20db210a8b61b0545cde71330",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "PrivateNs.fitTBoundsHeight",
+      "traitKind": "method",
+      "methodIndex": 2022,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "flash.geom.Matrix",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 173,
+      "bytecode": {
+        "codeLength": 173,
+        "codeSha256": "6967f192ea1aaa70ed4c445c2d6a1d697ee4db266281454b09a19c9b341b4b28",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.fitTBoundsWidth",
+      "traitKind": "method",
+      "methodIndex": 2021,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "flash.geom.Matrix",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 173,
+      "bytecode": {
+        "codeLength": 173,
+        "codeSha256": "5b959d8201e06477c788b9ebdb3b4255223d6e304e37c2806c35c30acea576d2",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.getConcatenatedMatrixHelper",
+      "traitKind": "method",
+      "methodIndex": 2032,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "Boolean",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "flash.geom.Matrix",
+      "hasBody": true,
+      "codeLength": 712,
+      "bytecode": {
+        "codeLength": 712,
+        "codeSha256": "ae945af40076826e7fc78b4f66920e0cb11951b0b1de5c6753ee9c868f9b9c5f",
+        "bytecodeLineCount": 45
+      }
+    },
+    {
+      "traitName": "PrivateNs.solveEquation",
+      "traitKind": "method",
+      "methodIndex": 2025,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 382,
+      "bytecode": {
+        "codeLength": 382,
+        "codeSha256": "13631773eaff1aaf1e93a347e20a6951640338328d010dd6bd73f6740b74e351",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs.solveSystem",
+      "traitKind": "method",
+      "methodIndex": 2029,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "1b0c55ef9f9e941c8a6a98b170de07c346e53d2c7f673b37cf2a39378dc37b88",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "projectBounds",
+      "traitKind": "method",
+      "methodIndex": 2018,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle",
+        "flash.geom.Matrix3D",
+        "flash.geom.PerspectiveProjection"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 418,
+      "bytecode": {
+        "codeLength": 418,
+        "codeSha256": "edadf54c157f70356de63ae6064c1cfd4f3de5f9ee977ec8d77ec89b86947c20",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "rectUnion",
+      "traitKind": "method",
+      "methodIndex": 2013,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 129,
+      "bytecode": {
+        "codeLength": 129,
+        "codeSha256": "941d11260f98d16b30eba34429db19545e6181bd8a11cc032d99bbe848f8fc37",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "transformBounds",
+      "traitKind": "method",
+      "methodIndex": 2017,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "flash.geom.Point"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 351,
+      "bytecode": {
+        "codeLength": 351,
+        "codeSha256": "0250f6d1a90dbd4703d0f53a6a7b4b27f6e083f9b7429c0eeaf7de83950b6cb5",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "transformPoint",
+      "traitKind": "method",
+      "methodIndex": 2010,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "abbf36d6df77352af7d3a7e5fe05e670cc836c1af02e94d8930ab4114f5668e1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "transformSize",
+      "traitKind": "method",
+      "methodIndex": 2016,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 257,
+      "bytecode": {
+        "codeLength": 257,
+        "codeSha256": "d450b86e5a9d52734712e85ebeee586c34331c943526f5365020611e14d141fa",
+        "bytecodeLineCount": 17
+      }
+    }
+  ]
+}

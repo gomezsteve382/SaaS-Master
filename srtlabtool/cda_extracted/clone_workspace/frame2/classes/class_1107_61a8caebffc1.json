@@ -1,0 +1,494 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1107,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.StateDDEWrite",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.StateDDEWrite",
+  "superName": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "superNameNormalized": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.IWriteDDEDataPopup",
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 24038,
+  "cinitMethod": 24034,
+  "iinitBytecode": {
+    "codeLength": 434,
+    "codeSha256": "7c06b4e92a1184e543a8eeed0059e9c533974547aa3c84ba69ee1bc44e6df9a0",
+    "bytecodeLineCount": 28
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "edd19a852bc318bea05fa662d37a55a03e9a9e8c609993d27810f8e124518487",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___StateDDEWrite_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 24050,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "87dc4a74f5f9a621d4fc803dbcd6f864556a60d3cbbdc2675a132d4fcbb4a0dd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___StateDDEWrite_Button2_click",
+      "traitKind": "method",
+      "methodIndex": 24052,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0184d8b4dfc3875bafaf423475abb61e342cd0618be3f5fd395752e302854aa5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___StateDDEWrite_PopupAbstractWindow1_addedToStage",
+      "traitKind": "method",
+      "methodIndex": 24058,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "f8a77500d9001af4176e323dd65c0f3d1a62b68ccddd4a71a7fcfdcba2d438d1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup:StateDDEWrite.addedToStageHandler",
+      "traitKind": "method",
+      "methodIndex": 24044,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "9da4d7e05be46eea5c2c5b07cff37db53d537cfd1a5163bddf8b57895c08951e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup:StateDDEWrite.initDefaultValue",
+      "traitKind": "method",
+      "methodIndex": 24045,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "a93c209c3f4973593839b53e6ced4f04610175b7323bb04b20356d800044d6ff",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup:StateDDEWrite.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 24065,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "af5d7dbcf6177c568039f02ead9cb797a0310228fda650229c4f49b1ff6c9de9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "comServiceValueVO",
+      "traitKind": "setter",
+      "methodIndex": 24041,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "483436e40e6fa5e8f8e59dc23fde45fa741944635e4f0af68819218dc1c369f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "defaultValue",
+      "traitKind": "setter",
+      "methodIndex": 24042,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a20c11e7c2f82b328d560459065e0a7b39cc1d2e1480b83c522401cfc7c949ae",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enter",
+      "traitKind": "method",
+      "methodIndex": 24043,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "9f4e4be3ce7af4975af9636bf2746de0ca023f0cfa0e21f59f2ed24cf7237c13",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 24068,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "25b79b0053d74b1ccf63d59658dcdd75a4cfb489d2ac0a9111a6103d0542e982",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 24069,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "0029beed1c456d00b9bcbc12a184e386de0dc5d1ff145c39add42993eb2df40a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 24040,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 24039,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "a849eff203e6351ac7deba8d8d15025e42faacd143ab9eab6c4959e33c327d98",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_Array4_c",
+      "traitKind": "method",
+      "methodIndex": 24053,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "a0682439331f94fbc34249ff52c687c6554b65538c031d6320d59722d47ea56e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 24064,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "4b6315bd20cd98033534a81f329b1e093d9f059881977baa9b940501bfbb6dff",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 24049,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "8a6b43aa802a8a8406ca9514d583e349b5af4c102dcdd89d27d1df6c99c771ce",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 24051,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "63e435fa824d50c43b5e327c9d1c55ea5b0d44b9c48af01bc81d9469ccece065",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_ConfigureTag1_i",
+      "traitKind": "method",
+      "methodIndex": 24047,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.flex.tag.view.ConfigureTag",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "82d8526c6bcdef45052587e3d1508ecb1518fbeda90a33fc4abd4da6cd7e050c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_DropDownList1_i",
+      "traitKind": "method",
+      "methodIndex": 24056,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.DropDownList",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "028975ef50db45cb3b45595ee4d9999323f273f271c38482caf8818cf98d303b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_HGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 24048,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "7c8bc2d53b47448823cbdc99bdb3e11a37817e261f21e6c2bb489496f9636edc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 24055,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "4d9f1dfa704c4daeb2d94e38822a9a7de8920bb8d620d35967dd90c4f46d08ed",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_Spacer1_c",
+      "traitKind": "method",
+      "methodIndex": 24057,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "d189e400ca22c60c05ee5326af50d2ec91a95103db722f432807b64665813edc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._StateDDEWrite_VGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 24054,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "10d07f040030e63127cf5a7d09224c68b425cac80769a554d5cb9d810d4faba7",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "removePopup",
+      "traitKind": "method",
+      "methodIndex": 24046,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "211630859889440ef3fad2dfc7bad85c8c72a8eea883b2fb91f801fb29eb8cd1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "stateList",
+      "traitKind": "getter",
+      "methodIndex": 24066,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.DropDownList",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "115a8704f2aafa733ddd704fcb9b9e598f3c5918eca1db15a4a4ea185e508e2b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stateList",
+      "traitKind": "setter",
+      "methodIndex": 24067,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.DropDownList"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "d87687b942f19a43565e2b47dcde2297433d1c57f15fd25d64dacd0adaec18b4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "stateModel",
+      "traitKind": "getter",
+      "methodIndex": 24070,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "47927923853e62651518775339c8be80c0d65adb2e82600f75f8413ddeb960f7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stateModel",
+      "traitKind": "setter",
+      "methodIndex": 24071,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "71bf55cd184c67dab8bfdd30ffc60975f9fec4700976141043fa85beeb0f281f",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 24035,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "bec442a9b33c5ca6ec7bb1b13f74ba55eea8a6769c43dfa1d83b502824d65f50",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

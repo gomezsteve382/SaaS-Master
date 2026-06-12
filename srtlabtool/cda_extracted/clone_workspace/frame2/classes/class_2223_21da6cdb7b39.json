@@ -1,0 +1,689 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2223,
+  "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification.AuthenticationDialogSkin",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification.AuthenticationDialogSkin",
+  "superName": "spark.components.supportClasses.Skin",
+  "superNameNormalized": "spark.components.supportClasses.Skin",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 39997,
+  "cinitMethod": 39993,
+  "iinitBytecode": {
+    "codeLength": 442,
+    "codeSha256": "7689508478380e23b17f10840eb05685a0679297b6c93b2cb1198c9c8303ebfb",
+    "bytecodeLineCount": 28
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "backgroundFill",
+      "traitKind": "getter",
+      "methodIndex": 40025,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b75696c74781b2f7e4b349129960943fbb9931a0b25d867761abf015fc9e9140",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "backgroundFill",
+      "traitKind": "setter",
+      "methodIndex": 40026,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c41659d2f5698d04b3af00376beccc1df182604f5649028e0706bfc1314e2528",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "bgFill",
+      "traitKind": "getter",
+      "methodIndex": 40027,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "37b024465c2831d0a22e3fbdb500c91b5a91fff91b83297f216d1cfebcfde59e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "bgFill",
+      "traitKind": "setter",
+      "methodIndex": 40028,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5fd21f6c7948e1d2edf38b85226eb7c2c9c1387b4a4c66bae93b01f496a843b8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "closeButtonComponent",
+      "traitKind": "getter",
+      "methodIndex": 40029,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "99fe2fe35c3e871c55c27cc79dc8619c84063ad4ed01e982e87743e6d153569f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "closeButtonComponent",
+      "traitKind": "setter",
+      "methodIndex": 40030,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5890c3bd0910b22df1372eba5fdc74084589f58f536d5e3366f3730a94a90333",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification:AuthenticationDialogSkin.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 40000,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "ac9d7500cc09e5f6a0dd45756e88869bb1ebf565708a839dcb8941811a3b8577",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "commandBarGroup",
+      "traitKind": "getter",
+      "methodIndex": 40031,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "887f23b3c093daeac7649c8ee5c9f7d24bb78afe45cd8ae4952d0aa554a7b5b0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "commandBarGroup",
+      "traitKind": "setter",
+      "methodIndex": 40032,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "78b1488fe4ffe59ed5b102d6452cc60acd5dd92639d9a88a7a5444f9237dff36",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "commandBarSeparator",
+      "traitKind": "getter",
+      "methodIndex": 40033,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.HRule",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d69323fa069c36e58f4bbd47a50431cb48b8b61fa06465027ef27523463b027a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "commandBarSeparator",
+      "traitKind": "setter",
+      "methodIndex": 40034,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.HRule"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c160d3d8ab6937c0ab5a42ec5cd6843c1c599de80a9ad706c13a53188fc47e43",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "contentGroup",
+      "traitKind": "getter",
+      "methodIndex": 40035,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d04bc0190fe874da3dd428065f19388e7d08d73a6fd46c4efbfd929993764946",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "contentGroup",
+      "traitKind": "setter",
+      "methodIndex": 40036,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "a05d1dada340e1361e467a4caa85b759c71ce813e42c4562769aa26e9907852b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 40039,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.SkinnableContainer",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c39fb13c5000e358ec363aca30ba1d354fe9b03b25839004acaf29fe8686588d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 40040,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.SkinnableContainer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5a16ebc35df0829c36bd6ec71bb291b83c424668cd1a69a174e76f923acf5bd4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 39999,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 39998,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "ba063227f2681c9e835c5a2a7f700468fd3294e2a230a97b1c7f1ddd1e9091c6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Array6_c",
+      "traitKind": "method",
+      "methodIndex": 40012,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "d7937db3f021ff441acd380838bb3e20f91e8a593e03228b2e45c247baa2181c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 40024,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "e4ef2a9931eb23e21fdc1dda038a40c9d2510513aeb3ecb8eabcb32c51703334",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 40010,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "468b00a4d11b2fc559df5e94fb5ec09dedcb421dae339e0e9c790c5476514b6f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_DropShadowFilter1_i",
+      "traitKind": "method",
+      "methodIndex": 40001,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.filters.DropShadowFilter",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "6448c40bc8608fb2989b9e7e5105c34943f5254dd37ac0ba0863877b2df3491d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Group1_c",
+      "traitKind": "method",
+      "methodIndex": 40004,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "99b5f3c0c4778e865148b3d699374c36a37a13a4be8001eef8e46a9e2eef4584",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Group2_c",
+      "traitKind": "method",
+      "methodIndex": 40006,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "1aae7deb1ae32d65bb5c59eec0b770b1ffb9ad4fe94e151cfbd523ede3d5bdb5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Group3_c",
+      "traitKind": "method",
+      "methodIndex": 40015,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "1b409626bb064023f342cb855fc88268ce1fe88daa7cb2b13005e85b9deddb73",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Group4_i",
+      "traitKind": "method",
+      "methodIndex": 40018,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "2a33f232305e8f004fdabe89062e7455ea866f7fe137ce2a3bad6c32500cbf01",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Group5_i",
+      "traitKind": "method",
+      "methodIndex": 40020,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "0a39e0d504ea1126cb9d179cf779d5aa046d6fb927efab750c8263ad53dd0c97",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_HorizontalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 40007,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.HorizontalLayout",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "73e0ba65ac06df0190242bafb1d65878ee022fbd07cfe5a925eb06c47e03e77d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_HorizontalLayout2_c",
+      "traitKind": "method",
+      "methodIndex": 40021,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.HorizontalLayout",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "56e8a78ad8262da49873d14b9d1d1192e7501617bb5aaadd4751be996811c06e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_HRule1_i",
+      "traitKind": "method",
+      "methodIndex": 40019,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.HRule",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "89823c1bd6f7fc5626435792eefceda02be1677fc226d45486466b154433fba7",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 40008,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "9c73b29585b993a684155e7f5d198681b7498a3e53f56e218378a98070c1e93e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Rect1_i",
+      "traitKind": "method",
+      "methodIndex": 40002,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "5acf68f1bf4f99628f303ffff2bef807b112566f16b132cabd2562990a4014fd",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Rect2_c",
+      "traitKind": "method",
+      "methodIndex": 40013,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "c513f7df23bfa0f88fe50136e8ee5a3eee198c0862890714be1a104291638e5f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Scroller1_c",
+      "traitKind": "method",
+      "methodIndex": 40017,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "5fcccd0da1c4610de1c04bbe3e37ccd99f6b78cbcb8faef12b4d9f6ecc80a2af",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_SkinnableContainer1_c",
+      "traitKind": "method",
+      "methodIndex": 40011,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.SkinnableContainer",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "a3f9c1884841fcbf2647b8f9e319f9bfb8652d12354dde700c0f9dadb3c2e315",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_SolidColor1_i",
+      "traitKind": "method",
+      "methodIndex": 40003,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "5c4ae58cb2a9acd1d2f8924e9ba1baa81bcb3b7cc88f52b96eaeeeee24f442e3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_SolidColor2_c",
+      "traitKind": "method",
+      "methodIndex": 40014,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "5ffe55c8b76343299d714f819ed394ccfa32013af35cabb790d81c24754fe0f6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_Spacer1_c",
+      "traitKind": "method",
+      "methodIndex": 40009,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "d189e400ca22c60c05ee5326af50d2ec91a95103db722f432807b64665813edc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 40005,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "77768197b34676c159fb7fd388756d485d170886f1c82743afc6934749938681",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogSkin_VerticalLayout2_c",
+      "traitKind": "method",
+      "methodIndex": 40016,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "8359220c09346462cd09a19e845b15183f40465830919fe095db22dfe3291a72",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "titleComponent",
+      "traitKind": "getter",
+      "methodIndex": 40037,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6a44375c327fd014fe4314759707cf8e4a75e521cbd91b3c4343c7dd8f1a8b48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "titleComponent",
+      "traitKind": "setter",
+      "methodIndex": 40038,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Label"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "897f07dd6b2dd91a2d84edeb3a931db1c970dfc87c3648edfd853f8aff5dd71d",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 39994,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "951e138f1d34736cb07364b316a5215c5a49c8e26cc7497ea353a1d8ac812a0a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

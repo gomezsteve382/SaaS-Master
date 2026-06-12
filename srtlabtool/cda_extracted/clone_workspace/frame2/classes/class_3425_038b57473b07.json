@@ -1,0 +1,185 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3425,
+  "className": "org.httpclient.events.HttpListener",
+  "classNameNormalized": "org.httpclient.events.HttpListener",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 52401,
+  "cinitMethod": 52400,
+  "iinitBytecode": {
+    "codeLength": 213,
+    "codeSha256": "9e1737ed057d3a0ba76730f2df71d7afd4e0cfe3160d2db1d8e4d3bbc14b1ee3",
+    "bytecodeLineCount": 14
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.httpclient.events:HttpListener.onInternalClose",
+      "traitKind": "method",
+      "methodIndex": 52404,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "fc9586f907f4e7490770e46560467318ddaa7316e84e0075f53b2e9cbed7fa02",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "org.httpclient.events:HttpListener.onInternalComplete",
+      "traitKind": "method",
+      "methodIndex": 52405,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.events.HttpResponseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "c4cbe0ed260a0301d5fa9921afe54b828aabc13f06d996c62d10b80188d0b136",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "org.httpclient.events:HttpListener.onInternalConnect",
+      "traitKind": "method",
+      "methodIndex": 52406,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.events.HttpRequestEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "ee476a9e740f449f3d86a6884441d2c0e1687f4992078ae5aff0cad3fec83e21",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "org.httpclient.events:HttpListener.onInternalData",
+      "traitKind": "method",
+      "methodIndex": 52408,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.events.HttpDataEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "040b102f156cc6aba9b83409eaaa30438e223ffd9a10eecc2cf921c8fcdd3409",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "org.httpclient.events:HttpListener.onInternalError",
+      "traitKind": "method",
+      "methodIndex": 52409,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "0ebae15432486600b81e0d9ee4dc5384e0ecc56741ae9032e2fe877567f0f762",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "org.httpclient.events:HttpListener.onInternalRequest",
+      "traitKind": "method",
+      "methodIndex": 52407,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.events.HttpRequestEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "851dab35fcbab8ad07fbb2125201f6fe4a7082b07dff30193009b8ec6a83cc1d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "org.httpclient.events:HttpListener.onInternalStatus",
+      "traitKind": "method",
+      "methodIndex": 52410,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.events.HttpStatusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "2fe0d14433e4df0dd8b5c78ba4099f3b936a4d1f62758a061406566c535440c7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "register",
+      "traitKind": "method",
+      "methodIndex": 52402,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.EventDispatcher"
+      ],
+      "returnType": "org.httpclient.events.HttpListener",
+      "hasBody": true,
+      "codeLength": 174,
+      "bytecode": {
+        "codeLength": 174,
+        "codeSha256": "a0674c488aa4ca642aa05ac7de6a0f4d2d231720af0b1ab42f9b0bfd5b9ea4eb",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "unregister",
+      "traitKind": "method",
+      "methodIndex": 52403,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.EventDispatcher"
+      ],
+      "returnType": "org.httpclient.events.HttpListener",
+      "hasBody": true,
+      "codeLength": 174,
+      "bytecode": {
+        "codeLength": 174,
+        "codeSha256": "95e2f8a89f8b98d692b791b9c926e859ed24bb38c4d00982e5c95c26e68454cb",
+        "bytecodeLineCount": 11
+      }
+    }
+  ],
+  "staticMembers": []
+}

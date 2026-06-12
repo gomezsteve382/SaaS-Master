@@ -1,0 +1,463 @@
+From 172afbffdf01ce6963f27994f06d2d321244529a Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 14:53:24 +0000
+Subject: [PATCH] =?UTF-8?q?Stage=20D:=20marryAll()=20=E2=80=94=20one-shot?=
+ =?UTF-8?q?=203-module=20marry=20(BCM=20->=20RFHUB=20+=20PCM)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Adds marryAll() to the engine: BCM is the source of truth; RFHUB and PCM are
+both derived from the SAME BCM root (RFH SEC16 = reverse(BCM), PCM SEC6 =
+reverse(BCM)[0:6]) so they are guaranteed mutually in sync. Each target is
+married via marryModule (derive -> write -> re-parse-verify); a cross-sync
+check then re-reads both outputs and confirms they carry the BCM root.
+All-or-nothing: ok only when every provided target married + verified AND
+cross-sync passes. Blank/virgin BCM and missing-input are refused.
+
+MarrySyncTab gains a 'Marry all 3' mode: BCM/RFHUB/PCM slots, per-module
+result + confidence, an 'ALL IN SYNC' verdict, and a fflate zip download of
+both married files. The 2-module 'Marry one' mode is unchanged.
+
+12-case node harness + vitest suite; marryModule 14/14 regression green;
+esbuild-validated.
+---
+ .../src/lib/__tests__/marryAll.test.js        |  38 +++
+ artifacts/srt-lab/src/lib/marryModule.js      |  64 +++++
+ artifacts/srt-lab/src/tabs/MarrySyncTab.jsx   | 251 +++++++++++-------
+ 3 files changed, 258 insertions(+), 95 deletions(-)
+ create mode 100644 artifacts/srt-lab/src/lib/__tests__/marryAll.test.js
+
+diff --git a/artifacts/srt-lab/src/lib/__tests__/marryAll.test.js b/artifacts/srt-lab/src/lib/__tests__/marryAll.test.js
+new file mode 100644
+index 0000000..d0ab236
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/__tests__/marryAll.test.js
+@@ -0,0 +1,38 @@
++import { describe, it, expect } from 'vitest';
++import { marryAll } from '../marryModule.js';
++import { parseModule } from '../parseModule.js';
++import { rekeyVirginBcmFromRfhub } from '../mpc5606bBcm.js';
++
++const ROOT = Uint8Array.from({ length: 16 }, (_, i) => (i * 31 + 7) & 0xff);
++const arr = (x) => (x ? Array.from(x) : x);
++const gpec2a = () => { const b = new Uint8Array(4096); const v = '2C3CDXBG1KH100001'; for (let i = 0; i < 17; i++) b[i] = v.charCodeAt(i); return b; };
++const rfhGen2 = () => { const b = new Uint8Array(4096); b[0x500] = 0xAA; b[0x501] = 0x55; b[0x502] = 0x31; b[0x503] = 0x01; return b; };
++const bcmSrc = () => rekeyVirginBcmFromRfhub(new Uint8Array(65536).fill(0xFF), ROOT).bytes;
++
++describe('marryAll — 3-module marry from a BCM source of truth', () => {
++  it('marries RFHUB + PCM from the BCM and confirms all 3 in sync', () => {
++    const r = marryAll({ bcm: { bytes: bcmSrc() }, rfhub: { bytes: rfhGen2() }, pcm: { bytes: gpec2a() }, vin: '2C3CDXBG1KH100001' });
++    expect(r.ok).toBe(true);
++    expect(r.crossSync).toBe(true);
++    expect(r.source).toBe('BCM');
++    expect(r.files.map((f) => f.name).sort()).toEqual(['PCM_MARRIED_2C3CDXBG1KH100001.bin', 'RFHUB_MARRIED_2C3CDXBG1KH100001.bin']);
++    // both married outputs derive from the same BCM root
++    const rfhSlot = parseModule(r.results.rfhub.bytes, 're').sec16s[0].raw;
++    const pcmSec6 = parseModule(r.results.pcm.bytes, 're').pcmSec6.raw;
++    expect(arr(rfhSlot).slice(0, 16)).toEqual(arr(ROOT));
++    expect(arr(pcmSec6).slice(0, 6)).toEqual(arr(ROOT).slice(0, 6));
++    expect(arr(rfhSlot).slice(0, 6)).toEqual(arr(pcmSec6).slice(0, 6)); // in sync
++  });
++
++  it('works with a single target (RFHUB only)', () => {
++    const r = marryAll({ bcm: { bytes: bcmSrc() }, rfhub: { bytes: rfhGen2() } });
++    expect(r.ok).toBe(true);
++    expect(r.files).toHaveLength(1);
++  });
++
++  it('refuses without a BCM, without targets, or from a virgin BCM', () => {
++    expect(marryAll({ rfhub: { bytes: rfhGen2() } }).ok).toBe(false);
++    expect(marryAll({ bcm: { bytes: bcmSrc() } }).ok).toBe(false);
++    expect(marryAll({ bcm: { bytes: new Uint8Array(65536).fill(0xFF) }, pcm: { bytes: gpec2a() } }).ok).toBe(false);
++  });
++});
+diff --git a/artifacts/srt-lab/src/lib/marryModule.js b/artifacts/srt-lab/src/lib/marryModule.js
+index dd21d49..ec8ed6a 100644
+--- a/artifacts/srt-lab/src/lib/marryModule.js
++++ b/artifacts/srt-lab/src/lib/marryModule.js
+@@ -207,6 +207,70 @@ export function marryModule(cfg) {
+   };
+ }
+ 
++/**
++ * marryAll — bring an RFHUB and/or a PCM into a set with a married BCM as the
++ * single source of truth. BCM is authoritative: both targets are derived from
++ * the SAME BCM root (RFH SEC16 = reverse(BCM), PCM SEC6 = reverse(BCM)[0:6]),
++ * so they are guaranteed mutually in sync. Each target is married via
++ * marryModule (derive → write → re-parse-verify), then a cross-sync check
++ * re-reads both outputs and confirms they share the BCM root. All-or-nothing:
++ * ok only when every provided target married + verified AND cross-sync passes.
++ *
++ * @param {object} cfg
++ * @param {{bytes:Uint8Array, info?:object}} cfg.bcm   authoritative source (required)
++ * @param {{bytes:Uint8Array, info?:object}} [cfg.rfhub]  target (optional)
++ * @param {{bytes:Uint8Array, info?:object}} [cfg.pcm]    target (optional)
++ * @param {string}  [cfg.vin]
++ * @param {boolean} [cfg.allowUnverifiedTarget]          needed for Gen1/XC2268 RFHUB
++ * @returns {{ ok, source:'BCM', results:{rfhub?,pcm?}, crossSync, checks, files:[{name,bytes}] }}
++ */
++export function marryAll(cfg) {
++  const { bcm, rfhub, pcm, vin, allowUnverifiedTarget = false } = cfg || {};
++  const checks = [];
++  const note = (label, pass, detail) => { checks.push({ label, pass: !!pass, detail: detail || '' }); return !!pass; };
++  const bail = (label, detail) => ({ ok: false, source: 'BCM', results: {}, crossSync: false, checks: [{ label, pass: false, detail }], files: [] });
++
++  if (!bcm?.bytes?.length) return bail('BCM source provided', 'BCM is the source of truth and is required');
++  if (!rfhub && !pcm) return bail('At least one target provided', 'provide an RFHUB and/or a PCM to marry');
++
++  const bcmSrc = { bytes: bcm.bytes, info: bcm.info };
++  const results = {};
++  const files = [];
++  const vinTag = vin ? '_' + String(vin).trim() : '';
++
++  if (rfhub?.bytes?.length) {
++    const r = marryModule({ source: bcmSrc, target: { bytes: rfhub.bytes, info: rfhub.info }, vin, allowUnverifiedTarget });
++    results.rfhub = r;
++    note(`RFHUB married (${r.op || '—'})`, r.ok && r.verified, r.reason || (r.grounding && r.grounding.level) || '');
++    if (r.ok && r.bytes) files.push({ name: `RFHUB_MARRIED${vinTag}.bin`, bytes: r.bytes });
++  }
++  if (pcm?.bytes?.length) {
++    const r = marryModule({ source: bcmSrc, target: { bytes: pcm.bytes, info: pcm.info }, vin, allowUnverifiedTarget });
++    results.pcm = r;
++    note(`PCM married (${r.op || '—'})`, r.ok && r.verified, r.reason || (r.grounding && r.grounding.level) || '');
++    if (r.ok && r.bytes) files.push({ name: `PCM_MARRIED${vinTag}.bin`, bytes: r.bytes });
++  }
++
++  /* Cross-sync: independently re-derive the BCM root and confirm BOTH married
++   * outputs carry it (RFHUB slot1 == root, PCM SEC6 == root[0:6]). This is the
++   * "all 3 are in sync" guarantee, checked on the actual output bytes. */
++  let crossSync = true;
++  const root = resolveRootSecret(bcm.bytes, asInfo(bcm.bytes, bcm.info, 'bcm'));
++  if (!root.ok) crossSync = false;
++  if (root.ok && results.rfhub?.ok && results.rfhub.bytes) {
++    const slot = parseModule(results.rfhub.bytes, 'rfh')?.sec16s?.[0]?.raw;
++    crossSync = crossSync && !!slot && arrEq(Array.from(slot).slice(0, 16), Array.from(root.rfhSec16));
++  }
++  if (root.ok && results.pcm?.ok && results.pcm.bytes) {
++    const sec6 = parseModule(results.pcm.bytes, 'pcm')?.pcmSec6?.raw;
++    crossSync = crossSync && !!sec6 && arrEq(Array.from(sec6).slice(0, 6), Array.from(pcmSec6FromRfh(root.rfhSec16)));
++  }
++  note('Cross-sync: RFHUB SEC16 and PCM SEC6 both derive from the BCM root', crossSync,
++    root.ok ? '' : 'BCM root unresolved');
++
++  return { ok: checks.every((c) => c.pass) && files.length > 0, source: 'BCM', results, crossSync, checks, files };
++}
++
+ /* Re-parse `out` and assert the written secret reads back exactly as derived. */
+ function verifyMarriage(out, op, { rfhSec16, bcmSec16 }, ok) {
+   let re;
+diff --git a/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx b/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx
+index c16d350..511d3a5 100644
+--- a/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx
++++ b/artifacts/srt-lab/src/tabs/MarrySyncTab.jsx
+@@ -1,22 +1,19 @@
+ import React, {useState, useMemo, useRef} from "react";
++import {zipSync} from "fflate";
+ import {Card, Btn, Tag} from "../lib/ui.jsx";
+ import {C} from "../lib/constants.js";
+ import {parseModule} from "../lib/parseModule.js";
+-import {marryModule} from "../lib/marryModule.js";
++import {marryModule, marryAll} from "../lib/marryModule.js";
+ 
+ /* ────────────────────────────────────────────────────────────────────────────
+- * MarrySyncTab — the single, engine-backed home for marrying an unmarried
+- * module into a married set. Replaces the overlapping SecuritySyncTab /
+- * BCM→PCM pairing surfaces: load a SOURCE (a module that already carries the
+- * married secret — your BCM source of truth, or an RFHUB/95640) and a TARGET
+- * (the donor/unmarried module). One call to marryModule() derives the target's
+- * secret, writes it with the verified securityBytes writer, and re-parses the
+- * output to prove it reads back correctly before anything can be downloaded.
+- *
+- * The relationships (single source of truth, immoSecret.js):
+- *   RFHUB SEC16 == reverse(BCM SEC16) ; PCM SEC6 == reverse(BCM SEC16)[0:6].
+- * Refuse-on-doubt: a blank/virgin source is rejected, and writing an
+- * UNVERIFIED-formula target (RFHUB Gen1 / XC2268) requires an explicit ack.
++ * MarrySyncTab — the engine-backed home for marrying modules into a set.
++ * Two modes, both on the verified marryModule() engine (derive → write →
++ * re-parse-verify, refuse-on-doubt, trust-ledger confidence):
++ *   • Marry one   — SOURCE (married) → TARGET (unmarried), single output.
++ *   • Marry all 3 — BCM (source of truth) → RFHUB + PCM, both derived from the
++ *                   same BCM root so they are guaranteed in sync, cross-checked,
++ *                   downloaded together as a .zip.
++ * Relationships (immoSecret.js): RFH SEC16 = reverse(BCM), PCM SEC6 = reverse(BCM)[0:6].
+  * ────────────────────────────────────────────────────────────────────────── */
+ 
+ const mono = "'JetBrains Mono'";
+@@ -36,19 +33,15 @@ function FileSlot({label, accent, mod, onLoad, onClear}) {
+     r.readAsArrayBuffer(f);
+   };
+   return (
+-    <Card style={{borderTop: "3px solid " + accent, padding: 16}}>
++    <Card style={{borderTop: "3px solid " + accent, padding: 14}}>
+       <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8}}>
+-        <div style={{fontFamily: "'Righteous'", fontSize: 14, color: accent, letterSpacing: 1}}>{label}</div>
+-        {mod && (
+-          <button onClick={onClear} style={{border: "none", background: C.er + "14", color: C.er, fontWeight: 800, fontSize: 10, padding: "3px 9px", borderRadius: 6, cursor: "pointer"}}>CLEAR</button>
+-        )}
++        <div style={{fontFamily: "'Righteous'", fontSize: 13, color: accent, letterSpacing: 1}}>{label}</div>
++        {mod && <button onClick={onClear} style={{border: "none", background: C.er + "14", color: C.er, fontWeight: 800, fontSize: 10, padding: "3px 9px", borderRadius: 6, cursor: "pointer"}}>CLEAR</button>}
+       </div>
+       {mod ? (
+         <div style={{fontSize: 12}}>
+           <div><b>{mod.info?.type || "?"}</b> · {mod.file?.name}</div>
+-          <div style={{color: C.tm, fontSize: 11, fontFamily: mono}}>
+-            {mod.bytes.length} B{mod.info?.vins?.length ? ` · VIN ${mod.info.vins[0].vin}` : ""}
+-          </div>
++          <div style={{color: C.tm, fontSize: 11, fontFamily: mono}}>{mod.bytes.length} B{mod.info?.vins?.length ? ` · VIN ${mod.info.vins[0].vin}` : ""}</div>
+         </div>
+       ) : (
+         <div>
+@@ -60,107 +53,175 @@ function FileSlot({label, accent, mod, onLoad, onClear}) {
+   );
+ }
+ 
+-export default function MarrySyncTab() {
+-  const [src, setSrc] = useState(null);
+-  const [tgt, setTgt] = useState(null);
+-  const [vin, setVin] = useState("");
+-  const [ack, setAck] = useState(false);
++function ConfidenceBadge({grounding}) {
++  const tone = grounding ? (TONE[grounding.level] || TONE.unverified) : null;
++  if (!tone) return null;
++  return <span title={grounding.caveat || ""} style={{fontSize: 10, fontWeight: 800, letterSpacing: 0.5, padding: "2px 8px", borderRadius: 10, background: tone.c + "18", color: tone.c}}>{tone.t}</span>;
++}
+ 
+-  const load = (setter) => (file, bytes) => {
++function ChecksList({checks}) {
++  return (checks || []).map((ch, i) => (
++    <div key={i} style={{fontSize: 12, color: ch.pass ? C.gn : C.er, marginBottom: 3, fontFamily: mono}}>
++      {ch.pass ? "✓" : "✗"} {ch.label}{ch.detail ? ` — ${ch.detail}` : ""}
++    </div>
++  ));
++}
++
++function useModule(setAck) {
++  const [mod, setMod] = useState(null);
++  const load = (file, bytes) => {
+     let info = null;
+-    try { info = parseModule(bytes, file.name); } catch (e) { /* unparseable → engine reports */ }
+-    setter({file, bytes, info});
+-    setAck(false);
++    try { info = parseModule(bytes, file.name); } catch (e) { /* engine reports */ }
++    setMod({file, bytes, info});
++    if (setAck) setAck(false);
+   };
++  return [mod, load, () => setMod(null)];
++}
+ 
+-  const result = useMemo(() => {
+-    if (!src || !tgt) return null;
++export default function MarrySyncTab() {
++  const [mode, setMode] = useState("one");
++  const [vin, setVin] = useState("");
++  const [ack, setAck] = useState(false);
++
++  // mode "one"
++  const [src, loadSrc, clearSrc] = useModule(setAck);
++  const [tgt, loadTgt, clearTgt] = useModule(setAck);
++  // mode "all3"
++  const [bcm, loadBcm, clearBcm] = useModule(setAck);
++  const [rfh, loadRfh, clearRfh] = useModule(setAck);
++  const [pcm, loadPcm, clearPcm] = useModule(setAck);
++
++  const one = useMemo(() => {
++    if (mode !== "one" || !src || !tgt) return null;
++    try { return marryModule({source: {bytes: src.bytes, info: src.info}, target: {bytes: tgt.bytes, info: tgt.info}, vin: vin.trim() || undefined, allowUnverifiedTarget: ack}); }
++    catch (e) { return {ok: false, reason: String(e?.message || e), checks: []}; }
++  }, [mode, src, tgt, vin, ack]);
++
++  const all3 = useMemo(() => {
++    if (mode !== "all3" || !bcm || (!rfh && !pcm)) return null;
+     try {
+-      return marryModule({
+-        source: {bytes: src.bytes, info: src.info},
+-        target: {bytes: tgt.bytes, info: tgt.info},
+-        vin: vin.trim() || undefined,
+-        allowUnverifiedTarget: ack,
++      return marryAll({
++        bcm: {bytes: bcm.bytes, info: bcm.info},
++        rfhub: rfh ? {bytes: rfh.bytes, info: rfh.info} : undefined,
++        pcm: pcm ? {bytes: pcm.bytes, info: pcm.info} : undefined,
++        vin: vin.trim() || undefined, allowUnverifiedTarget: ack,
+       });
+-    } catch (e) {
+-      return {ok: false, reason: String(e?.message || e), checks: []};
+-    }
+-  }, [src, tgt, vin, ack]);
+-
+-  const download = () => {
+-    if (!result?.bytes) return;
+-    const fn = `${result.targetType || "TARGET"}_MARRIED${vin.trim() ? "_" + vin.trim() : ""}.bin`;
++    } catch (e) { return {ok: false, results: {}, checks: [{label: "engine error", pass: false, detail: String(e?.message || e)}], files: []}; }
++  }, [mode, bcm, rfh, pcm, vin, ack]);
++
++  const dlBin = (bytes, name) => {
++    const a = document.createElement("a");
++    a.href = URL.createObjectURL(new Blob([bytes], {type: "application/octet-stream"}));
++    a.download = name; a.click(); URL.revokeObjectURL(a.href);
++  };
++  const dlZip = () => {
++    if (!all3?.files?.length) return;
++    const entries = {};
++    for (const f of all3.files) entries[f.name] = f.bytes;
++    const zipped = zipSync(entries, {level: 6});
+     const a = document.createElement("a");
+-    a.href = URL.createObjectURL(new Blob([result.bytes], {type: "application/octet-stream"}));
+-    a.download = fn; a.click(); URL.revokeObjectURL(a.href);
++    a.href = URL.createObjectURL(new Blob([zipped], {type: "application/zip"}));
++    a.download = `MARRIED_ALL${vin.trim() ? "_" + vin.trim() : ""}.zip`;
++    a.click(); URL.revokeObjectURL(a.href);
+   };
+ 
+-  const tone = result?.grounding ? (TONE[result.grounding.level] || TONE.unverified) : null;
+-  const needsAck = !!result && !result.ok && /allowUnverifiedTarget/i.test(result.reason || "");
++  const needsAckOne = !!one && !one.ok && /allowUnverifiedTarget/i.test(one.reason || "");
++  const needsAckAll = !!all3 && Object.values(all3.results || {}).some((r) => r && !r.ok && /allowUnverifiedTarget/i.test(r.reason || ""));
++  const needsAck = needsAckOne || needsAckAll;
++
++  const tab = (id, label) => (
++    <button onClick={() => setMode(id)} style={{
++      padding: "7px 14px", borderRadius: 8, cursor: "pointer", fontWeight: 800, fontSize: 12,
++      border: `1.5px solid ${mode === id ? C.sr : C.bd}`, background: mode === id ? C.sr + "12" : C.c2, color: mode === id ? C.sr : C.tx,
++    }}>{label}</button>
++  );
+ 
+   return (
+     <div>
+       <div style={{fontFamily: "'Righteous'", fontSize: 20, letterSpacing: 1, marginBottom: 6}}>MARRY / SYNC</div>
+-      <div style={{color: C.ts, fontSize: 12, marginBottom: 14, maxWidth: 760}}>
+-        Derive a target module's immobilizer secret from a married source, write it with the verified
+-        writer, and confirm by re-parse. BCM is the source of truth — RFH SEC16 = reverse(BCM),
+-        PCM SEC6 = reverse(BCM)[0:6]. One engine, refuse-on-doubt, nothing downloads unless it verifies.
++      <div style={{color: C.ts, fontSize: 12, marginBottom: 12, maxWidth: 780}}>
++        Derive a module's immobilizer secret from a married source, write it with the verified writer, and confirm
++        by re-parse. BCM is the source of truth. Refuse-on-doubt: nothing downloads unless it verifies.
+       </div>
+ 
+-      <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12}}>
+-        <FileSlot label="SOURCE · married" accent={C.sr} mod={src} onLoad={load(setSrc)} onClear={() => setSrc(null)} />
+-        <FileSlot label="TARGET · unmarried" accent={C.a1} mod={tgt} onLoad={load(setTgt)} onClear={() => setTgt(null)} />
++      <div style={{display: "flex", gap: 8, marginBottom: 14}}>
++        {tab("one", "Marry one (source → target)")}
++        {tab("all3", "Marry all 3 (BCM + RFHUB + PCM)")}
+       </div>
+ 
++      {mode === "one" && (
++        <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12}}>
++          <FileSlot label="SOURCE · married" accent={C.sr} mod={src} onLoad={loadSrc} onClear={clearSrc} />
++          <FileSlot label="TARGET · unmarried" accent={C.a1} mod={tgt} onLoad={loadTgt} onClear={clearTgt} />
++        </div>
++      )}
++      {mode === "all3" && (
++        <div style={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12}}>
++          <FileSlot label="BCM · source of truth" accent={C.sr} mod={bcm} onLoad={loadBcm} onClear={clearBcm} />
++          <FileSlot label="RFHUB · target" accent={C.a3} mod={rfh} onLoad={loadRfh} onClear={clearRfh} />
++          <FileSlot label="PCM · target" accent={C.a2} mod={pcm} onLoad={loadPcm} onClear={clearPcm} />
++        </div>
++      )}
++
+       <div style={{marginBottom: 14}}>
+-        <label style={{fontSize: 11, color: C.tm, marginRight: 8}}>Optional VIN to stamp into target</label>
+-        <input
+-          value={vin}
+-          onChange={(e) => setVin(e.target.value.toUpperCase())}
+-          maxLength={17}
+-          placeholder="17-char VIN"
+-          style={{fontFamily: mono, fontSize: 12, padding: "6px 8px", border: `1px solid ${C.bd}`, borderRadius: 6, width: 210}}
+-        />
++        <label style={{fontSize: 11, color: C.tm, marginRight: 8}}>Optional VIN to stamp into target(s)</label>
++        <input value={vin} onChange={(e) => setVin(e.target.value.toUpperCase())} maxLength={17} placeholder="17-char VIN"
++          style={{fontFamily: mono, fontSize: 12, padding: "6px 8px", border: `1px solid ${C.bd}`, borderRadius: 6, width: 210}} />
+       </div>
+ 
+-      {!result && (
+-        <Card style={{padding: 16, color: C.tm}}>Load a source and a target module to begin.</Card>
++      {needsAck && (
++        <Card style={{padding: 12, marginBottom: 12, borderLeft: `3px solid ${C.er}`}}>
++          <label style={{fontSize: 12, color: C.er, fontWeight: 600}}>
++            <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} style={{marginRight: 6}} />
++            A target's writer formula is UNVERIFIED (RFHUB Gen1 / XC2268) and could brick the module — proceed anyway.
++          </label>
++        </Card>
+       )}
+ 
+-      {result && (
++      {/* ── mode: one ── */}
++      {mode === "one" && !one && <Card style={{padding: 16, color: C.tm}}>Load a source and a target module to begin.</Card>}
++      {mode === "one" && one && (
+         <Card style={{padding: 16}}>
+           <div style={{display: "flex", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap"}}>
+-            <div style={{fontFamily: "'Righteous'", fontSize: 15}}>{result.sourceType || "?"} → {result.targetType || "?"}</div>
+-            {result.op && <Tag>{result.op}</Tag>}
+-            {tone && (
+-              <span title={result.grounding?.caveat || ""} style={{fontSize: 10, fontWeight: 800, letterSpacing: 0.5, padding: "2px 8px", borderRadius: 10, background: tone.c + "18", color: tone.c}}>
+-                {tone.t}
+-              </span>
+-            )}
+-            {result.ok && result.verified && <Tag>✓ VERIFIED</Tag>}
++            <div style={{fontFamily: "'Righteous'", fontSize: 15}}>{one.sourceType || "?"} → {one.targetType || "?"}</div>
++            {one.op && <Tag>{one.op}</Tag>}
++            <ConfidenceBadge grounding={one.grounding} />
++            {one.ok && one.verified && <Tag>✓ VERIFIED</Tag>}
+           </div>
+-
+-          {(result.checks || []).map((ch, i) => (
+-            <div key={i} style={{fontSize: 12, color: ch.pass ? C.gn : C.er, marginBottom: 3, fontFamily: mono}}>
+-              {ch.pass ? "✓" : "✗"} {ch.label}{ch.detail ? ` — ${ch.detail}` : ""}
+-            </div>
+-          ))}
+-
+-          {result.reason && (
+-            <div style={{marginTop: 8, color: C.er, fontSize: 12, fontWeight: 700}}>{result.reason}</div>
+-          )}
+-
+-          {needsAck && (
+-            <label style={{display: "block", marginTop: 10, fontSize: 12, color: C.er, fontWeight: 600}}>
+-              <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} style={{marginRight: 6}} />
+-              I understand this target's writer formula is UNVERIFIED and could brick the module — proceed anyway.
+-            </label>
++          <ChecksList checks={one.checks} />
++          {one.reason && <div style={{marginTop: 8, color: C.er, fontSize: 12, fontWeight: 700}}>{one.reason}</div>}
++          {one.ok && one.verified && (
++            <div style={{marginTop: 12}}><Btn onClick={() => dlBin(one.bytes, `${one.targetType || "TARGET"}_MARRIED${vin.trim() ? "_" + vin.trim() : ""}.bin`)}>⬇ Download verified {one.targetType}</Btn></div>
+           )}
++        </Card>
++      )}
+ 
+-          {result.ok && result.verified && (
+-            <div style={{marginTop: 12}}>
+-              <Btn onClick={download}>⬇ Download verified {result.targetType}</Btn>
+-            </div>
++      {/* ── mode: all3 ── */}
++      {mode === "all3" && !all3 && <Card style={{padding: 16, color: C.tm}}>Load the BCM (source of truth) and at least one of RFHUB / PCM.</Card>}
++      {mode === "all3" && all3 && (
++        <Card style={{padding: 16}}>
++          <div style={{display: "flex", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap"}}>
++            <div style={{fontFamily: "'Righteous'", fontSize: 15}}>BCM → {all3.results.rfhub ? "RFHUB" : ""}{all3.results.rfhub && all3.results.pcm ? " + " : ""}{all3.results.pcm ? "PCM" : ""}</div>
++            {all3.ok && all3.crossSync && <Tag>✓ ALL IN SYNC</Tag>}
++          </div>
++          {["rfhub", "pcm"].map((k) => {
++            const r = all3.results[k];
++            if (!r) return null;
++            return (
++              <div key={k} style={{marginBottom: 10, paddingLeft: 8, borderLeft: `2px solid ${C.bd}`}}>
++                <div style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 3}}>
++                  <b style={{fontSize: 12, textTransform: "uppercase"}}>{k}</b>
++                  {r.op && <Tag>{r.op}</Tag>}
++                  <ConfidenceBadge grounding={r.grounding} />
++                  {r.ok && r.verified && <span style={{color: C.gn, fontSize: 11, fontWeight: 800}}>✓ verified</span>}
++                  {!r.ok && <span style={{color: C.er, fontSize: 11, fontWeight: 800}}>✗ {r.reason || "failed"}</span>}
++                </div>
++              </div>
++            );
++          })}
++          <ChecksList checks={all3.checks} />
++          {all3.ok && (
++            <div style={{marginTop: 12}}><Btn onClick={dlZip}>⬇ Download all {all3.files.length} married files (.zip)</Btn></div>
+           )}
+         </Card>
+       )}
+-- 
+2.43.0
+

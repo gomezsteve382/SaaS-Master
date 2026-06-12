@@ -1,0 +1,203 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1502,
+  "className": "mx.effects.effectClasses.SequenceInstance",
+  "classNameNormalized": "mx.effects.effectClasses.SequenceInstance",
+  "superName": "mx.effects.effectClasses.CompositeEffectInstance",
+  "superNameNormalized": "mx.effects.effectClasses.CompositeEffectInstance",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 32498,
+  "cinitMethod": 32497,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "end",
+      "traitKind": "method",
+      "methodIndex": 32506,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 246,
+      "bytecode": {
+        "codeLength": 246,
+        "codeSha256": "401cfcecc8c88ee28096abcafeaab38024a8e1865a153ece7ea6f047b3d03271",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.durationWithoutRepeat",
+      "traitKind": "getter",
+      "methodIndex": 32499,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "8791e4448dfd4283296d28d35bf72a1a2212208abd1a2daff0c97474a38d14a2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.effects.effectClasses:SequenceInstance.onEffectEnd",
+      "traitKind": "method",
+      "methodIndex": 32507,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.IEffectInstance"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 120,
+      "bytecode": {
+        "codeLength": 120,
+        "codeSha256": "407b873036b26e3a2f8ee7a2f72dab20906b6334a6785962fa1bf416b8e30db5",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "pause",
+      "traitKind": "method",
+      "methodIndex": 32502,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "d795772de00310f99d6d4833b86ed96b75354f29cd9b5b60ffa2513280925206",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "play",
+      "traitKind": "method",
+      "methodIndex": 32501,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "cd6fdcba078cc687d7dc1e5a52e1599a929f5307c7824bbee32f4bc7b801e1c4",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "playheadTime",
+      "traitKind": "setter",
+      "methodIndex": 32500,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1229,
+      "bytecode": {
+        "codeLength": 1229,
+        "codeSha256": "5aebd09b1f0366fe31cd57960648560649d914c7d65a84e7120304ccf0e9e786",
+        "bytecodeLineCount": 77
+      }
+    },
+    {
+      "traitName": "PrivateNs.playCurrentChildSet",
+      "traitKind": "method",
+      "methodIndex": 32508,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "c0d039db1333ef58d8069304c3aa0bf8be313344bed2311a3472c7fa01ce2f77",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.playNextChildSet",
+      "traitKind": "method",
+      "methodIndex": 32509,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "084ba4b154967a22cf82cbd2acf0c5f45e03b73a87d1bdbed03e2da2de1edee1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "resume",
+      "traitKind": "method",
+      "methodIndex": 32504,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "c2a7703619292ebf9f19d1d66b924c88cff35db3edda5b5814e4229a4922aeb3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "reverse",
+      "traitKind": "method",
+      "methodIndex": 32505,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "0e65ef5cff946a90ac0d63f2186aec41174f7bbbfe977ebc06fbb623f771821f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "stop",
+      "traitKind": "method",
+      "methodIndex": 32503,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 247,
+      "bytecode": {
+        "codeLength": 247,
+        "codeSha256": "c53633558a76b013c1d55dd12812d86b191e7d001a9c7a3cb136807986b99ce6",
+        "bytecodeLineCount": 16
+      }
+    }
+  ],
+  "staticMembers": []
+}

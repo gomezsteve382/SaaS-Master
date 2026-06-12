@@ -1,0 +1,307 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1368,
+  "className": "spark.skins.spark.DefaultItemRenderer",
+  "classNameNormalized": "spark.skins.spark.DefaultItemRenderer",
+  "superName": "mx.core.UIComponent",
+  "superNameNormalized": "mx.core.UIComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IDataRenderer",
+    "spark.components.IItemRenderer"
+  ],
+  "iinitMethod": 30015,
+  "cinitMethod": 30014,
+  "iinitBytecode": {
+    "codeLength": 41,
+    "codeSha256": "36397c37dfdf771ae98ae9e58258d3a917ed856da056a484f376230bfedf6c52",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "baselinePosition",
+      "traitKind": "getter",
+      "methodIndex": 30016,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "cc664cdbc694cf27c77006ce27707ec67c9948e757bf0a9808d5f9b6d2df71e1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "getter",
+      "methodIndex": 30017,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3e0e60b0bbfc53a50b2ccec22c2a17f4d811613826231d6dfb117c14e1f99dd3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "setter",
+      "methodIndex": 30018,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "8525c7e864955b1fee000f1ead116c20d97a9a9d550c85de871173c480357392",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "dragging",
+      "traitKind": "getter",
+      "methodIndex": 30027,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "eba2cdec222c73285c66d03b03c73f6590bd5933fe8a519f82c8bbd86023430d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dragging",
+      "traitKind": "setter",
+      "methodIndex": 30028,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "4208e18a06e1082f548576a3ad200e42514a5f27f4e7ba9a3d8d4b921990f7da",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "itemIndex",
+      "traitKind": "getter",
+      "methodIndex": 30019,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "113b667bed5d8a6640e6da49e135c60d0a3f400990f9b4b88016abd6eb275f10",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "itemIndex",
+      "traitKind": "setter",
+      "methodIndex": 30020,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "44e76c09890e6f67e0ae96c44452d237ec560699482c937b67149d8f92278f18",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "label",
+      "traitKind": "getter",
+      "methodIndex": 30021,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cba1b50e26cbcf9270b486e0535f1368ce2089ebcbf4bb3edad311c0f59370e2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "label",
+      "traitKind": "setter",
+      "methodIndex": 30022,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "111f9114a4f4578de2e1bd2f446e78c12dc90d423f5dbd72e1646b803f34bede",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.interactionStateDetector_changeHandler",
+      "traitKind": "method",
+      "methodIndex": 30032,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "fb511556673fb390e22e9744917f33049570409812f16f639b5131d38f900387",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selected",
+      "traitKind": "getter",
+      "methodIndex": 30025,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d6629a989a85091d0cf91694cc843020d8c82a4bebd2a6dc8bfb99d49609c012",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selected",
+      "traitKind": "setter",
+      "methodIndex": 30026,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "72dee5720b437b4f1901d7e10e57c88514a3a39d2052986aa1fa75b373e5e01d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "showsCaret",
+      "traitKind": "getter",
+      "methodIndex": 30023,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f86ba1e16767ef8771553e1a631f1779349ef761e4b559d3fbc5132032a0828e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showsCaret",
+      "traitKind": "setter",
+      "methodIndex": 30024,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "53d7622d6d94f9c1b0938737eb1f22723bec3117db401849a06f9ab34fcdeaa6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:DefaultItemRenderer.createChildren",
+      "traitKind": "method",
+      "methodIndex": 30029,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "da9fe9f161ce84ba82c38d92b7b7a415c9399685d6c7c5c57b30228dbf95c633",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:DefaultItemRenderer.measure",
+      "traitKind": "method",
+      "methodIndex": 30030,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "80d4fbca646956baae50266f0e9ccc2d876898f5e0787e865e3468b075cc6552",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:DefaultItemRenderer.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 30031,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 482,
+      "bytecode": {
+        "codeLength": 482,
+        "codeSha256": "6a1d0e24d0143452256604199778706769668a00733d607432a70f186bf7fe42",
+        "bytecodeLineCount": 31
+      }
+    }
+  ],
+  "staticMembers": []
+}

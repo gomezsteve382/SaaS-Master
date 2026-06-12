@@ -1,0 +1,338 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3144,
+  "className": "mx.messaging.config.ServerConfig",
+  "classNameNormalized": "mx.messaging.config.ServerConfig",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49783,
+  "cinitMethod": 49764,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 67,
+    "codeSha256": "b5ac351e7fc7c3348f8e3eef073b1dd9b0fb2532056ae1218a2622a903bc071f",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "checkChannelConsistency",
+      "traitKind": "method",
+      "methodIndex": 49768,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "0c94d7ae0dad50c618d7a4ed971929948a7a9557a4293c23e4e3714184f98942",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getChannel",
+      "traitKind": "method",
+      "methodIndex": 49769,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "mx.messaging.Channel",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "7c05d7a0a863a395ae9d8aef2dbfe555fb217edd857cfb242dff3e36a46b773e",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "getChannelSet",
+      "traitKind": "method",
+      "methodIndex": 49770,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.messaging.ChannelSet",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "d85a63cd9b94ba686caa1d3569c9345f80639bd5dfc596fa4d30dc8ea3048d2e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getProperties",
+      "traitKind": "method",
+      "methodIndex": 49771,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 180,
+      "bytecode": {
+        "codeLength": 180,
+        "codeSha256": "87e452abc4aca28f00368acacf2e466bdc7ec80920be5531b873ae175fcc3056",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.channelSetMatchesDestinationConfig",
+      "traitKind": "method",
+      "methodIndex": 49772,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.ChannelSet",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 515,
+      "bytecode": {
+        "codeLength": 515,
+        "codeSha256": "988c4118ad7a47142e59ee158b631bfebb712c343f03f208a1c2ef77e65a1f29",
+        "bytecodeLineCount": 33
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.fetchedConfig",
+      "traitKind": "method",
+      "methodIndex": 49773,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "b8e4dc290f0a7b1b0890362363c57fa1ba6f59fbcfbd5ea72ad48b87cab9dee7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getChannelIdList",
+      "traitKind": "method",
+      "methodIndex": 49774,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "49d043ca6a41a942f8bb4a67f88d73afcc6aad046d8a33bab8bc04e72624c830",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.needsConfig",
+      "traitKind": "method",
+      "methodIndex": 49775,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.Channel"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 197,
+      "bytecode": {
+        "codeLength": 197,
+        "codeSha256": "9c7d1ba6d3aa675457e53fd2df917abbe48dd4b0b49ee026915a07b716558dd8",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.updateServerConfigData",
+      "traitKind": "method",
+      "methodIndex": 49776,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.config.ConfigMap",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 946,
+      "bytecode": {
+        "codeLength": 946,
+        "codeSha256": "1612e7b0c78c396ce65431c82cee22e08968f01efdd324444a40cd003cf4cb00",
+        "bytecodeLineCount": 60
+      }
+    },
+    {
+      "traitName": "PrivateNs.convertToXML",
+      "traitKind": "method",
+      "methodIndex": 49778,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.config.ConfigMap",
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 313,
+      "bytecode": {
+        "codeLength": 313,
+        "codeSha256": "b7d6a8d735788c572bb3a6d7024efd0de912e3844da3596fb68f6a05574bb510",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "PrivateNs.createChannel",
+      "traitKind": "method",
+      "methodIndex": 49777,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.messaging.Channel",
+      "hasBody": true,
+      "codeLength": 507,
+      "bytecode": {
+        "codeLength": 507,
+        "codeSha256": "fc704dc63c194644512ead950fd11b7012d76faaca6d4e46ce24e6a01a2e22c5",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "PrivateNs.getChannelIds",
+      "traitKind": "method",
+      "methodIndex": 49779,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "5fd0a2ace42e1ceb3c3e32dd12958878688a40acb27530094f277eefa3f29fbb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDefaultChannelIds",
+      "traitKind": "method",
+      "methodIndex": 49780,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "e83d15ff6c1cf4476260e42a4fb602fc613397bee3dada033678553b9fd0f793",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDestinationConfig",
+      "traitKind": "method",
+      "methodIndex": 49781,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "8b3779e20203aa5bd458a3ea88081c3f289f56c4f13b90a2c20847b83fac6733",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.internalGetChannelSet",
+      "traitKind": "method",
+      "methodIndex": 49782,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "String"
+      ],
+      "returnType": "mx.messaging.ChannelSet",
+      "hasBody": true,
+      "codeLength": 263,
+      "bytecode": {
+        "codeLength": 263,
+        "codeSha256": "7644e0333fff0b6caf7b1ffec8239e0b5b139a5ba2d2c4b1eaf8057e37380263",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.resourceManager",
+      "traitKind": "getter",
+      "methodIndex": 49765,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.resources.IResourceManager",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "1c937ad10a51bc06a28221875723076a01a8399d13909d54a5dce8ff023bd723",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "xml",
+      "traitKind": "getter",
+      "methodIndex": 49766,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "e1b4f097f4d3e0ea7cf9bd1ef6a9d02279bbdde696445527999805f57f4e1e25",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "xml",
+      "traitKind": "setter",
+      "methodIndex": 49767,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "1c569e6a4c1bc76682f8bd1feff97b90e462b1f80bf87df1ade78fed40813b99",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

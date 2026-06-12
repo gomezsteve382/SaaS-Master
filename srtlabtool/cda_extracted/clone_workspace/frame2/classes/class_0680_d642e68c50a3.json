@@ -1,0 +1,608 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 680,
+  "className": "flashx.textLayout.compose.StandardFlowComposer",
+  "classNameNormalized": "flashx.textLayout.compose.StandardFlowComposer",
+  "superName": "flashx.textLayout.compose.FlowComposerBase",
+  "superNameNormalized": "flashx.textLayout.compose.FlowComposerBase",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.compose.IFlowComposer"
+  ],
+  "iinitMethod": 13352,
+  "cinitMethod": 13349,
+  "iinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "4fef01451ddad82b922376677cab5954d4b903b395478c1a720ae9de7786a441",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addController",
+      "traitKind": "method",
+      "methodIndex": 13360,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 174,
+      "bytecode": {
+        "codeLength": 174,
+        "codeSha256": "a090baca6837eeaf5ebfe15907a454632640da7359e93f0504c4e1415f44f6b2",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "addControllerAt",
+      "traitKind": "method",
+      "methodIndex": 13361,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "ff6df7c396198c9c772c468645bf886afddfaeda8e0f229c29b696c51c43a999",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "compose",
+      "traitKind": "method",
+      "methodIndex": 13382,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "0de862ba1ddcc85bf09abe5929a5db74b393f8a4322abc43801ac911e0b7ac35",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "composeToController",
+      "traitKind": "method",
+      "methodIndex": 13384,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "fd0b1983427d99d2d419405810ed4cad3c680d4f459df555d4552c1d0d599f7c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "composeToPosition",
+      "traitKind": "method",
+      "methodIndex": 13383,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "a8731b21d14e92daebf5241a4ecc45fd58c80463df5875953f25d879dff417be",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "composing",
+      "traitKind": "getter",
+      "methodIndex": 13353,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "6a416129d72dc745a38ae8c77e590ff041d28d1ac74ac6854b8bc6167e3f559f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "findControllerIndexAtPosition",
+      "traitKind": "method",
+      "methodIndex": 13368,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 264,
+      "bytecode": {
+        "codeLength": 264,
+        "codeSha256": "3f47e3d995a08369e6b69c15227e2f25b28234504704a43aaff34aa2ef2d198d",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:StandardFlowComposer.preCompose",
+      "traitKind": "method",
+      "methodIndex": 13376,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "04164d27dc315341d3a9a0ea7b37c7e5d6261c869715710784bbeb5e5e37f6d4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getAbsoluteStart",
+      "traitKind": "method",
+      "methodIndex": 13354,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "fff4022be6dfa0170e9f6ebbaefb9103ad61e07eb73b0091edb48567a1d7949f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getControllerAt",
+      "traitKind": "method",
+      "methodIndex": 13366,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flashx.textLayout.container.ContainerController",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "a790e619439aee55ab2c3abb548889148f2feb7305a0b069e7b61ca5aefde0ac",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getControllerIndex",
+      "traitKind": "method",
+      "methodIndex": 13367,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "f4813eef9cad39bd3a093194c7b70ffec6d01112455b2d3d1f0da0d182815cd0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.areShapesDamaged",
+      "traitKind": "method",
+      "methodIndex": 13381,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "08033b12ec3fc89fe6a93e1f414d8fae2cd8a6e53c798acd8197a7fdb82bde53",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.attachAllContainers",
+      "traitKind": "method",
+      "methodIndex": 13358,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 225,
+      "bytecode": {
+        "codeLength": 225,
+        "codeSha256": "deddd3cc3c2d9eaee933f2fd38ecb2bb95fb050cd6729ee3ee38588b52713ee1",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.callTheComposer",
+      "traitKind": "method",
+      "methodIndex": 13379,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "flashx.textLayout.container.ContainerController",
+      "hasBody": true,
+      "codeLength": 150,
+      "bytecode": {
+        "codeLength": 150,
+        "codeSha256": "99633d73b4016267631e49f733802c80cf018489a4576de225ffb8b3360346b8",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.clearCompositionResults",
+      "traitKind": "method",
+      "methodIndex": 13369,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "2fb657c951cd127d6a27a9c943609fde773c2eb708caf10f299b05b885532a5b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.createBackgroundManager",
+      "traitKind": "method",
+      "methodIndex": 13385,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BackgroundManager",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "d43ad48c7d654473a496536a35694220f585c05ef5685b5feedab060e34204fe",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.detachAllContainers",
+      "traitKind": "method",
+      "methodIndex": 13357,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "4bbfaf82046780dfd73caa3bab656f521482b25c58cbbbae6a368c7f7f0fe8c4",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.getComposeState",
+      "traitKind": "method",
+      "methodIndex": 13377,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.compose.ComposeState",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "bfcfdee0fd79544a03912794f719276f5f09890f9ba186b3d9afb6e89897c95a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.releaseComposeState",
+      "traitKind": "method",
+      "methodIndex": 13378,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.ComposeState"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "1c163433a664dae20c4cbe85295f7dba0ad4170ff8971e19533df5e907852f73",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "interactionManagerChanged",
+      "traitKind": "method",
+      "methodIndex": 13373,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.ISelectionManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "4b2d5f1b69f37ed796ed53780041347361fc8a2ed761769b99ab0ca2aae1402c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isDamaged",
+      "traitKind": "method",
+      "methodIndex": 13375,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "67722c3f98cfadaebbe00d3ade2a4e7df97f0792ba46b34d889942eef7c858e4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "numControllers",
+      "traitKind": "getter",
+      "methodIndex": 13359,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "3a8f218a50be5b93050750b13e15f5b2072d84337824c684d0a12463620c7732",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.fastRemoveController",
+      "traitKind": "method",
+      "methodIndex": 13362,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "e811558b5613885982d43eae4da61e000b36a4bbce5f80bd557f3fac21c1b7e6",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.internalCompose",
+      "traitKind": "method",
+      "methodIndex": 13380,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "flashx.textLayout.container.ContainerController",
+      "hasBody": true,
+      "codeLength": 541,
+      "bytecode": {
+        "codeLength": 541,
+        "codeSha256": "e635c626cba795c5f6af3eb59e746ba7af20930ab36ce6234447dd2f3439fdd5",
+        "bytecodeLineCount": 34
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateCompositionShapes",
+      "traitKind": "method",
+      "methodIndex": 13374,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "b856f5466eb30ac3750abbb7e58cf8437600cea32051ff782e24149b7646a746",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeAllControllers",
+      "traitKind": "method",
+      "methodIndex": 13365,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "6613c271f94680449edbb194faef4e3038d0a0ace838c05916163baf45b4f3c9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeController",
+      "traitKind": "method",
+      "methodIndex": 13363,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "68336d3350d37546689beba7285f307c64474b68cd00839e7d35fc9de568ba2b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeControllerAt",
+      "traitKind": "method",
+      "methodIndex": 13364,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "81fda6c8c0f78b5debd44cf2f7e0ecb276cac0069a2aab23b715d3d4e53a9d9e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "rootElement",
+      "traitKind": "getter",
+      "methodIndex": 13355,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ContainerFormattedElement",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9c2631ee02391d8a100f68bcb0b1ff7fb7bc33cb1682906c1f44214942585491",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setFocus",
+      "traitKind": "method",
+      "methodIndex": 13372,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "b7d08212b41f9c6942a32e73bf3a429ae1b596e9428fc76837ef6681617af232",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "setRootElement",
+      "traitKind": "method",
+      "methodIndex": 13356,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.ContainerFormattedElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 104,
+      "bytecode": {
+        "codeLength": 104,
+        "codeSha256": "2a1c608c7acdd376110ab946d93768a2a23cc4cc1a6533ae14e593de6e2457e5",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "updateAllControllers",
+      "traitKind": "method",
+      "methodIndex": 13370,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a37b07b3d8347f9801b7085c1da1f5aaa0812d3fafbe5062b98e012682360e65",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "updateToController",
+      "traitKind": "method",
+      "methodIndex": 13371,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "ad27865c4d721d300cd96da0a6cf031510213461394574d0565ae78ffd4e9e50",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.clearContainerAccessibilityImplementation",
+      "traitKind": "method",
+      "methodIndex": 13350,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Sprite"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "670af96681ae5bcfe917ca69bd0c5e341bea803d163345802b079603d442b5b5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getBPDirectionScrollPosition",
+      "traitKind": "method",
+      "methodIndex": 13351,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "fdcba8cb3d9d0675f37862b8396d42a43eac2fe1bae6e17cc4c3fea59ded6f8d",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

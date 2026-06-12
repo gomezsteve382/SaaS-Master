@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3662,
+  "className": "org.spicefactory.parsley.core.state.manager.impl.DefaultGlobalObjectManager",
+  "classNameNormalized": "org.spicefactory.parsley.core.state.manager.impl.DefaultGlobalObjectManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.state.manager.GlobalObjectManager"
+  ],
+  "iinitMethod": 55028,
+  "cinitMethod": 55023,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "82ece0c5d4d01bfbbca13bb8e4d921e22a935cd60be5ebbef72b78505f134242",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addManagedObject",
+      "traitKind": "method",
+      "methodIndex": 55024,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.lifecycle.ManagedObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "e61eb8b9ecea940617dff2bb900840f0a6d35600bf3deb279e6ca7a108e3e8ca",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getManagedObject",
+      "traitKind": "method",
+      "methodIndex": 55026,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "org.spicefactory.parsley.core.lifecycle.ManagedObject",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "751a1c0d9bea9ee88c09a53e54bc1a9fc12dbad71fd46d771c4f6379500adf28",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "publicState",
+      "traitKind": "getter",
+      "methodIndex": 55027,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.state.GlobalObjectState",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "314763cd52a159295bea1fd89068359b7840063adc8670d5ab76d07006d78972",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeManagedObject",
+      "traitKind": "method",
+      "methodIndex": 55025,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.lifecycle.ManagedObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "776f7fdabcecb570012e299ac3ff17a7766ec51f874d55890f9bbabba2da5428",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

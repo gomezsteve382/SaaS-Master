@@ -1,0 +1,237 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1214,
+  "className": "com.chrysler.cda.application.DraftDBCommand",
+  "classNameNormalized": "com.chrysler.cda.application.DraftDBCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 27522,
+  "cinitMethod": 27506,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "dd82e77041b0b35d215aa3b763dfb4a6dd6ffc5cf02960731c38754254021dfa",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application:DraftDBCommand.addLoadingEventListeners",
+      "traitKind": "method",
+      "methodIndex": 27510,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.FileReference"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "7225635026e43231b94e16fe6ff625bfccda03594fde1122cf157af212c76b8f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application:DraftDBCommand.completeHandler",
+      "traitKind": "method",
+      "methodIndex": 27517,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.FileReference"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "38c6ab9c2d3d0b1af7f97da180b4a6a0df8c32b736051afb9b1c7a0129e3ecf0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application:DraftDBCommand.fileLoadedHandler",
+      "traitKind": "method",
+      "methodIndex": 27515,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 364,
+      "bytecode": {
+        "codeLength": 364,
+        "codeSha256": "8dca74838012c7b54982c5099d722093dce3c5ba604104816324077381af79db",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application:DraftDBCommand.fileLoadingIOErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 27516,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application:DraftDBCommand.ioErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 27519,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.FileReference"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "e3c9da5633580c0b3bb315deb3e9b91112939086f23d885c4e9f00edeaf59f50",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application:DraftDBCommand.notifyError",
+      "traitKind": "method",
+      "methodIndex": 27521,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "21502db510ecd91eba62f88b89181386f4ebef373574a08ca5e31a5f7b2f65f4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application:DraftDBCommand.notifySuccess",
+      "traitKind": "method",
+      "methodIndex": 27520,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "f5fb74bbcca033bcc610e7fb3597e013319ffa86f9dbefe8206a340f354012a9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application:DraftDBCommand.removeLoadingEventListeners",
+      "traitKind": "method",
+      "methodIndex": 27511,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.FileReference"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "ee04c1b04943abd3781f7969637d398377a1dbf62431a8639370f11e73e10877",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application:DraftDBCommand.securityErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 27518,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.FileReference",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "4fef8ca89a1e728964a858b012f64f6ef2c167ad2bbab2e3df3e1fceafad516d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onDeleteDraftFileMessage",
+      "traitKind": "method",
+      "methodIndex": 27508,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.file.DeleteDraftFileMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "79674df96623cbdf5ae4bfee1778fb72c6f33c393c9c69e833427ad93ae07535",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onListOfDraftFilesMessage",
+      "traitKind": "method",
+      "methodIndex": 27507,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.file.ListOfDraftFilesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "01f21057f9a8a1e53ed5cae644d0a44bd6fc15848d589570a7a87c840a6bf302",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onUploadDraftDb",
+      "traitKind": "method",
+      "methodIndex": 27509,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.file.UploadDraftFilesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "6f705a8db7544d1691f4d3a1d51b42dcabe2dfefe39c43a63a5a1de49e8887f6",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

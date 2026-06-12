@@ -1,0 +1,270 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 805,
+  "className": "com.chrysler.cda.presentation.component.proxi.components.popovers.Popover",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.popovers.Popover",
+  "superName": "spark.components.SkinnableContainer",
+  "superNameNormalized": "spark.components.SkinnableContainer",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 15794,
+  "cinitMethod": 15784,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "d5b3cfdf3850135cfc294c1218a5f46b67bef23675427bebbfde502a811bf2e6",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "667286fd855a2615a86d73ae6d095f855f43242795a7e5802720f95515032360",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "closeButtonEnabled",
+      "traitKind": "getter",
+      "methodIndex": 15790,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "21ae44278985d44cbdde0af59443c3fe82a18b10c17fbd92d4a66ac9ee3a3c79",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "closeButtonEnabled",
+      "traitKind": "setter",
+      "methodIndex": 15789,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "568adea5787109dae3e34192dd9bf93c5e8833133bcc397beea15ae28c55c339",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.popovers:Popover.partAdded",
+      "traitKind": "method",
+      "methodIndex": 15799,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 131,
+      "bytecode": {
+        "codeLength": 131,
+        "codeSha256": "2ec6048f81db80cccd9585484485a9da18893424b1c47caebd62fa7af668c493",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.popovers:Popover.setCloseButton",
+      "traitKind": "method",
+      "methodIndex": 15797,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "6acc9a63a344493a1308d2859b89da94b3172295ece63bf141281e3ab3560722",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.popovers:Popover.setTitle",
+      "traitKind": "method",
+      "methodIndex": 15795,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "ec35160300a3cdae458e5e426d741c0fb52b67f2e22aa8757ec848099c4856a2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.popovers:Popover.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 15800,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5aeb8e3932b3f202873bb21b678b4ac6cba951f4f13cfabcbd7a23e2361d5019",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.popovers:Popover.updateCloseButton",
+      "traitKind": "method",
+      "methodIndex": 15796,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "c869156481dab279e8bb2305fd74d6b08b407cebcf2646e72758da7c0b02410a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.popovers:Popover.updateDropShadow",
+      "traitKind": "method",
+      "methodIndex": 15793,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "4272b2cbb538e54f32256ae9ff2f3ad35e19d6ec18e8d1569baa912d814f9d33",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "commandBarComponents",
+      "traitKind": "getter",
+      "methodIndex": 15788,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "094c45cac06c2c829f5b4235081121d165d18483cf0c589d3acf9e3b722b9127",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "commandBarComponents",
+      "traitKind": "setter",
+      "methodIndex": 15787,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "f6bd035e893161edb48994e5e3035f6d4f9a0a5bad16815830d7308d433323ed",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "dropShadowEnabled",
+      "traitKind": "getter",
+      "methodIndex": 15792,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "80a6a05aedc6fc86c2d7f98428788a4e82891180f7d3410f1c429953181243d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dropShadowEnabled",
+      "traitKind": "setter",
+      "methodIndex": 15791,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "09f71cace571e089c18bf41c0dbad9e462c9639ec7071629c4832ab6e2409c83",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onCloseButtonClick",
+      "traitKind": "method",
+      "methodIndex": 15798,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "2254f4c58a4991e37b4072fdcbb4d2d1a3da8bea74911b7d19d3de869f8e4784",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "title",
+      "traitKind": "getter",
+      "methodIndex": 15786,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9197c4dad324f1722c4cdacba527e68953523f27366cfad93294745f0a49448f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "title",
+      "traitKind": "setter",
+      "methodIndex": 15785,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "bff0ba1d3563558adabbea61db471a0119d761b54d731b334670ec39867348bb",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

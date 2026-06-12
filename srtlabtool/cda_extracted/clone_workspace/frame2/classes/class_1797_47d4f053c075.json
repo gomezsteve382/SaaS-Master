@@ -1,0 +1,220 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1797,
+  "className": "flashx.textLayout.operations.InsertInlineGraphicOperation",
+  "classNameNormalized": "flashx.textLayout.operations.InsertInlineGraphicOperation",
+  "superName": "flashx.textLayout.operations.FlowTextOperation",
+  "superNameNormalized": "flashx.textLayout.operations.FlowTextOperation",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 34551,
+  "cinitMethod": 34550,
+  "iinitBytecode": {
+    "codeLength": 56,
+    "codeSha256": "30b265e03217afa1cc034edd190440766454b68b526e8c7b88dd4b2933e6451d",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "doOperation",
+      "traitKind": "method",
+      "methodIndex": 34561,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 338,
+      "bytecode": {
+        "codeLength": 338,
+        "codeSha256": "d5de4cd6f184273bcce008e0306a6fe0ee98df5a54ef7f466f23a4fc9e3bd465",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "height",
+      "traitKind": "getter",
+      "methodIndex": 34556,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8878cf4687fc7314a00c059a14fe17b5959e80229e6189c7262cfb1dc0f5f961",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "height",
+      "traitKind": "setter",
+      "methodIndex": 34557,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "e06aad05bf68815cda8e8e46de179199ad0d760c7e9a8fff0ce732823892c020",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "newInlineGraphicElement",
+      "traitKind": "getter",
+      "methodIndex": 34560,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.InlineGraphicElement",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "da6bb1c0f4d7bfa52f656e92b7373e5b11a0f2b6d58ba8cb9e02e41eb4fa793d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "options",
+      "traitKind": "getter",
+      "methodIndex": 34558,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f3ccf663d96e7b0cea1b797c8aa9a47e03dc6e0bca20344d0376b98619acc06d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "options",
+      "traitKind": "setter",
+      "methodIndex": 34559,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "080fb3a839abf936d48b108f14ecee7c861ec5f08c795c368e399b399b22f889",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 34563,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "1ba07f5515321786c881a74e3b3876d00bdbc2dcfeaf332b762234d3fc722da1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "source",
+      "traitKind": "getter",
+      "methodIndex": 34552,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c3d479935a4e90b057c778702f5796b195b1fcb645e58322bf653c890bae6c98",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "source",
+      "traitKind": "setter",
+      "methodIndex": 34553,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "16702b7e87f86078a4c2ba08bb718a5ecc39952c627a759d782955324bc64c7c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 34562,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "02b25bce50ab98d4f0e94518257dcb6b7fe559281dad3cfa3e2e6b92575b8417",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "width",
+      "traitKind": "getter",
+      "methodIndex": 34554,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3b83c8a101292b898ea124fe4d5faa0ba9f3c88be33d0fe78b7ddfb284f9ca5f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "width",
+      "traitKind": "setter",
+      "methodIndex": 34555,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "9b50221f3e06a7f99c310d64a76aaef70ed9568832ef79c770adc4acbff4dbce",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

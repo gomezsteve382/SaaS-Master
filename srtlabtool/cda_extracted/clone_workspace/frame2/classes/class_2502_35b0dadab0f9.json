@@ -1,0 +1,231 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2502,
+  "className": "com.chrysler.cda.event.message.diagnostic.flash.StartFlashWithYearBodyMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.flash.StartFlashWithYearBodyMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.event.message.diagnostic.flash.IStartFlashMessage"
+  ],
+  "iinitMethod": 43059,
+  "cinitMethod": 43045,
+  "iinitBytecode": {
+    "codeLength": 87,
+    "codeSha256": "1af1d75b6015bdd843ee670524bd5da8731cd28935ba4b5aa8b940b1de5a906e",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "body",
+      "traitKind": "getter",
+      "methodIndex": 43050,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "860096c32f77d5ced1633cfa48b518b535fb03b1a774911c9517c3fd26d83f2d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dcAuthToken",
+      "traitKind": "getter",
+      "methodIndex": 43055,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e923c5e288907ebea53398045f98846ce6edfa7d4ca105ef49f12c9bcecee943",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 43052,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "14f245399a5fed46a4271a77983a368f0cadb3f895034979072369e01f781b89",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enableSecondaryCommunication",
+      "traitKind": "getter",
+      "methodIndex": 43053,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d836ddc2ccd114ac158d552a713b46e2ea7c04f15aca1837d731b357140f24c2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashKey",
+      "traitKind": "getter",
+      "methodIndex": 43046,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0da30eb968f7540cfc24a8cd3106e48a5255ea2a226e512497e98bcc658c92fc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ldapUsername",
+      "traitKind": "getter",
+      "methodIndex": 43047,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a4fe819a77e829d139fdd4442f22d63bf077cd94ca2d1ce898c878e7a2404273",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "path",
+      "traitKind": "getter",
+      "methodIndex": 43048,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "87f6bcb9a41bc27bd981cfa467c9a4fbf9f9fe969a87e97877ab6ed5b1ff535c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "secondaryCommunicationSeconds",
+      "traitKind": "getter",
+      "methodIndex": 43054,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "14b7ee2d6244c7cd27e64879f6656dc6cbebd57e164391d4f1980c2c7937b9d3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "skipAuthentication",
+      "traitKind": "getter",
+      "methodIndex": 43057,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "964ba9790e19f42c442ef239d98a96ed480aec65c75f10c0d39d57081a03bb4b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "skipAuthentication",
+      "traitKind": "setter",
+      "methodIndex": 43058,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "0d3487a86631263012cce3e203726d926e594c53bab513d7c44af2a1298bdbea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useIDXCheck",
+      "traitKind": "getter",
+      "methodIndex": 43051,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "dc314c11467a43285538ad9b81c87c70bb6b9edf696275cc2fb94c51395a4335",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "vin",
+      "traitKind": "getter",
+      "methodIndex": 43056,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "033d969e94d7dcb6bf36067c9a9a786221ec131de769af546c47eaddf9334e66",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "year",
+      "traitKind": "getter",
+      "methodIndex": 43049,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bda127de68428db00b4e09353392cab72a2a96b1a3461288f93ad55f24fd1bc7",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

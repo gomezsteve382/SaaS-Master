@@ -1,0 +1,336 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1201,
+  "className": "com.chrysler.cda.presentation.component.tools.CustomDisplayElementNotFoundExplanationPopup",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.tools.CustomDisplayElementNotFoundExplanationPopup",
+  "superName": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "superNameNormalized": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 27062,
+  "cinitMethod": 27061,
+  "iinitBytecode": {
+    "codeLength": 11,
+    "codeSha256": "ea0327bb1bb7f4fc6c1bcb625532bbea7f23b514fdb4b4cc8b23b4010712f93b",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "77b4061d270141a2548acc0c3d0f440504c1d4bb7870bd8919529c1f65c4d1bc",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "bitLength",
+      "traitKind": "getter",
+      "methodIndex": 27075,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2f34e68e879700f8723c149e4e392a407565c0293db93178c20ec93650f1b84e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "bitLength",
+      "traitKind": "setter",
+      "methodIndex": 27076,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "fae44e73bee3e309bf477befa739c73c21beb433cf7aa093ad973bb2225d9cfd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "bitPOS",
+      "traitKind": "getter",
+      "methodIndex": 27073,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "af1cd5e5acc5c66a5a8b634a32e111dfd2e602312efbd652ab1607dcfda8531f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "bitPOS",
+      "traitKind": "setter",
+      "methodIndex": 27074,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "ce82d54bc619eb19d92a86922dddb3a87699cf0f6ccf491483e3014882dc0b91",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "canceledDownload",
+      "traitKind": "method",
+      "methodIndex": 27066,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.CloseEngFileDownloadMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "7ea9e7324921f2e2bb1d391f24423c56c0b7f812c401fe13a9330c667e028462",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.tools:CustomDisplayElementNotFoundExplanationPopup.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 27081,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f8eb5bb2484d3a56432e30752e06277e2fa5bab1dd9abfea69de168dc6a3be7c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "databaseName",
+      "traitKind": "getter",
+      "methodIndex": 27071,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0829b48539dcfa836a5f5382f1fc93ee3a29a27894f59f3951b2a4b8f7a7f6bb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "databaseName",
+      "traitKind": "setter",
+      "methodIndex": 27072,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "878269c784fd025ee88b2f64a2f909400eab9a29fd99343ec633e2c91cd98e98",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "downloadDDT",
+      "traitKind": "method",
+      "methodIndex": 27064,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "071f12cb0dc316d006e3792762dbe1166dbe99fbd4e0e6754e0e92d6a1f19995",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "downloading",
+      "traitKind": "getter",
+      "methodIndex": 27079,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e84ead8fde0b606c7690b14ee51f75eaa8950247dfd218a172cd098aec705a13",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "downloading",
+      "traitKind": "setter",
+      "methodIndex": 27080,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "fed3a0a9306d0d990d44f5c01f20a1a6ca067c42af30e45545876099e4985d4f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ecuAcronym",
+      "traitKind": "getter",
+      "methodIndex": 27069,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fc5df8d75b558f799d28f4c5dd6b3a85e08d57d882614d08b3747cc143c34c58",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuAcronym",
+      "traitKind": "setter",
+      "methodIndex": 27070,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "226eb5dcb28e5b1472ab931c983b5c8b9b5eeb4dc4b60fba95885a0a2b372325",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 27067,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "28fa529cd36dd4bc892a5e8b6b81d43dbf1fc847327a3c20073f219d5d08d514",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 27068,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "a76259747f4cb6805a07d023f01a85b9357653886d65abd452f7dfd521a64ade",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onDownloadEngineeringFileResult",
+      "traitKind": "method",
+      "methodIndex": 27065,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "7ea9e7324921f2e2bb1d391f24423c56c0b7f812c401fe13a9330c667e028462",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removePopup",
+      "traitKind": "method",
+      "methodIndex": 27063,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "3f73c34a59a69bf3ec3a348fc22673fa31f44f5e9ad914397996ab24de06b935",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xmit",
+      "traitKind": "getter",
+      "methodIndex": 27077,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "964c2a2a5092937032853f4e1e5f45345ffa7c7561d857c77159d8fe3730dca1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xmit",
+      "traitKind": "setter",
+      "methodIndex": 27078,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "d925091b8939edbed9e6a48821e04c672ba3bf0d996e7719543435b8245ed427",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

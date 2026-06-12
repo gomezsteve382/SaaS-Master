@@ -1,0 +1,400 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2541,
+  "className": "com.chrysler.cda.presentation.util.PasswordDialog",
+  "classNameNormalized": "com.chrysler.cda.presentation.util.PasswordDialog",
+  "superName": "spark.components.TitleWindow",
+  "superNameNormalized": "spark.components.TitleWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 43550,
+  "cinitMethod": 43546,
+  "iinitBytecode": {
+    "codeLength": 387,
+    "codeSha256": "ba6298ba47248f575de583fd4f22de461fad2eedaf6121c17b541cb385abaaf3",
+    "bytecodeLineCount": 25
+  },
+  "cinitBytecode": {
+    "codeLength": 33,
+    "codeSha256": "18b129786e91c3ff529c8253530d8b6d5f769f633a42eae2c7abf8d77fcac55e",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___PasswordDialog_TitleWindow1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 43562,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "04d18531cf3c2564f10435be95aead7c6514cccb16cf59f230702304eb4a88f2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__passwordText_keyDown",
+      "traitKind": "method",
+      "methodIndex": 43559,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "8c9b69e26c5390182e61ed6ce1a031d333bac819ef04e5c6c3d6af046c8d93fe",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "alertText",
+      "traitKind": "getter",
+      "methodIndex": 43576,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "aa3d79219c6e05a89fc8d9dc08f2eae2a9e96f492aaf91742e7d91f4866b31aa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "alertText",
+      "traitKind": "setter",
+      "methodIndex": 43577,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "b51fa1e1e3db5205f8bc9c80aeaf9e263d80b86e2a3d3419cd0622490dd8b7cd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:PasswordDialog.creationCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 43554,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "d6c5479de2f8cfe5d13d1d57a83aa6a0d1733ff4d32ed182a23b5bdfb75a411d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:PasswordDialog.passwordTextKeyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 43553,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "100f8f60c208e846461b017df6f7412ff4f4e589df2461502c8d46c8465bc166",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:PasswordDialog.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 43571,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "8b08b4c05429a7052f89cbb6490c045d519f88516c3cf047d9b756efb0e55944",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 43578,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "822f58f493ff75733b9f6edb0ae530b798e21d072b103063d2a34755c1d101b1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 43579,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "4bbb467be1a044136788f8793dcecbfd201ac58e2304f8df8139caec5ce26359",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 43552,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 43551,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "6937fa660811a8d578f4cef22181451e90baeada6bc2b8b1cc76590a3c641513",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "okButton",
+      "traitKind": "getter",
+      "methodIndex": 43572,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "482f6d637d417b7b60b9f499d4b0354ca56c80bcf85cac6092e5ed68adf0c0a6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "okButton",
+      "traitKind": "setter",
+      "methodIndex": 43573,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "6043644747a337bec64c8618040cd7d508c7a15e151df6227c41bdc444e8f7cb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "passwordText",
+      "traitKind": "getter",
+      "methodIndex": 43574,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "61a319236ad1e92562474f36d71fc9c66321f7b17d0a932ce9bb84ee98d42879",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "passwordText",
+      "traitKind": "setter",
+      "methodIndex": 43575,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.TextInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "1514075d7ab43caa6434638ec5306f2ae16194bfb3ce3a6a1b28c59327d9c845",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._PasswordDialog_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 43555,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "269412324d25b415368be3e8104c1baa900e9a8ce0889dcef6f8c9b537a19129",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._PasswordDialog_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 43570,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 194,
+      "bytecode": {
+        "codeLength": 194,
+        "codeSha256": "f1e212fa163970d202294aea08d47bdd79e918df09417d9f523c7e69779dbfb2",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs._PasswordDialog_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 43560,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "f770f2cb4727a116626ffe899b7f9ec5c889cbdd7e33a47ba2863b33d39f3072",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._PasswordDialog_Image1_i",
+      "traitKind": "method",
+      "methodIndex": 43556,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "fd23e51ab995ba74e95d070cf35179bfdcc54d3c73b43f187a4d984ec7aaf92b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._PasswordDialog_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 43557,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "0e63723241ba2aa107428080acf79dea5c9dc125ae3fc845143faaf101517167",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._PasswordDialog_Label2_i",
+      "traitKind": "method",
+      "methodIndex": 43561,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "f5069d81e42225f390a49cac534f9927c18c1ac898471dcc08cfcd7489ee6640",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._PasswordDialog_TextInput1_i",
+      "traitKind": "method",
+      "methodIndex": 43558,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "49461b29b201a131686dc311c1706972bc03e12283dce58c0bdecfb3c0b21c47",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 43547,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "68265b7b7253e9e794c526d76dc3cc8b2018b92cead98e20040bbef86407ae30",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

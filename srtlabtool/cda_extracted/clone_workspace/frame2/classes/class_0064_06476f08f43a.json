@@ -1,0 +1,654 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 64,
+  "className": "mx.core.IContainer",
+  "classNameNormalized": "mx.core.IContainer",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "mx.core.IUIComponent"
+  ],
+  "iinitMethod": 1687,
+  "cinitMethod": 1635,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.core:IContainer.addChild",
+      "traitKind": "method",
+      "methodIndex": 1648,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.addChildAt",
+      "traitKind": "method",
+      "methodIndex": 1649,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "int"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.areInaccessibleObjectsUnderPoint",
+      "traitKind": "method",
+      "methodIndex": 1659,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Point"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.buttonMode",
+      "traitKind": "getter",
+      "methodIndex": 1637,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.buttonMode",
+      "traitKind": "setter",
+      "methodIndex": 1638,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.contains",
+      "traitKind": "method",
+      "methodIndex": 1664,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.creatingContentPane",
+      "traitKind": "getter",
+      "methodIndex": 1679,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.creatingContentPane",
+      "traitKind": "setter",
+      "methodIndex": 1680,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.defaultButton",
+      "traitKind": "getter",
+      "methodIndex": 1677,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFlexDisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.defaultButton",
+      "traitKind": "setter",
+      "methodIndex": 1678,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexDisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.doubleClickEnabled",
+      "traitKind": "getter",
+      "methodIndex": 1675,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.doubleClickEnabled",
+      "traitKind": "setter",
+      "methodIndex": 1676,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.dropTarget",
+      "traitKind": "getter",
+      "methodIndex": 1641,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.focusManager",
+      "traitKind": "getter",
+      "methodIndex": 1686,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.IFocusManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.focusRect",
+      "traitKind": "getter",
+      "methodIndex": 1671,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.focusRect",
+      "traitKind": "setter",
+      "methodIndex": 1672,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.getChildAt",
+      "traitKind": "method",
+      "methodIndex": 1654,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.getChildByName",
+      "traitKind": "method",
+      "methodIndex": 1655,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.getChildIndex",
+      "traitKind": "method",
+      "methodIndex": 1652,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.getObjectsUnderPoint",
+      "traitKind": "method",
+      "methodIndex": 1658,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Point"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.graphics",
+      "traitKind": "getter",
+      "methodIndex": 1636,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Graphics",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.hitArea",
+      "traitKind": "getter",
+      "methodIndex": 1642,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Sprite",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.hitArea",
+      "traitKind": "setter",
+      "methodIndex": 1643,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Sprite"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.horizontalScrollPosition",
+      "traitKind": "getter",
+      "methodIndex": 1682,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.horizontalScrollPosition",
+      "traitKind": "setter",
+      "methodIndex": 1683,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.mouseChildren",
+      "traitKind": "getter",
+      "methodIndex": 1662,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.mouseChildren",
+      "traitKind": "setter",
+      "methodIndex": 1663,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.mouseEnabled",
+      "traitKind": "getter",
+      "methodIndex": 1673,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.mouseEnabled",
+      "traitKind": "setter",
+      "methodIndex": 1674,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.numChildren",
+      "traitKind": "getter",
+      "methodIndex": 1656,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.removeChild",
+      "traitKind": "method",
+      "methodIndex": 1650,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.removeChildAt",
+      "traitKind": "method",
+      "methodIndex": 1651,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.setChildIndex",
+      "traitKind": "method",
+      "methodIndex": 1653,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.soundTransform",
+      "traitKind": "getter",
+      "methodIndex": 1646,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.media.SoundTransform",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.soundTransform",
+      "traitKind": "setter",
+      "methodIndex": 1647,
+      "methodName": "",
+      "paramTypes": [
+        "flash.media.SoundTransform"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.startDrag",
+      "traitKind": "method",
+      "methodIndex": 1639,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.stopDrag",
+      "traitKind": "method",
+      "methodIndex": 1640,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.swapChildren",
+      "traitKind": "method",
+      "methodIndex": 1666,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.swapChildrenAt",
+      "traitKind": "method",
+      "methodIndex": 1665,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.tabChildren",
+      "traitKind": "getter",
+      "methodIndex": 1660,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.tabChildren",
+      "traitKind": "setter",
+      "methodIndex": 1661,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.tabEnabled",
+      "traitKind": "getter",
+      "methodIndex": 1667,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.tabEnabled",
+      "traitKind": "setter",
+      "methodIndex": 1668,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.tabIndex",
+      "traitKind": "getter",
+      "methodIndex": 1669,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.tabIndex",
+      "traitKind": "setter",
+      "methodIndex": 1670,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.textSnapshot",
+      "traitKind": "getter",
+      "methodIndex": 1657,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.text.TextSnapshot",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.useHandCursor",
+      "traitKind": "getter",
+      "methodIndex": 1644,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.useHandCursor",
+      "traitKind": "setter",
+      "methodIndex": 1645,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.verticalScrollPosition",
+      "traitKind": "getter",
+      "methodIndex": 1684,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.verticalScrollPosition",
+      "traitKind": "setter",
+      "methodIndex": 1685,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IContainer.viewMetrics",
+      "traitKind": "getter",
+      "methodIndex": 1681,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.EdgeMetrics",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

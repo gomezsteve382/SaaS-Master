@@ -1,0 +1,256 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1459,
+  "className": "mx.controls.ToolTip",
+  "classNameNormalized": "mx.controls.ToolTip",
+  "superName": "mx.core.UIComponent",
+  "superNameNormalized": "mx.core.UIComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IToolTip",
+    "mx.core.IFontContextComponent"
+  ],
+  "iinitMethod": 32133,
+  "cinitMethod": 32132,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "28ee3644f26cccb48961fc8bd8c32699856117279bbc336dd7ed19e996a1e2ec",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "1c7a1c5403dd9595f111511ad8a6ca797e49ed642c61c1af1dee6197399e0a95",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "fontContext",
+      "traitKind": "getter",
+      "methodIndex": 32135,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFlexModuleFactory",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "19a96601b1ecda348a9f945180a519e8253538a768a36217a8ee3d36506da843",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fontContext",
+      "traitKind": "setter",
+      "methodIndex": 32136,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c92d172ec9c23cf6daa730a6b23242463df62241a422fb0db347a9de166a2fdc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createTextField",
+      "traitKind": "method",
+      "methodIndex": 32144,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 141,
+      "bytecode": {
+        "codeLength": 141,
+        "codeSha256": "22dbedc0c3de37336f80e5ff01f02572d4f4b3af1ad2958150ef50706e6946da",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getTextField",
+      "traitKind": "method",
+      "methodIndex": 32146,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IUITextField",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "92e13c016c4dafdc23bb33faedcc525f03eacdb335481a9987b0ad1713e698c3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.removeTextField",
+      "traitKind": "method",
+      "methodIndex": 32145,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "e6bc8535a221544ad201d15a053cb5636dfbc4c12318860d08a48c01cd295210",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.controls:ToolTip.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 32140,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "bc4c3ca1aa79d52f154a8fe4d41954a0c1cf2c222de217c41afafc1c61a660fa",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "mx.controls:ToolTip.createChildren",
+      "traitKind": "method",
+      "methodIndex": 32139,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "c6df173dc76905b7da7b399b6e775f0bac535a98537eb2a4056cbc195799644b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.controls:ToolTip.measure",
+      "traitKind": "method",
+      "methodIndex": 32141,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 195,
+      "bytecode": {
+        "codeLength": 195,
+        "codeSha256": "85ad24136cafd4bdf67e3d1beb3b0f8c6978d0ae54d1a252fc289bc703845cdc",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "mx.controls:ToolTip.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 32142,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 149,
+      "bytecode": {
+        "codeLength": 149,
+        "codeSha256": "94bc57864f422ca276cfdd1b45f99edccf9e461dba38560920186a8cc6c006a4",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.borderMetrics",
+      "traitKind": "getter",
+      "methodIndex": 32134,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.EdgeMetrics",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "28b31af0afb785c3c8d6e019a47f3e3f7d1b78f7a6472bb6c4f391482be61a3f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.createBorder",
+      "traitKind": "method",
+      "methodIndex": 32147,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "ecd06023bfe126a641138c2cc8b8a2c6a8867ac5017aaa27f70c542868acc926",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 32143,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "4f3fc7ddca112dbd8a640c99fd9994e11c1e63c7d6a0f7dcf6b2d638b6eb5dc7",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "text",
+      "traitKind": "getter",
+      "methodIndex": 32137,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d8ed59372eb80b83a9db4739e9fea8771d33006aea4c2c95f1daf3354edc676b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "text",
+      "traitKind": "setter",
+      "methodIndex": 32138,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "17d146d181544c8ebdbd59512693b4a91ddb5874c9b97c8c1fc336df97ae1292",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

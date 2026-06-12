@@ -1,0 +1,344 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1369,
+  "className": "spark.components.PopUpAnchor",
+  "classNameNormalized": "spark.components.PopUpAnchor",
+  "superName": "mx.core.UIComponent",
+  "superNameNormalized": "mx.core.UIComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 30035,
+  "cinitMethod": 30034,
+  "iinitBytecode": {
+    "codeLength": 42,
+    "codeSha256": "790fe500127a1d43c551f31680986ba53e43e85617babba9f14f5399a9ad67e6",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 71,
+    "codeSha256": "dce1081fb5a918dcaa2b3338ef7544cfbbdc749a166b1684b58fc9b4b4f913b5",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "displayPopUp",
+      "traitKind": "getter",
+      "methodIndex": 30041,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5d6171c9423ccde68460763de58a163b79b3875778d3477aaf1d6039e60a6f7d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "displayPopUp",
+      "traitKind": "setter",
+      "methodIndex": 30040,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "a92fa7f0a415aeaf8608b2026c8df5867fa2d40753480806a8868f3472584ebe",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.determinePosition",
+      "traitKind": "method",
+      "methodIndex": 30051,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "flash.geom.Point",
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 376,
+      "bytecode": {
+        "codeLength": 376,
+        "codeSha256": "98ac34161c8488ee20e94cf8782c4b04d2dca165a06b1cf0e0e81b6afe4b8966",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "popUp",
+      "traitKind": "getter",
+      "methodIndex": 30043,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFlexDisplayObject",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5e140061014bab98ce65438e232ef95de5c949a4a9defce8116b8bbe9850adf4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "popUp",
+      "traitKind": "setter",
+      "methodIndex": 30042,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexDisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "5c578de7e6ff44db1523e28c7f747e3d6d74d80bf2da9605aa06ab8c01fdeb79",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "popUpHeightMatchesAnchorHeight",
+      "traitKind": "getter",
+      "methodIndex": 30037,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e30513d14b14a7c5f3b01c1898dff0384422bfdf67cf28297c947014764a2526",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "popUpHeightMatchesAnchorHeight",
+      "traitKind": "setter",
+      "methodIndex": 30036,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "b68dd40f55284cd6d8504f7da69e2ef92f09d11c835122fc708ad045cce49d56",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "popUpPosition",
+      "traitKind": "getter",
+      "methodIndex": 30045,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7d839ed41ab5b5ee0becfb04480c3a542d0ae1408a3a70f1d7fdbd6e627ae024",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "popUpPosition",
+      "traitKind": "setter",
+      "methodIndex": 30044,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "f26cc7a8dfc56a644c7dfd23231843bbdf18c050ad542e37bf2f1b89e175fe09",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "popUpWidthMatchesAnchorWidth",
+      "traitKind": "getter",
+      "methodIndex": 30039,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3b9e7d3a2b95e2f08853a2dfe1730fb6ab333c5d0d367536afe07040177b2657",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "popUpWidthMatchesAnchorWidth",
+      "traitKind": "setter",
+      "methodIndex": 30038,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "cc5d5c4d26f3220bb5f28ac71e34e6df804aa4b0b238fe56399896b4aff1adf2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.addedToStageHandler",
+      "traitKind": "method",
+      "methodIndex": 30053,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "457d2d48f4da130dabe939c2a0a4c104d1b317872484c5e9eb13a50b332fd89c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.addOrRemovePopUp",
+      "traitKind": "method",
+      "methodIndex": 30049,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 228,
+      "bytecode": {
+        "codeLength": 228,
+        "codeSha256": "fe967a39fb6dbea58ec470bccf240d7056c8bdbbc8b1697cccf00a41319d66b6",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.applyPopUpTransform",
+      "traitKind": "method",
+      "methodIndex": 30052,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 503,
+      "bytecode": {
+        "codeLength": 503,
+        "codeSha256": "b7b4021ca5f95e243ed22b09874a076886f4a8fb9223478a3b90c4bc95c57782",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeAndResetPopUp",
+      "traitKind": "method",
+      "methodIndex": 30050,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "d7d5bde07cbb50f21dc8ac55afb5e571dc3aefe81a3f7db68561b6813743aee8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.removedFromStageHandler",
+      "traitKind": "method",
+      "methodIndex": 30054,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "35b9252876d90f6fea1f14a0cdd2e2ca74a767d88e325d6a5bcf73610e272e02",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components:PopUpAnchor.calculatePopUpPosition",
+      "traitKind": "method",
+      "methodIndex": 30048,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 908,
+      "bytecode": {
+        "codeLength": 908,
+        "codeSha256": "1fbd278562ac5a64b882542a1f33bb0661f6a053e72854bb89551ce1eb7eebee",
+        "bytecodeLineCount": 57
+      }
+    },
+    {
+      "traitName": "spark.components:PopUpAnchor.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 30046,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "294a6940099e1eb0626e360ac865081a99f4ae119350a2853ac41a305fdca7ed",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "updatePopUpTransform",
+      "traitKind": "method",
+      "methodIndex": 30047,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "a39fc735a256fb05da6c1b0eb3486600f02fa11a70ceaa7dd5b6ef0139416100",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

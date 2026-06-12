@@ -1,0 +1,188 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1807,
+  "className": "flashx.textLayout.operations.ApplyLinkOperation",
+  "classNameNormalized": "flashx.textLayout.operations.ApplyLinkOperation",
+  "superName": "flashx.textLayout.operations.FlowTextOperation",
+  "superNameNormalized": "flashx.textLayout.operations.FlowTextOperation",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 34670,
+  "cinitMethod": 34669,
+  "iinitBytecode": {
+    "codeLength": 26,
+    "codeSha256": "eac96ebc6ce8ebe96b1db9d333b36f578fb3abfb716179f23c62f8c4c48c909f",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "doOperation",
+      "traitKind": "method",
+      "methodIndex": 34678,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 279,
+      "bytecode": {
+        "codeLength": 279,
+        "codeSha256": "368c73e046a700194b45a941e14255ce94a747e5c811ec7b8999c4439ef819a7",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "extendToLinkBoundary",
+      "traitKind": "getter",
+      "methodIndex": 34675,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7d050949a8dae91a1dca4d8f111fe8c74555baad91fd5b4be6216f923edefb5f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "extendToLinkBoundary",
+      "traitKind": "setter",
+      "methodIndex": 34676,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "7523713c6c86deb6836f7159b19b3302395ef23dce46a2ca2640e90a3584237b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "href",
+      "traitKind": "getter",
+      "methodIndex": 34671,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ba16ced0ba49758a3617c1ebdfa149551230e682443e8e3a570188a2ff3df3fb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "href",
+      "traitKind": "setter",
+      "methodIndex": 34672,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "8a17546184f7b5b892a47dc06a8dd52a9bce23cfe89e5f732065c7a6e661d87b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "newLinkElement",
+      "traitKind": "getter",
+      "methodIndex": 34677,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.LinkElement",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d241bbc56825dc71ce095fc1a42328f937a0dc187a7c54672ff3b86252d89d02",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 34680,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "4254918e57d46d298ba880f1bb4b6a273519cc775226fedbc4f8f7c56a75d812",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "target",
+      "traitKind": "getter",
+      "methodIndex": 34673,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "97f675f603aa981209a94915eaa662ff16685284bb013c9bcccfe78c0b282da1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "target",
+      "traitKind": "setter",
+      "methodIndex": 34674,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "70dbb839d9e1b3cb0cfa58336fd69d970d27459e2ddea2ee3804c64e12798031",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 34679,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "6708ca7ba5d3b7e42d646140c3f265b8a718fd3955114ce650a21e5a20bbfd45",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

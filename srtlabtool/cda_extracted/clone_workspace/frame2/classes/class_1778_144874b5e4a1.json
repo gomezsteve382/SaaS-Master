@@ -1,0 +1,186 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1778,
+  "className": "PrivateNs.NumberLineFactory",
+  "classNameNormalized": "PrivateNs.NumberLineFactory",
+  "superName": "flashx.textLayout.factory.StringTextLineFactory",
+  "superNameNormalized": "flashx.textLayout.factory.StringTextLineFactory",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 34286,
+  "cinitMethod": 34276,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "backgroundManager",
+      "traitKind": "getter",
+      "methodIndex": 34282,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.BackgroundManager",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "496ac3ae35c57d04aa3858a45db71821996222ba92cd28c024cb7d7f36d5b9b5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "clearBackgroundManager",
+      "traitKind": "method",
+      "methodIndex": 34283,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "687939db02663b302095aede4b577095299d01fb1bbcccb8b3239419e5b9e5a5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.processBackgroundColors",
+      "traitKind": "method",
+      "methodIndex": 34285,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "Function",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "f6a9fae378b82c906965e7ef967f946d980d27614493bc7dfde9ae5a74fa30bc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "listStylePosition",
+      "traitKind": "getter",
+      "methodIndex": 34278,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a1d03d8fa4b3bb25d1ab42de9db6ee1a22769b781331c9d563fd5a85d91f04c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listStylePosition",
+      "traitKind": "setter",
+      "methodIndex": 34279,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a2591ec3383427f53f7d55f63cf8871cb85e257332c6b4b819be0fe7979b5e1c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "markerFormat",
+      "traitKind": "getter",
+      "methodIndex": 34280,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.formats.ITextLayoutFormat",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b1c07bdd8a0a798a255e3e72f7f504f0e53aaae119c0058a7257bfa9c00a81b7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "markerFormat",
+      "traitKind": "setter",
+      "methodIndex": 34281,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "382bbcff07262c5eb943b98d0fe818d6f35843d97d51744f4ac7959136022b83",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextFlowLine.as$207:NumberLineFactory.callbackWithTextLines",
+      "traitKind": "method",
+      "methodIndex": 34284,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 181,
+      "bytecode": {
+        "codeLength": 181,
+        "codeSha256": "0db0eeada12812288c24e3eac7961a341489622af889e78f1debe1588a302b11",
+        "bytecodeLineCount": 12
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.calculateInsideNumberLineWidth",
+      "traitKind": "method",
+      "methodIndex": 34277,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextLine",
+        "String"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 235,
+      "bytecode": {
+        "codeLength": 235,
+        "codeSha256": "63750e2a77d8668f5d3bc357b96cfac84f970955af3cd611cb2307fadeadf333",
+        "bytecodeLineCount": 15
+      }
+    }
+  ]
+}

@@ -1,0 +1,378 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3535,
+  "className": "org.spicefactory.parsley.core.registry.impl.AbstractObjectDefinition",
+  "classNameNormalized": "org.spicefactory.parsley.core.registry.impl.AbstractObjectDefinition",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.registry.ObjectDefinition"
+  ],
+  "iinitMethod": 53346,
+  "cinitMethod": 53345,
+  "iinitBytecode": {
+    "codeLength": 101,
+    "codeSha256": "2e2a5dd953abf7860f867f04b7f31db741004a5d4377ff72eacf03302ffa4fe1",
+    "bytecodeLineCount": 7
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addProcessorFactory",
+      "traitKind": "method",
+      "methodIndex": 53355,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectProcessorFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "01f8d9880c196a3f0ab0d4a8ccbb34812d7c20696b2ca10672b1cbfe3298d81d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "constructorArgs",
+      "traitKind": "getter",
+      "methodIndex": 53350,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.definition.ConstructorArgRegistry",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "fd867b9d7d2f88d8a7d0402d24945214cca2392b0b01fad0ed74639332920abd",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "destroyMethod",
+      "traitKind": "getter",
+      "methodIndex": 53360,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "6dbe03a04eac8d701b8f1f07f5ca58887c8dc8205ca1d3354d980967a5a0ea1a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "destroyMethod",
+      "traitKind": "setter",
+      "methodIndex": 53361,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "a4fe7feb3433f8a335f8ac746a3959501f609c99dd1139fbd9fbbfbcdc2b7819",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "freeze",
+      "traitKind": "method",
+      "methodIndex": 53364,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "6f1e76b1675b0b97e686703754d09277c3fea2b4c921086dbc40f928224d9a52",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "frozen",
+      "traitKind": "getter",
+      "methodIndex": 53365,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "870d6b7a92e171c02c9efa470432538791ed5917070b641cfb179f7499bcd755",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "id",
+      "traitKind": "getter",
+      "methodIndex": 53348,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0e679a29364c5d70c7121fa1693e7556634a3facd9dd7253b361f25d567d2126",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initMethod",
+      "traitKind": "getter",
+      "methodIndex": 53358,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "3b662e1df2f552edf8a939b82dc961fe2d48cb000192c796fda0bc86d1a39ef9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "initMethod",
+      "traitKind": "setter",
+      "methodIndex": 53359,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "75dfe5c43834ce566ccefb6100ec0fe0e480896cfaf12eb0e4765b29acbebdbd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "injectorMethods",
+      "traitKind": "getter",
+      "methodIndex": 53352,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.definition.MethodRegistry",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "ea901d1131064913388bdb024c002741a19198777c67632d0ddf28b90942b1c4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "instantiator",
+      "traitKind": "getter",
+      "methodIndex": 53354,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectInstantiator",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "256a6196bd28b499dc9076b3f3e6212e3e1f343927bb130cf6e9bd38a431e290",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "instantiator",
+      "traitKind": "setter",
+      "methodIndex": 53357,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectInstantiator"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "bb16d66d5f82fa3349c24f59859bfa3933817568d24ca755e63b268e4ed0257c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "objectLifecycle",
+      "traitKind": "getter",
+      "methodIndex": 53353,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.definition.LifecycleListenerRegistry",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "65847b7d67c0a13f459606c95c2fd494379b852eadbe98b3b898f59ee277606e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "populateFrom",
+      "traitKind": "method",
+      "methodIndex": 53366,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "90448761270351d7f2c97ddd7c9d46132874b69f5f2d5cac039d9e1053e19e26",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkMethodName",
+      "traitKind": "method",
+      "methodIndex": 53362,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "53f3841e74fecf638a9f85c19c7f4aefb137792509c96ddf883ddf789473779e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkState",
+      "traitKind": "method",
+      "methodIndex": 53363,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "81f41f0e5520deef0f9198a77fa0cbbefa13f010be39511347547a5945cc15eb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.replaceLegacyRegistries",
+      "traitKind": "method",
+      "methodIndex": 53367,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "04a94bef26d5a6f85d6f902e94955cbad846e453fc3c8065c4c21a67bac7b20b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "processorFactories",
+      "traitKind": "getter",
+      "methodIndex": 53356,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "133c52f5f88bea84c5474d300214d3eb5d114a8c41138367e44e37efede9e237",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "properties",
+      "traitKind": "getter",
+      "methodIndex": 53351,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.definition.PropertyRegistry",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "246dee628cc04a36057b5e5125dfcfdabb5a1d9dc50c7dd7b661e7dbb2efddb5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "registry",
+      "traitKind": "getter",
+      "methodIndex": 53349,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinitionRegistry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6490ba6f3febddab94eda1b4452a965470e830eb39d33c26c840c3725f6cadab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 53368,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "f2f7ac4a83494312b0f4b7cbbee456d80782c6a0086fe34886c6aaeb479bf193",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "type",
+      "traitKind": "getter",
+      "methodIndex": 53347,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.lib.reflect.ClassInfo",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "34e2e456764a2c0cf77c25cf4f8c158fed8d9d41e45ffd2c727e93dc94870d3b",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

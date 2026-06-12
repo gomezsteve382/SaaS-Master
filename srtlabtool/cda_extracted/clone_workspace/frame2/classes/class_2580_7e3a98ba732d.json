@@ -1,0 +1,443 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2580,
+  "className": "com.chrysler.skins.CollapseComponentButtonSkin",
+  "classNameNormalized": "com.chrysler.skins.CollapseComponentButtonSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 44268,
+  "cinitMethod": 44264,
+  "iinitBytecode": {
+    "codeLength": 643,
+    "codeSha256": "22815aacad7720463e16c5e34725d8f4757f20f91a1434791890da9e79ab0a0d",
+    "bytecodeLineCount": 41
+  },
+  "cinitBytecode": {
+    "codeLength": 16,
+    "codeSha256": "f9ecb40566ff266268d6df23a7d63935aec332a44ca3efc15f456692267eb81f",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_CollapseComponentButtonSkin_GradientEntry1",
+      "traitKind": "getter",
+      "methodIndex": 44286,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fed4d70d9a5bd7d5c10cba7bfd1b4707063d22d847a9c7f9454f0427bcc77022",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_CollapseComponentButtonSkin_GradientEntry1",
+      "traitKind": "setter",
+      "methodIndex": 44287,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "744a1de4df37644ee8bbc5be7f24c1ccd615b6881cb2481e558e9a9adf3548cc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_CollapseComponentButtonSkin_GradientEntry2",
+      "traitKind": "getter",
+      "methodIndex": 44288,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bffb685893ce9c00eba954ee31dc87a17a511c477a28d83cbc3e2c14aa66bbca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_CollapseComponentButtonSkin_GradientEntry2",
+      "traitKind": "setter",
+      "methodIndex": 44289,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "1a34007399ffb255dc7af300f0e054702d1aa9a940f5c48180b2836bf9eab427",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "colorizeExclusions",
+      "traitKind": "getter",
+      "methodIndex": 44271,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "902ba277dae4e6b5766b263683682a0f99ba745f31d7f42811f98a417c11b8a3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.skins:CollapseComponentButtonSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 44272,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.skins:CollapseComponentButtonSkin.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 44273,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 211,
+      "bytecode": {
+        "codeLength": 211,
+        "codeSha256": "18ad32ac65bfebd02d679e055cfe3424b1e41280afd2195ed7cf84acbd8fee2a",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 44294,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5ef28838888b97c3efa1705cdb672e961753254a3f941f9b9c42500277098f24",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 44295,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "a0b332501c3901e0637768876e85977a127bc40bc5c4079e5fd30731eed2f3e8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 44270,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "labelDisplay",
+      "traitKind": "getter",
+      "methodIndex": 44290,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "da0a17a4dc018f000fc5c33809e89082d34647e1ba0f9759a2c77f5b18b90802",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "labelDisplay",
+      "traitKind": "setter",
+      "methodIndex": 44291,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Label"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5a46de0484dbe2ab9b4ee57c03bb8678cbd8490214a76abb40411c8d295f915b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 44269,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "09b8545036652dc2e3e1dfb98bb91404a24c28f818dd372185e0d520de5c993c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "pathModel",
+      "traitKind": "getter",
+      "methodIndex": 44292,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9bf2a721b64c4613eeb0a0c1abdb2b483d174383c9a8a58bd1d34ee22bcf8d0d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pathModel",
+      "traitKind": "setter",
+      "methodIndex": 44293,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "30504d3321f4b110122e8c76685587641ba50240ab35d1edbe186583b23604ed",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 44285,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "dfb57c8982f9f6214119b8db4a729426076a4a50737027c6f09b4672b45aa0c1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_GradientEntry1_i",
+      "traitKind": "method",
+      "methodIndex": 44277,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "122ebe96a635456e5e8801b8d6652796b6c8265d8b239df65d23d1a16028414a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_GradientEntry2_i",
+      "traitKind": "method",
+      "methodIndex": 44278,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e6f5c6197bb048b311c84335f76188271ad90b915f19782d4a7fab26c66321e2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 44282,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "045c924d12d02109ac98d5c887a123925225d8db8586021b6a210c564cc3f3cd",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_LinearGradient1_c",
+      "traitKind": "method",
+      "methodIndex": 44276,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "a6cf8404f7d9c78e9144108d037e02678ec030e4640fcc4d53f8a7737b668963",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_Path1_i",
+      "traitKind": "method",
+      "methodIndex": 44274,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "f16064b07062dbd8b1e754dbbea494fc4d797c88cbaea2ecfc6770154c3a5a58",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_Path2_i",
+      "traitKind": "method",
+      "methodIndex": 44279,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "caea0821ea90d65ef033b8986268774402035b987528c2b20c1ab38fc595b470",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_SolidColorStroke1_c",
+      "traitKind": "method",
+      "methodIndex": 44275,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "69f180386046098c6b10b44e65c7218eabc4eb8fd4b569b057ef37d95ef4d5fe",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_SolidColorStroke2_c",
+      "traitKind": "method",
+      "methodIndex": 44280,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "69f180386046098c6b10b44e65c7218eabc4eb8fd4b569b057ef37d95ef4d5fe",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._CollapseComponentButtonSkin_VGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 44281,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "cac0ab96b6aaefd1beadb48fe4843f679a107dc61eae8d24d6581d0e9f6ff265",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 44265,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "86e7cb2a95a1c0afef7c9cca77531394faf2604093b9b1d21dd5de21bfca5a66",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

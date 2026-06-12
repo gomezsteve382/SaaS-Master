@@ -1,0 +1,69 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3766,
+  "className": "memorphic.xpath.model.PredicateList",
+  "classNameNormalized": "memorphic.xpath.model.PredicateList",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55967,
+  "cinitMethod": 55966,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "42faa4949d37db69b61c11824e26a699770b068803083ceaaf447dab6e40a61d",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "filter",
+      "traitKind": "method",
+      "methodIndex": 55968,
+      "methodName": "",
+      "paramTypes": [
+        "XMLList",
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 134,
+      "bytecode": {
+        "codeLength": 134,
+        "codeSha256": "afc266ae17ded5a8f02d93f392071ddc6b4eaba5bdc632332d2634721e3e0715",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.filterByPredicate",
+      "traitKind": "method",
+      "methodIndex": 55969,
+      "methodName": "",
+      "paramTypes": [
+        "XMLList",
+        "memorphic.xpath.model.XPathContext",
+        "memorphic.xpath.model.Predicate"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "84a866aca1c19f1bd627d587cfa32cae89132871e964c2a4bd585b24d787f58e",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,96 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1937,
+  "className": "org.spicefactory.parsley.tag.model.ObjectIdReference",
+  "classNameNormalized": "org.spicefactory.parsley.tag.model.ObjectIdReference",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.registry.ResolvableValue"
+  ],
+  "iinitMethod": 36249,
+  "cinitMethod": 36248,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "6bac40fbcda95c64330093eea077b372ddb143ac3b2308344b1e808a73e9a1f9",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "id",
+      "traitKind": "getter",
+      "methodIndex": 36251,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fe5b61af6eebc1e7c1a45e76cb9b5e4cd3ff26a97a8a32c09671e94bdafb4f39",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "required",
+      "traitKind": "getter",
+      "methodIndex": 36250,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c3cb863902aadd8d7eea30bafa5844893a94613fd1f8ad425ea8264d95b8b4b1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resolve",
+      "traitKind": "method",
+      "methodIndex": 36252,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.lifecycle.ManagedObject"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "77bd45a60ead2178c73edae4761f417b5bbf07b03f785b61cbaf46f1431cefca",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 36253,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "c7b48738d12046354880c07ec6bfe413310d9bee409120c954ec2dc16711caaa",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,101 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2676,
+  "className": "PrivateNs.DefaultMessageRouterFactory",
+  "classNameNormalized": "PrivateNs.DefaultMessageRouterFactory",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.factory.MessageRouterFactory"
+  ],
+  "iinitMethod": 45094,
+  "cinitMethod": 45093,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "bdd5c8406adb62d4f677e4371526c9b88407bf0b2b7997c537564b91ca21cd65",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addCommandFactory",
+      "traitKind": "method",
+      "methodIndex": 45098,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "org.spicefactory.parsley.core.messaging.command.CommandFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "352afaeba1b451f43d4d5f69c6f50f4cf2581c4c3131042de530d20035c17d7d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "addErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 45097,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.receiver.MessageErrorHandler"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "7d94dbee6fbfec0718bf5730af401006b677e247b22d2fd0c9970fa18562a54f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unhandledError",
+      "traitKind": "getter",
+      "methodIndex": 45095,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.messaging.ErrorPolicy",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "53e06afcd301681d77ded0b59c9eeb0e77affaa03cb2e56196d0009d43e7c445",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unhandledError",
+      "traitKind": "setter",
+      "methodIndex": 45096,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.ErrorPolicy"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "e307665bc1c3c633efd991731033e99bb37488d832752ae7243cb73689a1a0a2",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

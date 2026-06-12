@@ -1,0 +1,118 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1755,
+  "className": "PrivateNs.InternalSplitFGEMemento",
+  "classNameNormalized": "PrivateNs.InternalSplitFGEMemento",
+  "superName": "PrivateNs.BaseMemento",
+  "superNameNormalized": "PrivateNs.BaseMemento",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.edit.IMemento"
+  ],
+  "iinitMethod": 33893,
+  "cinitMethod": 33890,
+  "iinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "0c825fd8f479537cefc394508b4e116660dba5e871c94a01b8ad1fd1866c2438",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "newSibling",
+      "traitKind": "getter",
+      "methodIndex": 33894,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.FlowGroupElement",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e15d342373b263b0c848ec202dd948a92cda965e56b8c4b945798e5aa98772fb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 33896,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "0769a2da224d5a793bc21055be7f9d1fba2515b1a89475d5227c34ecf530a246",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 33895,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "502c54f5f33321b53cc3aa920ec119973aeed6b5239a049d30296abae9e29cb2",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "perform",
+      "traitKind": "method",
+      "methodIndex": 33891,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.elements.FlowElement",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "88a96710d99cd0ebee37c1151c8c3c1ecafe6438f793cb676f6d19f8dda87a0c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "performInternal",
+      "traitKind": "method",
+      "methodIndex": 33892,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.edit.ElementMark"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 212,
+      "bytecode": {
+        "codeLength": 212,
+        "codeSha256": "e6611212bee5d41e6cd3270483f8ebb56f591c791071c765ab1d24cad3411398",
+        "bytecodeLineCount": 14
+      }
+    }
+  ]
+}

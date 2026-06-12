@@ -1,0 +1,134 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3780,
+  "className": "memorphic.xpath.model.Axis",
+  "classNameNormalized": "memorphic.xpath.model.Axis",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56102,
+  "cinitMethod": 56101,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "bbb1447aea822b026738436bdfccf68ba636d16f35b3cb23465511fb8950ef08",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "PrivateNs.selectAncestor",
+      "traitKind": "method",
+      "methodIndex": 56104,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "c3b8aea08638d57057f79e6162fdc92c09b2c693a3f05f31eed7132abe2d9d60",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.selectFollowing",
+      "traitKind": "method",
+      "methodIndex": 56107,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 114,
+      "bytecode": {
+        "codeLength": 114,
+        "codeSha256": "331bd5036b278f5c369b096567cbd97bde5335dac0fdfa77c271ce54f9cd6dc1",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.selectFollowingSibling",
+      "traitKind": "method",
+      "methodIndex": 56105,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "f1b1e458f4d3b5c712fe4c779019e6d5f09b1f10cfd880ead9e1aabd7bbd4b2e",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.selectPreceding",
+      "traitKind": "method",
+      "methodIndex": 56108,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 104,
+      "bytecode": {
+        "codeLength": 104,
+        "codeSha256": "61f0e2bc94b42f407175c24af1bc766f064812aa7cb62578f82353f5f989c98f",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.selectPrecedingSibling",
+      "traitKind": "method",
+      "methodIndex": 56106,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "5c787137f36e2b012c0bfce30ca81c026ff91251d0ce58ec63655795423bc821",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "selectAxis",
+      "traitKind": "method",
+      "methodIndex": 56103,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.model.XPathContext"
+      ],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 488,
+      "bytecode": {
+        "codeLength": 488,
+        "codeSha256": "db815c4a52af420cdc8513f92685ab4d76c5e42ec8b422bc405b51662d7faf36",
+        "bytecodeLineCount": 31
+      }
+    }
+  ],
+  "staticMembers": []
+}

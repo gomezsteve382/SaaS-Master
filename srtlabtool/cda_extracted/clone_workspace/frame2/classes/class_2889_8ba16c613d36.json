@@ -1,0 +1,66 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2889,
+  "className": "com.dcctools.witech.diagnostic.engine.cryptography.CBCModeStream",
+  "classNameNormalized": "com.dcctools.witech.diagnostic.engine.cryptography.CBCModeStream",
+  "superName": "com.hurlant.crypto.symmetric.CBCMode",
+  "superNameNormalized": "com.hurlant.crypto.symmetric.CBCMode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 47034,
+  "cinitMethod": 47033,
+  "iinitBytecode": {
+    "codeLength": 28,
+    "codeSha256": "a5bf03e0ea22a10ba87baff5bdb73a3787ef4f3c92eb6ca3f6110fea9a7199b7",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decrypt",
+      "traitKind": "method",
+      "methodIndex": 47036,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "381b22293893dfefdc733fa1eb3e0ec2ecf7ad0f1214836a80cabeedf1f53919",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "encrypt",
+      "traitKind": "method",
+      "methodIndex": 47035,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 129,
+      "bytecode": {
+        "codeLength": 129,
+        "codeSha256": "ea2a2e68c6510e0f06bace8032e8c8dc6ae3df2c40583a93cc093f05bdb2b608",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": []
+}

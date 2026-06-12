@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 883,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.PIDEditorWriteCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.PIDEditorWriteCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 17528,
+  "cinitMethod": 17524,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "177f83ff45b37b8fdbdb3b0b0859150cde5fe308327233fe72351bf2aad09654",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onPIDEditorWrite",
+      "traitKind": "method",
+      "methodIndex": 17525,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.PIDEditorWriteMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "63ff91eff35685f00d1b898db1c92ec17c20fbd37fec96bb4838119fb539a503",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onScanReportPidEditorMessage",
+      "traitKind": "method",
+      "methodIndex": 17527,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.ScanReportPidMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "693782c40d6b7bb5656eb204326b780483925a8ac66c3ab2170c8280c26bd559",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onWriteRawCalibrationWriterDataMessage",
+      "traitKind": "method",
+      "methodIndex": 17526,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.WriteRawCalibrationDataMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "e8fef09fa642bc2ea36ba3843c21db2c67ce83a3ae7e85dc9260fa96d6f20553",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

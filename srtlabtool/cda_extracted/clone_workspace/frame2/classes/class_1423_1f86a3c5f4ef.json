@@ -1,0 +1,554 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1423,
+  "className": "spark.skins.spark.VSliderThumbSkin",
+  "classNameNormalized": "spark.skins.spark.VSliderThumbSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 31320,
+  "cinitMethod": 31319,
+  "iinitBytecode": {
+    "codeLength": 344,
+    "codeSha256": "4dbe57cb5ccc4fc06ea490dd5bf129a8da44c8c05dc214cca9bd1dd8a82cd59d",
+    "bytecodeLineCount": 22
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_VSliderThumbSkin_GradientEntry10",
+      "traitKind": "getter",
+      "methodIndex": 31347,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4ea4d4b95b6d4e793ac765706b5432a2243099db255edc3db0b5c9d8677c55eb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_VSliderThumbSkin_GradientEntry10",
+      "traitKind": "setter",
+      "methodIndex": 31348,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "aaca3127633796e5be7f1ad58a8fd26d71a25200cacb57a5bc74ee18b68aaa7f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_VSliderThumbSkin_GradientEntry8",
+      "traitKind": "getter",
+      "methodIndex": 31349,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "430fc3f7c79f76a677f03fd5ecfc635772b373f9b5cedb43cdf0f492c0f0c455",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_VSliderThumbSkin_GradientEntry8",
+      "traitKind": "setter",
+      "methodIndex": 31350,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "1ae9e3abd207816f080ee849eb22adef054bd099d632b01e0a654ad077d54f87",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_VSliderThumbSkin_GradientEntry9",
+      "traitKind": "getter",
+      "methodIndex": 31351,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3c9fea02b577aa21bf23b9a3498a431336556b923152977c15f9fa7ff2b4ccc8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_VSliderThumbSkin_GradientEntry9",
+      "traitKind": "setter",
+      "methodIndex": 31352,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "f0047d7ce20e879ccbb43f21818504ee71c2b53bdec016e3e451c463296c0617",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 31353,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a8a2dd94a01190ac64f8ab80ad10ae81ba2d9fb814e4f94d4f9f4ce32aec59b9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 31354,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5f36ad1be18b1c2c7fbea567e2d037f480fd6e19ee28ef3da4fed80723c51f3a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 31322,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 31321,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "4f4d87ee753fb0614342e1a3a5b6bd668a1a0bbcf28c2938f40426dec8c7d426",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry1_c",
+      "traitKind": "method",
+      "methodIndex": 31326,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "d0a3d2ba0dbad42de82a6b51ef1e40a02bed857ecfba5f242c71561d46aa952a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry10_i",
+      "traitKind": "method",
+      "methodIndex": 31344,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "672e2b75793a158f3de03151ca7628cf581086d3e09fd80b3899a990237ea2a8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry11_c",
+      "traitKind": "method",
+      "methodIndex": 31345,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "52b7632aa07b9b07e08b6d432e556b87d1cddb5a9763158a671adfcbd635777e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry12_c",
+      "traitKind": "method",
+      "methodIndex": 31346,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "52b7632aa07b9b07e08b6d432e556b87d1cddb5a9763158a671adfcbd635777e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry2_c",
+      "traitKind": "method",
+      "methodIndex": 31327,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "d0a3d2ba0dbad42de82a6b51ef1e40a02bed857ecfba5f242c71561d46aa952a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry3_c",
+      "traitKind": "method",
+      "methodIndex": 31328,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "66c93bc875628e3884a9d35b73ea7e77b53870be748a7685a04100a8e30cde8b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry4_c",
+      "traitKind": "method",
+      "methodIndex": 31331,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "dbd1bb9719a788c965087a6a3eeb845f7287b4d09c8b5f7e318e7063736d2acd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry5_c",
+      "traitKind": "method",
+      "methodIndex": 31332,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "bf7c381ac3bbbca550ef186d861c47ce5b4a8e1ec6be67e2dac329ea6b5c54d6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry6_c",
+      "traitKind": "method",
+      "methodIndex": 31337,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "d0a3d2ba0dbad42de82a6b51ef1e40a02bed857ecfba5f242c71561d46aa952a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry7_c",
+      "traitKind": "method",
+      "methodIndex": 31338,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "85a51f1de6f414996163c63da4e96d33c6c3c7b6021c25f80b6a51abef83f623",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry8_i",
+      "traitKind": "method",
+      "methodIndex": 31340,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "14129fa4d545d60bf0bf1d03d51a5666f384d83714ee5f6565e199aa04f79f3b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_GradientEntry9_i",
+      "traitKind": "method",
+      "methodIndex": 31341,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "b3089da7a4861a1941115a102a21243a968518e6c91b14a1fc31a464c4924ce9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_LinearGradient1_c",
+      "traitKind": "method",
+      "methodIndex": 31339,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "e73da2d9b4a6e46d19405061cc15ca6dab2addfb8774f6855888c3c8b47edb95",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_LinearGradient2_c",
+      "traitKind": "method",
+      "methodIndex": 31343,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "d1ad0913409e2f59fd793257fb23893b3a865b2158d45eb408b63723a7062307",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_LinearGradientStroke1_c",
+      "traitKind": "method",
+      "methodIndex": 31325,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "aa3c36de27cd63fa64ce3081fe1102f81d95a53a9484b6159d59cf09eef08f53",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_LinearGradientStroke2_c",
+      "traitKind": "method",
+      "methodIndex": 31330,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "36533affc70054f4fad9b64f3511100c4f8d7414b7b05ffdd0a6f9cea44aee5b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_LinearGradientStroke3_c",
+      "traitKind": "method",
+      "methodIndex": 31336,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "2810194ab11447152f95aa3805dd748e1053e7f50adcdce687b57a8d315e3780",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_Rect1_c",
+      "traitKind": "method",
+      "methodIndex": 31324,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "a8cf274f50669b09098dabef39898ab6378ea7bf8675c1298c56998d31a06c24",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_Rect2_c",
+      "traitKind": "method",
+      "methodIndex": 31329,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "17b02c03d8a59dfb41ce5d85226ef3405a6e05b3ca31f0c671271119e99847a9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_Rect3_c",
+      "traitKind": "method",
+      "methodIndex": 31333,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "d04419052a788fd5022c3de934bce31e9482d90696c129a96131676d87d63c4b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_Rect4_c",
+      "traitKind": "method",
+      "methodIndex": 31335,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "c2143878f71c5553e1c901a14e0488b64d9c54898d0454f17565237475ab13bb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_Rect5_c",
+      "traitKind": "method",
+      "methodIndex": 31342,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "d45f6b6d7b33e8418f636494644be9c73903996f0322b5309f18be9512779ae6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderThumbSkin_SolidColor1_c",
+      "traitKind": "method",
+      "methodIndex": 31334,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "15edf0b7225569d36aa9e42535e94c88159ecf5d2d465c608a85c021ed96cb8b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:VSliderThumbSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 31323,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

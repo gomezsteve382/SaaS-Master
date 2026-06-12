@@ -1,0 +1,130 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3346,
+  "className": "com.diagnosticProcedures.node.abstract.AbstractWebNode",
+  "classNameNormalized": "com.diagnosticProcedures.node.abstract.AbstractWebNode",
+  "superName": "com.diagnosticProcedures.node.ProcedureNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.ProcedureNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51586,
+  "cinitMethod": 51585,
+  "iinitBytecode": {
+    "codeLength": 8,
+    "codeSha256": "759834360b3138b4f9f149bb91b34cde0e9d339d5cd03f58962655320a4089b4",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.node.abstract:AbstractWebNode.createWebService",
+      "traitKind": "method",
+      "methodIndex": 51587,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "wde.common.services.IService",
+      "hasBody": true,
+      "codeLength": 176,
+      "bytecode": {
+        "codeLength": 176,
+        "codeSha256": "6de306413c2919bcb360033f9837e3f9a589e8459e0fdd7b82f1653b8e06d62d",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.node.abstract:AbstractWebNode.isLoggedIn",
+      "traitKind": "getter",
+      "methodIndex": 51588,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "362d05e6cd37dc10eb5518f2818a09aac04833a7237febfe3b5167e43d92ea46",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.node.abstract:AbstractWebNode.promptLogin",
+      "traitKind": "method",
+      "methodIndex": 51589,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "cfafbbc21215d4ec67eba9d9e1694261dcf5aa1f02a7e7e767838684577026e2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "isLoggedInListener",
+      "traitKind": "method",
+      "methodIndex": 51591,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "41bcbaffe021223cf800563388ab360cc71bfb8dca94b6004c15b429076410f6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "loginCancelledListener",
+      "traitKind": "method",
+      "methodIndex": 51592,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "cc8bbf99ccbe40ca7be89db1bf3d4b32ba969ba4a09f6d2d0f8e8508d27d9e52",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.watchFotLoginEvents",
+      "traitKind": "method",
+      "methodIndex": 51590,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "a33b9a876e94bdfcb53a1eae5c7191f3b2bf54365e8f5f58920dd63aa30a607e",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": []
+}

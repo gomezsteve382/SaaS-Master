@@ -1,0 +1,192 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1706,
+  "className": "com.chrysler.cda.presentation.util.BlinkingButton",
+  "classNameNormalized": "com.chrysler.cda.presentation.util.BlinkingButton",
+  "superName": "spark.components.Button",
+  "superNameNormalized": "spark.components.Button",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 33514,
+  "cinitMethod": 33513,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "93dbd75f14820ef7c7e2e4bdf379f4fbd70824fd6f0f0bda264bf55897abc3b0",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "e03dc13ed3172d17ad9bfc50ac29ad62ad6adf0b2e23c64b50369e3d22365f77",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "blinkingInterval",
+      "traitKind": "getter",
+      "methodIndex": 33522,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "289d135f1b9b59e38c1090b4a1a42a53aac9cc3c7e6f981fc8f210b2e3ba3aa8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "blinkingInterval",
+      "traitKind": "setter",
+      "methodIndex": 33523,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "edb5dd3418aa123ea0f577089c0d3db9950f66663aa5735121b3d410cbb535dd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "blinkingRepeats",
+      "traitKind": "getter",
+      "methodIndex": 33520,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "434cd72c6091a8e01984b06b9db1e55eddcc57114f918e58651d3f5475e34b58",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "blinkingRepeats",
+      "traitKind": "setter",
+      "methodIndex": 33521,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "a1d71fd9c533ded1626ba8618ac3bbec2cd882504efe45992880601e10aa1524",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:BlinkingButton.blink",
+      "traitKind": "method",
+      "methodIndex": 33516,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "1ec42feefc6371f3b776cea956e45791d51a6ef89a4497472885169203515ce8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:BlinkingButton.endBlinking",
+      "traitKind": "method",
+      "methodIndex": 33517,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f6344a87d1f89e860edd73f47cc10b0e9753ba9f360d8d54d0a1754a96183b6b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:BlinkingButton.getCurrentSkinState",
+      "traitKind": "method",
+      "methodIndex": 33519,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "10bdb022f4526dfe5a2f38b8cfd9b47202c98245350be3f217f88aacaac0f426",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:BlinkingButton.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 33524,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "95a9081a1f49e6b74d5676e6e468876ebeed1024c0d405f2d20bf13df2b51116",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.util:BlinkingButton.stopBlinking",
+      "traitKind": "method",
+      "methodIndex": 33518,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "4243af35fa2687fce366ab860519e1aef5796bdbc75c7068a35f16ac165b3f2a",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "triggerBlink",
+      "traitKind": "method",
+      "methodIndex": 33515,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "4df990bae8008807f6ada707dc5b139359c00db5f026ca85c9e171a84e727d99",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": []
+}

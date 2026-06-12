@@ -1,0 +1,223 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3813,
+  "className": "com.hurlant.crypto.cert.X509Certificate",
+  "classNameNormalized": "com.hurlant.crypto.cert.X509Certificate",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56364,
+  "cinitMethod": 56363,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "3db04f249c3e4950daa281d5e0b7172db39ab980b049240cb3e4bc29a86bcfdd",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getAlgorithmIdentifier",
+      "traitKind": "method",
+      "methodIndex": 56373,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "da631ac22a0cfd6531fda9345489fb9980f8ede5f032744d1cfcd68237870e28",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getCommonName",
+      "traitKind": "method",
+      "methodIndex": 56376,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "b25a6acc697dbba480b96c98a847ef6462b7deb0c284c06fe10f8b4eb83b3720",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getIssuerPrincipal",
+      "traitKind": "method",
+      "methodIndex": 56372,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "ba80f99c330763bb28d8f1a808a97ba3dc0febe9a9c6bc3ea8ea89df66d109a9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getNotAfter",
+      "traitKind": "method",
+      "methodIndex": 56375,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Date",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "35c2ffd65b5727ad5d2346e1f119f59f51d9837571e7bc89078c087b4e6301fc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getNotBefore",
+      "traitKind": "method",
+      "methodIndex": 56374,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Date",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "ec11b6dddbbc7c76aa6e66fff6643a1dccab6def81e392309d72e9c89f4559b1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getPublicKey",
+      "traitKind": "method",
+      "methodIndex": 56370,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.hurlant.crypto.rsa.RSAKey",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "327c0551fdf0f2ec6f01d0e6f43b5aa7dae95c29960958859655f1ca30a9b6bb",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "getSubjectPrincipal",
+      "traitKind": "method",
+      "methodIndex": 56371,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "ea47585ab46787eddcd1e6ed4d2256f62672448d6cba8b495a7312e4916a6330",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "isSelfSigned",
+      "traitKind": "method",
+      "methodIndex": 56367,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "84afbe8b5a9cc6ac991386182b2f3c0bb9a6c4b97c1a93a3865a5a521884d446",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "isSigned",
+      "traitKind": "method",
+      "methodIndex": 56366,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.cert.X509CertificateCollection",
+        "com.hurlant.crypto.cert.X509CertificateCollection",
+        "Date"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "f889618dee9e9a3effff2d62226c4f84d7273d0a5044a598c2efd743bc1441b9",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "PrivateNs.load",
+      "traitKind": "method",
+      "methodIndex": 56365,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "8ee46f1460e4dda3bb7218d5330b1e0c2ef8a7b6707bbe3f080ff4fc4a9cd627",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.signCertificate",
+      "traitKind": "method",
+      "methodIndex": 56369,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.rsa.RSAKey",
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 373,
+      "bytecode": {
+        "codeLength": 373,
+        "codeSha256": "b466912164a41ef0dd49c249176fd21ed8719ecf0cb6913f794102d77aca6f98",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs.verifyCertificate",
+      "traitKind": "method",
+      "methodIndex": 56368,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.rsa.RSAKey"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 357,
+      "bytecode": {
+        "codeLength": 357,
+        "codeSha256": "052e9d62f75597e015ecf35d31d9c707d1e78017c4ba31df62c12a9dc4197616",
+        "bytecodeLineCount": 23
+      }
+    }
+  ],
+  "staticMembers": []
+}

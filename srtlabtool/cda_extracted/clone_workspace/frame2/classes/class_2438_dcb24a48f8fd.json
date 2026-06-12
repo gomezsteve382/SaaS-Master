@@ -1,0 +1,223 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2438,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLogControlBarComponent",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLogControlBarComponent",
+  "superName": "spark.components.HGroup",
+  "superNameNormalized": "spark.components.HGroup",
+  "domainBucket": "buslog",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 42177,
+  "cinitMethod": 42173,
+  "iinitBytecode": {
+    "codeLength": 354,
+    "codeSha256": "80dde1a13c6edb906dff3c2e76c7c1a01bc0ee59eefec89313a8295c3d40e1c3",
+    "bytecodeLineCount": 23
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "buslogConfiguration",
+      "traitKind": "getter",
+      "methodIndex": 42190,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.buslog.BuslogConfiguration",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fa01fe05a358255c881287649ebc0c6216084cbf633af1503294959962bc1cce",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "buslogConfiguration",
+      "traitKind": "setter",
+      "methodIndex": 42191,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.buslog.BuslogConfiguration"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "3cccc4b8625050262ac7973f9049a252ef56b0cca853bbc8202d059868893c7c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 42192,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bba607d3071d13cb967c358f83c55262ce702d1b462145f6d2a30eaa99db1e68",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 42193,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "1bc7660f24dd49b8f0ec42e24cc83945280d1ed24e5ddbd4bc76a66be602c54e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 42179,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 42178,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "1fd49ba2756f2d3e674d5335d319ebd8e2c5462072234dbd4bf6692ce31b8378",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLogControlBarComponent_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 42189,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "06d483b454bd552b7a457cddec1e4f1958bcf168ca9376b56214731c7953a520",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLogControlBarComponent_Group1_c",
+      "traitKind": "method",
+      "methodIndex": 42181,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "6ec06424fd0de71fce4883f8ecbdd66cd0ee38e32d2956e4f890ebaa67ac9e8f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLogControlBarComponent_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 42180,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "8dab702a98ab11fd525d18efea5f04ca28ce066c1b9b99c6e0d13d79b55a3669",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLogControlBarComponent_Label2_i",
+      "traitKind": "method",
+      "methodIndex": 42182,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "ec44efa52fac76a4f4e596ace60837d1ffd9c6bbd0483bbb5f6bb7a8adf774ca",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLogControlBarComponent_Label3_i",
+      "traitKind": "method",
+      "methodIndex": 42183,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "0822d2134069d78049ab7efa1f3e62ccac6a3dea74c0d08d59b347ae2cd5ffa6",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 42174,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "8733feff18b6b6c8e6235be15950513c2919a2ad7385df0a994c1934b078b8e5",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

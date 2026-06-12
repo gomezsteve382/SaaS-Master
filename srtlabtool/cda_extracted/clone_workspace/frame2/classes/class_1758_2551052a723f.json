@@ -1,0 +1,86 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1758,
+  "className": "PrivateNs.AddElementMemento",
+  "classNameNormalized": "PrivateNs.AddElementMemento",
+  "superName": "PrivateNs.BaseMemento",
+  "superNameNormalized": "PrivateNs.BaseMemento",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.edit.IMemento"
+  ],
+  "iinitMethod": 33913,
+  "cinitMethod": 33911,
+  "iinitBytecode": {
+    "codeLength": 26,
+    "codeSha256": "39102ecd67910cde7b25215a0de927e96cb616fbaac6c0709b0a1c8d71bcf837",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 33915,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "9db73f2e114ff79a9bd2f864da16cc05c94e4fdcb228fd1bcac044d3f06b959e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 33914,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "cb1aae199ad311632de5275797705436e08355eaef6fa812df7990bf88053ee6",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "perform",
+      "traitKind": "method",
+      "methodIndex": 33912,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.elements.FlowElement",
+        "flashx.textLayout.elements.FlowGroupElement",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "e6c2346e9ffd958c1d3d52d92b906f74b4688f1d299c35439a1df433b39a78bc",
+        "bytecodeLineCount": 6
+      }
+    }
+  ]
+}

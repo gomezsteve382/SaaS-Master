@@ -1,0 +1,357 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 575,
+  "className": "spark.effects.AnimateTransform",
+  "classNameNormalized": "spark.effects.AnimateTransform",
+  "superName": "spark.effects.Animate",
+  "superNameNormalized": "spark.effects.Animate",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 11090,
+  "cinitMethod": 11089,
+  "iinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "4f6cf6521ec73940858b04711b44e8757c9ae25997397e58f900ec072973f7c9",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 319,
+    "codeSha256": "0841ff107e013dbc0d515d60b88ec16e60b46b91a2340dac77c6212812164ee0",
+    "bytecodeLineCount": 20
+  },
+  "instanceMembers": [
+    {
+      "traitName": "applyChangesPostLayout",
+      "traitKind": "getter",
+      "methodIndex": 11091,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "13cf0a9faf67f87748720cd5d5fee040a2549c8d0cb8949e8903797563da59a7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "applyChangesPostLayout",
+      "traitKind": "setter",
+      "methodIndex": 11092,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f9e2c5e1f71216f176ac548dfe5af0353d59147c02eace4ddcdf6a848ab2b911",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "createInstance",
+      "traitKind": "method",
+      "methodIndex": 11094,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.effects.IEffectInstance",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "89d1061d20f3e813be37bd66a33fb73525d4b57835d7a8bc0b1e9147b7b18de0",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "getAffectedProperties",
+      "traitKind": "method",
+      "methodIndex": 11102,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f6a076b1ed3fc07bd6cc42243d1679690352eefd3358b35f534094ac12468a79",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.addMotionPath",
+      "traitKind": "method",
+      "methodIndex": 11105,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 309,
+      "bytecode": {
+        "codeLength": 309,
+        "codeSha256": "d41397aed9ebd0b73b6f95258ce694c1ed59ee41d2a07f779c7c9e85c05a252d",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.applyEndValues",
+      "traitKind": "method",
+      "methodIndex": 11100,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "55009702b923539c50c44fcb6da5b4933214bd4583a82fd31522c3a30002bf12",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.applyStartValues",
+      "traitKind": "method",
+      "methodIndex": 11099,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "fa01d787f6b09fe67f793c505f33fa3a24ec9fb2553e043e2c86a528d7abbc97",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.captureValues",
+      "traitKind": "method",
+      "methodIndex": 11096,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Boolean",
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 569,
+      "bytecode": {
+        "codeLength": 569,
+        "codeSha256": "97c7ad62b95ba89f2e2b8620d491cc265a87c71200332293eb4e1d9d8aea7d1e",
+        "bytecodeLineCount": 36
+      }
+    },
+    {
+      "traitName": "PrivateNs.applyValues",
+      "traitKind": "method",
+      "methodIndex": 11098,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1763,
+      "bytecode": {
+        "codeLength": 1763,
+        "codeSha256": "8ec3fa3dd35303f606e20daeae09a6ad68d7ab3fcaa00b479a83bcd1c1eed558",
+        "bytecodeLineCount": 111
+      }
+    },
+    {
+      "traitName": "PrivateNs.computeTransformCenterForTarget",
+      "traitKind": "method",
+      "methodIndex": 11097,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "flash.geom.Vector3D",
+      "hasBody": true,
+      "codeLength": 244,
+      "bytecode": {
+        "codeLength": 244,
+        "codeSha256": "73bd23ccfa102cdea58e3ec3f458a83c43b5cb7ddfa849dd51b2bcfd23941825",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.getGlobalStartTime",
+      "traitKind": "method",
+      "methodIndex": 11109,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 186,
+      "bytecode": {
+        "codeLength": 186,
+        "codeSha256": "5310d366463ee091dd6110dd635936b8bded8380dfc17cc14141329a6eb8395b",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.getOwningParallelEffect",
+      "traitKind": "method",
+      "methodIndex": 11093,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.effects.Parallel",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "29417f64223e244564117b3213d9aabd58e506751ab4c39a091acc59c221f073",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.insertKeyframe",
+      "traitKind": "method",
+      "methodIndex": 11104,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<spark.effects.animation.Keyframe>",
+        "spark.effects.animation.Keyframe"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "c205cbffc625876d7db513a177420ec1b06b868acbcc45325418aa47ab10d32c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.isValidValue",
+      "traitKind": "method",
+      "methodIndex": 11106,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "93f3bb5ec5d76b09019597cbe215d826e3a8e87e89dbacf469f7e72d18619f5a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.postLayoutTransformPropertiesSet",
+      "traitKind": "getter",
+      "methodIndex": 11107,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "1d855b74beaafe9bfe2cdfb6a5d32ea36356593c5e1822604f7fb8e80242c03a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "relevantStyles",
+      "traitKind": "getter",
+      "methodIndex": 11103,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4fec9cdff54736eb6567440c28745e1f3851147a4c83e2ddd0a7f737e9032909",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.effects:AnimateTransform.applyValueToTarget",
+      "traitKind": "method",
+      "methodIndex": 11101,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "*",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 244,
+      "bytecode": {
+        "codeLength": 244,
+        "codeSha256": "7b5efecfb313ed536ddcc68b5ed02e9b00be179c80a86da979e3dba11f0000d5",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "spark.effects:AnimateTransform.effectStartHandler",
+      "traitKind": "method",
+      "methodIndex": 11095,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "b1e5025f083c596653b4464c950d140c588f45b7478db83ba2bf21af14538579",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.effects:AnimateTransform.initInstance",
+      "traitKind": "method",
+      "methodIndex": 11108,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.IEffectInstance"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 595,
+      "bytecode": {
+        "codeLength": 595,
+        "codeSha256": "809299db1617e0f7f786dfa7d64fee4358ac61e2affa7cd4429c8cc537bf9e36",
+        "bytecodeLineCount": 38
+      }
+    }
+  ],
+  "staticMembers": []
+}

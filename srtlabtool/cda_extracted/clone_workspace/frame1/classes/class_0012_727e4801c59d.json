@@ -1,0 +1,280 @@
+{
+  "frame": "frame1",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 12,
+  "className": "mx.utils.LoaderUtil",
+  "classNameNormalized": "mx.utils.LoaderUtil",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 353,
+  "cinitMethod": 338,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 48,
+    "codeSha256": "c02af987f72c4e205afcba2bb54f1653f4faf7c919fabfbc024e9186e55a0fa2",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "createAbsoluteURL",
+      "traitKind": "method",
+      "methodIndex": 340,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 280,
+      "bytecode": {
+        "codeLength": 280,
+        "codeSha256": "49e7d74c6ec591f53bd44fdd9e884c3a840f565dce517b321fd385092255536e",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.isLocal",
+      "traitKind": "method",
+      "methodIndex": 342,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "91d190429d3d85ae85283082fdf07c0ac01b6e7306ba75c71946f89e1e876ee5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.OSToPlayerURI",
+      "traitKind": "method",
+      "methodIndex": 343,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 261,
+      "bytecode": {
+        "codeLength": 261,
+        "codeSha256": "ce547fd11a1273c381c9c4f681fcf2b7d92919162209cc96df8dc2bc12389736",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.processRequiredRSLs",
+      "traitKind": "method",
+      "methodIndex": 341,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory",
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 446,
+      "bytecode": {
+        "codeLength": 446,
+        "codeSha256": "fa75f3c0092dd932eded7e9f6d4b018c423c07c53de9709b7cc458e2f678328d",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "normalizeURL",
+      "traitKind": "method",
+      "methodIndex": 339,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.LoaderInfo"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "74aa9bf73b22f0e43ec1bc10743bb0fba136505892e9c54260ee65040bfe1525",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.dynamicURLFilter",
+      "traitKind": "method",
+      "methodIndex": 351,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "864ecdf07ac06a52b01b1bf6a59cb463815e27b9dc708b5a23712fc4e0fd19bf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.getParentModuleFactory",
+      "traitKind": "method",
+      "methodIndex": 344,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "mx.core.IFlexModuleFactory",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "c9e2bad72a9a3e5f49ad622c4a4a93601abc9c36651d7c2bc26a181a0dfeb77e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.hasPlaceholderRSL",
+      "traitKind": "method",
+      "methodIndex": 347,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 122,
+      "bytecode": {
+        "codeLength": 122,
+        "codeSha256": "a701c5fba20427f63461a1699d73f6cb31c14e0aed75ec5ce9ce4dcbc66405df",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.importURLFilter",
+      "traitKind": "method",
+      "methodIndex": 352,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "628a716a24dbe5de686012f5a103ff9568a78a2e1216a3ace50f8aea90376d3f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.isLoadedIntoTopLevelApplicationDomain",
+      "traitKind": "method",
+      "methodIndex": 348,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "db70003b0e06cb164ded350da788acde6b101067eba61ae7d3cfd4407400fdf2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.isMac",
+      "traitKind": "method",
+      "methodIndex": 350,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "11fbe5f752e3f58e9ea25e59d1e75d0cccba6c425a2d134a44794d348d297a7a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.isRSLLoaded",
+      "traitKind": "method",
+      "methodIndex": 346,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 104,
+      "bytecode": {
+        "codeLength": 104,
+        "codeSha256": "3e4fe39a0355f75aa44d68bccecbc0d325083c1ebdf0067036b43b4ffda91240",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.resolveApplicationDomainTarget",
+      "traitKind": "method",
+      "methodIndex": 345,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "mx.core.IFlexModuleFactory",
+        "mx.core.IFlexModuleFactory",
+        "mx.core.IFlexModuleFactory",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 188,
+      "bytecode": {
+        "codeLength": 188,
+        "codeSha256": "528fe47e824c04a84edeea84aa7f380e62b6c1412eb8b3eef8195332f2443da9",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateRSLModuleFactory",
+      "traitKind": "method",
+      "methodIndex": 349,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "70580760c984ab725d1f9d4acfdd954bb9a1262bb3268291752be83c2eaa1754",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

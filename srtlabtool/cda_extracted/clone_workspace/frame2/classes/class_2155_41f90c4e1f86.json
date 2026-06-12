@@ -1,0 +1,96 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2155,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.unlock.DoEcuUnlockMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.unlock.DoEcuUnlockMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 39053,
+  "cinitMethod": 39052,
+  "iinitBytecode": {
+    "codeLength": 30,
+    "codeSha256": "bd7ffbd217d4af0f3df817806f4801790485f6f26ae08471f65b2164c7b0f64a",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "04241bdb1c69a6c0ef94d511b74780d7debb7f94d67efeb7064c57af8adf4bee",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 39056,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "55c14da7bb6a0926f4b86827a2f9150dedd0b90ed135813235a2137a8d6546ae",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 39057,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "104085e33da19a6735f1683c43c4986030a69cf61d5647af72a60d4f0e3d5f60",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unlockId",
+      "traitKind": "getter",
+      "methodIndex": 39054,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "29ae94731370c42f61ee4072c14cda40e583e039817036e15d02dfdbae50d16a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unlockId",
+      "traitKind": "setter",
+      "methodIndex": 39055,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "60d8375fc49a98db29ab28e7809a4428dfa7f7d26760bb89c93ad54970ed237f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

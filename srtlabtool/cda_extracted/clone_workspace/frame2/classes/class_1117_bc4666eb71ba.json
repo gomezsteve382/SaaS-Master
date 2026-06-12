@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1117,
+  "className": "com.chrysler.cda.application.state.RoleStateCommand",
+  "classNameNormalized": "com.chrysler.cda.application.state.RoleStateCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 24288,
+  "cinitMethod": 24284,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "ea568b7fb0af8941c52d1aee60772da9654d6404025d163778692094fd691931",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "SetRoleStateCommand",
+      "traitKind": "method",
+      "methodIndex": 24285,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.RoleStateMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "42203324f57fc5932dcdc8e58b4c0d3c493141bbacf1eb0b4d03fb2e8552fc88",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "SetRoleStateCommandKO",
+      "traitKind": "method",
+      "methodIndex": 24287,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.RoleStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "7c685e2840e7098f77036f77f03f1750236cc9610b54dca8cd1b8e2765272c8a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "SetRoleStateCommandOK",
+      "traitKind": "method",
+      "methodIndex": 24286,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.RoleStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "546898e11961e5bf559eac80f4cdacc86b1c2155b7eee2586c21e16f2896328b",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,181 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 597,
+  "className": "mx.binding.Watcher",
+  "classNameNormalized": "mx.binding.Watcher",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 11467,
+  "cinitMethod": 11466,
+  "iinitBytecode": {
+    "codeLength": 11,
+    "codeSha256": "1f18934e4d49ef9dec71fbeb8d13b67b11d61e1101ffd4481d8da536cb0de1be",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addChild",
+      "traitKind": "method",
+      "methodIndex": 11469,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.Watcher"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "3ec7b66ce534c18721bce9ba340f4481ab642863334fdb8a6a46b45a6362ee0f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.binding:Watcher.deepClone",
+      "traitKind": "method",
+      "methodIndex": 11474,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "mx.binding.Watcher",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "bf1d962f23029029c0f72d9d6669b93853aae214cf1935da8604080a27d2de73",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "mx.binding:Watcher.shallowClone",
+      "traitKind": "method",
+      "methodIndex": 11475,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.binding.Watcher",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "94e189995fffc479ed19efaa493557c7e18a2737c6dd2d7489a925ff54fabc00",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.binding:Watcher.wrapUpdate",
+      "traitKind": "method",
+      "methodIndex": 11473,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 213,
+      "bytecode": {
+        "codeLength": 213,
+        "codeSha256": "e63b352a5453bb7ae07d9b36c40a342e489eaf5327e285ef8c2a8c0293932178",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "notifyListeners",
+      "traitKind": "method",
+      "methodIndex": 11476,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "9c1d7884eb8ee7e29b0a7628fbafa12982846d280dba647a1260d97d827bbcaf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.valueChanged",
+      "traitKind": "method",
+      "methodIndex": 11472,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "9622bd026f9ce29183ef7f00d24a3b5760eb0b3580375fc088a01db16765e83c",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "removeChildren",
+      "traitKind": "method",
+      "methodIndex": 11470,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "567cb51c49276b0c07ab290ffc22cee17c3b28dd4bd0fa2fb7de79dfccd179ba",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "updateChildren",
+      "traitKind": "method",
+      "methodIndex": 11471,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "7e60ebb13e1dae344a86fd9d995b55c5187bacba845c008a5a4208aace6ef511",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "updateParent",
+      "traitKind": "method",
+      "methodIndex": 11468,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

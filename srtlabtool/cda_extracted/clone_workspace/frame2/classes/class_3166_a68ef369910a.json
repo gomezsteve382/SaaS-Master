@@ -1,0 +1,130 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3166,
+  "className": "com.hurlant.util.Base64",
+  "classNameNormalized": "com.hurlant.util.Base64",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49980,
+  "cinitMethod": 49973,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "6282c8775db6875c3143eed0f9fc87459a302c6131591dd2261bfd555c62a658",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "decode",
+      "traitKind": "method",
+      "methodIndex": 49977,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "5a942a0a11b4e9289ab02277ca97a04a96f57519adc15e955a67ad64d19f4d51",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "decodeToByteArray",
+      "traitKind": "method",
+      "methodIndex": 49975,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 419,
+      "bytecode": {
+        "codeLength": 419,
+        "codeSha256": "d0db4b662c50af907d0c17157e46a0e5522993fb34ab5a33d8f137bc405a2a86",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "encode",
+      "traitKind": "method",
+      "methodIndex": 49976,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "452c0ac89857e4bfec5a9c99360996e5a89e721e006f1c991f0863d25db5c772",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "encodeByteArray",
+      "traitKind": "method",
+      "methodIndex": 49974,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 388,
+      "bytecode": {
+        "codeLength": 388,
+        "codeSha256": "1b1d4dccfbe88f502f8695b961c0c00741fb5f31ea1e86557f8a43fe7a07eed0",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "InitDecodeChar",
+      "traitKind": "method",
+      "methodIndex": 49979,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "__AS3__.vec.Vector<int>",
+      "hasBody": true,
+      "codeLength": 536,
+      "bytecode": {
+        "codeLength": 536,
+        "codeSha256": "1a89ea193aac1605bb8ee982b6cc14b6f9e698686d18f7d137ad918fe5544497",
+        "bytecodeLineCount": 34
+      }
+    },
+    {
+      "traitName": "InitEncoreChar",
+      "traitKind": "method",
+      "methodIndex": 49978,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "__AS3__.vec.Vector<int>",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "8da9ed82f803251054686e1e1d4fd80a77bbc73dc40ac8aa6ff99b2991aa0c4d",
+        "bytecodeLineCount": 4
+      }
+    }
+  ]
+}

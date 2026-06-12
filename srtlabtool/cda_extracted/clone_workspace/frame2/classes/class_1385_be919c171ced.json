@@ -1,0 +1,579 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1385,
+  "className": "spark.skins.spark.TitleWindowCloseButtonSkin",
+  "classNameNormalized": "spark.skins.spark.TitleWindowCloseButtonSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 30287,
+  "cinitMethod": 30286,
+  "iinitBytecode": {
+    "codeLength": 418,
+    "codeSha256": "c5375f6eb52aa2e79e16b20232d505014286e0ba4602183709d7eeaa2b7afec3",
+    "bytecodeLineCount": 27
+  },
+  "cinitBytecode": {
+    "codeLength": 35,
+    "codeSha256": "77584f1f7e003471f105380369080ee2931c201a524294c6a8963426c3143890",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_TitleWindowCloseButtonSkin_SolidColor1",
+      "traitKind": "getter",
+      "methodIndex": 30305,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6e8cd2ba0a41b983fa60d67d7581bb0253368464573036c6786247217ff073c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_TitleWindowCloseButtonSkin_SolidColor1",
+      "traitKind": "setter",
+      "methodIndex": 30306,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "62f770bb00808576c394919d14c0779c33bb550500f0818c409ddb690c0226d1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_TitleWindowCloseButtonSkin_SolidColor2",
+      "traitKind": "getter",
+      "methodIndex": 30307,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c432c88cf02c711a9ad49240b55c02a6c0ed499a22fc548600a38082b5767b0f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_TitleWindowCloseButtonSkin_SolidColor2",
+      "traitKind": "setter",
+      "methodIndex": 30308,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "94aed6e951e2169933bc29ab08c9a5adb6744f6a06527168a543dc510ae7bdd1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_TitleWindowCloseButtonSkin_SolidColorStroke1",
+      "traitKind": "getter",
+      "methodIndex": 30309,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f5777e52a59bf81cb6867801af1d35e70ae9f3f4684f67a5a6234f9dad097159",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_TitleWindowCloseButtonSkin_SolidColorStroke1",
+      "traitKind": "setter",
+      "methodIndex": 30310,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColorStroke"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "40cebaf4c0fcdde059b5e7404c204909fdf9bf421487431b9f3dd01655812a1e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "cbshad",
+      "traitKind": "getter",
+      "methodIndex": 30311,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "aab8736b6400bf2df92e8ce7292a804c19afd3f35d67256770733a868b864b26",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cbshad",
+      "traitKind": "setter",
+      "methodIndex": 30312,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "f3876023077b30d9fefd7615b8be1f2022ef31ed18623d3b41006f39166b415e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "colorizeExclusions",
+      "traitKind": "getter",
+      "methodIndex": 30290,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "edb4c288e25475cfd85f2a43b9329e45b00a8671b0226599cc2a1aa30ee6c71e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dropShadow",
+      "traitKind": "getter",
+      "methodIndex": 30313,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.RectangularDropShadow",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "273107f0934a4191bc93efff2607a00c95d0ab010fce5cec43955254c1ee4e46",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dropShadow",
+      "traitKind": "setter",
+      "methodIndex": 30314,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.RectangularDropShadow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "35c75f806ca11b102b0f6d8f827c4f637f682af46b175bbba1aaeb8ba59e8000",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 30321,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "911d9603d81fe64ec730ba6f4721e165ee9b55d5caceac8970d7488ac906daf6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 30322,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "241573901f3314973c619bb4610549babb7d376855c6ba7a5552dbb5a73354e7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 30289,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 30288,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "8f6755808ab21502b46a4c051dc07b696111da745f7c45448473bb9feb9ceaf7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_Group1_i",
+      "traitKind": "method",
+      "methodIndex": 30298,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "42273c828b0c733de898b99d39e44ef8e5b075fca2cb2cfca59172830037d353",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_Path1_c",
+      "traitKind": "method",
+      "methodIndex": 30299,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "d0832c8d19c0082f8f6b3332606e8f3423fd38af73229d8270c9df87fc4dd98a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_Path2_c",
+      "traitKind": "method",
+      "methodIndex": 30301,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "b2c1b0f051ba4da46cef53e89556824ad80509534b705ae4532f78d5be61689d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_Path3_c",
+      "traitKind": "method",
+      "methodIndex": 30303,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "b904ec7fc256f9cb26b99673de6fc1e56c497884b7ebe2a616eead9ed441d73d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_Rect1_c",
+      "traitKind": "method",
+      "methodIndex": 30293,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "9eaa1914fad3b3a18f4ae4ac20b9e6757cd0a4187255310b09c8d8300ee24776",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_Rect2_i",
+      "traitKind": "method",
+      "methodIndex": 30296,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "168b739e2e88608bdf0840ada6086e4109a1f6b21808533fc7d5eaa058396d11",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_RectangularDropShadow1_i",
+      "traitKind": "method",
+      "methodIndex": 30292,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.RectangularDropShadow",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "b1c214dd5cf8def5201ee02ba786d81c8c1db7f521c097adb686c5a29a42c47d",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_SolidColor1_i",
+      "traitKind": "method",
+      "methodIndex": 30295,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "d75ca28c37d0d560aeb3b62c8f88c7f6345e4101792281bdb2da3e72b592b23e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_SolidColor2_i",
+      "traitKind": "method",
+      "methodIndex": 30297,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "8cd0519331bba84ab380ea0ccf8ea2917a5ef0a4f06f348a965e5f212ccd5078",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_SolidColor3_i",
+      "traitKind": "method",
+      "methodIndex": 30300,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "08f060da3acbeb64efa9912b7c895c12dd8ebd0375b901a16c1ab3e41f26a33c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_SolidColor4_i",
+      "traitKind": "method",
+      "methodIndex": 30302,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "a0c1506f054922ece7583ee8778d6560f7e16672f4c4f4eec1740eb63152a908",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_SolidColor5_c",
+      "traitKind": "method",
+      "methodIndex": 30304,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "b587436872524703bbdc3c3c6914c24a86fbd808e2114fd4bdc30675df3a4363",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._TitleWindowCloseButtonSkin_SolidColorStroke1_i",
+      "traitKind": "method",
+      "methodIndex": 30294,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "74f04174442d245862b6199fe1f09e8cc4b9233c54cc79ae025efa001fa5f98b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "symbolItems",
+      "traitKind": "getter",
+      "methodIndex": 30291,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7662aa466cfdb081f18b14fea3a738315f25a55c602f339db572b2bcd9392066",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xFill1",
+      "traitKind": "getter",
+      "methodIndex": 30315,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b7333d29d3ff6698ba9944616ed307cbe91cd440a262687739e7021560cf5e2d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xFill1",
+      "traitKind": "setter",
+      "methodIndex": 30316,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "6e03a6cc82097c8b7d3397dfe3c9e2105adba1994787ad25c402d65b28e094cf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "xFill2",
+      "traitKind": "getter",
+      "methodIndex": 30317,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c3a21ffd5061c7380e9f909045853ebcf1b4c32895efb84a4fa95cde67571d4a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xFill2",
+      "traitKind": "setter",
+      "methodIndex": 30318,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "e46bd7a6315f4169c8e3e616c550c32e8d086d276b2508a09d12f4f396936a32",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "xSymbol",
+      "traitKind": "getter",
+      "methodIndex": 30319,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a8f031fcdcb8039f61a5ec7c26401c9ad4241aba8e36c93bf047dcbf61b5ab90",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xSymbol",
+      "traitKind": "setter",
+      "methodIndex": 30320,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "04f9299a0b38c97e03a33e29bcef3b2c28a5286864f84f29ca9b6c9776bf9522",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

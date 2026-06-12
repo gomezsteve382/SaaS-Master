@@ -1,0 +1,139 @@
+# AVM2 Class/Method Map (frame2.abc)
+
+- ABC file: `C:\Users\gomez\Documents\Codex\2026-05-20\files-mentioned-by-the-user-srt\cda_extracted\assets\doabc\tag_0367_frame2.abc`
+- ABC bytes: 7228987
+- Version: 46.16
+- Parsed bytes: 7228987
+- Trailing bytes: 0
+
+## Counts
+- Methods: 56982
+- Methods with body: 54418
+- Instances/classes: 3902
+- Scripts: 3721
+- Metadata entries: 1191
+
+## Top Namespaces
+- com.chrysler.cda: 1140
+- org.spicefactory.parsley: 360
+- spark.skins.spark: 117
+- org.spicefactory.lib: 68
+- com.chrysler.core: 63
+- com.hurlant.crypto: 57
+- com.chrysler.skins: 35
+- flashx.textLayout.elements: 29
+- flashx.textLayout.formats: 28
+- spark.components.supportClasses: 28
+- com.diagnosticProcedures.node: 27
+- flashx.textLayout.operations: 27
+- memorphic.xpath.model: 24
+- flashx.textLayout.conversion: 23
+- mx.rpc.xml: 22
+- com.diagnosticProcedures.logging: 21
+- flashx.textLayout.edit: 21
+- com.diagnosticProcedures.view: 20
+- spark.components.gridClasses: 20
+- mx.rpc.soap: 19
+- mx.graphics.shaderClasses: 18
+- mx.skins.spark: 18
+- wde.common.services: 18
+- mx.controls.listClasses: 17
+- com.hurlant.util: 16
+- flashx.textLayout.compose: 16
+- flashx.textLayout.property: 16
+- mx.controls.advancedDataGridClasses: 16
+- mx.messaging.messages: 14
+- flashx.textLayout.events: 13
+- mx.effects.effectClasses: 12
+- mx.skins.halo: 12
+- com.chrysler.skin: 11
+- mx.rpc.wsdl: 11
+- com.diagnosticProcedures.util: 10
+- mx.containers.utilityClasses: 10
+- com.diagnosticProcedures.event: 9
+- mx.controls.dataGridClasses: 9
+- com.dcctools.witech: 8
+- com.diagnosticProcedures.assets: 8
+
+## Domain Buckets
+- other: 2650
+- diagnostic: 614
+- flash: 205
+- proxi: 148
+- buslog: 91
+- tracer: 68
+- ecu: 60
+- sync: 43
+- dtc: 10
+- unlock: 8
+- auth: 5
+
+## Largest Method Bodies
+- #47038 __cinit__ -> 54679 bytes (1 refs)
+- #1200 http://www.adobe.com/2006/flex/mx/internal._CDA_StylesInit -> 27946 bytes (1 refs)
+- #1371 init -> 19516 bytes (1 refs)
+- #56540 __iinit__ -> 15842 bytes (1 refs)
+- #1244 en_US$keys_properties.getContent -> 14854 bytes (1 refs)
+- #1250 zh_CN$keys_properties.getContent -> 12826 bytes (1 refs)
+- #1247 pt_BR$keys_properties.getContent -> 12825 bytes (1 refs)
+- #44579 setup -> 6521 bytes (1 refs)
+- #5956 PrivateNs.setAllStatesTo -> 5184 bytes (1 refs)
+- #41264 setup -> 5133 bytes (1 refs)
+- #12810 __cinit__ -> 4717 bytes (1 refs)
+- #33563 setup -> 4407 bytes (1 refs)
+- #39244 setup -> 4154 bytes (1 refs)
+- #42389 setup -> 4109 bytes (1 refs)
+- #28063 setup -> 4015 bytes (1 refs)
+- #11696 mitigateRequest -> 4000 bytes (1 refs)
+- #41778 setup -> 3951 bytes (1 refs)
+- #29432 expandItem -> 3787 bytes (1 refs)
+- #40749 setup -> 3554 bytes (1 refs)
+- #43626 setup -> 3501 bytes (1 refs)
+- #21002 mx.controls.listClasses:ListBase.collectionChangeHandler -> 3278 bytes (1 refs)
+- #50098 __cinit__ -> 3229 bytes (1 refs)
+- #41052 setup -> 3218 bytes (1 refs)
+- #5184 PrivateNs._parsleyConfig_bindingsSetup -> 3150 bytes (1 refs)
+- #26577 PrivateNs._RawDiagnosticsImplementation_bindingsSetup -> 3133 bytes (1 refs)
+- #39794 setup -> 2972 bytes (1 refs)
+- #33508 setup -> 2965 bytes (1 refs)
+- #29068 mx.controls.listClasses:AdvancedListBase.collectionChangeHandler -> 2946 bytes (1 refs)
+- #21171 PrivateNs.calculateColumnSizes -> 2863 bytes (1 refs)
+- #55614 PrivateNs.registerMarshallers -> 2853 bytes (1 refs)
+- #37600 setup -> 2851 bytes (1 refs)
+- #5962 PrivateNs.setNotConnectedState -> 2831 bytes (1 refs)
+- #46485 __iinit__ -> 2765 bytes (1 refs)
+- #28998 mx.controls.listClasses:AdvancedListBase.scrollVertically -> 2748 bytes (1 refs)
+- #43928 setup -> 2746 bytes (1 refs)
+- #37789 setup -> 2729 bytes (1 refs)
+- #46099 __iinit__ -> 2723 bytes (1 refs)
+- #46249 __iinit__ -> 2723 bytes (1 refs)
+- #54036 hashBinary -> 2704 bytes (1 refs)
+- #7274 __iinit__ -> 2662 bytes (1 refs)
+
+## High-Value Class Samples
+- parsleyConfig: 635 instance members, 1 static members
+- mx.core.UIComponent: 440 instance members, 3 static members
+- flashx.textLayout.container.ContainerController: 302 instance members, 5 static members
+- mx.controls.listClasses.ListBase: 256 instance members, 0 static members
+- mx.controls.listClasses.AdvancedListBase: 231 instance members, 0 static members
+- flashx.textLayout.elements.FlowElement: 201 instance members, 1 static members
+- mx.controls.AdvancedDataGrid: 198 instance members, 0 static members
+- spark.primitives.supportClasses.GraphicElement: 187 instance members, 0 static members
+- com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLite: 173 instance members, 2 static members
+- spark.components.DataGrid: 163 instance members, 3 static members
+- mx.controls.AdvancedDataGridBaseEx: 163 instance members, 0 static members
+- com.chrysler.cda.presentation.component.proxi.ProxiViewImplementation: 161 instance members, 1 static members
+- com.chrysler.cda.presentation.license.LicenseVerification: 159 instance members, 1 static members
+- com.chrysler.cda.presentation.component.diagnostic.EcuDiagnostics: 155 instance members, 2 static members
+- mx.core.Container: 155 instance members, 1 static members
+- com.chrysler.cda.presentation.component.rawdiagnostics.presentation.RawDiagnosticsImplementation: 146 instance members, 1 static members
+- flashx.textLayout.formats.TextLayoutFormat: 141 instance members, 6 static members
+- spark.components.Grid: 146 instance members, 0 static members
+- com.chrysler.skin.white.WindowSkin: 130 instance members, 1 static members
+- mx.core.UIFTETextField: 122 instance members, 1 static members
+- mx.core.UITextField: 121 instance members, 1 static members
+- com.chrysler.cda.presentation.component.diagnostic.vehicleWideDTCs.VehicleWideDTC: 117 instance members, 3 static members
+- mx.core.FTETextField: 114 instance members, 6 static members
+- com.chrysler.cda.presentation.component.diagnostic.ecu.calibration.ReadCalibrationImpl: 114 instance members, 4 static members
+- mx.controls.DataGrid: 116 instance members, 0 static members
+

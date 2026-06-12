@@ -1,0 +1,77 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2274,
+  "className": "com.chrysler.cda.event.message.state.StartTesterPresentMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.state.StartTesterPresentMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 40563,
+  "cinitMethod": 40559,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "f9443ab28f75b5209e9927a00c39382e96742f5b432016f36b8d4edd9a85137a",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "callback",
+      "traitKind": "getter",
+      "methodIndex": 40562,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "97a7c608b6ed9c26b14198609a9a8d07d264f68dfd8cae77989098008886a05f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecu",
+      "traitKind": "getter",
+      "methodIndex": 40560,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "68a82080a31b932d1794d66e7d4356ae35e5068d7d103c13293e78b0636eac2a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "tpm",
+      "traitKind": "getter",
+      "methodIndex": 40561,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecu.TesterPresentModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "18a8670bccd6fdf5bf12a76aa74ae983602a52c8af248898ee82a889639c49b6",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

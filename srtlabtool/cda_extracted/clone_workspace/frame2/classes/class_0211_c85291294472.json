@@ -1,0 +1,198 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 211,
+  "className": "com.chrysler.cda.presentation.Watermark",
+  "classNameNormalized": "com.chrysler.cda.presentation.Watermark",
+  "superName": "spark.components.RichEditableText",
+  "superNameNormalized": "spark.components.RichEditableText",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 4281,
+  "cinitMethod": 4280,
+  "iinitBytecode": {
+    "codeLength": 144,
+    "codeSha256": "1c2b9484a8a6b72606cdc3a67a5e7bca699aec51dff5aac6cf8242ec3473def8",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___Watermark_RichEditableText1_rollOut",
+      "traitKind": "method",
+      "methodIndex": 4291,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b07f7a1fb1c7fe960dc5508af174c7ffc07e5d8f2542866c88878658250f9a62",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___Watermark_RichEditableText1_rollOver",
+      "traitKind": "method",
+      "methodIndex": 4290,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "535606e4f4d20cb4886b559977a03c8e73b97800cfab620e3242e39ff9730e45",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 4283,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 4282,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4eef8b1760e54677bc912a3737578b89bc4478b2b176285f40e9385d8a1abd8a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onMouseOut",
+      "traitKind": "method",
+      "methodIndex": 4289,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "ebc0144f1b5197d5b11f1576f03d221d47d8ad1b45b98b1c69bc7b9fe41b39bb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onMouseOver",
+      "traitKind": "method",
+      "methodIndex": 4288,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "966c6e425b7a702a9f8d5673d4f68e589c56612c1f33416288a1a4f6bc4bd8e0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "shiftDownY",
+      "traitKind": "getter",
+      "methodIndex": 4287,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bcf00e04ebc4ba51b28d3af1aee8a883c4f11f8178d0129556b6fe587c871f6d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "shiftDownY",
+      "traitKind": "setter",
+      "methodIndex": 4286,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "20c5eb3d11e56f950bae7d74489155d816ca3d434f028a4559eaa71d1c87c509",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "shiftUpY",
+      "traitKind": "getter",
+      "methodIndex": 4285,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0eca0cb432c6de5f9356f990848b2f54863d64d42069e4f6fa1e801b7104f036",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "shiftUpY",
+      "traitKind": "setter",
+      "methodIndex": 4284,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7757e8a3c9848e156cdb7551880c61b5be7aed842e5e8bae516b53983190a644",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

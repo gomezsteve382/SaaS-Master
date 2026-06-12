@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3899,
+  "className": "com.hurlant.crypto.symmetric.SSLPad",
+  "classNameNormalized": "com.hurlant.crypto.symmetric.SSLPad",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.symmetric.IPad"
+  ],
+  "iinitMethod": 56963,
+  "cinitMethod": 56962,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "0db04fef15dba9e696325d1050935bbdfd761ece98f918649dd49338e78deef1",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "pad",
+      "traitKind": "method",
+      "methodIndex": 56964,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c63c5ff83e22a607c224ed7b20dd0cb0119daec2c3bec1deb40e8f649e5c96bb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setBlockSize",
+      "traitKind": "method",
+      "methodIndex": 56966,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "707fc2870e1d0ac516bd4e6ac2429369388be7fe00972fbc397576a9bd0a5b91",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unpad",
+      "traitKind": "method",
+      "methodIndex": 56965,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 132,
+      "bytecode": {
+        "codeLength": 132,
+        "codeSha256": "91e565ae31ba3760520ac3af905104f5e6cf7984be04cbfae0ac2acf638ef7b0",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": []
+}

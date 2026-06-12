@@ -1,0 +1,287 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 605,
+  "className": "spark.components.supportClasses.LabelAndIconLayout",
+  "classNameNormalized": "spark.components.supportClasses.LabelAndIconLayout",
+  "superName": "spark.layouts.supportClasses.LayoutBase",
+  "superNameNormalized": "spark.layouts.supportClasses.LayoutBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 11569,
+  "cinitMethod": 11568,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "gap",
+      "traitKind": "getter",
+      "methodIndex": 11570,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0ac0fd593d52217051976846c9564aab4fc14b352e19aabd60cd5de55f9d0550",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "gap",
+      "traitKind": "setter",
+      "methodIndex": 11571,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "16e848bfb34ff1b081bdb9a776512a861552caec45064e7bc7e9e744d8ede1ce",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "iconPlacement",
+      "traitKind": "getter",
+      "methodIndex": 11572,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7449feceab261decc20ec563aa8682712483c138c5f44ac0195cc429eb985dc4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "iconPlacement",
+      "traitKind": "setter",
+      "methodIndex": 11573,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "b91d08d2bebce638e42791472b2dafcc6151ce82cf27d2447e77d15e4fa2ccf8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "measure",
+      "traitKind": "method",
+      "methodIndex": 11582,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 369,
+      "bytecode": {
+        "codeLength": 369,
+        "codeSha256": "a2da8e793a88fe08732335cfbc4eda6da759e53536172b995349e93821a4ea8e",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "paddingBottom",
+      "traitKind": "getter",
+      "methodIndex": 11580,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b3e76d6b83cf5445abb59a3743c68b9068e45935bba677d66afb13f4c7f51b75",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "paddingBottom",
+      "traitKind": "setter",
+      "methodIndex": 11581,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "eb2d628b857ffe6ef845530bc7af6ed1ed66b9e09fcb5924be5fe5c7b9672d3d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "paddingLeft",
+      "traitKind": "getter",
+      "methodIndex": 11574,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b12f5580a438ef44d219fe79553a1c3ad0d2f39f41654e1dbf2c21d343680687",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "paddingLeft",
+      "traitKind": "setter",
+      "methodIndex": 11575,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "8d3c61026611a357d2ca63132364471d6f10f9ed67ffa985ed53814b122208c5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "paddingRight",
+      "traitKind": "getter",
+      "methodIndex": 11576,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "264c71a82a34c07e31208abe18d0ab6da6fcb036337fcb98e4f076cdda51863f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "paddingRight",
+      "traitKind": "setter",
+      "methodIndex": 11577,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "fe64bc4245cf93954fd7006c60b92218235aec1d5673d9dbc4336b41fd854512",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "paddingTop",
+      "traitKind": "getter",
+      "methodIndex": 11578,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9e2b8debf718ed5a41adbbb8497a6ca9eda59294b1cb6a11c37363e7560ac9e8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "paddingTop",
+      "traitKind": "setter",
+      "methodIndex": 11579,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "f60cb7d72b3d613f9c8618906ba651e774b60d39017dcc424c9647a32d961979",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.assignLayoutElements",
+      "traitKind": "method",
+      "methodIndex": 11585,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "ee37483f79e924ddeb028faef5dd6b1362e20d874052df085a6ff468faacb47c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.invalidateTargetSizeAndDisplayList",
+      "traitKind": "method",
+      "methodIndex": 11584,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "24d95131a00fc39330a557df593476ed21e062a032408e3f8cbc54732d09fcc6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 11583,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 929,
+      "bytecode": {
+        "codeLength": 929,
+        "codeSha256": "baaa7394f80f6cf731ec9254c06c72dc6bcc95f7af4f30a391ecc747d805458c",
+        "bytecodeLineCount": 59
+      }
+    }
+  ],
+  "staticMembers": []
+}

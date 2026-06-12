@@ -1,0 +1,112 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2248,
+  "className": "com.chrysler.cda.event.message.securitygateway.SecurityGatewayMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.securitygateway.SecurityGatewayMessage",
+  "superName": "com.chrysler.cda.event.message.LinkableMessage",
+  "superNameNormalized": "com.chrysler.cda.event.message.LinkableMessage",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 40305,
+  "cinitMethod": 40299,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "4c2d405a3fd8267e95137700e0dcded55f703bf128ce7495bb008d95f2028467",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 36,
+    "codeSha256": "45b27dd7bcb65a5cc8f8f1547c4e6250635c4c0285c5baf6beb9c095a4c7e34d",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "errorMessage",
+      "traitKind": "getter",
+      "methodIndex": 40302,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "4556e0f552c8d40b1ce7513fb9ce4a86911fb23a14e7795434298d2af837a386",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "errorMessage",
+      "traitKind": "setter",
+      "methodIndex": 40301,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "7ab8cd57d52dbe8f5480531d2f9a8e0777963f51ae1905a2ea76d00b818074a6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "statusMessage",
+      "traitKind": "getter",
+      "methodIndex": 40304,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "f9d8f4060a5d046736ece391c8895fa0f6fa329010cf688e70ec433f68b314d2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "statusMessage",
+      "traitKind": "setter",
+      "methodIndex": 40303,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "bdc23a53f04607405d21ef92accdc58e64318129392a18af3b5a6966f4d75ba2",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getUnlockMessage",
+      "traitKind": "method",
+      "methodIndex": 40300,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.securitygateway.SecurityGatewayMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "eccb7989712c14717e4675e59d6113c2fecbccd26260bcac298a728dc85640ea",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

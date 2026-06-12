@@ -1,0 +1,103 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 870,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs.FindDTCSnapshotDataCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.dtcs.FindDTCSnapshotDataCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 17337,
+  "cinitMethod": 17332,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "bc0bb9c240873a6f596823b6406066e5fa32c5c026e97d49f2908735b3a8455b",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application.diagnostic.ecu.dtcs:FindDTCSnapshotDataCommand.worker",
+      "traitKind": "method",
+      "methodIndex": 17336,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "138f49558b799c6a59a522b171aef9909aac2e1cdb912bc42460e389e80f2568",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onFindDTCSnapshotData",
+      "traitKind": "method",
+      "methodIndex": 17333,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCSnapshotDataMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "adcb788493686e3ceb75f55ff63ca89fba44109f4001eb0762eb4909a6ff4e2f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onFindDTCSnapshotDataForScanReport",
+      "traitKind": "method",
+      "methodIndex": 17334,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.report.GetDtcSnapshotDataForScanReportMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "b8742f5951ae7b8c905a8fdb35f53effc75650212fab68cf268d180edd1e72e6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onFindDTCSnapshotDataGenericHandler",
+      "traitKind": "method",
+      "methodIndex": 17335,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCSnapshotDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "76be1ec441c519426f32c3d482c2216540e8429e7db0cac92ceb54a4b5dc287f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

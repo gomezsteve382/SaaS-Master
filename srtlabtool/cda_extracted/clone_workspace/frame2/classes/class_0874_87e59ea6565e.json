@@ -1,0 +1,279 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 874,
+  "className": "com.chrysler.cda.presentation.component.jira.Jira",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.jira.Jira",
+  "superName": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "superNameNormalized": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.infrastructure.IState"
+  ],
+  "iinitMethod": 17362,
+  "cinitMethod": 17358,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 103,
+    "codeSha256": "3ff449a5a5e244ed7e85ee60a052c8aff12c933b91e7d0b3582267e01a400d0e",
+    "bytecodeLineCount": 7
+  },
+  "instanceMembers": [
+    {
+      "traitName": "changeRadioButton",
+      "traitKind": "method",
+      "methodIndex": 17367,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "ba215b6ed79947fad2191621e9f57b379f6aab54a3c45453ed4683508b619cbf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "clearState",
+      "traitKind": "method",
+      "methodIndex": 17363,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "469e2d96d4e55286b6c1720a0671c680d559e9cfbd53d3374cbe8251894de16d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.jira:Jira.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 17374,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "50274157649182aed4c44fee8cf46040cf034e441661255aa510f0ad3ae3f66c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enteringVin",
+      "traitKind": "method",
+      "methodIndex": 17368,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.TextInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "586ba8976f54cbda45818ec866d211dc02f3edacadaba5d8e9602ad7c67ec26e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "establishLayout",
+      "traitKind": "method",
+      "methodIndex": 17369,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "e97133434a9139b52134c45c3a2c6aa729e643090517e569546add6ac7cf7b04",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 17370,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d4d31dea207b3087c62257ab36634ae7bc951f97a5e597a2da8c26138572a942",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 17371,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "8321876a431bf240a619e74b6de0b14574022c9d6e753f50c9fb0c4d6190ede7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBackClick",
+      "traitKind": "method",
+      "methodIndex": 17366,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "8bbc161dc01a13d9663182bb28bd4aa3cbbc89e9d3f4c2fe37533f0bb6046a25",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onCreationComplete",
+      "traitKind": "method",
+      "methodIndex": 17364,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Label"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "c886803440cc69caaa987eb84b1d01d88ce155745174ad185a03ccdf3d7d9e96",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onSubmitClick",
+      "traitKind": "method",
+      "methodIndex": 17365,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "8ceefdf8cf6077029a67f1128bc1adeb3fd837f376e0a9733ad7a1cfb98c595b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 17372,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.jira.JiraPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "6f9dda08811a56f2527e16e6b3f79bdbfde61c8c9d172713c92c2486e2c9daa6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 17373,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.jira.JiraPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "03018135e1865d1615513473615b43cd3c4655f4e6cc65c29e61c8e6b0283a5f",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.jira:Jira.JIRA_NUMBER_PREFIX",
+      "traitKind": "getter",
+      "methodIndex": 17359,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "631ea1aadde2327c6a97381756ebd5ca5a5f7a7932a336e66a23261336ea2170",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.jira:Jira.JIRA_NUMBER_PREFIX",
+      "traitKind": "setter",
+      "methodIndex": 17360,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "261edf432813f623ac9300f9475248a02952307ad4574e6a1d1a8afa49977909",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "staticEventDispatcher",
+      "traitKind": "getter",
+      "methodIndex": 17361,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.IEventDispatcher",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "dff6b05d22fd1baf643e514de78327c98b8654f0e7fee3ec08e789625be08be5",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

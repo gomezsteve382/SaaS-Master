@@ -1,0 +1,192 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2217,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.iocontrol.SendActuatorStateMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.iocontrol.SendActuatorStateMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 39872,
+  "cinitMethod": 39871,
+  "iinitBytecode": {
+    "codeLength": 44,
+    "codeSha256": "bf305d410bae32dfde550949423f6f2903f08a4f801bb1120424f38322351e15",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "actuatorCommand",
+      "traitKind": "getter",
+      "methodIndex": 39881,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "184eab2a89d5e57bd8b0563a13382a551c7ee7ef349b04896295852f399c3080",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "actuatorCommand",
+      "traitKind": "setter",
+      "methodIndex": 39882,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "716fc9d874f1e048ee870e8e02fe3b2c12e555b9f16ca1422de5d07745604bb0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "actuatorId",
+      "traitKind": "getter",
+      "methodIndex": 39877,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b3277499729df1f7604331c8ce6e4d87f66b18de9b4dc98f076ed73fea793db2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "actuatorId",
+      "traitKind": "setter",
+      "methodIndex": 39878,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "4046022c99dd68c94433458386bed188297cdbd32ddbf2a3fd2b4734b6f1cb9c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "getter",
+      "methodIndex": 39873,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7e3785368113eef62c40cb0c040b8788dec6459a92b0e038fed41bc7485f18bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "setter",
+      "methodIndex": 39874,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "2c003a3a5f1630a7a36c0dcccbabb1a1e203c2addb3e70af91c9ac2c7d2b807e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 39875,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "32dc23cde3085d710a763313b9c2939148104a17765e239df9f228c39923f3de",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 39876,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "c981a5b7ba152f35f2644c962b8ce37bdd5a08dbe5fc5e09e41d66dda6b3c8fa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "expiration",
+      "traitKind": "getter",
+      "methodIndex": 39879,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fcc3330239469e0813d9505a8ee468a7c340916c4bd0669ffa01f30c407a1a2a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "expiration",
+      "traitKind": "setter",
+      "methodIndex": 39880,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "d88a67f6a7d693518ace0abff3d489d7acadc28ad7bb481eab7aaf41ba2a4f79",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,454 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3773,
+  "className": "memorphic.xpath.parser.XPathSyntaxTree",
+  "classNameNormalized": "memorphic.xpath.parser.XPathSyntaxTree",
+  "superName": "memorphic.parser.SyntaxTree",
+  "superNameNormalized": "memorphic.parser.SyntaxTree",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56024,
+  "cinitMethod": 56023,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 335,
+    "codeSha256": "47cb563dd4379d4748342f4220d642ccb57e634c03e8a55acffe7a77aed8bb46",
+    "bytecodeLineCount": 21
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getTree",
+      "traitKind": "method",
+      "methodIndex": 56025,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "memorphic.parser.SyntaxTreeItem",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "1cde9e01c0f92f33f955c568381e89a7eb6a711e8b075eba0b3fc0337e24ceaa",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.AbbreviatedAbsoluteLocationPath",
+      "traitKind": "method",
+      "methodIndex": 56034,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "2048d1f765b342b62f2be2975f01290b0a2ac078dc0e859b3b6339d887351dd8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.AbbreviatedAxisSpecifier",
+      "traitKind": "method",
+      "methodIndex": 56037,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "74c2da76b62bb28d29948b9907d030623460eb0173ec59f2d947f45184a0e465",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.AbbreviatedRelativeLocationPath",
+      "traitKind": "method",
+      "methodIndex": 56035,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "4f4775e32cc01014c8653ffff90a9652efebc4cabade29243b561a6a9b2ccdc1",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.AbbreviatedStep",
+      "traitKind": "method",
+      "methodIndex": 56036,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 101,
+      "bytecode": {
+        "codeLength": 101,
+        "codeSha256": "9893402a488ee3bc4c86420e501f0a66d542d222c09d0231625aaf244925a19a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.AbsoluteLocationPath",
+      "traitKind": "method",
+      "methodIndex": 56027,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 149,
+      "bytecode": {
+        "codeLength": 149,
+        "codeSha256": "0b33a91ace39e21078e3e3314f3af9f6d6d825141d913c8d814e294c32a9da07",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.AdditiveExpr",
+      "traitKind": "method",
+      "methodIndex": 56049,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 184,
+      "bytecode": {
+        "codeLength": 184,
+        "codeSha256": "b44c9b7c737f010a8e0e081a783f2415f83a32d00366d6f1c9f70244e10b2a20",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.AndExpr",
+      "traitKind": "method",
+      "methodIndex": 56046,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 163,
+      "bytecode": {
+        "codeLength": 163,
+        "codeSha256": "cc397c8d6d818185cbdef843f91800d3ed3e1c870bd72814f693d122624c251a",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.Argument",
+      "traitKind": "method",
+      "methodIndex": 56041,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "429c1cd4fa5cd7812412f73f9291e5887af8d96bc9189b35d1025a9153b69255",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.AxisSpecifier",
+      "traitKind": "method",
+      "methodIndex": 56030,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 226,
+      "bytecode": {
+        "codeLength": 226,
+        "codeSha256": "041aedfe6abe72d181bfb2b4b11e3bf5abfa0edf63456c35c3c181d722302d5e",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.EqualityExpr",
+      "traitKind": "method",
+      "methodIndex": 56047,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 189,
+      "bytecode": {
+        "codeLength": 189,
+        "codeSha256": "bb881fec2adf1f9c285fa86ee1de7aa86bc7fb2c80a139e181b718136e7a4881",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.Expr",
+      "traitKind": "method",
+      "methodIndex": 56038,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "365f9a48fc767ab1692bec1ac0092e7f2d9f95cdcf27936a9dc7c00a7d931fa9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.FilterExpr",
+      "traitKind": "method",
+      "methodIndex": 56044,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "00aaf44d3866a1ac93d174a9a9b883176cb255c2cecc8cadc9ba31ac1a5e8c6c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.FunctionCall",
+      "traitKind": "method",
+      "methodIndex": 56040,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 257,
+      "bytecode": {
+        "codeLength": 257,
+        "codeSha256": "29f76d7ad34e9ec9f6820507e918738931054cf78c580b3aefee2f0110a3c052",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.LocationPath",
+      "traitKind": "method",
+      "methodIndex": 56026,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "b8d0e5e039ac59473b2e4b38f1a1b1ecc130e2e11ff87822afed691a29a31b04",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.MultiplicativeExpr",
+      "traitKind": "method",
+      "methodIndex": 56050,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 202,
+      "bytecode": {
+        "codeLength": 202,
+        "codeSha256": "4d7f00d58656961c96e421f85773395f2e058d989841f005edf8eca7a3ed04ed",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.NodeTest",
+      "traitKind": "method",
+      "methodIndex": 56031,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 226,
+      "bytecode": {
+        "codeLength": 226,
+        "codeSha256": "1fcf621a22e79c4d44889b9481c10622034877fd4cc92deba6f6a6241fc8aa4e",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.OrExpr",
+      "traitKind": "method",
+      "methodIndex": 56045,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 163,
+      "bytecode": {
+        "codeLength": 163,
+        "codeSha256": "476dfca9f47c3ead24c92d6992563d29ab7ea4d2b67dc8f340cde2c958893f60",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.PathExpr",
+      "traitKind": "method",
+      "methodIndex": 56043,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 242,
+      "bytecode": {
+        "codeLength": 242,
+        "codeSha256": "6f3b6d04f1cdf7acc6c5b97366aba86465f1fecb022a74edd7d435f864ac2ac8",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.Predicate",
+      "traitKind": "method",
+      "methodIndex": 56032,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "c3f3a1c16e24c461e2ab52431ca40eace60a398e2b78bbbe0c8a453659979dc7",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.PredicateExpr",
+      "traitKind": "method",
+      "methodIndex": 56033,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "6488266a3edc3f3a7c05fcc9bd747578068161d3095ba543ad71d1abc1385bb3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.PrimaryExpr",
+      "traitKind": "method",
+      "methodIndex": 56039,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 289,
+      "bytecode": {
+        "codeLength": 289,
+        "codeSha256": "b760da0dd277071130c51bd2303a499301e9bbc3c08dba0f921af6157cbe576d",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.RelationalExpr",
+      "traitKind": "method",
+      "methodIndex": 56048,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "7c06890532e52798c474bea72c5b17679c1e81d745bd8c10ece3af062cced45e",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.RelativeLocationPath",
+      "traitKind": "method",
+      "methodIndex": 56028,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 221,
+      "bytecode": {
+        "codeLength": 221,
+        "codeSha256": "0da479905ad9ace34766717094dfa438b1cf7852b061d7dd1c5d7b07bf1c9dd7",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.Step",
+      "traitKind": "method",
+      "methodIndex": 56029,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "72519814d9455c8c9319c65ffc40b0ed2278d468b0d3600f56a9d07d8159ff22",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.UnaryExpr",
+      "traitKind": "method",
+      "methodIndex": 56051,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 114,
+      "bytecode": {
+        "codeLength": 114,
+        "codeSha256": "2096a0f107bdd66ef4fb4b7f7fccab003ff3f898b0ef882f235c23be35d32245",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "http://memorphic.com/ns/2007/xpath-grammar.UnionExpr",
+      "traitKind": "method",
+      "methodIndex": 56042,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 163,
+      "bytecode": {
+        "codeLength": 163,
+        "codeSha256": "ad5866f935f33f94e09b6c5baf688ac415db2011a56104e455fd41d0e2ee301a",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "memorphic.xpath.parser:XPathSyntaxTree.ruleMatched",
+      "traitKind": "method",
+      "methodIndex": 56052,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.SyntaxTreeItem"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

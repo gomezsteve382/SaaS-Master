@@ -1,0 +1,115 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2122,
+  "className": "com.chrysler.cda.event.message.view.UpdateEcuInContextMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.view.UpdateEcuInContextMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.event.message.view.IUpdateEcuInContextMessage"
+  ],
+  "iinitMethod": 38673,
+  "cinitMethod": 38668,
+  "iinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "4977c8527b82d0db7e38ae0d7a22925edf3434c27f411d42d2c4617693987f62",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "530c10c529c1b3a49b53fa7f230f3c4c0b26e5fca40685a81e92142b7a989dca",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ecu",
+      "traitKind": "getter",
+      "methodIndex": 38671,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "29b48a4072a71e04e909e2fefc2027daa175169088389eb642e212bbe29701de",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecu",
+      "traitKind": "setter",
+      "methodIndex": 38672,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "3c22ec574ee260471086d88db1436b57fa65d2bbadfd8c5e2726063e6da868d6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "getter",
+      "methodIndex": 38674,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "1f32ed8551d38003771f4ac7e60ad143b2ff606745a563cad6af886f61b7e288",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selector",
+      "traitKind": "getter",
+      "methodIndex": 38670,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4524311204dd2fb3f713381d7c4f9394af8c53403c9398bc28648b685b456052",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "factory",
+      "traitKind": "method",
+      "methodIndex": 38669,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.event.message.view.UpdateEcuInContextMessage",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "32a0ec4af850c395b86df60cf4b575886b125f8f3c24621a84a1b070a4b5e72a",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

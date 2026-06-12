@@ -1,0 +1,307 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 684,
+  "className": "PrivateNs.TMContainerController",
+  "classNameNormalized": "PrivateNs.TMContainerController",
+  "superName": "flashx.textLayout.container.ContainerController",
+  "superNameNormalized": "flashx.textLayout.container.ContainerController",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 13407,
+  "cinitMethod": 13406,
+  "iinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "d5f274564624cb25843f9986899ddd9f3257e4f99fd351044cf9a050e8c96e07",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.attachContextMenu",
+      "traitKind": "method",
+      "methodIndex": 13414,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "412f846492c5bd643166c090d376611f9afc0181c1edafc9c7902626be6ede5c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.doUpdateVisibleRectangle",
+      "traitKind": "method",
+      "methodIndex": 13411,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5808b36e8a2e2aff3ab581434d00aeded9314301012b8c52622bbaf844fb1d16",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.getInteractionHandler",
+      "traitKind": "method",
+      "methodIndex": 13413,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.IInteractionEventHandler",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a67b412c41b780ad1861e30775333191760bbc5c99d96dfc08c04d9c13d7189d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.removeContextMenu",
+      "traitKind": "method",
+      "methodIndex": 13415,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "525133421646f3097d62bfacd717f43dd0a9559d510607d7c6f985ac546340cf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "textContainerManager",
+      "traitKind": "getter",
+      "methodIndex": 13408,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.container.TextContainerManager",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a67b412c41b780ad1861e30775333191760bbc5c99d96dfc08c04d9c13d7189d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.addBackgroundShape",
+      "traitKind": "method",
+      "methodIndex": 13419,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Shape"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "795a0713a168235d7553a141d9e9bfb5e1c81fd97d2c3e90eaa56e0bb9ffae92",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.addInlineGraphicElement",
+      "traitKind": "method",
+      "methodIndex": 13423,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObjectContainer",
+        "flash.display.DisplayObject",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "02a7ad4f3e4c356faee49b9f969d26c5e2bbb84f5ca0c2be1e99beafe132e79c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.addSelectionContainer",
+      "traitKind": "method",
+      "methodIndex": 13421,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObjectContainer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "e5a96308fee59ae4e9cfde0e6df70ddda9f839c8b915395c3b66e14422a3c1fb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.addTextLine",
+      "traitKind": "method",
+      "methodIndex": 13417,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextLine",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "a8a40d2b029df9466d69f5303c036fdac69f5195ab5cbc4c2a34beedd2fb19d1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.attachTransparentBackground",
+      "traitKind": "getter",
+      "methodIndex": 13410,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "8bd91b4d6662c2af4743360fdfdadd0ffd59568f99d5771831541eb0e40a633f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.createContextMenu",
+      "traitKind": "method",
+      "methodIndex": 13409,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.ui.ContextMenu",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "9aa19fbba7371464c6a440abccc096349e2c947bc877087e352fc6d83e0745dc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.getFirstTextLineChildIndex",
+      "traitKind": "method",
+      "methodIndex": 13416,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "e0f0ec55b2e98cfe4285cb21170964c65a0ad192a01e6a0091648fc2274ff3f5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.removeBackgroundShape",
+      "traitKind": "method",
+      "methodIndex": 13420,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Shape"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "1e7036a0c24a78317ed7df754e877c7d45342648bad8aaf47029c57d6af87eba",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.removeInlineGraphicElement",
+      "traitKind": "method",
+      "methodIndex": 13424,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObjectContainer",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "8ce8afa4fbc14ac07e6b523b0e138445cf679a63c487e82be2d1b21111a0a647",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.removeSelectionContainer",
+      "traitKind": "method",
+      "methodIndex": 13422,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObjectContainer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "0b603cc2a12e91c702315f120f07a3dfd8ee5c640cf11813ba62d533babae8d7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.removeTextLine",
+      "traitKind": "method",
+      "methodIndex": 13418,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextLine"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "8b693248d3761ce35ac2da07f93fa86814b9329283f92e5a93b237811ef3d501",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "TextContainerManager.as$227:TMContainerController.updateVisibleRectangle",
+      "traitKind": "method",
+      "methodIndex": 13412,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 118,
+      "bytecode": {
+        "codeLength": 118,
+        "codeSha256": "5e970c0fa25a99ae9e6cef6a5ee539899a091fa39f5633f9cb7e0f6578ee1f4e",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

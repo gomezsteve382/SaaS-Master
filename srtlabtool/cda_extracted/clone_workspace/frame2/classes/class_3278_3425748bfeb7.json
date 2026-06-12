@@ -1,0 +1,232 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3278,
+  "className": "org.spicefactory.parsley.core.context.impl.InitializerSequence",
+  "classNameNormalized": "org.spicefactory.parsley.core.context.impl.InitializerSequence",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 50820,
+  "cinitMethod": 50819,
+  "iinitBytecode": {
+    "codeLength": 34,
+    "codeSha256": "ffbb591e9b372b1fd0f86ca16004ab42ce6d68a9fbcc3655bd49f29dc75c443c",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "448cad62754b1b0b242ec8aeb453b8c0319f065ef037c2bdf1dcb247a2d4a45e",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addDefinition",
+      "traitKind": "method",
+      "methodIndex": 50821,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "6f9b72a883dcc6c3fda9632a4b3e42b4b2fdd73a43635387c5ef15d68b4660e0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "addInstance",
+      "traitKind": "method",
+      "methodIndex": 50827,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.lifecycle.ManagedObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "781e0c8e91c2c40ddc5afe979800ed09408206f6d0f1a3c40351ae8f6d90ca75",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "cancel",
+      "traitKind": "method",
+      "methodIndex": 50824,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 148,
+      "bytecode": {
+        "codeLength": 148,
+        "codeSha256": "1434d6baaef9de89de6714235a503b80d9fb50e63131b055c711edd490e7f716",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "complete",
+      "traitKind": "getter",
+      "methodIndex": 50825,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "a1cfc60aabd6cc439edec51afd998d9583e89ba4255bc9d862fa9c8d97e2001c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.activeInstanceComplete",
+      "traitKind": "method",
+      "methodIndex": 50828,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "fd892a4120961716e4ec17a0de77c6d652d0c89c779faba2108b5e71f36038bf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.activeInstanceError",
+      "traitKind": "method",
+      "methodIndex": 50829,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "1639e1fb9a2735ecdac2bf79edf10c81ab4680fcdf3dfcf1a31e43cfb1d6f338",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.createInstances",
+      "traitKind": "method",
+      "methodIndex": 50826,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 186,
+      "bytecode": {
+        "codeLength": 186,
+        "codeSha256": "d011eb4a386ad6714c75bf28fb105ad7c706d83cff1698d2c41147a528520d1a",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.parallelInstanceComplete",
+      "traitKind": "method",
+      "methodIndex": 50830,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "92693100d587ae527f4763b63087ee516dab1ee575fcc7b5ac9eec7039340659",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.parallelInstanceError",
+      "traitKind": "method",
+      "methodIndex": 50831,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "e44731775ca8f02128416334880fa45cdfc7f99785323ed2d759589603c6e686",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeListeners",
+      "traitKind": "method",
+      "methodIndex": 50833,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IEventDispatcher",
+        "org.spicefactory.parsley.core.registry.SingletonObjectDefinition",
+        "Function",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "ff2fbbd1edb05c44e8ef28c68144eb3f512f46f2612eb0e814fcbb4c0d704191",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeParallelInit",
+      "traitKind": "method",
+      "methodIndex": 50832,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.SingletonObjectDefinition",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "9bec545274c8dd8e8ecc96366229dc4ebc9071f76e3e555c145174877d80953d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "start",
+      "traitKind": "method",
+      "methodIndex": 50823,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "ce5c302bea736df29cb98c62212165aa240dacc18c553d0f4cf453f106dac9ff",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

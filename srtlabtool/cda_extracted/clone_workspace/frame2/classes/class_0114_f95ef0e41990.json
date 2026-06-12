@@ -1,0 +1,378 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 114,
+  "className": "mx.styles.IStyleManager",
+  "classNameNormalized": "mx.styles.IStyleManager",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 2308,
+  "cinitMethod": 2280,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.styles:IStyleManager.clearStyleDeclaration",
+      "traitKind": "method",
+      "methodIndex": 2289,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.getColorName",
+      "traitKind": "method",
+      "methodIndex": 2301,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "uint",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.getColorNames",
+      "traitKind": "method",
+      "methodIndex": 2302,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.getStyleDeclaration",
+      "traitKind": "method",
+      "methodIndex": 2287,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.styles.CSSStyleDeclaration",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.inheritingStyles",
+      "traitKind": "getter",
+      "methodIndex": 2281,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.inheritingStyles",
+      "traitKind": "setter",
+      "methodIndex": 2282,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.initProtoChainRoots",
+      "traitKind": "method",
+      "methodIndex": 2306,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.isColorName",
+      "traitKind": "method",
+      "methodIndex": 2300,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.isInheritingStyle",
+      "traitKind": "method",
+      "methodIndex": 2291,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.isInheritingTextFormatStyle",
+      "traitKind": "method",
+      "methodIndex": 2292,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.isParentDisplayListInvalidatingStyle",
+      "traitKind": "method",
+      "methodIndex": 2298,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.isParentSizeInvalidatingStyle",
+      "traitKind": "method",
+      "methodIndex": 2296,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.isSizeInvalidatingStyle",
+      "traitKind": "method",
+      "methodIndex": 2294,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.isValidStyleValue",
+      "traitKind": "method",
+      "methodIndex": 2303,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.loadStyleDeclarations",
+      "traitKind": "method",
+      "methodIndex": 2304,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean",
+        "Boolean",
+        "flash.system.ApplicationDomain",
+        "flash.system.SecurityDomain"
+      ],
+      "returnType": "flash.events.IEventDispatcher",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.registerColorName",
+      "traitKind": "method",
+      "methodIndex": 2299,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.registerInheritingStyle",
+      "traitKind": "method",
+      "methodIndex": 2290,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.registerParentDisplayListInvalidatingStyle",
+      "traitKind": "method",
+      "methodIndex": 2297,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.registerParentSizeInvalidatingStyle",
+      "traitKind": "method",
+      "methodIndex": 2295,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.registerSizeInvalidatingStyle",
+      "traitKind": "method",
+      "methodIndex": 2293,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.setStyleDeclaration",
+      "traitKind": "method",
+      "methodIndex": 2288,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.styles.CSSStyleDeclaration",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.styleDeclarationsChanged",
+      "traitKind": "method",
+      "methodIndex": 2307,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.stylesRoot",
+      "traitKind": "getter",
+      "methodIndex": 2283,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.stylesRoot",
+      "traitKind": "setter",
+      "methodIndex": 2284,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.typeSelectorCache",
+      "traitKind": "getter",
+      "methodIndex": 2285,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.typeSelectorCache",
+      "traitKind": "setter",
+      "methodIndex": 2286,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.styles:IStyleManager.unloadStyleDeclarations",
+      "traitKind": "method",
+      "methodIndex": 2305,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

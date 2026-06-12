@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Goatmez Agent OS</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero panel">
+        <div>
+          <p class="eyebrow">Goatmez Agent OS</p>
+          <h1>Agent Command Center</h1>
+          <p class="muted">Run missions, review tool approvals, inspect events, manage memory, schedule autonomous runs, launch workflow playbooks, manage encrypted credentials, and monitor connector/tool status from one local console.</p>
+        </div>
+        <div class="status-pill" id="health">Checking...</div>
+      </section>
+
+      <section class="panel hidden" id="auth-panel">
+        <div class="panel-title-row">
+          <h2>Dashboard Access</h2>
+          <span class="muted" id="auth-state">Checking...</span>
+        </div>
+        <form id="auth-form" class="mini-form">
+          <input id="dashboard-token" type="password" placeholder="Enter dashboard token" />
+          <button type="submit">Unlock</button>
+        </form>
+        <button type="button" id="clear-token">Clear Saved Token</button>
+      </section>
+
+      <section class="grid two">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Model Brain</h2>
+            <span class="muted">Local-first routing</span>
+          </div>
+          <div id="model-status" class="stack small"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Developer Agent Quick Commands</h2>
+            <span class="muted">Software factory mode</span>
+          </div>
+          <p class="muted">Try: scan repo, scaffold a FastAPI API project named client-api, search code for "ConnectorExecutionHub", or build software.</p>
+        </section>
+      </section>
+
+      <section class="grid two">
+        <form class="panel" id="mission-form">
+          <div class="panel-title-row">
+            <h2>Launch Mission</h2>
+            <button type="button" id="refresh">Refresh</button>
+          </div>
+          <label>Agent</label>
+          <select id="agent"></select>
+          <label>Mission</label>
+          <textarea id="message" rows="7" placeholder="Example: inspect this workspace and summarize the key files"></textarea>
+          <div class="checks">
+            <label><input type="checkbox" id="dryRun" /> Dry run</label>
+            <label><input type="checkbox" id="approveAll" /> Approve all high-risk calls</label>
+          </div>
+          <button class="primary" type="submit">Run Agent</button>
+          <pre id="result" class="output">No mission run yet.</pre>
+        </form>
+
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Approval Queue</h2>
+            <span class="muted" id="approval-count">0 pending</span>
+          </div>
+          <div id="approvals" class="stack"></div>
+        </section>
+      </section>
+
+      <section class="grid two">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Scheduled Missions</h2>
+            <span class="muted" id="schedule-count">0 active</span>
+          </div>
+          <form id="schedule-form" class="schedule-form">
+            <label>Agent</label>
+            <select id="schedule-agent"></select>
+            <label>Title</label>
+            <input id="schedule-title" placeholder="Daily lead research" />
+            <label>Mission</label>
+            <textarea id="schedule-message" rows="4" placeholder="Example: inspect this workspace and summarize changes"></textarea>
+            <label>Interval Minutes</label>
+            <input id="schedule-interval" type="number" min="1" value="60" />
+            <button class="primary" type="submit">Create Schedule</button>
+          </form>
+          <div id="schedules" class="stack small"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Mission History</h2>
+          <div id="missions" class="stack small"></div>
+        </section>
+      </section>
+
+      <section class="grid two">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Workflow Playbooks</h2>
+            <span class="muted">Mission chains</span>
+          </div>
+          <form id="workflow-form" class="schedule-form">
+            <label>Playbook</label>
+            <select id="playbook"></select>
+            <label>Inputs</label>
+            <textarea id="workflow-inputs" rows="4" placeholder="objective=security audit"></textarea>
+            <div class="checks">
+              <label><input type="checkbox" id="workflow-dry-run" /> Dry run</label>
+            </div>
+            <button class="primary" type="submit">Run Playbook</button>
+          </form>
+          <div id="playbooks" class="stack small"></div>
+        </section>
+        <section class="panel">
+          <h2>Workflow Runs</h2>
+          <div id="workflow-runs" class="stack small"></div>
+        </section>
+      </section>
+
+      <section class="grid three">
+        <section class="panel">
+          <h2>Tasks</h2>
+          <div id="tasks" class="stack small"></div>
+        </section>
+        <section class="panel">
+          <h2>Memory</h2>
+          <form id="memory-form" class="mini-form">
+            <input id="memory-content" placeholder="Add a memory note..." />
+            <button type="submit">Save</button>
+          </form>
+          <div id="memory" class="stack small"></div>
+        </section>
+        <section class="panel">
+          <h2>MCP Servers</h2>
+          <div id="mcp" class="stack small"></div>
+        </section>
+      </section>
+
+      <section class="grid two">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Credential Vault</h2>
+            <span class="muted" id="vault-state">Checking...</span>
+          </div>
+          <form id="vault-form" class="schedule-form">
+            <label>Scope</label>
+            <input id="vault-scope" placeholder="workspace or connector id" value="workspace" />
+            <label>Name</label>
+            <input id="vault-name" placeholder="OPENAI_API_KEY" />
+            <label>Secret Value</label>
+            <input id="vault-value" type="password" placeholder="Paste secret once. It will be encrypted locally." />
+            <label>Provider</label>
+            <input id="vault-provider" placeholder="openai, ghl, stripe, gmail..." />
+            <button class="primary" type="submit">Save Secret</button>
+          </form>
+          <div id="vault" class="stack small"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Connector Readiness</h2>
+            <span class="muted">Secrets + access profiles</span>
+          </div>
+          <div id="connectors" class="stack small"></div>
+        </section>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title-row">
+          <h2>Connector Setup Wizard</h2>
+          <span class="muted">Secrets, steps, and readiness</span>
+        </div>
+        <div id="setup-wizard" class="stack small"></div>
+      </section>
+
+      <section class="grid two">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Connector Execution Lab</h2>
+            <span class="muted">Safe dry-run request builder</span>
+          </div>
+          <form id="connector-form" class="schedule-form">
+            <label>Connector ID</label>
+            <input id="connector-id" placeholder="openai, ghl, gmail, calendar, stripe" value="openai" />
+            <label>Method</label>
+            <input id="connector-method" placeholder="GET or POST" value="GET" />
+            <label>Path</label>
+            <input id="connector-path" placeholder="/contacts/ or /v1/responses" value="/" />
+            <label>JSON Body</label>
+            <textarea id="connector-body" rows="5" placeholder='{"example": true}'></textarea>
+            <button class="primary" type="submit">Prepare Dry Run</button>
+          </form>
+          <pre id="connector-result" class="output">No connector dry-run yet.</pre>
+        </section>
+        <section class="panel">
+          <h2>Connector Health</h2>
+          <div id="connector-health" class="stack small"></div>
+        </section>
+      </section>
+
+      <section class="grid two">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Provider Adapter Lab</h2>
+            <span class="muted">OAuth-ready dry runs</span>
+          </div>
+          <div class="actions">
+            <button id="google-oauth-dry">Prepare Google OAuth Refresh</button>
+            <button id="ghl-search-dry">Prepare GHL Contact Search</button>
+            <button id="gmail-draft-dry">Prepare Gmail Draft</button>
+            <button id="calendar-event-dry">Prepare Calendar Event</button>
+          </div>
+          <pre id="provider-result" class="output">No provider dry-run yet.</pre>
+        </section>
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Connector Action History</h2>
+            <span class="muted">Replay-safe audit trail</span>
+          </div>
+          <div id="connector-actions" class="stack small"></div>
+        </section>
+      </section>
+
+
+      <section class="grid two">
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Knowledge Base</h2>
+            <span class="muted">Local RAG memory</span>
+          </div>
+          <form id="knowledge-search-form" class="mini-form">
+            <input id="knowledge-query" placeholder="Search knowledge base..." />
+            <select id="knowledge-mode">
+              <option value="keyword" selected>Keyword</option>
+              <option value="vector">Vector</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
+            <input id="knowledge-hybrid-weight" type="number" min="0" max="1" step="0.05" value="0.5" />
+            <button type="submit">Search</button>
+          </form>
+          <form id="knowledge-file-form" class="mini-form">
+            <input id="knowledge-file-path" placeholder="Ingest file path, e.g. README.md" />
+            <button type="submit">Ingest File</button>
+          </form>
+          <form id="knowledge-reindex-form" class="mini-form">
+            <input id="knowledge-reindex-document-id" placeholder="Reindex doc id (optional)" />
+            <input id="knowledge-reindex-limit" type="number" min="1" placeholder="Limit (optional)" />
+            <label class="inline-check"><input id="knowledge-reindex-force" type="checkbox" /> Force</label>
+            <button type="submit">Reindex Vectors</button>
+          </form>
+          <div id="knowledge-docs" class="stack small"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-title-row">
+            <h2>Knowledge Results</h2>
+            <span class="muted">Ranked chunks</span>
+          </div>
+          <form id="knowledge-text-form" class="schedule-form">
+            <label>Title</label>
+            <input id="knowledge-title" placeholder="Paste note title" />
+            <label>Tags</label>
+            <input id="knowledge-tags" placeholder="strategy, ghl, credit" />
+            <label>Text</label>
+            <textarea id="knowledge-text" rows="5" placeholder="Paste SOPs, notes, docs, swipe files, client info, or procedures..."></textarea>
+            <button class="primary" type="submit">Save Text to Knowledge</button>
+          </form>
+          <div id="knowledge-results" class="stack small"></div>
+        </section>
+      </section>
+
+      <section class="panel">
+        <h2>Tools</h2>
+        <div id="tools" class="stack small"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title-row">
+          <h2>Event Ledger</h2>
+          <span class="muted">Newest first</span>
+        </div>
+        <div id="events" class="events"></div>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

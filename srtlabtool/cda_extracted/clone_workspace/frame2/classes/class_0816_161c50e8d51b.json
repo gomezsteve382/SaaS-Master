@@ -1,0 +1,82 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 816,
+  "className": "com.diagnosticProcedures.factory.BatchExecutorFactories",
+  "classNameNormalized": "com.diagnosticProcedures.factory.BatchExecutorFactories",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.api.IBatchExecutorFactories"
+  ],
+  "iinitMethod": 15985,
+  "cinitMethod": 15981,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cleanup",
+      "traitKind": "method",
+      "methodIndex": 15984,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "createDiagnosticProcedureBundles",
+      "traitKind": "method",
+      "methodIndex": 15982,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "f0c9fd9a1492d476f923f137b82b08bd9c6bbdd00dd0cabdbcf04d52e61b6021",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "createDiagnosticProcedureInstance",
+      "traitKind": "method",
+      "methodIndex": 15983,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "com.diagnosticProcedures.api.IDiagnosticProcedureProperties"
+      ],
+      "returnType": "com.diagnosticProcedures.DiagnosticProcedureInstance",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "bf02314f5f817ea910ee7ffab4491786fbfe31955e5be6a7b6f56761f8aae9af",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

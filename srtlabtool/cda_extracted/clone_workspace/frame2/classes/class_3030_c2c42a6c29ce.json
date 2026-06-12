@@ -1,0 +1,103 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3030,
+  "className": "com.diagnosticProcedures.logging.LogHelper",
+  "classNameNormalized": "com.diagnosticProcedures.logging.LogHelper",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 48574,
+  "cinitMethod": 48569,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "getData",
+      "traitKind": "method",
+      "methodIndex": 48573,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.model.GuidedDiagnosticModel",
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "bb8c2fa0694905ebcbdbe21e4e3b54cbb7b87a5a2614cc6e6c4cf56041134048",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "getLogger",
+      "traitKind": "method",
+      "methodIndex": 48570,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "4e71a948a97a3d24703965c142a90ca0c0c7e6b963caad4eacf2b0668e972dfe",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getReferencedData",
+      "traitKind": "method",
+      "methodIndex": 48572,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "com.diagnosticProcedures.model.GuidedDiagnosticModel"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "3e093fdd1cb3546135c37b7f8ec0350b162c956618086bdc523fcf6018fbf02f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getStoredData",
+      "traitKind": "method",
+      "methodIndex": 48571,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "com.diagnosticProcedures.model.GuidedDiagnosticModel"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "547059ba725b6c066e0b1b50c414884242b3d6fe6d2ba8c5d12ae50d37abc593",
+        "bytecodeLineCount": 6
+      }
+    }
+  ]
+}

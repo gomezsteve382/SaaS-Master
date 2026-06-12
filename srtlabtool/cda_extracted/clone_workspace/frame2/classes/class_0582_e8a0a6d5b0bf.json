@@ -1,0 +1,1253 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 582,
+  "className": "com.chrysler.core.window.AbstractWindow",
+  "classNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "superName": "spark.components.TitleWindow",
+  "superNameNormalized": "spark.components.TitleWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 11211,
+  "cinitMethod": 11201,
+  "iinitBytecode": {
+    "codeLength": 127,
+    "codeSha256": "10a4954cb35389d2a6b384a4994c9a5605d6ba5174affcba2678afceeb2b022f",
+    "bytecodeLineCount": 8
+  },
+  "cinitBytecode": {
+    "codeLength": 109,
+    "codeSha256": "e51d2db8f299d8ccc31009dd765b301794113a73baa36f5983619add79778d68",
+    "bytecodeLineCount": 7
+  },
+  "instanceMembers": [
+    {
+      "traitName": "additionalTitleBarContent",
+      "traitKind": "getter",
+      "methodIndex": 11205,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "df38d89035e9666a8838c6b89c1665b47d6687b25b88e2bb92122e5be276b603",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "additionalTitleBarContent",
+      "traitKind": "setter",
+      "methodIndex": 11204,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "553d2dada5ea762f1d09296cb50c190b83a1525344b7176052558bcc61b9deae",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "additionalTitleBarContentLayout",
+      "traitKind": "getter",
+      "methodIndex": 11207,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.supportClasses.LayoutBase",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d618e83d9e7e9e22dc5476ab05cd8f4201b36c85a53b640bb9397804b9749b6c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "additionalTitleBarContentLayout",
+      "traitKind": "setter",
+      "methodIndex": 11206,
+      "methodName": "",
+      "paramTypes": [
+        "spark.layouts.supportClasses.LayoutBase"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "613166068c1a92e589f9d16c6e97d8da72a9571851e24f356ff1a14009dde0ba",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window:AbstractWindow.closeButton_clickHandler",
+      "traitKind": "method",
+      "methodIndex": 11214,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "aa05982d91e92b07b8495b97e3eabb8e0d0b67734bd107ee6f6e8fb0036be7f5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window:AbstractWindow.getCurrentSkinState",
+      "traitKind": "method",
+      "methodIndex": 11220,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "0441700bda7a9da23c2e5bb952c6f15b48f6a640200fdc4be9d4832d3bc6ce86",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window:AbstractWindow.partAdded",
+      "traitKind": "method",
+      "methodIndex": 11218,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "b4ad965afa445f83ea52dd3eb38323eefb3d1604dd576c269f368debec372312",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window:AbstractWindow.partRemoved",
+      "traitKind": "method",
+      "methodIndex": 11219,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "9dc6b523a12ab60899286a0502ecad79712f97658a46e5a2c305f1a22522b3ce",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window:AbstractWindow.setCurrentHeight",
+      "traitKind": "method",
+      "methodIndex": 11263,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "02e0ca93c8fc436ed852946502804c03bc4ddee67da032967de9dec355e7fc11",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window:AbstractWindow.setCurrentWidth",
+      "traitKind": "method",
+      "methodIndex": 11265,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "a26060d785cac4b41ff1090c6e667128e9eeea084dc39249277c34fe09cd0828",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window:AbstractWindow.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 11277,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b89c34db35fe84a55ec681a62487bda40846abda1f9c16e70f79be41023239fc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window.onCollapseButtonClick",
+      "traitKind": "method",
+      "methodIndex": 11221,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ab6749f2a33cea67431deb0e7b181d15b3ab61603e6a8145a6d8a053a0027208",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window.onHideMe",
+      "traitKind": "method",
+      "methodIndex": 11225,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.event.WindowEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "d66d881ca810af980bc7ce3ae0ae77ad00919e4c6c915f25777fb5922542517b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.window.onMaximizeButtonClick",
+      "traitKind": "method",
+      "methodIndex": 11243,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "288ddc59d93ae1122fcc5cc6edfc29735ae0e1c5de4eca9a846b49c579c9cfbe",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentHeight",
+      "traitKind": "getter",
+      "methodIndex": 11262,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c19a13a32d98bef21e7cad262b2d24a6058a4567e4007920823cfa940ee257fb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentWidth",
+      "traitKind": "getter",
+      "methodIndex": 11264,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d38978e4c5c08519bf8d8db5d6a4ebd2c423f0ac0f8deb59b23cd4481058570f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentX",
+      "traitKind": "getter",
+      "methodIndex": 11266,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f1202ef3b8de95ac588387034482074ff08f127d5061521fe08b797d6b4526ae",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentY",
+      "traitKind": "getter",
+      "methodIndex": 11268,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4178cf390da06b0f145ada12f7cb8ae96bfecdbe5e0830ef06e523225f79f418",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "depth",
+      "traitKind": "setter",
+      "methodIndex": 11208,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "149c4fe8bea24b2a673358e586cabc4dca696b28f40d586af38662befad16132",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "establishLayout",
+      "traitKind": "method",
+      "methodIndex": 11272,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "c501ee46bc356a51ece16707ffd37725f80bfa481427751ade63ffc2371e501f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getAutomationChildAt",
+      "traitKind": "method",
+      "methodIndex": 11275,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "mx.automation.IAutomationObject",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "5e677599689e9048303353c22f5ec75532f6299918ce29c0c1166c69018562a4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getAutomationChildren",
+      "traitKind": "method",
+      "methodIndex": 11274,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "82c5ae4cff04a3ae94df50ca7bc97bf73614253d11d774f49079d9e5687326b2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "isClosable",
+      "traitKind": "getter",
+      "methodIndex": 11254,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f99967f9eeda4fc04c5f698c4c9daefe5c30b714c0c04f09c53d5418f8c2e929",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isClosable",
+      "traitKind": "setter",
+      "methodIndex": 11255,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b221751b6c7983005490c4419d0cfaf13cc1295365312ce780fce14d41625f4b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isCollapsable",
+      "traitKind": "getter",
+      "methodIndex": 11252,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "67f972baff0b9b653a5b0198dc23abde0bcbcced5d2c12fb353e23468fff5474",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isCollapsable",
+      "traitKind": "setter",
+      "methodIndex": 11253,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "730f96a5b1dde7d1a17c65cb8fcc59cfd318fa5615bc0db933c9866c285ccd5b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isCollapsed",
+      "traitKind": "getter",
+      "methodIndex": 11256,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bbad0a8cc71eff748396b4a0905b6fc0b854cf9cc7a3ad6ea304dbbf5c3d15da",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isDraggable",
+      "traitKind": "getter",
+      "methodIndex": 11250,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "206b7efe21991d37eef20ba0d7408c64f62216cb839a3576c0643d258c4aa85c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isDraggable",
+      "traitKind": "setter",
+      "methodIndex": 11251,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a11f023cb33a04744247831f49dfde9e6eb372c1fad4e46c6d7d98a1e1f8a7d8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isDragging",
+      "traitKind": "getter",
+      "methodIndex": 11258,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f56a228b0ae4f7a0924e8aa9dcc2acd774b8e4400a69699723fa5fd456282773",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isMaximizable",
+      "traitKind": "getter",
+      "methodIndex": 11259,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "663d352cdb7e4ecaf11bcb575a0f6b55e43daecb5c295187a34d2dacf8c81078",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isMaximizable",
+      "traitKind": "setter",
+      "methodIndex": 11260,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4ee0053a56e00c2985c71ad9516fb06718e1e45e74178d7af7ddaea0cca5842a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isMaximized",
+      "traitKind": "getter",
+      "methodIndex": 11261,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "25dd090b1826395321636a13c7c7886236e235365271c878a1cf977d0339eaa3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isResisable",
+      "traitKind": "getter",
+      "methodIndex": 11248,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "209173ce7cdbf40b25887dcdd627fe47163a573e8742b9f9111fb97dbc82bfbd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isResisable",
+      "traitKind": "setter",
+      "methodIndex": 11249,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "25d422286b5607cf9072c702ecc063890ebf3ed2d4431321f8a9ceed176b1372",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isResizing",
+      "traitKind": "getter",
+      "methodIndex": 11257,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1389e633be3ea8b6188f6f1df259d81be3b7e334067cd7d0de53380181f5325a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "numAutomationChildren",
+      "traitKind": "getter",
+      "methodIndex": 11276,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "0b5c437a4edf5236ac87bc9f112dea0047845d6531835e65abcb911c0a6f988b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onMoveAreaMouseDown",
+      "traitKind": "method",
+      "methodIndex": 11222,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "7de3a1aa513c333633a1a1a01548b5cd0c188d6f935380d89a97f4491dae53b8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onMoveAreaMouseMove",
+      "traitKind": "method",
+      "methodIndex": 11223,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 214,
+      "bytecode": {
+        "codeLength": 214,
+        "codeSha256": "04fdf19a41687346591efab51eb83a698f6e7440a88c02f32ede3ecc8f435f12",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "onMoveAreaMouseUp",
+      "traitKind": "method",
+      "methodIndex": 11224,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "2f88f1dfaa58e04d862f8502b99e816aa0e8f4ef4e51c5759d29baf8c1ba0383",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "parameters",
+      "traitKind": "getter",
+      "methodIndex": 11210,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "511159b5af73d1ca7de54d8129d7a311aa0b7eccd821e75801202d38db1153b9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "parameters",
+      "traitKind": "setter",
+      "methodIndex": 11209,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "38f09c2d057414ae6308900237711b8f5be021ba7d1a4523ca3fca98f99122d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSkinPartAdditionalTitleBarContentGroup",
+      "traitKind": "method",
+      "methodIndex": 11229,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "f0bd0a66d121d3815f6b4831ef8c5831f2c4fe273a6d52676a9cfa4540ac9167",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSkinPartCloseButton",
+      "traitKind": "method",
+      "methodIndex": 11234,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "8bd29f157adadad9aba2901e3ca3239b19ea3461e8e7ba442f1cecb16f71d499",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSkinPartCollapseButton",
+      "traitKind": "method",
+      "methodIndex": 11230,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "a69dc6e349b124fbf2e9bd0cda7ed20ff804b386c0d31e46934295dfecb48116",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSkinPartMaximizeButton",
+      "traitKind": "method",
+      "methodIndex": 11231,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "57c9563ecb546a760295cdc4f766f59786d67ef513cc0d59896135b69a132cbf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSkinPartMoveArea",
+      "traitKind": "method",
+      "methodIndex": 11232,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "46258a7dab37be2531aaf87c37024c4fcb155c229c0ab8173f9eba2a1770a673",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSkinPartResizeHandle",
+      "traitKind": "method",
+      "methodIndex": 11233,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "b8a45d5999d79958134ffdfd54aa1d4e20bc25bec8258a44f00cb668ecc97cd4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSkinPartSubTitleDisplay",
+      "traitKind": "method",
+      "methodIndex": 11235,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "c0718268ad41b8a37895544252a0c728df736ee133ad4991145a4716899c144b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.closingFormalities",
+      "traitKind": "method",
+      "methodIndex": 11215,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "f0cf6cf87b52dc2178b145aea0b86699bcc8bf26e663ca0a43c364affa7d5245",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.configureComponent",
+      "traitKind": "method",
+      "methodIndex": 11213,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "15ffb8aeb31614ba286581f5246919d8732d8d69610e788394c4613c6eb5cd91",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.getParentDimensions",
+      "traitKind": "method",
+      "methodIndex": 11212,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "c254883f052dedb06acb8288a2d7577bad900792e3137c145417e14e0e78753a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.onMouseDown",
+      "traitKind": "method",
+      "methodIndex": 11216,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "5dea7f1d83ff1c35c2e2dc8d11971fc23346f3f9fb1ce28eff7dfc0e767201a9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.onMoveAreaDoubleClick",
+      "traitKind": "method",
+      "methodIndex": 11242,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "288ddc59d93ae1122fcc5cc6edfc29735ae0e1c5de4eca9a846b49c579c9cfbe",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.onMoveAreaRightMouseDown",
+      "traitKind": "method",
+      "methodIndex": 11244,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ab6749f2a33cea67431deb0e7b181d15b3ab61603e6a8145a6d8a053a0027208",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.onResizeHandleMouseDown",
+      "traitKind": "method",
+      "methodIndex": 11226,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 122,
+      "bytecode": {
+        "codeLength": 122,
+        "codeSha256": "ebdb62a6609b6d81751f64995bc8fe03d51f8d7ae3842c2ebda75cda15383358",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.onResizeHandleMouseMove",
+      "traitKind": "method",
+      "methodIndex": 11227,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 199,
+      "bytecode": {
+        "codeLength": 199,
+        "codeSha256": "7c78ccfe2778f5097100ec5dbd78805bb9dd36cbfcb800bd4e9fec8402086cd7",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.onResizeHandleMouseOut",
+      "traitKind": "method",
+      "methodIndex": 11241,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "278c8ddc614a11526a4bf2f5bc32a2562bcbb6e2e71dff33350d38016f73368a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.onResizeHandleMouseOver",
+      "traitKind": "method",
+      "methodIndex": 11240,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "76906c9f0ab8bda0dfb16d58404b79aba0dae3cc70ededc4567cf330ac47b6b8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.onResizeHandleMouseUp",
+      "traitKind": "method",
+      "methodIndex": 11228,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "c76692d04c6eeaee68021e0f1dbc1dc00b71b17f3e405da8042d049fb1e9bb20",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.onRightMouseDown",
+      "traitKind": "method",
+      "methodIndex": 11217,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "5dea7f1d83ff1c35c2e2dc8d11971fc23346f3f9fb1ce28eff7dfc0e767201a9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeCollapsedToMinimize",
+      "traitKind": "method",
+      "methodIndex": 11247,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "c66e838392b6b0feeab84f26ab06a1a022063e79f6ef5eafc269950968bc6b66",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeSkinPartCollapseButton",
+      "traitKind": "method",
+      "methodIndex": 11236,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "b931e3ca54ba5db1af76bd4382f520c41bc9558d9cf9207685ae82e0a091ba8a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeSkinPartMaximizeButton",
+      "traitKind": "method",
+      "methodIndex": 11237,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "315fc9890b6aebad8be71f81dcc30f51c3d8b8d7638e023eeead8215d86e8cd3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeSkinPartMoveArea",
+      "traitKind": "method",
+      "methodIndex": 11238,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "bf5620d1772dbef19a5eb302c9ea37d4ca48dd630f52baba088e0f7ee33308dd",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeSkinPartResizeHandle",
+      "traitKind": "method",
+      "methodIndex": 11239,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "e64683d9ff832b4f97cd72ed36f54955e613c5bc6185b83fd741044ea3776be1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.setMaximumDimensions",
+      "traitKind": "method",
+      "methodIndex": 11271,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "88ab3c8885da0254e8f147482372b487b7cb44ec94045e7f064cc4b047ebaf6d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.setMinimumDimensions",
+      "traitKind": "method",
+      "methodIndex": 11270,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "d46c54e39f4f5356b18ba7783c9ef448312f9d194f25e41466fcdd634b91e0f3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeLayout",
+      "traitKind": "method",
+      "methodIndex": 11273,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "df55dd1f580b0a3d19db0028872ccf318d6f05d9f96fc63011094d440b5ddce3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "setCurrentX",
+      "traitKind": "method",
+      "methodIndex": 11267,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "9831ca120418b9164c98b79ec1ee3a1d0db5c627620666fad7ddc25c8f5bc1f4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "setCurrentY",
+      "traitKind": "method",
+      "methodIndex": 11269,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "0ee13dd62fb1b5849e5d57bba58cf37bd8776473e55be3938c5133e4c6d70f80",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "subTitle",
+      "traitKind": "getter",
+      "methodIndex": 11203,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ae372c662eb0bc491fe6980fef02c1d5304cc43770e43a897d78a078203941d2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "subTitle",
+      "traitKind": "setter",
+      "methodIndex": 11202,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "27beb1725f4d757818178a91b6641dc0d8b6489ab79d2ecbc01e83b0b8bba238",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toggleCollapse",
+      "traitKind": "method",
+      "methodIndex": 11245,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "57e68ea763595a799b6a15e3610aea77889e1212c7450bf0d7d7e061da901395",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toggleMaximize",
+      "traitKind": "method",
+      "methodIndex": 11246,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "c55998ff44998ce8055d0d6a6645dc6fb7b062a4b8b9b2a36fed81b95951ed6e",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

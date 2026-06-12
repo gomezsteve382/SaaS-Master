@@ -1,0 +1,269 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 595,
+  "className": "com.chrysler.core.util.Files",
+  "classNameNormalized": "com.chrysler.core.util.Files",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 11460,
+  "cinitMethod": 11446,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "85a30f2d4409ff877f8a330da0cf3966f085358e0f9a0c4151d825cf357a410b",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "PrivateNs.createFileStream",
+      "traitKind": "method",
+      "methodIndex": 11452,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.filesystem.FileStream",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "ff90a4e6b9852f9466f64cb81c05ff1db734953ffec1e343ece70be022d400b4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readFileBytes",
+      "traitKind": "method",
+      "methodIndex": 11453,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "Boolean"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 215,
+      "bytecode": {
+        "codeLength": 215,
+        "codeSha256": "66f2c5f44f03bfd5d15663cc9b992be4bd2bcf5e323e6dbe551f70f348a9918c",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "readFileLines",
+      "traitKind": "method",
+      "methodIndex": 11454,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "Boolean"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "727baaf6f39c60ae6c7956aca30e9f94a181867a992e3f6b52f5a3937d9d2d98",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readFileUTFBytes",
+      "traitKind": "method",
+      "methodIndex": 11455,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "Boolean"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "11be17ec9585961a05f0a04bef141bdc7a4fac2d269e77f220ff018209e23d42",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readSecretFileLines",
+      "traitKind": "method",
+      "methodIndex": 11456,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "9a45e524b003f26cdcea68040aa3c7fce6c3d08061eed0a6b12a400bf6380302",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readSecretFileUTFBytes",
+      "traitKind": "method",
+      "methodIndex": 11457,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "20f4426b2dce92cee952d9f29820d95f3924d525e4508f6d7376ede4c397331a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "writeFileBytes",
+      "traitKind": "method",
+      "methodIndex": 11458,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "flash.utils.ByteArray",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "de14e5ce3f23a75ff43f2cabb0dd92da567dcf0bd9764171d41bfece67cc398f",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "writeFileUTFBytes",
+      "traitKind": "method",
+      "methodIndex": 11459,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "2af0b352d2e4764a0c86f1866fb17622f2a909cd4285e1eb960dfb473d2c982f",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getNativeDir",
+      "traitKind": "method",
+      "methodIndex": 11447,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "c03bfb86c869ab1a8c07eb1da4f276f6551b37bd135fdffa00dcedb9ac81ab6a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "ParseFiles",
+      "traitKind": "method",
+      "methodIndex": 11449,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array",
+        "Array",
+        "Function"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "c026011005e6bc7a1f68e76744b0783834c3bea1f34de9d933d7c03e94dc2530",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.splitFileIntoLines",
+      "traitKind": "method",
+      "methodIndex": 11451,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "a2d9c3cf2b058aa9867b396f5befff34a35dd0f4ac672b0b9789620dd4a12808",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "pruneFolder",
+      "traitKind": "method",
+      "methodIndex": 11448,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 201,
+      "bytecode": {
+        "codeLength": 201,
+        "codeSha256": "014ca0ba1b3037f70fedbb0fc8f051faeb3253afee6547285432ffaebe53e604",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "ReducedList",
+      "traitKind": "method",
+      "methodIndex": 11450,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array"
+      ],
+      "returnType": "mx.collections.ArrayList",
+      "hasBody": true,
+      "codeLength": 127,
+      "bytecode": {
+        "codeLength": 127,
+        "codeSha256": "b8d92d329cc11309da46f6064a2d078e06dc138bc6f40a4d936684e3581370e3",
+        "bytecodeLineCount": 8
+      }
+    }
+  ]
+}

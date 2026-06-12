@@ -1,0 +1,140 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 627,
+  "className": "mx.messaging.events.MessageFaultEvent",
+  "classNameNormalized": "mx.messaging.events.MessageFaultEvent",
+  "superName": "flash.events.Event",
+  "superNameNormalized": "flash.events.Event",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 12041,
+  "cinitMethod": 12039,
+  "iinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "6a4272e2076502f18a921691b99a218ed246234b547a8d62fafb14ca90a359d2",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "0ce09d55f64dc879a114dfa56dbf600a7cb9aaf469ad033332e101e173dda86e",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 12046,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.Event",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "d7c5a1acd515328db17846d0b2784b15f912df451c1aadb0e54b35b7185ac620",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "faultCode",
+      "traitKind": "getter",
+      "methodIndex": 12042,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "5a40ba22cd53cab40b80b4a8ec020b27dcb30b4f9057c9a023017b7b97340e7b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "faultDetail",
+      "traitKind": "getter",
+      "methodIndex": 12043,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "d472a881801814a2cff6e9a74b5b3a0b9fb0875289e0e8b4f368c2e6246637d0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "faultString",
+      "traitKind": "getter",
+      "methodIndex": 12044,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "a5175755fd679a08b7f45d75786ab7b434b5eca376028fa58905abb3026841a6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "rootCause",
+      "traitKind": "getter",
+      "methodIndex": 12045,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "ee55130bde0676da9c15285305de00d6913b50255213178f9fc2cf5ff987059c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 12047,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "988187c31799d06ffc0bccd716179c3f463988796a0c3e997b580c263c71a145",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createEvent",
+      "traitKind": "method",
+      "methodIndex": 12040,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.ErrorMessage"
+      ],
+      "returnType": "mx.messaging.events.MessageFaultEvent",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "c3715e800620ede64c7bf498c99bd4e346d6cce27dcfdb25de29bdeb05c71e7f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

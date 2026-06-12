@@ -1,0 +1,86 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3240,
+  "className": "org.spicefactory.parsley.core.view.util.ViewDefinitionLookup",
+  "classNameNormalized": "org.spicefactory.parsley.core.view.util.ViewDefinitionLookup",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 50506,
+  "cinitMethod": 50502,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "findMatchingDefinition",
+      "traitKind": "method",
+      "methodIndex": 50503,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.view.ViewConfiguration",
+        "org.spicefactory.parsley.core.context.Context"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.DynamicObjectDefinition",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "b837db292bd803b24f0e93a792257b94875eb5c3c9a299e0e6f651d124c94464",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDefinitionById",
+      "traitKind": "method",
+      "methodIndex": 50504,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.view.ViewConfiguration",
+        "org.spicefactory.parsley.core.context.Context"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.DynamicObjectDefinition",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "25e0ec730dbaf08f421c37b9c16e96544736d32f8f12f38f6824c8757fbee35b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDefinitionByType",
+      "traitKind": "method",
+      "methodIndex": 50505,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.view.ViewConfiguration",
+        "org.spicefactory.parsley.core.context.Context"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.DynamicObjectDefinition",
+      "hasBody": true,
+      "codeLength": 172,
+      "bytecode": {
+        "codeLength": 172,
+        "codeSha256": "7589821e0100e157f8fa2365b53f69e07ea5dbe9f86bb1fe92423465f27a0440",
+        "bytecodeLineCount": 11
+      }
+    }
+  ]
+}

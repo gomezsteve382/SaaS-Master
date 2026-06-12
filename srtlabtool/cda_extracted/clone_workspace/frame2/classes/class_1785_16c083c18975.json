@@ -1,0 +1,130 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1785,
+  "className": "flashx.textLayout.container.ColumnState",
+  "classNameNormalized": "flashx.textLayout.container.ColumnState",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 34420,
+  "cinitMethod": 34419,
+  "iinitBytecode": {
+    "codeLength": 44,
+    "codeSha256": "cdf58ed2452d124fd88f02bbd0a9a1abb614aefe1488ab4cfa4957354292d9bc",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "columnCount",
+      "traitKind": "getter",
+      "methodIndex": 34422,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3786f256007e348fc907ee2c50f76d8883c0c00b3a7c67db8c2042cde8679d35",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "columnGap",
+      "traitKind": "getter",
+      "methodIndex": 34423,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9e3269f040fddcf6e431e1f0e927aeee3a3e6bb9b3b64b1467ffb1af7e388a19",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "columnWidth",
+      "traitKind": "getter",
+      "methodIndex": 34421,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "89912532364e2bbae3b59f17153fd535de9c7dbd30c04439aafcf3a358972bed",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getColumnAt",
+      "traitKind": "method",
+      "methodIndex": 34424,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "58b09779a2d143e96f5f41bd6fa46e4ae21d386e5648b5cfc4d977d7e031605d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.computeColumns",
+      "traitKind": "method",
+      "methodIndex": 34426,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1089,
+      "bytecode": {
+        "codeLength": 1089,
+        "codeSha256": "7fdc9ff73a508a1f91d2f3db2bc5fe67d09d2d668c6e50f8789528faa2a178ac",
+        "bytecodeLineCount": 69
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.updateInputs",
+      "traitKind": "method",
+      "methodIndex": 34425,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "flashx.textLayout.container.ContainerController",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 471,
+      "bytecode": {
+        "codeLength": 471,
+        "codeSha256": "447743f1ffa8187fe56b14b49314b02c95f321640b1d4e1b55648b153c6af407",
+        "bytecodeLineCount": 30
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,582 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 558,
+  "className": "spark.skins.spark.windowChrome.MacTitleBarSkin",
+  "classNameNormalized": "spark.skins.spark.windowChrome.MacTitleBarSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 10764,
+  "cinitMethod": 10763,
+  "iinitBytecode": {
+    "codeLength": 159,
+    "codeSha256": "de7c4ef1eb288492b921bd01ff2849705821006404d9efe6d0f6300a29e87d02",
+    "bytecodeLineCount": 10
+  },
+  "cinitBytecode": {
+    "codeLength": 19,
+    "codeSha256": "846958b3e5ef91bb38f93ac49f96472d59b83dfda64194b6c328f9795642b23f",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "background",
+      "traitKind": "getter",
+      "methodIndex": 10782,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "868cfa855a160eec309545a684900d53f7cee87c4402e04eb351febcdebd5d4f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "background",
+      "traitKind": "setter",
+      "methodIndex": 10783,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a2d18b2155bc3e84cab41f362cd4e249314116e1f272002fc4b1d9a5559b5fda",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "bgFill",
+      "traitKind": "getter",
+      "methodIndex": 10784,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "17755dcd5130a68ab79e942ef9bb01a7aa0d27f191d9eca9ffe0c079b9dc10ca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "bgFill",
+      "traitKind": "setter",
+      "methodIndex": 10785,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.LinearGradient"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9065eb6b37881b367d60101cda26658f53a5afdb9fa5165c4ce56450984ebfbe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "closeButton",
+      "traitKind": "getter",
+      "methodIndex": 10786,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b24dd4acbb8930ff0982357ab6a72d286f7e2fc7c49a52d3716b25e5becb3f2e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "closeButton",
+      "traitKind": "setter",
+      "methodIndex": 10787,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "05f0a97a2d32b0187c343034eaa1f88a5d1893227428836aa986340f892c02f6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "colorizeExclusions",
+      "traitKind": "getter",
+      "methodIndex": 10767,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ba168cd1b08c9f66fb71bb82d4906322c6e6ed193b22b5b4ff846a6963aa19de",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 10798,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.windowClasses.TitleBar",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "6947998aa0c3030c202b5a5a7f705aa342c2034dd356f7bbf9f1332163a3af9b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 10799,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.windowClasses.TitleBar"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "b35a3b938719a00019c9c985f3e849e58c3767b29be623ef008e60dd17f8803f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 10766,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "maximizeButton",
+      "traitKind": "getter",
+      "methodIndex": 10788,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ddcfab6a96db59f1e49cf51acc3baaac6f76d268bf0d7adb0b9e948a80f372c5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "maximizeButton",
+      "traitKind": "setter",
+      "methodIndex": 10789,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e540142871b32f190dd6266eb2c3abba3b5b9b7eb90c7dabd4be249261ac3d9d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "minimizeButton",
+      "traitKind": "getter",
+      "methodIndex": 10790,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ba80ab6d80c4c51fbfba5f1c47633f713a8b34e0473fc2c01769cd4c5c8bff36",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "minimizeButton",
+      "traitKind": "setter",
+      "methodIndex": 10791,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "85b90cdedd2fc1847fadf2d0712693a5ee43e659beeda59111e38e3ee676aa13",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 10765,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "8e9a57f97e808d0cc6fdbdd935b2b7fb454df7a7cc37f8e67cc5a390b4b56574",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_BitmapImage1_i",
+      "traitKind": "method",
+      "methodIndex": 10780,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.BitmapImage",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "bc4d396637b934e14819c125b52f33e5116ff3c80192de34f9a9a80eacd7809b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 10776,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "5a4f99fa0cf1d56d999538dd7bbf2bdea1ca09810760d244fb05c7a6c44306cb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 10777,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "1a363585940e485c0985472be6b2a0bd0b83390742b82b981708ead910bc5b1d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_Button3_i",
+      "traitKind": "method",
+      "methodIndex": 10778,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "740ea6c4f673c0e9ffe927b7863c0d7e0a089142533b45c627acbf429fac74b6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_GradientEntry1_c",
+      "traitKind": "method",
+      "methodIndex": 10772,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "533c4663952e0fc2b97cc9fff9c70036fd25e3db7a15109976405f8073408f3d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_GradientEntry2_c",
+      "traitKind": "method",
+      "methodIndex": 10773,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "479b9f44b981eab73237a711c4e8295a8b0c7f6d2bd39892ef6911118487d590",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_Group1_c",
+      "traitKind": "method",
+      "methodIndex": 10774,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "50548f96d4e2fae16ce6ba62b9a46dea57185dd59ec8ce63ab2c9898f53458f1",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_HorizontalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 10775,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.HorizontalLayout",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "5d2328e2bc7b4a0bf1a93116bd735d227a3344f484dc13631bcec59358088a21",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 10781,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "14d6217c1e3133048d111a2eb8ec76e671a16fd827abcc6910bcbfb093e58be8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_LinearGradient1_i",
+      "traitKind": "method",
+      "methodIndex": 10771,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "c8024d2d67fefd57bfc1833205aaeb75b862e2a3ab9c207328ed068298ec041e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_Rect1_i",
+      "traitKind": "method",
+      "methodIndex": 10770,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "26c544fe2329484b6cc4ad6dbf38eb60e8de53fc1e17d377b940de35b858b804",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._MacTitleBarSkin_Spacer1_i",
+      "traitKind": "method",
+      "methodIndex": 10779,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "a4febd84523f80cae6f5d54426722386b3e9ca25ae41085f03a977e79b2428a2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spacer",
+      "traitKind": "getter",
+      "methodIndex": 10792,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0eb64a067688e8fa730a46d70a6f3e5c57c2faf97c9bdce42fe8e17aaaa57fc5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spacer",
+      "traitKind": "setter",
+      "methodIndex": 10793,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.Spacer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "59920eab61f0b400cbc6e8e07a893f0df4b2a3970612b4d613f65bb9a21af380",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.skins.spark.windowChrome:MacTitleBarSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 10768,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.skins.spark.windowChrome:MacTitleBarSkin.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 10769,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "39db32ec1ee78c6c2a4af9f26899f4d7ec262af4577444e17cf9bd6e4c2d999e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "titleIconImage",
+      "traitKind": "getter",
+      "methodIndex": 10794,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.BitmapImage",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d82f8c245851b85706bd91cc7e9f492b344291efb8aaf838468b8cef1583224f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "titleIconImage",
+      "traitKind": "setter",
+      "methodIndex": 10795,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.BitmapImage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f399ff4fbed02cf3db368bdddaa70d94c95b43da90af0d7dbe2b67a35c4ef37a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "titleText",
+      "traitKind": "getter",
+      "methodIndex": 10796,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a7f4f4fd4fad9ebd7f2279fa8630fd4af90610f014e14b2a5b7da456754a9ebf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "titleText",
+      "traitKind": "setter",
+      "methodIndex": 10797,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Label"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "c7f5039e52bc41ce761903b3b85a2fc053ac6ccdd95ecb825ab9211fdb93e5f4",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

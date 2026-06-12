@@ -1,0 +1,160 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3222,
+  "className": "org.spicefactory.parsley.metadata.MetadataDecoratorAssembler",
+  "classNameNormalized": "org.spicefactory.parsley.metadata.MetadataDecoratorAssembler",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.config.DecoratorAssembler"
+  ],
+  "iinitMethod": 50359,
+  "cinitMethod": 50356,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "441971dd006975cd42529153bbd1c7fa223a8279a9d7b0c7674200990186b76a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 172,
+    "codeSha256": "a504683316230b1109bd6778ad7c7433a3ec1d9157e3ecffd00ed8a884529d7a",
+    "bytecodeLineCount": 11
+  },
+  "instanceMembers": [
+    {
+      "traitName": "assemble",
+      "traitKind": "method",
+      "methodIndex": 50360,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.ClassInfo"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 165,
+      "bytecode": {
+        "codeLength": 165,
+        "codeSha256": "6d208e86c6286697479d37edb95896ec018be3dd828f3638806ea32d8087e658",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.doAssemble",
+      "traitKind": "method",
+      "methodIndex": 50361,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.ClassInfo",
+        "Array",
+        "PrivateNs.ProcessedMembers",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 247,
+      "bytecode": {
+        "codeLength": 247,
+        "codeSha256": "3e1328ad17a8a02102a4a4923c99edf559d9bce027bf4af655f23be6fc75f52c",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.extractFromMember",
+      "traitKind": "method",
+      "methodIndex": 50362,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Member",
+        "Array",
+        "PrivateNs.ProcessedMembers"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "a9f5e9aa8e8ef64d071aeb9c3a09536120a57dd6cb04f9f1152f3c249646783a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.extractMetadataDecorators",
+      "traitKind": "method",
+      "methodIndex": 50363,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.MetadataAware",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "74ab5ef957853bfa8c6aee2d122abb48886d3fb37ca640d054b5050a0b239e9d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.setTargetProperty",
+      "traitKind": "method",
+      "methodIndex": 50364,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Member",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 285,
+      "bytecode": {
+        "codeLength": 285,
+        "codeSha256": "935c5c5e9169784605af099c48acc0d0ac8ccb6f1ccfed4748585a03117bce06",
+        "bytecodeLineCount": 18
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 50357,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 139,
+      "bytecode": {
+        "codeLength": 139,
+        "codeSha256": "3ae529e7f69822f580a510319b175626df63cf4a13c8f71da37219c90af71867",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "replaceTag",
+      "traitKind": "method",
+      "methodIndex": 50358,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "Class"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "fc0351f1372bfec576c8e061deb40813b8f1677019a535078b415ad4ece73a8d",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

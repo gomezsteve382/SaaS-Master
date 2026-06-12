@@ -1,0 +1,146 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1295,
+  "className": "org.spicefactory.parsley.processor.resources.ResourceBindingProcessor",
+  "classNameNormalized": "org.spicefactory.parsley.processor.resources.ResourceBindingProcessor",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.registry.ObjectProcessor"
+  ],
+  "iinitMethod": 28220,
+  "cinitMethod": 28217,
+  "iinitBytecode": {
+    "codeLength": 40,
+    "codeSha256": "2b70b12286ed44b369d0a28cda657b0eb30318775568ca6d7177ce18b8063aa0",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "postDestroy",
+      "traitKind": "method",
+      "methodIndex": 28222,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "f126f6fb85ae0398715d5db7a841031104f30f87d3bd69a8e55de791deccaa39",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "preInit",
+      "traitKind": "method",
+      "methodIndex": 28221,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "3cd4cc6e5bda2dd709739cf8e486d5ab7e1bbc8430a35c83498466666675a186",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleUpdate",
+      "traitKind": "method",
+      "methodIndex": 28223,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.tag.resources.ResourceBindingEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f6e1bca328e4aa41ac6944455463dc4f5fcf9b20839b426aca9bb27f38c95485",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.setTarget",
+      "traitKind": "method",
+      "methodIndex": 28224,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "8ed39193bae54fac198fa4eea6973c26e3d93e09240e07ab721a7195c78c2340",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 28225,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "ba996c4972305a9c5dabc39de51b66c862b6ebe0808b2ac6abc3f1a27e6c6ac7",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "newFactory",
+      "traitKind": "method",
+      "methodIndex": 28219,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Property",
+        "String",
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectProcessorFactory",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "1ab227a33a8e787eabc5eff299c50ffeb239e8dc3e59a5ea5f7f9b7aaabd83c0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.initializeAdapter",
+      "traitKind": "method",
+      "methodIndex": 28218,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "f0f9c0e7b9542b6de87b56de2515e4c3e11bcb0d15e71c90cb12bb78281a13aa",
+        "bytecodeLineCount": 7
+      }
+    }
+  ]
+}

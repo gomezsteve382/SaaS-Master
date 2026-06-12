@@ -1,0 +1,128 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3660,
+  "className": "org.spicefactory.parsley.core.state.manager.impl.DefaultGlobalViewState",
+  "classNameNormalized": "org.spicefactory.parsley.core.state.manager.impl.DefaultGlobalViewState",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.state.GlobalViewState"
+  ],
+  "iinitMethod": 55014,
+  "cinitMethod": 55003,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "configureFirstChildContext",
+      "traitKind": "method",
+      "methodIndex": 55011,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "Function"
+      ],
+      "returnType": "org.spicefactory.parsley.core.state.ChildContextObserver",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a9b360691cb4d02e0f4665d99d33e6211492b32a3d8857a42eb0bf28a39598b8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "findContextInHierarchy",
+      "traitKind": "method",
+      "methodIndex": 55006,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "Function",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "f30e8f7a64bbd33cc60d4a7315c73c74decad38e8321a5d9e500af5ecfaca472",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchLookupEvent",
+      "traitKind": "method",
+      "methodIndex": 55007,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "org.spicefactory.parsley.core.events.ContextLookupEvent",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "2a8de121b68242f08d4ea678dd7724714353593e3c1334a275282d3cf227b930",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.waitFor",
+      "traitKind": "method",
+      "methodIndex": 55009,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.Context",
+        "String",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 205,
+      "bytecode": {
+        "codeLength": 205,
+        "codeSha256": "48498b378294425e496fd8c3d717a165ea0f3ac54c5e0514b1f0ac57031056eb",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "waitForFirstChildContext",
+      "traitKind": "method",
+      "methodIndex": 55013,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "Function",
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.core.state.ChildContextObserver",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "c165dcded0c069261613aa0c63f4635258e0491a387e5b988303d1b7c68fbd32",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

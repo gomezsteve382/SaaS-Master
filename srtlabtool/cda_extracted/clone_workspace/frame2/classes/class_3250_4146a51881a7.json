@@ -1,0 +1,96 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3250,
+  "className": "org.spicefactory.parsley.core.scope.impl.DefaultScopeInfoRegistry",
+  "classNameNormalized": "org.spicefactory.parsley.core.scope.impl.DefaultScopeInfoRegistry",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.scope.ScopeInfoRegistry"
+  ],
+  "iinitMethod": 50585,
+  "cinitMethod": 50584,
+  "iinitBytecode": {
+    "codeLength": 28,
+    "codeSha256": "e2309e2d6fb43ebe569e15b255e51d7b85ba8803fcf6838e3aaf7ffea0b7a3a1",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "activeScopes",
+      "traitKind": "getter",
+      "methodIndex": 50589,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2543367ab322cf4d67a83be054568df7ef992bc7d32e89ab7c3f659e2cdb83e5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "addActiveScope",
+      "traitKind": "method",
+      "methodIndex": 50586,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.scope.ScopeInfo"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "d4126ba8968d593d853b43d1a9856164b84372e1c86f923597533b8ad8368021",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "newScopes",
+      "traitKind": "getter",
+      "methodIndex": 50587,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ad2e9dbdab8d6bca53988563858fe7c0edfac0f275794271041bb5f12b5bd4f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "parentScopes",
+      "traitKind": "getter",
+      "methodIndex": 50588,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "49e19f2735d24cd9c72f4bb8ded1faf6e52c4d6d500997fff87ea01b4c277cc6",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

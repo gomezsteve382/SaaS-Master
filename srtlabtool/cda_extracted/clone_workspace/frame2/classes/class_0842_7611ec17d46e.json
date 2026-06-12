@@ -1,0 +1,524 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 842,
+  "className": "com.chrysler.cda.application.proxy.TestProxyConfigCommand",
+  "classNameNormalized": "com.chrysler.cda.application.proxy.TestProxyConfigCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 16733,
+  "cinitMethod": 16704,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 31,
+    "codeSha256": "89106960c0ceb6f27e2fbaaaae62cdebe5855314d90bbea5922bd632a39b5c87",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onAutoProxyResult",
+      "traitKind": "method",
+      "methodIndex": 16707,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.AutoProxyResultMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "e4353cd5d55e87691c4eca70824cd6fedd95cb637d44e6b7ba1fd244a1b424cd",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigAutoToDirect",
+      "traitKind": "method",
+      "methodIndex": 16711,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "9a0a565725f91a56e6cc9ff7668f1fbb498866ca4bd7c87842328df9b162d3ca",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigAutoToDirectError",
+      "traitKind": "method",
+      "methodIndex": 16713,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "36e4aaf2d52555c9e413d4451825742ca247bbcd78d61426fad64b137208e5ce",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigAutoToDirectResult",
+      "traitKind": "method",
+      "methodIndex": 16712,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "847115df4faea1e2292c30cf06064806710994604ee0ebb29b95acce4bbf5ef6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigAutoToPac",
+      "traitKind": "method",
+      "methodIndex": 16723,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "eefcffc11e4152b2ee63b5053c602ed72306a74a23a6650c7e1f8108e9015512",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigAutoToPacError",
+      "traitKind": "method",
+      "methodIndex": 16725,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "1db659d0f45d6ad8020c6a18e29f1a3279807ef30c7f6aaa630d44ff2c41dcaf",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigAutoToPacResult",
+      "traitKind": "method",
+      "methodIndex": 16724,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "847115df4faea1e2292c30cf06064806710994604ee0ebb29b95acce4bbf5ef6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigAutoToServer",
+      "traitKind": "method",
+      "methodIndex": 16717,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "5eae1738319000596c60dbdaef7e2396ff6a76d98dbdcac443edad4d8f016660",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigAutoToServerError",
+      "traitKind": "method",
+      "methodIndex": 16719,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "c5ffbe8b350d8172b564ce25a7d8e4285fa20996cc258d2e1fbee7937fabce23",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigAutoToServerResult",
+      "traitKind": "method",
+      "methodIndex": 16718,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "847115df4faea1e2292c30cf06064806710994604ee0ebb29b95acce4bbf5ef6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigCredentials",
+      "traitKind": "method",
+      "methodIndex": 16726,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 214,
+      "bytecode": {
+        "codeLength": 214,
+        "codeSha256": "49a04813e383b7d89a69d44e331c30a30fb75ce5b71266a5e4f211cf839272d0",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigCredentialsError",
+      "traitKind": "method",
+      "methodIndex": 16728,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "d9860aae76791a73e8c294c4acb3a3e4d9df5a40225fa8f986b907cf36f0ab28",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigCredentialsResult",
+      "traitKind": "method",
+      "methodIndex": 16727,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "847115df4faea1e2292c30cf06064806710994604ee0ebb29b95acce4bbf5ef6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigDetect",
+      "traitKind": "method",
+      "methodIndex": 16706,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "2c11f08f0f4c8b0b56b77d424f3e84851e0490e90735da28d5008521aa7d9520",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigDirect",
+      "traitKind": "method",
+      "methodIndex": 16708,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "64f600fe39da35b2b3d7dbb71124c189067b740cd9d2ba2e6e9658cf9dc3b699",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigDirectError",
+      "traitKind": "method",
+      "methodIndex": 16710,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "c568af34bd985ab50babdfd0d2d9d7363325bd1db23b95dcc1da88e0a6807293",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigDirectResult",
+      "traitKind": "method",
+      "methodIndex": 16709,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "847115df4faea1e2292c30cf06064806710994604ee0ebb29b95acce4bbf5ef6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigPac",
+      "traitKind": "method",
+      "methodIndex": 16720,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "9d65cbc8fa8d1cc573ec663679f781e9be5f49dac7d17b466df252c5023faeb0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigPacError",
+      "traitKind": "method",
+      "methodIndex": 16722,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "3b7b303700fde616f1a07f0274f672d5b49dca4cae038a6af7e2664b239ba4d6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigPacResult",
+      "traitKind": "method",
+      "methodIndex": 16721,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "847115df4faea1e2292c30cf06064806710994604ee0ebb29b95acce4bbf5ef6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigServer",
+      "traitKind": "method",
+      "methodIndex": 16714,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "b5d39f6962046b88b7b2874de85971594e9836eaa14aff3a814ba8e57b36fcee",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigServerError",
+      "traitKind": "method",
+      "methodIndex": 16716,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "469c7a0b9366ec3483f81beacbded43b25edca25f8684260c34c47aa737e433f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigServerResult",
+      "traitKind": "method",
+      "methodIndex": 16715,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "847115df4faea1e2292c30cf06064806710994604ee0ebb29b95acce4bbf5ef6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigStart",
+      "traitKind": "method",
+      "methodIndex": 16705,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 324,
+      "bytecode": {
+        "codeLength": 324,
+        "codeSha256": "39fb1f4c3f994efdab51a758925721cf01c460741c6438d41047198cf348665f",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigTest",
+      "traitKind": "method",
+      "methodIndex": 16729,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "dc3979fb02feacb8bbe98f64cb499c1c76b210ed360f4663698558fe86fe2256",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigTestError",
+      "traitKind": "method",
+      "methodIndex": 16731,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "b2b7243c30eaec5c9f9f84825b0138911d879b116146678d76144eaff23576ca",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigTestResult",
+      "traitKind": "method",
+      "methodIndex": 16730,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5ebf451ec8dae99f479caa8c351840c17dc6bac1785e0ab01a76939fb3ea76b3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onTestProxyConfigWaitForWorkbench",
+      "traitKind": "method",
+      "methodIndex": 16732,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "0d03ef4cab1b6493d8458fe9f697c0fb97ebd5d790ab61f92fb01e0c6018aa68",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

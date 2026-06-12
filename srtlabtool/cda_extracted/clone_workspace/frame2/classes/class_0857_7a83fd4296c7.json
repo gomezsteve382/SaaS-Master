@@ -1,0 +1,287 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 857,
+  "className": "com.chrysler.cda.presentation.component.proxi.ProxiViewController",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.ProxiViewController",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 16944,
+  "cinitMethod": 16927,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "alignmentView",
+      "traitKind": "method",
+      "methodIndex": 16937,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "3caada089fd21e0ad1a5801748126d191d095e915141e9a1b5fb6d072eb64fbe",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "BCM",
+      "traitKind": "getter",
+      "methodIndex": 16930,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+      "hasBody": true,
+      "codeLength": 104,
+      "bytecode": {
+        "codeLength": 104,
+        "codeSha256": "bcab390b45c51b97d2f221b12d37cbcc3deb83402347e361b9d0046f08dd645d",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "dataDisplay",
+      "traitKind": "method",
+      "methodIndex": 16934,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "26401cc51a011a422427082648b73af28035b9d0f0069bf9560b9aa6a78ea593",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "eol102ADisplay",
+      "traitKind": "method",
+      "methodIndex": 16938,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "89c17d00d84a19d6fc256092cd7894e4b4e4e17386fd047202894f1255d7373a",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "eolDisplay",
+      "traitKind": "method",
+      "methodIndex": 16935,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "9eb55ac1600dc7392be768310156e1186e0fe8e6db9ac9c91ac988d013ee9963",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "getConversionInformationForDDE",
+      "traitKind": "method",
+      "methodIndex": 16939,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "ec2ba4e79743d42d8dcf43646f5df37047988f514fec20fb9f28638d63c64426",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onInitialize",
+      "traitKind": "method",
+      "methodIndex": 16929,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "1db1ce58dd4183b79549a70a156eaf98d39557516c9ac11631fd35eecf9cc91d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onProxyConversionDataError",
+      "traitKind": "method",
+      "methodIndex": 16941,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ProxyConversionDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "28558543044c0c53a51c0e7fe75f0d26c1e8ae15bb79d56ec85e80127297da0b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onProxyConversionDataResult",
+      "traitKind": "method",
+      "methodIndex": 16940,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ProxyConversionDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 748,
+      "bytecode": {
+        "codeLength": 748,
+        "codeSha256": "073e54314c6fced20ee1effad7ea05d9b6992a5df9d57a17a17b841b35c3c9a1",
+        "bytecodeLineCount": 47
+      }
+    },
+    {
+      "traitName": "onRefresh",
+      "traitKind": "method",
+      "methodIndex": 16943,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "1538fa2ee9d544d05dfd53649544847b95792f455bca8a04c7c1c204ad669cca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onStartUp",
+      "traitKind": "method",
+      "methodIndex": 16931,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "a352dc763da436694fc069ba98d4969636d97e6b5d635f1cf1c7a42f366d3cde",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onWrite",
+      "traitKind": "method",
+      "methodIndex": 16942,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "1e706502cdad464ba3537d63718b28c525e4e6dc78f5b69f0949056d6187ab74",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pidEditor",
+      "traitKind": "method",
+      "methodIndex": 16936,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "5d86ddad8417a8faf430f516427bf3749eb626144b31239c2d9a4814416348f8",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "preparing",
+      "traitKind": "method",
+      "methodIndex": 16932,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "ea08cf113e76968a8775606f213dff670ece83b302a4eb942e1fe0dc9f4d19f3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "ready",
+      "traitKind": "method",
+      "methodIndex": 16933,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "1a31ccb9a5c4b5569d325fdedb39b4cbd8b6c27b6ce9b2c093c206557080ca39",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createWatcher",
+      "traitKind": "method",
+      "methodIndex": 16928,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.utils.ChangeWatcher",
+        "Object",
+        "String",
+        "Object",
+        "String"
+      ],
+      "returnType": "mx.binding.utils.ChangeWatcher",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "4e374fc8246edd19fa672f14db121ded38dc79baf94261dd9a6b70ff65917cce",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

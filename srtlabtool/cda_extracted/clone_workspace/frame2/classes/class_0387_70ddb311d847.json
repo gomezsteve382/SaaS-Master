@@ -1,0 +1,301 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 387,
+  "className": "spark.skins.spark.NumericStepperSkin",
+  "classNameNormalized": "spark.skins.spark.NumericStepperSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 8168,
+  "cinitMethod": 8167,
+  "iinitBytecode": {
+    "codeLength": 138,
+    "codeSha256": "ae3ee96417edb3bc4907cf1ce0e49a1757236b78ef50c85acd10a4ce989b6860",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 22,
+    "codeSha256": "50064cb93fe12f7fd7ea95bbb350ff0e7d8f7c150b81977b5956ea0ddd16544a",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "colorizeExclusions",
+      "traitKind": "getter",
+      "methodIndex": 8171,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "af39d8c67da554f66a03225c5c5af1e3a7b814e63f74311a5784a5f0dadf6f53",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "decrementButton",
+      "traitKind": "getter",
+      "methodIndex": 8178,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "858c04ad1f3e8e34354944fe5cea2a8125175371ed43e82c49cde29458b83cb7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "decrementButton",
+      "traitKind": "setter",
+      "methodIndex": 8179,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "6047416eb0bac2dfa1186ea0e3712045e87751f6d0677a06946a24606aea7745",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 8184,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.NumericStepper",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4ea31be4a07d9e7765eeb087aab39eaf91e16f1d74a032e83bd36b656da43220",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 8185,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.NumericStepper"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "630eeb1b00ac31814d29072be83406e3e7c3b4ea2efedd393ec60134f78eba15",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "incrementButton",
+      "traitKind": "getter",
+      "methodIndex": 8180,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3e8537a44cde3205fd91474292569891d23031ed74e974c3fd0a1402e2e4dd84",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "incrementButton",
+      "traitKind": "setter",
+      "methodIndex": 8181,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4c5461eccc924fab1b633d9ace34aa58531cd4d71f00f41d242d65b7661ad144",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 8170,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 8169,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "5fd4a4cd7986d0928e272ea8b8f4fa00d28412edd04cbc80e4432a23be256a59",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._NumericStepperSkin_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 8175,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "4791a22c5f4fe0f815154e713d7de838ca19907593608baec25b2f8840b98d5e",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._NumericStepperSkin_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 8176,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "2546df6e5a9d7ade196521b9917471cd2194427b438ae15df322a9b26c55a9d7",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._NumericStepperSkin_TextInput1_i",
+      "traitKind": "method",
+      "methodIndex": 8177,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "6107f4f553944bf5a9cbdae174e3741ffd9edfad66ebf92b97e34b11c49741c9",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:NumericStepperSkin.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 8173,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 155,
+      "bytecode": {
+        "codeLength": 155,
+        "codeSha256": "552296d075d12a1b36cdb1b7516907eebe015164cdca7fe3d467d18dc7975ee2",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:NumericStepperSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 8172,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 8174,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "8b4b85d610dc0529498faf08a3a9d18d921011c7687b05b4bc784610193321da",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "textDisplay",
+      "traitKind": "getter",
+      "methodIndex": 8182,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f6435710e4bc55ce327ffce23988639e48b07492216e0d11162a16b4bddb6dbd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "textDisplay",
+      "traitKind": "setter",
+      "methodIndex": 8183,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.TextInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "27bb00b5185074a06a77199890fc9e52c362d406b97b0355b402466b11cdca68",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,256 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2534,
+  "className": "com.chrysler.cda.domain.diagnostic.procedures.QualifierBatchExecutor",
+  "classNameNormalized": "com.chrysler.cda.domain.diagnostic.procedures.QualifierBatchExecutor",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 43423,
+  "cinitMethod": 43420,
+  "iinitBytecode": {
+    "codeLength": 52,
+    "codeSha256": "757f7203c3d668b14be78da95ca9bc7ec22b853a7be0d1602a234b2d3770d672",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addRoutineToQualify",
+      "traitKind": "method",
+      "methodIndex": 43428,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.offBoardRoutines.DiagnosticProcedureRoutineVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 142,
+      "bytecode": {
+        "codeLength": 142,
+        "codeSha256": "9f1c6195bb91f615542ff073e745908a23cbd72ccc158f83bd861a0d3010a7b1",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "cleanup",
+      "traitKind": "method",
+      "methodIndex": 43435,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "8769203dde116d32a5c966675779e00994e557e04ed470eb3816af1974c6dc48",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isComplete",
+      "traitKind": "method",
+      "methodIndex": 43421,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b6518b2ca41213e756da91c3c359b2c0852a4e38b845f5847b6168c440e69992",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.addListeners",
+      "traitKind": "method",
+      "methodIndex": 43425,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "c42a47dec113e5db3b5ad08d0de1f6c9a066247f6153507bb08d7990f2a6ecbc",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.addRoutine",
+      "traitKind": "method",
+      "methodIndex": 43429,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.offBoardRoutines.DiagnosticProcedureRoutineVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "603ee6180fc66f2be6b3e970f97f9d066b2d2a7f2f219be2834833bc3edfd867",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.addRoutines",
+      "traitKind": "method",
+      "methodIndex": 43431,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "41d18bb499b28d83f8f301795fbd4c579e7994c08384f96ea3d0881144407a54",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.onExecutorComplete",
+      "traitKind": "method",
+      "methodIndex": 43432,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "5ed8593f469b6d6b3acb33c88d0397574f97b29266570eb9b834b7fae89ca222",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.onExecutorError",
+      "traitKind": "method",
+      "methodIndex": 43434,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 135,
+      "bytecode": {
+        "codeLength": 135,
+        "codeSha256": "38fc4c7dc10b4d153ede1460d755ce5be5ff35ab7b23f8caccfb0b54c1d59892",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.onProgress",
+      "traitKind": "method",
+      "methodIndex": 43430,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.event.DiagnosticProcedureLibraryEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.onProgressPercentage",
+      "traitKind": "method",
+      "methodIndex": 43427,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.event.DiagnosticProcedureLibraryEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "440eee43d60af7cf37019fe2bba822e2aa6068c8c55fe977ca813572586126fc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.propagateRemaining",
+      "traitKind": "method",
+      "methodIndex": 43433,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "2c08c5c312bd2c10a83707d0a7629c154ccb107537658ede1f9963726f0517ce",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeListeners",
+      "traitKind": "method",
+      "methodIndex": 43426,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "019e7b09aaeaa95818db9575c26a510ee04581b41a8a5fcaf611a79258a9c6ef",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "progress",
+      "traitKind": "getter",
+      "methodIndex": 43422,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4fe63731a1d43783bf46d8b4b8b8a8c600f7e9fb2990836515f5cc536421b17d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "start",
+      "traitKind": "method",
+      "methodIndex": 43424,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "1c468c63925c7ef76475e7f4f192512253276fe8881babceb2debc687e2e5c9b",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

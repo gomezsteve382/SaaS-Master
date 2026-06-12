@@ -1,0 +1,207 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 611,
+  "className": "com.chrysler.cda.infrastructure.EnvVars",
+  "classNameNormalized": "com.chrysler.cda.infrastructure.EnvVars",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 11627,
+  "cinitMethod": 11615,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 38,
+    "codeSha256": "2cf947ec48151bf9b669c1ec93227b6eb5bc76661f34eb2ded6719970807dc60",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.infrastructure:EnvVars.errorOutputDataHandler",
+      "traitKind": "method",
+      "methodIndex": 11622,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "a2f8b22ffcdfde0604786a02d75c9bc70e5fdff178ef4150c505a02e66bfccf7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.infrastructure:EnvVars.lookupCmdNativePath",
+      "traitKind": "method",
+      "methodIndex": 11616,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 178,
+      "bytecode": {
+        "codeLength": 178,
+        "codeSha256": "54fc47e083f639b2a466912f9bd9ae26809ca6f4d889fd37cb10f1b3d4fc0670",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.infrastructure:EnvVars.onExit",
+      "traitKind": "method",
+      "methodIndex": 11621,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.NativeProcessExitEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "e6c6d4043f3e10160f9fe2216ab19c2542b957c1ed4759ed28fdcc570d86b286",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.infrastructure:EnvVars.outputDataHandler",
+      "traitKind": "method",
+      "methodIndex": 11620,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "beaa7db8dc073a3897c60dd57b18eea67d188993594500321e19f22259961efc",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.infrastructure:EnvVars.parseVars",
+      "traitKind": "method",
+      "methodIndex": 11626,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "3a23b96f240f223b40738faba287343f4a267140a5f04fd8956e002dc958ed11",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "getAllUsersDirectory",
+      "traitKind": "method",
+      "methodIndex": 11623,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "a53908b7149d70975325597cba3ff4ce685881d90cf12d8c6bc876d70fdf36cb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getCmdNativePath",
+      "traitKind": "method",
+      "methodIndex": 11617,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "2adcf4129d5c393b3689dd3647eaa2e5c8ae3f783e66424d5b311cd51d765f80",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 11619,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 289,
+      "bytecode": {
+        "codeLength": 289,
+        "codeSha256": "e6ebdd62fc6a3c332af57add85a3e9270d2bd8988b8267196e6b4ce5b4658e4e",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkOS",
+      "traitKind": "method",
+      "methodIndex": 11618,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 188,
+      "bytecode": {
+        "codeLength": 188,
+        "codeSha256": "d59d1f26cbc3e79c4dfda7e2ffa9e26edf666e9ee4f6f23d08b7c9c5b7b80b42",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 11624,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "812dcb8fce7b6d9c03a3d40a3a2107b69254ee2832fe5506eb7c5d8d95a08dbc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.initializationFailed",
+      "traitKind": "method",
+      "methodIndex": 11625,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "10547f6d715f9173d9abb7416a6415644f63fbe1fefba7c41b28c016ed14392a",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,593 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1164,
+  "className": "com.chrysler.cda.presentation.component.file.ProxyConfiguration",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.file.ProxyConfiguration",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 25834,
+  "cinitMethod": 25830,
+  "iinitBytecode": {
+    "codeLength": 405,
+    "codeSha256": "c918c69255211d146f06314099e877b1d1385d77f3cd1e5732984d02123355da",
+    "bytecodeLineCount": 26
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "c069b14d8728bcc6cb800dac8fd14f5233d2f3192686f7dded888b676272bd7d",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___ProxyConfiguration_AbstractWindow1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 25860,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "4993bfdfaedda7c91ed99e40cf44a30fce35254a1f61a1da26d0ce66994bf195",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___ProxyConfiguration_AbstractWindow1_show",
+      "traitKind": "method",
+      "methodIndex": 25861,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "d9bd5d38164bb33718533e105f973c7881ff856eef756b7624808561885cc1ec",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.file:ProxyConfiguration.creationCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 25838,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "fe1ec3ddd472343f319ca23981e7a5f92eaf7d483459670271509cb2483e4774",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.file:ProxyConfiguration.showHandler",
+      "traitKind": "method",
+      "methodIndex": 25837,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "2eb5d575e1d78463f76e12d0881c1f2df728e616900dfaf14da6a5e956f6ed49",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.file:ProxyConfiguration.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 25876,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0dcb008c63e48d2447d642bc0a50ed22926f9791b094b2ddafe0c71a2cbd206f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "group",
+      "traitKind": "getter",
+      "methodIndex": 25877,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2d04e912bae0c221e83e8fc722d92fc805798cb732aff31c80e4c393b2aa81dc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "group",
+      "traitKind": "setter",
+      "methodIndex": 25878,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "8a944e54708c927131c6292d34c0cc79c91d7d1779da856755074ed105088435",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 25836,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "getter",
+      "methodIndex": 25881,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.sync.SyncPM",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "40d9832ff475c2cb818851d1f8b83753a77d90f5815f0caa93c76a86404fb857",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "setter",
+      "methodIndex": 25882,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.sync.SyncPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "0c9880537916fc682635dc203034e4216fd72e5fd85e7cf23854f3a60c0f1f4c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 25835,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "638e239e0c97925548fa531913991ed9effb538d9cd11ab2d06de0e95083560e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "parentGroup",
+      "traitKind": "getter",
+      "methodIndex": 25879,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "52a16e317cfbc97c2cdba471db02a0104582ec799b3d11f92162ceb49a9a4664",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "parentGroup",
+      "traitKind": "setter",
+      "methodIndex": 25880,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.HGroup"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "7858a40e3fa6560d22b6cdf800b24bf03b5e33de9543fbdced2870623ec80e82",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 25839,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "d84f360855ff399783aa51540a71d6d16107c466b0e695a8a16f7953bb09d5f1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Array8_c",
+      "traitKind": "method",
+      "methodIndex": 25852,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "b64e6d52549a085255341c954d81d729bfde995328250729b5284a77cd39366c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_BasicLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 25841,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.BasicLayout",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "7d40009c36434da001a7a7bf479eb2403935c2886fee00170e178ae285711ab5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 25875,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 344,
+      "bytecode": {
+        "codeLength": 344,
+        "codeSha256": "51c59262a0644c67c5eb02539ada2fca9b102b29d21ad8ae05b08aa2a34733e9",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_BorderContainer1_c",
+      "traitKind": "method",
+      "methodIndex": 25850,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.BorderContainer",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "9087d419fb8e83cb8137324e3473caa7402efe59d6c07dc0e3df4831bbd19994",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_DropShadowFilter1_c",
+      "traitKind": "method",
+      "methodIndex": 25851,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.filters.DropShadowFilter",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "68b383f08ac6275ebc64f936a3db210cabf9b1d6eb52abf2ae47290dcb7a98d2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Group1_i",
+      "traitKind": "method",
+      "methodIndex": 25840,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "8cb0bacb9876756b1e3b5cf78fbcad601af84768b42a642140bdc64014b03662",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Group2_c",
+      "traitKind": "method",
+      "methodIndex": 25843,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "1515c4ec6b708484ef469e54ffa6ec1f50703fcaa37006c2d702c414df18a7f6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_HGroup1_i",
+      "traitKind": "method",
+      "methodIndex": 25844,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "d83da4b7db3d164f59b6d7c0ea92bb68bf0120d822ea1af1b3dd09b7dc2a6a22",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_HGroup2_i",
+      "traitKind": "method",
+      "methodIndex": 25847,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "67f0ced547f98d0fa24cc620a92885351cbd18fa4c681839cbe19a5fb185b019",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_HGroup3_c",
+      "traitKind": "method",
+      "methodIndex": 25854,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "bdf85932c50b091f275c2367f82aa15e907354accee7de671ceebbf8ea81f66b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_HRule1_c",
+      "traitKind": "method",
+      "methodIndex": 25857,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.HRule",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "8416ebab4d93ca634b3d492ad6fb0b92f7924146420aa096b1fe489e0278272a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_HRule2_c",
+      "traitKind": "method",
+      "methodIndex": 25858,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.HRule",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "8416ebab4d93ca634b3d492ad6fb0b92f7924146420aa096b1fe489e0278272a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Image1_i",
+      "traitKind": "method",
+      "methodIndex": 25845,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "28c51d1575a694b291aae37f599c7c718e534b6bff8b0b0f40483943ce09e30a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Image2_i",
+      "traitKind": "method",
+      "methodIndex": 25848,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "16783e2c454eec5f49316b775b1edf182050238d24d1cf264949fd3c82111e28",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 25846,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "63c939ac9c868d644d2b9b3446068a0371e39a0582c2b500d1160e01acfbf199",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Label2_i",
+      "traitKind": "method",
+      "methodIndex": 25849,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "f2c718d860321e43863c1f91bcf09d95eef80d4c4a616130ca629ee5d7fa7c1a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Label3_i",
+      "traitKind": "method",
+      "methodIndex": 25855,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "79ec18c52ca8dd2de9ac3a033d6e073a4af8ec3226e7f3d0d5be4580f5700621",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_Scroller1_i",
+      "traitKind": "method",
+      "methodIndex": 25859,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "ba4904aa470b8b5d095af315d77a4efec4b1e6ad622b20676c44e3895bdc6563",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_VGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 25842,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "d64b2fe2ef0de41862a055b0cff81a22ce2dcfc49c3ee6223b9dbe5c48a4a735",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_VGroup2_c",
+      "traitKind": "method",
+      "methodIndex": 25853,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "477e0375a53670d7c8cb684a3a59c0ed13edc582e245fc3bb746b309a8433f48",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxyConfiguration_VGroup3_c",
+      "traitKind": "method",
+      "methodIndex": 25856,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "0d8ac84f7faad87e89a921d4caa5f98e28a4c412317dd4dfe42bf6f8be26bd11",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 25831,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "a416bcdc97bca70cb44b8fc2fe6bd6e578d5404f1bed654cb6dccfe0c0046b5e",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

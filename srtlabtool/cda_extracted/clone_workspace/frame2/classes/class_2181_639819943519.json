@@ -1,0 +1,201 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2181,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.GetComServiceDDEMetaDataMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.GetComServiceDDEMetaDataMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 39500,
+  "cinitMethod": 39499,
+  "iinitBytecode": {
+    "codeLength": 38,
+    "codeSha256": "e483a4187dc4ac26acacae86d770b279634a18863adb86e44d90346d9c215ce8",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 39503,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.GetComServiceDDEMetaDataMessage",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "377d464a34322b1a02229126364dfecfcf77dba3a7052b532524c0504d7e7200",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "addErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 39504,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.GetComServiceDDEMetaDataMessage",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "406ad9fd4917443af00787725cfe8d5a336fd3d6c6be5223eae4b4a7b5252d43",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "bitLength",
+      "traitKind": "getter",
+      "methodIndex": 39507,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5b2bde4c2980f035a1d107fd4f79df4f482e9a56d6153101ad961f755e4ae572",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "bitPosition",
+      "traitKind": "getter",
+      "methodIndex": 39508,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e2e790f621b277e0f2837fad627182a7969223c75d1f929ac1be8b56835259eb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "completeMessages",
+      "traitKind": "getter",
+      "methodIndex": 39505,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4f73981f0e6b53f03ea501eea08fa17407a0637d2cb154b38c7afabcec0c10c6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecu",
+      "traitKind": "getter",
+      "methodIndex": 39510,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b7cee7e5f6845761d0a0cc6eb6098efc979dc273cbaedb90bfef57a6a0243a5a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "errorMessages",
+      "traitKind": "getter",
+      "methodIndex": 39506,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8ab982bd83e327333e0fce970facc47db6b6f8a8ae015a5b2ae52962883bae78",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "forceComServiceUpdate",
+      "traitKind": "method",
+      "methodIndex": 39501,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.GetComServiceDDEMetaDataMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "4c155554eac3bf3fdb745143f57f1b6f403bd042d772e1731eeed67419d147f9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "forceUpdate",
+      "traitKind": "getter",
+      "methodIndex": 39502,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "17c3338f44b04b9efa81d74a91577fd9d9d76b138c15abc9b860402a79f9ce77",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onlyQualified",
+      "traitKind": "getter",
+      "methodIndex": 39511,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d741d99076a00656bfdbb357d535c9115afb3a9a425789f94a290e6e859944b9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xmit",
+      "traitKind": "getter",
+      "methodIndex": 39509,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7241445166ca0c50d04e5bead59725d0dc58cd7f9c99b84beda97df83d2d0c32",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

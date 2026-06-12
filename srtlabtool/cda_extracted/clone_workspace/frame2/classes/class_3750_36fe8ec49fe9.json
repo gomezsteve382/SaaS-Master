@@ -1,0 +1,175 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3750,
+  "className": "org.spicefactory.parsley.dsl.impl.DefaultObjectDefinitionBuilder",
+  "classNameNormalized": "org.spicefactory.parsley.dsl.impl.DefaultObjectDefinitionBuilder",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.dsl.ObjectDefinitionBuilder"
+  ],
+  "iinitMethod": 55862,
+  "cinitMethod": 55861,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "0c6fca8a58254ece7f5974f2af62005efe68b70c9c5a3cd6b56ee4115622df26",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "asDynamicObject",
+      "traitKind": "method",
+      "methodIndex": 55871,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.core.DynamicObjectBuilder",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "4485358c2710437225f94caed3545ed9bddd262ba7eec399c6b22deb98e9e7d9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "asSingleton",
+      "traitKind": "method",
+      "methodIndex": 55870,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.core.SingletonBuilder",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "42ef54bdb9b622259183b539a43527794867832ce2501ed5e9370cd4d6d99c86",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "config",
+      "traitKind": "getter",
+      "methodIndex": 55864,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.config.Configuration",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "c26c4aaba208a87992f252edb42961f4b782604007aff9c4fdcb63dc67ecb31d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "constructorArgs",
+      "traitKind": "method",
+      "methodIndex": 55865,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.core.ConstructorBuilder",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "cb3c8e72c856e6fb418bfe65364a0a0da13c370e65129905d5b867341bb1fbb4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "event",
+      "traitKind": "method",
+      "methodIndex": 55868,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.EventBuilder",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "447f0106e852baf4a98924000941bc021672a1572ef7cbc8d262f462fd698124",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "lifecycle",
+      "traitKind": "method",
+      "methodIndex": 55869,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.dsl.lifecycle.LifecycleBuilder",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "1066ed4015e826d18f73b7a63bca959d997f1a2dc1fe643ed1add7f13631898c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "method",
+      "traitKind": "method",
+      "methodIndex": 55867,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.MethodBuilder",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "075a1598a0260d26287fcf3d85866393d8071efeec2514d8970b4ade3798399e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "property",
+      "traitKind": "method",
+      "methodIndex": 55866,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.PropertyBuilder",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "d0c18c3a11a3fd089e2c0f63b882205d0056bb02cd09386f945b6181eab2f9a5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "typeInfo",
+      "traitKind": "getter",
+      "methodIndex": 55863,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.lib.reflect.ClassInfo",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "a6cd7d86ebad7cc9778d81bb53d906779dd806984c57de3657359f1dfcd1d3ac",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}
