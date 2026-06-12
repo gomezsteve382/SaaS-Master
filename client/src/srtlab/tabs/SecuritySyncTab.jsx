@@ -12,7 +12,7 @@ import {RfhubKeyTypeBanner} from "../components/RfhubKeyTypeBanner.jsx";
 
 const mono = "'JetBrains Mono'";
 
-const hex2 = (b) => b.toString(16).toUpperCase().padStart(2, "0");
+const hex2 = (b) => (b == null ? "?" : (b & 0xff).toString(16).toUpperCase().padStart(2, "0"));
 const bytesHex = (arr) => (arr ? Array.from(arr).map(hex2).join(" ") : "—");
 const reverseBytes = (arr) => {
   if (!arr) return null;
@@ -95,7 +95,7 @@ function ByteRow({label, sub, bytes, expected, accent = C.tx, testid}) {
         <span style={{fontSize: 10, fontWeight: 800, color: C.ts, letterSpacing: 0.6, textTransform: "uppercase"}}>{label}</span>
         {sub && <span style={{fontSize: 10, color: C.tm}}>{sub}</span>}
       </div>
-      {bytes ? (
+      {bytes && bytes.length > 0 ? (
         <div style={{display: "flex", flexWrap: "wrap", gap: 4}}>
           {Array.from(bytes).map((b, i) => {
             const match = expected ? b === expected[i] : null;
