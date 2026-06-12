@@ -38,6 +38,7 @@ import {
   PROXI_VARIANTS,
 } from "../lib/proxiDecoder.js";
 import ProxiEditor from "./ProxiEditor.jsx";
+import Section from "../components/Section.jsx";
 
 const PROXI_OFFSET = 0x2023;
 const PROXI_LENGTH = 16;
@@ -231,29 +232,24 @@ export default function ProxiTab() {
 
   return (
     <div>
-      {/* Banner — clarifies that THIS TAB now has TWO panels with very
-       * different write semantics. The DEnn / 0x2023 decoder below is
-       * still read-only (curated label map, not ground-truthed). The
-       * Live PROXI Editor immediately below this banner DOES write to
-       * the BCM via 0x2E 0xFD01 with cfBCM seed/key. */}
-      <Card style={{ marginBottom: 16, background: "#FFF8E1", borderColor: "#F0C13B" }}>
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-          <div style={{ fontSize: 24 }}>📋</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 900, fontSize: 13, color: "#7A5300", letterSpacing: 0.5 }}>
-              TWO PANELS — DIFFERENT WRITE SEMANTICS
-            </div>
-            <div style={{ fontSize: 12, color: "#7A5300", marginTop: 4, lineHeight: 1.5 }}>
-              <strong>Below this banner:</strong> the Live PROXI Editor — reads and writes the
-              128-byte PROXI record (DID 0xFD01 / 0xFD20) over the J2534 bridge with cfBCM
-              seed/key. Write is real (0x2E) and ECU-resets the BCM.{" "}
-              <strong>Further down:</strong> the DEnn / 0x2023 decoder is still read-only — its
-              labels are best-effort from AlfaOBD's recovered map and need to be ground-truthed
-              against a known-good dump for your platform before any future 0x2E to those DIDs.
-            </div>
-          </div>
+      {/* Reference banner — explains the two panels' write semantics. The
+       * safety headline stays visible in the Section header; the detail
+       * collapses so returning techs aren't re-reading it every visit. */}
+      <Section
+        title="⚠ TWO PANELS — DIFFERENT WRITE SEMANTICS"
+        accent="#F0C13B"
+        defaultOpen={false}
+        testid="proxi-write-semantics"
+      >
+        <div style={{ fontSize: 12, color: "#7A5300", lineHeight: 1.5 }}>
+          <strong>Below this banner:</strong> the Live PROXI Editor — reads and writes the
+          128-byte PROXI record (DID 0xFD01 / 0xFD20) over the J2534 bridge with cfBCM
+          seed/key. Write is real (0x2E) and ECU-resets the BCM.{" "}
+          <strong>Further down:</strong> the DEnn / 0x2023 decoder is still read-only — its
+          labels are best-effort from AlfaOBD's recovered map and need to be ground-truthed
+          against a known-good dump for your platform before any future 0x2E to those DIDs.
         </div>
-      </Card>
+      </Section>
 
       {/* Live read/edit/write panel — drives UDS 0x22/0x2E 0xFD01 over the
        * J2534 bridge with cfBCM seed/key. This is the native browser
