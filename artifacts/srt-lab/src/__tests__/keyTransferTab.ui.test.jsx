@@ -15,6 +15,7 @@ import { render, screen, cleanup, fireEvent, act } from '@testing-library/react'
 
 import KeyTransferTab from '../tabs/KeyTransferTab.jsx';
 import { PRIMARY_NAV } from '../components/CommandShell.jsx';
+import { JOB_BY_ID, JOB_OF } from '../workspaceJobs.js';
 import {
   CHAR_KEYTABLE_BASE,
   CHAR_KEYTABLE_STRIDE,
@@ -91,12 +92,14 @@ describe('KeyTransferTab — primary nav + hex viewer', () => {
     cleanup();
   });
 
-  it('registers a deduplicated keyxfer entry in the primary nav', () => {
-    const keys = PRIMARY_NAV.map(n => n.key);
-    expect(keys).toContain('keyxfer');
-    // Deduplicated keys => the Advanced drawer (which excludes PRIMARY_NAV keys)
-    // can never render a duplicate of this destination.
-    expect(new Set(keys).size).toBe(keys.length);
+  it('keyxfer is a mode under the KEYS job, reachable from the keys door', () => {
+    // Post job-flow rebuild: the rail exposes six JOB doors, not individual
+    // tabs. keyxfer is no longer its own rail key — it's a member ("mode") of
+    // the KEYS job, reached via the KEYS door (primary `keyprog`) + mode strip.
+    const railKeys = PRIMARY_NAV.map(n => n.key);
+    expect(new Set(railKeys).size).toBe(railKeys.length); // doors stay deduplicated
+    expect(JOB_BY_ID.keys.members).toContain('keyxfer');
+    expect(JOB_OF.keyxfer).toBe('keys');
   });
 
   it('lands on the empty hex viewer before a file is loaded', () => {

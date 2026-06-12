@@ -93,10 +93,7 @@ export function deriveAllFromSec16(rfhubSec16) {
   if (!rfhubSec16 || rfhubSec16.length !== 16) {
     throw new Error('deriveAllFromSec16: rfhubSec16 must be exactly 16 bytes');
   }
-  const bcmSec16 = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) bcmSec16[i] = rfhubSec16[15 - i];
-  const pcmSec6 = new Uint8Array(rfhubSec16.slice(0, 6));
-  return { bcmSec16, rfhubSec16: new Uint8Array(rfhubSec16), pcmSec6 };
+  return deriveAllFromRfh(rfhubSec16);
 }
 
 /* XC2268 SEC16 lives in xc2268Rfhub.js's "single source of truth" layout
@@ -109,6 +106,10 @@ import {
   XC2268_SEC16_LEN,
   xc2268ImageChecksum,
 } from './xc2268Rfhub.js';
+/* Single source of truth for the BCM<->RFH<->PCM secret byte relationships.
+ * Every reversal / SEC6 slice in this file routes through these so the
+ * derivation can never drift between the writers. */
+import { reverse16, pcmSec6FromRfh, deriveAllFromRfh } from './immoSecret.js';
 
 /* CRC-16/CCITT-FALSE — poly 0x1021, init 0xFFFF.
  * Same primitive as engCrc16 / lib/crc.js#crc16, duplicated here so this
@@ -161,8 +162,7 @@ const hexStr = (arr) => [...arr].map(b => b.toString(16).padStart(2, '0')).join(
  * ---------------------------------------------------------------------------- */
 export function writeBcmSec16Gen2(bytes, rfhSec16) {
   if (!rfhSec16 || rfhSec16.length !== 16) throw new Error('RFH SEC16 must be 16 bytes');
-  const bcmSec16 = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) bcmSec16[i] = rfhSec16[15 - i];
+  const bcmSec16 = reverse16(rfhSec16);
   const prefix7 = bcmSec16.slice(0, 7);
   const suffix9 = bcmSec16.slice(7, 16);
   const out = new Uint8Array(bytes);
@@ -316,8 +316,7 @@ export function writeBcmFlatSec16(bytes, resolvedSec16, options = {}) {
   }
 
   const out = new Uint8Array(bytes);
-  const le = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) le[i] = resolvedSec16[15 - i];
+  const le = reverse16(resolvedSec16);
 
   const mirror1OverlapsFlat = (
     out.length >= 0x40C8 &&
@@ -404,7 +403,7 @@ const CANONICAL_PCM_SIZES = new Set([4096, 8192]);
  * ---------------------------------------------------------------------------- */
 export function writePcmSec6(bytes, rfhSec16) {
   if (!rfhSec16 || rfhSec16.length < 6) throw new Error('Need at least 6 bytes of RFH SEC16');
-  const sec6 = rfhSec16.slice(0, 6);
+  const sec6 = pcmSec6FromRfh(rfhSec16);
   const out = new Uint8Array(bytes);
   let patched = 0;
   let markerUsed = null;
@@ -448,8 +447,7 @@ export function writePcmSec6(bytes, rfhSec16) {
  * ---------------------------------------------------------------------------- */
 export function writeRfhSec16FromBcm(bytes, bcmSec16) {
   if (!bcmSec16 || bcmSec16.length !== 16) throw new Error('BCM SEC16 must be 16 bytes');
-  const rfhSec16 = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
+  const rfhSec16 = reverse16(bcmSec16);
   const chk = crc8_65(rfhSec16);
   const out = new Uint8Array(bytes);
   if (out[0x0500] !== 0xAA || out[0x0501] !== 0x55 ||
@@ -502,8 +500,7 @@ export function writeRfhSec16FromBcm(bytes, bcmSec16) {
 export function writeRfhSec16Gen1(bytes, bcmSec16) {
   if (!bcmSec16 || bcmSec16.length !== 16) throw new Error('BCM SEC16 must be 16 bytes');
   if (bytes.length < 0x00D2) throw new Error('Buffer too small to be a Gen1 RFHUB (need ≥ 0xD2 B)');
-  const rfhSec16 = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
+  const rfhSec16 = reverse16(bcmSec16);
   const chk = crc8_65(rfhSec16);
   const out = new Uint8Array(bytes);
   let patched = 0;
@@ -548,8 +545,7 @@ export function writeXc2268Sec16(bytes, bcmSec16) {
   if (bcmSec16.every((b) => b === 0xFF || b === 0x00)) {
     throw new Error('Refusing to write XC2268 SEC16 from a blank BCM secret');
   }
-  const rfhSec16 = new Uint8Array(XC2268_SEC16_LEN);
-  for (let i = 0; i < XC2268_SEC16_LEN; i++) rfhSec16[i] = bcmSec16[XC2268_SEC16_LEN - 1 - i];
+  const rfhSec16 = reverse16(bcmSec16);
   const chk = crc16ccitt(rfhSec16);
   const out = new Uint8Array(bytes);
   let patched = 0;

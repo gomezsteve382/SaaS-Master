@@ -35,6 +35,7 @@ import {
   writePcmSec6,
 } from './securityBytes.js';
 import { extractRfhPflashIdentity } from './rfhPflashIdentity.js';
+import { reverse16, pcmSec6FromRfh } from './immoSecret.js';
 
 /* Valid VIN body: 17 chars, A–Z / 0–9, no I, O, Q. */
 export const GPEC2A_VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
@@ -163,6 +164,24 @@ export function analyzeGpec2aPcm(bytes) {
     };
   }
 
+  /* ── SKIM immobilizer enable byte @0x0011 ──
+   * 0x80 = ENABLED (PCM enforces the immo secret); 0x00 / 0x02 = DISABLED
+   * (immo BYPASSED — the PCM ignores the secret and starts regardless). The
+   * immo fix only writes the SEC6 secret; it does NOT change SKIM (a real sync
+   * leaves it untouched, per the bench golden). But syncing SEC6 on a PCM whose
+   * SKIM is DISABLED is moot — the secret won't be enforced — so surface it. */
+  let skim = null;
+  if (sz > 0x0011) {
+    const b = bytes[0x0011];
+    skim = {
+      offset: 0x0011,
+      byte: b,
+      hex: '0x' + b.toString(16).toUpperCase().padStart(2, '0'),
+      enabled: b === 0x80,
+      state: b === 0x80 ? 'ENABLED' : (b === 0x00 || b === 0x02) ? 'DISABLED' : 'UNKNOWN',
+    };
+  }
+
   /* ── EEPROM / chip ── */
   const chip = pcmChipFromSize(sz);
   const eeprom = {
@@ -193,10 +212,12 @@ export function analyzeGpec2aPcm(bytes) {
             : 'SEC6 DAMAGED'
     );
   }
+  if (skim) stateParts.push(skim.enabled ? 'SKIM ON' : 'SKIM ' + skim.state);
   const state = {
     verdict: stateParts.join(' / '),
     validVinCount,
     immoSync: immo ? immo.synced : false,
+    skimEnabled: skim ? skim.enabled : null,
   };
 
   /* ── Family / confidence ── */
@@ -237,6 +258,11 @@ export function analyzeGpec2aPcm(bytes) {
         : `IMMO not synced — marker ${immo.currentHex}, expected ${immo.expectedHex}`,
     });
   }
+  if (skim) {
+    notes.push(skim.enabled
+      ? { tag: 'IMMO', text: 'SKIM @0x0011 = 0x80 (ENABLED) — immobilizer active' }
+      : { tag: 'WARNING', text: `SKIM @0x0011 is ${skim.hex} (${skim.state}) — immobilizer BYPASSED; a SEC6 sync will not be enforced until SKIM is enabled (0x80).` });
+  }
 
   /* ── Internal IDs / signatures ── */
   const identity = extractRfhPflashIdentity(bytes) || {};
@@ -252,7 +278,7 @@ export function analyzeGpec2aPcm(bytes) {
     dt23_081C: asciiField(bytes, 0x081c, 7) || null,
   };
 
-  return { ok: canonical, canonical, family, eeprom, state, sec6, immo, notes, vinRows, ids };
+  return { ok: canonical, canonical, family, eeprom, state, sec6, immo, skim, notes, vinRows, ids };
 }
 
 /* ── Donor → PCM SEC6 derivation ─────────────────────────────────────────
@@ -265,11 +291,10 @@ export function derivePcmSec6FromDonor(donorMod) {
   if (donorMod.type === 'BCM') {
     const r = resolveBcmSec16(donorMod.data);
     if (!r || !r.bytes || r.bytes.length < 16 || r.blank) return null;
-    const rfhSec16 = new Uint8Array(16);
-    for (let i = 0; i < 16; i++) rfhSec16[i] = r.bytes[15 - i];
+    const rfhSec16 = reverse16(r.bytes.slice(0, 16));
     if (allFill(rfhSec16, 0xff) || allFill(rfhSec16, 0x00)) return null;
     return {
-      sec6: rfhSec16.slice(0, 6),
+      sec6: pcmSec6FromRfh(rfhSec16),
       rfhSec16,
       source: 'BCM',
       detail: `reverse(BCM SEC16 · ${r.source || 'resolved'})[0:6]`,
@@ -281,7 +306,7 @@ export function derivePcmSec6FromDonor(donorMod) {
     const rfhSec16 = new Uint8Array(vs.bytes);
     if (allFill(rfhSec16, 0xff) || allFill(rfhSec16, 0x00)) return null;
     return {
-      sec6: rfhSec16.slice(0, 6),
+      sec6: pcmSec6FromRfh(rfhSec16),
       rfhSec16,
       source: 'RFHUB',
       detail: 'RFHUB SEC16[0:6]',

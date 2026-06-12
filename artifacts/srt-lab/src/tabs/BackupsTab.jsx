@@ -1204,7 +1204,7 @@ export default function BackupsTab() {
   backups.forEach(b => { moduleCounts[b.module] = (moduleCounts[b.module] || 0) + 1; });
 
   return (
-    <div>
+    <div data-testid="backups-tab">
       <Card style={{
         background: "linear-gradient(135deg,#0A3D1A 0%,#1E6F3A 40%,#00BFA5 100%)",
         color: "#fff", marginBottom: 18,

@@ -320,6 +320,23 @@ function blockScan(data, fileHasContent, seen) {
 // Results: valid entries sorted ASC by offset; then broken entries sorted DESC
 // by offset (highest = end-of-file first). Total capped at 30.
 // ---------------------------------------------------------------------------
+
+// checksumConfidence(width, isStructural) → "high" | "medium" | "low"
+//
+// A stored value matching a computed checksum BY CHANCE has probability
+// ~1/2^(8*width): width-4 (crc32/sum32/xor32) ≈ 1/2^32 (negligible), width-2
+// (crc16/sum16) ≈ 1/65536 (essentially real), width-1 (sum8) ≈ 1/256. With a
+// few hundred probes a 4 KB file throws off ~probes/256 coincidental sum8
+// "valid" hits — exactly the noise that relocates when unrelated bytes change.
+// So: width >= 2 is "high"; a lone sum8 at a non-structural offset is "low"
+// (coincidental); a sum8 at a structural boundary is "medium" (could be a real
+// section checksum). Callers/UI must NOT treat a "low" hit as a real ECU
+// checksum to repair.
+function checksumConfidence(width, isStructural) {
+  if (width >= 2) return "high";
+  return isStructural ? "medium" : "low";
+}
+
 export function scanChecksums(data) {
   const n = data.length;
   const step = Math.max(2, Math.floor(n / 400));
@@ -362,6 +379,7 @@ export function scanChecksums(data) {
       // valid path still fires whenever computed === stored (e.g. sum8 = 0xFF).
       const storedIsAllFF = Array.from(stored).every(b => b === 0xFF);
 
+      const confidence = checksumConfidence(width, isStructural);
       if (storedMatchesComputed && storedNonTrivial) {
         // Valid: stored checksum matches computed prefix — overwrite any prior broken entry
         seen.set(key, {
@@ -373,6 +391,8 @@ export function scanChecksums(data) {
           status:      "valid",
           covers:      covers(0, pos),
           coversStart: "0x0",
+          confidence,
+          coincidental: confidence === "low",
         });
       } else if (isStructural && fileHasContent && computedNonTrivial && !storedIsAllFF && !seen.has(key)) {
         // Broken candidate: structural position, file has data, stored slot looks
@@ -386,13 +406,20 @@ export function scanChecksums(data) {
           status:      "broken",
           covers:      covers(0, pos),
           coversStart: "0x0",
+          confidence,
+          coincidental: confidence === "low",
         });
       }
     }
   }
 
   // Partial-range / per-block checksums (e.g. ZF-8HP TCU per-block CRC32).
+  // These are crc32/crc16 (width >= 2) confirmed across >=2 blocks → high
+  // confidence; default-fill the field for any entry blockScan added.
   blockScan(data, fileHasContent, seen);
+  for (const e of seen.values()) {
+    if (e.confidence === undefined) { e.confidence = "high"; e.coincidental = false; }
+  }
 
   const validEntries  = [...seen.values()].filter(e => e.status === "valid")
     .sort((a, b) => parseInt(a.offset, 16) - parseInt(b.offset, 16));

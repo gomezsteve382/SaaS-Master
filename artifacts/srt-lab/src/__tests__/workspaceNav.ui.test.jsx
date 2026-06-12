@@ -1,25 +1,20 @@
 // @vitest-environment jsdom
 /*
- * Full-shell navigation drift guard.
+ * Full-shell navigation drift guard (job-flow model).
  *
- * Companion to keyTransferNav.ui.test.jsx (which guards the single Key Program
- * rail button). This test renders the full App -> VehicleWorkspace ->
- * CommandShell and, for every PRIMARY_NAV + FOOTER_NAV destination, clicks the
- * rail button and asserts the destination's own content renders — never the
- * Dumps fallback.
+ * Renders the full App -> VehicleWorkspace -> CommandShell and, for every
+ * PRIMARY_NAV job door + FOOTER_NAV link, clicks the rail button and asserts
+ * the destination renders — never the Dumps fallback.
  *
- * Why this matters: `setTab()` in VehicleWorkspace clamps any unknown tab id
- * to 'dumps'. So if a rail key, the `tab === '<id>'` switch arm, or a tab
- * component's wiring is renamed/broken, the workspace would silently fall back
- * to the Dumps tab and ship a dead button with no failure. This test turns that
- * silent drift into a hard failure.
+ * Post job-flow rebuild the rail is the SIX job doors (workspaceJobs.js), each
+ * opening its job's `primary` tab. Clicking a door must (a) show that job's
+ * mode strip (`mode-strip-<jobId>`) and (b) NOT silently clamp back to the
+ * Dumps tab. `setTab()` clamps any unknown id to 'dumps', so a broken rail key
+ * or switch arm would land on dumps — which shows `mode-strip-ref` + the dumps
+ * fallback — and fail these assertions loudly.
  *
- * A small sample of Advanced-drawer destinations is covered the same way.
- *
- * Each destination has an EXPECTED_CONTENT_TESTID entry pointing at a stable
- * root testid on the rendered tab. The `PRIMARY_NAV/FOOTER_NAV are all mapped`
- * test asserts the map stays complete, so adding a new rail/footer entry
- * without a content assertion fails loudly here.
+ * A sample of Advanced-drawer destinations is covered the same way (the drawer
+ * sections are collapsible, so the test expands the section first).
  */
 import React from 'react';
 import { describe, it, beforeEach, afterEach, expect } from 'vitest';
@@ -27,31 +22,33 @@ import { render, screen, cleanup, fireEvent, act } from '@testing-library/react'
 
 import App from '../App.jsx';
 import { PRIMARY_NAV, FOOTER_NAV } from '../components/CommandShell.jsx';
+import { JOB_OF, HOME } from '../workspaceJobs.js';
 
-// Stable root testid rendered by each destination tab's content. The negative
-// assertion checks the Dumps fallback (`dumps-pcm-target-chip-selector`) is
-// absent for every non-dumps destination.
-const EXPECTED_CONTENT_TESTID = {
-  dumps: 'dumps-pcm-target-chip-selector',
-  vinsync: 'vinsync-slots',
-  secsync: 'security-sync-tab',
-  keyxfer: 'key-transfer-tab',
-  'uds-console': 'uds-console-tab',
-  vinprog: 'vinprog-subtab-bar',
-  obd: 'live-obd-tab',
-  investigation: 'investigation-tab',
-  // FOOTER_NAV
+// Each rail door opens a JOB. `job` is the mode-strip id that always renders
+// for that door; optional `testid` is a stable root testid on the primary tab.
+const PRIMARY_EXPECT = {
+  inspector: { job: 'read' },
+  secsync:   { job: 'marry', testid: 'marry-sync-tab' },
+  keyprog:   { job: 'keys' },
+  flasher:   { job: 'flash' },
+  obd:       { job: 'live', testid: 'live-obd-tab' },
+  backups:   { job: 'ref', testid: 'backups-tab' },
+};
+
+// FOOTER_NAV links (still reached via rail-footer-<key>).
+const FOOTER_EXPECT = {
   workflow: 'workflow-tab',
   canuniverse: 'canuniverse-tab',
 };
 
 const DUMPS_FALLBACK_TESTID = 'dumps-pcm-target-chip-selector';
 
-// A representative sample of Advanced-drawer destinations (reached via the
-// topbar "Advanced / Reference" button -> drawer-tab-<id>).
+// A representative sample of Advanced-drawer destinations. Both are READ-job
+// members, so the drawer's READ section must be expanded before the tab pill
+// renders (sections are collapsed by default unless they hold the active tab).
 const DRAWER_SAMPLE = [
-  { key: 'bcm', testid: 'bcm-tab' },
-  { key: 'rfhub', testid: 'rfhub-tab' },
+  { key: 'bcm', section: 'read', testid: 'bcm-tab' },
+  { key: 'rfhub', section: 'read', testid: 'rfhub-tab' },
 ];
 
 function enterWorkspace() {
@@ -60,7 +57,7 @@ function enterWorkspace() {
   act(() => { fireEvent.click(screen.getByText('CHARGER')); });
 }
 
-describe('Workspace navigation (full shell)', () => {
+describe('Workspace navigation (full shell, job-flow model)', () => {
   let originalFetch;
   beforeEach(() => {
     // App fires fire-and-forget fetches on some interactions; stub so jsdom
@@ -73,29 +70,49 @@ describe('Workspace navigation (full shell)', () => {
     cleanup();
   });
 
-  it('every PRIMARY_NAV and FOOTER_NAV key has a content assertion mapped', () => {
-    for (const item of [...PRIMARY_NAV, ...FOOTER_NAV]) {
+  it('every PRIMARY_NAV door + FOOTER_NAV key has an expectation mapped', () => {
+    for (const item of PRIMARY_NAV) {
       expect(
-        EXPECTED_CONTENT_TESTID[item.key],
-        `Nav key "${item.key}" has no EXPECTED_CONTENT_TESTID entry — add one so its rail button is guarded against dead-navigation drift.`,
+        PRIMARY_EXPECT[item.key],
+        `Rail door "${item.key}" has no PRIMARY_EXPECT entry — add one so its door is guarded against dead-navigation drift.`,
       ).toBeTruthy();
+      // The door's primary tab must agree with the job model's mode-strip id.
+      expect(PRIMARY_EXPECT[item.key].job).toBe(JOB_OF[item.key]);
+    }
+    for (const item of FOOTER_NAV) {
+      expect(FOOTER_EXPECT[item.key], `Footer key "${item.key}" has no FOOTER_EXPECT entry.`).toBeTruthy();
     }
   });
 
-  describe('PRIMARY_NAV rail buttons render their destination', () => {
+  it('HOME (Diagnose) is pinned above the job doors and is not a job', () => {
+    enterWorkspace();
+    // The HOME button renders the Diagnose landing (dumps) ...
+    const homeBtn = screen.getByTestId(`rail-${HOME.key}`);
+    expect(homeBtn).toBeTruthy();
+    act(() => { fireEvent.click(homeBtn); });
+    expect(screen.getByTestId('dumps-pcm-target-chip-selector')).toBeTruthy();
+    // ... and HOME is deliberately NOT a job (no door lights for it).
+    expect(JOB_OF[HOME.key]).toBeUndefined();
+    // The job-card hero on the landing exposes the six doors.
+    expect(screen.getByTestId('job-cards')).toBeTruthy();
+  });
+
+  describe('PRIMARY_NAV job doors render their destination', () => {
     for (const item of PRIMARY_NAV) {
-      it(`rail-${item.key} renders ${EXPECTED_CONTENT_TESTID[item.key]}`, () => {
+      const { job, testid } = PRIMARY_EXPECT[item.key];
+      it(`rail-${item.key} opens the ${job.toUpperCase()} job`, () => {
         enterWorkspace();
 
         const railBtn = screen.getByTestId(`rail-${item.key}`);
         expect(railBtn).toBeTruthy();
-
         act(() => { fireEvent.click(railBtn); });
 
-        const contentTestId = EXPECTED_CONTENT_TESTID[item.key];
-        expect(screen.getByTestId(contentTestId)).toBeTruthy();
+        // The job's mode strip renders — proof we landed in this job, not a
+        // clamp to dumps (which would show mode-strip-ref instead).
+        expect(screen.getByTestId(`mode-strip-${job}`)).toBeTruthy();
+        if (testid) expect(screen.getByTestId(testid)).toBeTruthy();
 
-        // Non-dumps destinations must not silently fall back to the Dumps tab.
+        // Non-dumps doors must not silently fall back to the Dumps tab.
         if (item.key !== 'dumps') {
           expect(screen.queryByTestId(DUMPS_FALLBACK_TESTID)).toBeNull();
         }
@@ -103,30 +120,32 @@ describe('Workspace navigation (full shell)', () => {
     }
   });
 
-  describe('FOOTER_NAV rail buttons render their destination', () => {
+  describe('FOOTER_NAV links render their destination', () => {
     for (const item of FOOTER_NAV) {
-      it(`rail-footer-${item.key} renders ${EXPECTED_CONTENT_TESTID[item.key]}`, () => {
+      it(`rail-footer-${item.key} renders ${FOOTER_EXPECT[item.key]}`, () => {
         enterWorkspace();
 
         const footerBtn = screen.getByTestId(`rail-footer-${item.key}`);
         expect(footerBtn).toBeTruthy();
-
         act(() => { fireEvent.click(footerBtn); });
 
-        expect(screen.getByTestId(EXPECTED_CONTENT_TESTID[item.key])).toBeTruthy();
+        expect(screen.getByTestId(FOOTER_EXPECT[item.key])).toBeTruthy();
         expect(screen.queryByTestId(DUMPS_FALLBACK_TESTID)).toBeNull();
       });
     }
   });
 
   describe('Advanced-drawer destinations render (sample)', () => {
-    for (const { key, testid } of DRAWER_SAMPLE) {
+    for (const { key, section, testid } of DRAWER_SAMPLE) {
       it(`drawer-tab-${key} renders ${testid}`, () => {
         enterWorkspace();
 
         // Open the Advanced / Reference drawer.
         act(() => { fireEvent.click(screen.getByTestId('topbar-advanced-btn')); });
         expect(screen.getByTestId('advanced-drawer')).toBeTruthy();
+
+        // Sections are collapsed by default — expand the one holding this tab.
+        act(() => { fireEvent.click(screen.getByTestId(`drawer-section-${section}`)); });
 
         // Click the drawer entry -> destination content renders, drawer closes.
         act(() => { fireEvent.click(screen.getByTestId(`drawer-tab-${key}`)); });

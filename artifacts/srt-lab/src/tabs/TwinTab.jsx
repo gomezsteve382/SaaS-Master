@@ -1,3 +1,12 @@
+/* ⚠ DEPRECATED / NOT WIRED — do not revive without reconciling the writers.
+ * TwinTab is no longer registered or rendered in App.jsx; its marry/secret-sync
+ * function is superseded by MarrySyncTab (the engine-backed Marry/Sync tab) and
+ * the marryModule() engine. Its inline `applyRfhFromBcm` below writes RFH SEC16
+ * with its OWN rfhSec16Cs/rfhGen2VinCs path INSTEAD OF the canonical
+ * securityBytes.writeRfhSec16FromBcm — i.e. it is the one remaining writer that
+ * bypasses the single source of truth (the documented worst drift risk). If you
+ * ever re-enable this tab, route every secret write through marryModule /
+ * securityBytes first, or two tabs can disagree on the bytes. */
 import React, { useState, useCallback, useRef } from "react";
 import chargerImg from "@assets/charger_1776312563310.png";
 import { C } from "../lib/constants.js";

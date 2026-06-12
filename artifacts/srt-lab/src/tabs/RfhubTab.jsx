@@ -899,6 +899,17 @@ function DealerLockoutBypassCard({ conn, addr, eng, addLog, busy, setBusy, locko
 
   const onRun = useCallback(async () => {
     if (!eng.current) { addLog('Connect first', 'error'); return; }
+    // 0xFF00 is the generic ISO-14229 firmware-ERASE RID with an UNVERIFIED
+    // payload — require an explicit, informed acknowledgement before the
+    // destructive clear-lockout step can transmit. Declining still runs the
+    // harmless session/SA probe steps (the engine refuses only step 3).
+    const acknowledgeEraseRisk = window.confirm(
+      'DEALER LOCKOUT BYPASS uses RoutineControl 0xFF00 — the GENERIC ISO-14229 firmware-ERASE '
+      + 'routine — with an UNVERIFIED payload. On a module where 0xFF00 means "erase", this can '
+      + 'BRICK the RFHUB.\n\nOnly proceed if you have confirmed on THIS module that 0xFF00 clears the '
+      + 'lockout counter rather than erasing flash.\n\nTransmit the clear-lockout routine?'
+    );
+    if (!acknowledgeEraseRisk) addLog('Erase-risk not acknowledged — clear-lockout step will be skipped (probe only)', 'warn');
     setBusy('Running dealer lockout bypass…');
     setReport(null);
     try {
@@ -908,6 +919,7 @@ function DealerLockoutBypassCard({ conn, addr, eng, addLog, busy, setBusy, locko
         tx: addr.tx, rx: addr.rx, uds, securityAccess: sa,
         delay: (ms) => new Promise((res) => setTimeout(res, ms)),
         addLog,
+        acknowledgeEraseRisk,
       });
       setReport(r);
       if (r.cleared && typeof onCleared === 'function') onCleared();

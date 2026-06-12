@@ -42,18 +42,37 @@ function makeFile(size, opts = {}) {
  * TEST SUITE
  * ══════════════════════════════════════════════════════════════════════════ */
 
-describe('gpec2aUnlocker — PATTERN_MISSING guard', () => {
-  it('module starts with PATTERNS_AVAILABLE = false', () => {
-    expect(PATTERNS_AVAILABLE).toBe(false);
+describe('gpec2aUnlocker — ACTIVATED (real INT_FLASH patterns)', () => {
+  const REAL_TARGET = [0xE6, 0x06, 0x65, 0xDD];
+
+  it('module is activated (PATTERNS_AVAILABLE = true)', () => {
+    expect(PATTERNS_AVAILABLE).toBe(true);
   });
 
-  it('returns PATTERN_MISSING when no opts and PATTERNS_AVAILABLE is false', () => {
-    const file = new Uint8Array(256 * 1024);
+  it('unlocks a file containing the real UNLOCK_TARGET_PATTERN — no opts', () => {
+    const file = new Uint8Array(UNLOCK_FLAG_OFFSET + 0x100);
+    const OFF = 0x25DB6;
+    file.set(REAL_TARGET, OFF);
+    const r = patchGpec2aFile(file); // no opts → uses the module's recovered patterns
+    expect(r.status).toBe('unlocked');
+    expect(r.matchOffset).toBe(OFF);
+    expect(r.patched[OFF]).toBe(0xE8);
+    expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE); // 0x96 @0x2FFF0
+  });
+
+  it('a large file WITHOUT the pattern resolves to offset_only (flag only)', () => {
+    const file = new Uint8Array(UNLOCK_FLAG_OFFSET + 0x100); // zero-filled, pattern absent
     const r = patchGpec2aFile(file);
-    expect(r.status).toBe('PATTERN_MISSING');
+    expect(r.status).toBe('offset_only');
     expect(r.matchOffset).toBeNull();
-    expect(r.patched).toBeInstanceOf(Uint8Array);
-    expect(r.patched.length).toBe(file.length);
+    expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE);
+  });
+
+  it('an already-unlocked file (flag set) is a no-op', () => {
+    const file = new Uint8Array(UNLOCK_FLAG_OFFSET + 0x100);
+    file[UNLOCK_FLAG_OFFSET] = UNLOCK_FLAG_BYTE;
+    const r = patchGpec2aFile(file);
+    expect(r.status).toBe('already_unlocked');
   });
 });
 
@@ -154,7 +173,9 @@ describe('gpec2aUnlocker — pattern-not-found case', () => {
 });
 
 describe('gpec2aUnlocker — generation detection', () => {
-  it('returns PATTERN_MISSING when no opts and patterns unavailable', () => {
+  it('returns PATTERN_MISSING when GEN_DETECT_PATTERN is null (no opts)', () => {
+    // gen detection is independent of the unlock: GEN_DETECT_PATTERN is still
+    // null (needs a 2015-vs-2018+ sample) so generation labeling is unavailable.
     const file = new Uint8Array(1024);
     expect(detectGeneration(file)).toBe('PATTERN_MISSING');
   });
@@ -195,9 +216,9 @@ describe('gpec2aUnlocker — isAlreadyUnlocked', () => {
 });
 
 describe('gpec2aUnlocker — constants', () => {
-  it('UNLOCK_FLAG_OFFSET equals 0x2FFFC (196604)', () => {
-    expect(UNLOCK_FLAG_OFFSET).toBe(196604);
-    expect(UNLOCK_FLAG_OFFSET).toBe(0x2FFFC);
+  it('UNLOCK_FLAG_OFFSET equals 0x2FFF0 (196592) — corrected from the 0x2FFFC IL guess', () => {
+    expect(UNLOCK_FLAG_OFFSET).toBe(196592);
+    expect(UNLOCK_FLAG_OFFSET).toBe(0x2FFF0);
   });
 
   it('UNLOCK_FLAG_BYTE equals 0x96 (150)', () => {
