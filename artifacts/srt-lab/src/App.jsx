@@ -1357,6 +1357,10 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [rejected, setRejected] = useState([]);
+  // Separate opt-in: match VINs + recompute checksums as part of SYNC ALL.
+  // Checked → write VIN+CRC to BCM/RFH/PCM *and* sync security (legacy
+  // behavior). Unchecked → security-only sync, leave every VIN untouched.
+  const [matchVinCrc, setMatchVinCrc] = useState(true);
 
   /* Task #481 — per-vehicle target-chip selector for the SYNC ALL
    * MODULES PCM output. Bench programmers (Multi-PROG / CGDI / Xhorse)
@@ -1528,10 +1532,14 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
       const log=[];
       let currentBcm = bcm.data;
       
-      // VIN write (all families)
-      const vinRes = engWriteBcmVin(currentBcm, tv);
-      currentBcm = vinRes.bytes;
-      log.push(`BCM VIN: ${vinRes.fullPatched} full slots, ${vinRes.shortPatched} short-VIN records patched (CRC 0x${vinRes.fullCrc.toString(16).toUpperCase()} / 0x${vinRes.tailCrc.toString(16).toUpperCase()})`);
+      // VIN write (all families) — gated on the "Match VINs + checksum" opt-in.
+      if (matchVinCrc) {
+        const vinRes = engWriteBcmVin(currentBcm, tv);
+        currentBcm = vinRes.bytes;
+        log.push(`BCM VIN: ${vinRes.fullPatched} full slots, ${vinRes.shortPatched} short-VIN records patched (CRC 0x${vinRes.fullCrc.toString(16).toUpperCase()} / 0x${vinRes.tailCrc.toString(16).toUpperCase()})`);
+      } else {
+        log.push('BCM VIN: left unchanged (VIN matching off — security-only sync)');
+      }
 
       // ── Security pairing — BCM is the SOURCE OF TRUTH ──
       // The BCM holds the canonical vehicle immobilizer secret (SEC16). SYNC
@@ -1562,9 +1570,14 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
       
       // RFH write (VIN + SEC16 rewritten from BCM when both sides are Gen2)
       if(rfh){
-        const rfhRes = engWriteRfhVin(rfh.data, tv, false);
-        let currentRfh = rfhRes.bytes;
-        log.push(`RFH VIN: ${rfhRes.patched} slots patched`);
+        let currentRfh = rfh.data;
+        if (matchVinCrc) {
+          const rfhRes = engWriteRfhVin(rfh.data, tv, false);
+          currentRfh = rfhRes.bytes;
+          log.push(`RFH VIN: ${rfhRes.patched} slots patched`);
+        } else {
+          log.push('RFH VIN: left unchanged (VIN matching off)');
+        }
         if (bcmSecReal) {
           const rfhP = engParseRfh(currentRfh);
           if (rfhP.format === 'gen2') {
@@ -1588,9 +1601,13 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
       // PCM write (VIN + SEC6 if RFH available)
       if(pcm){
         let currentPcm = pcm.data;
-        const pcmVinRes = engWritePcmVin(currentPcm, tv);
-        currentPcm = pcmVinRes.bytes;
-        log.push(`PCM VIN: ${pcmVinRes.patched} slots patched`);
+        if (matchVinCrc) {
+          const pcmVinRes = engWritePcmVin(currentPcm, tv);
+          currentPcm = pcmVinRes.bytes;
+          log.push(`PCM VIN: ${pcmVinRes.patched} slots patched`);
+        } else {
+          log.push('PCM VIN: left unchanged (VIN matching off)');
+        }
         /* Task #399 — gate PCM download on SEC6 writer reporting ok===true.
          * A virgin GPEC2A PCM (no AA marker, all-FF SEC6) would otherwise
          * report 0 patches and still get shipped as "synced" to the tech. */
@@ -1649,7 +1666,12 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab
           <input className="vin-input" value={tv} maxLength={17} placeholder={`Enter customer ${vehicle.name} VIN`} onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+(vinBad?C.er:vinGood?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}}/>
         </div>
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
-          <Btn onClick={runFullSync} color={vehicle.accent} disabled={!vinGood||!bcm||blockers.length>0||hasCorruptModule} title={hasCorruptModule?'Remove corrupt captures before syncing':undefined}>▶ SYNC ALL MODULES</Btn>
+          <Btn onClick={runFullSync} color={vehicle.accent} disabled={(matchVinCrc&&!vinGood)||!bcm||blockers.length>0||hasCorruptModule} title={hasCorruptModule?'Remove corrupt captures before syncing':undefined}>▶ SYNC ALL MODULES</Btn>
+          {/* Separate VIN+checksum opt-in (Task — user request). Off = security-only sync. */}
+          <label data-testid="dumps-match-vin-toggle" style={{display:'flex',alignItems:'center',gap:7,fontSize:11,fontWeight:700,color:C.ts,cursor:'pointer',userSelect:'none'}}>
+            <input type="checkbox" checked={matchVinCrc} onChange={e=>setMatchVinCrc(e.target.checked)} style={{width:15,height:15,accentColor:vehicle.accent,cursor:'pointer'}}/>
+            Match VINs + recompute checksums
+          </label>
           <button onClick={()=>{setFiles([]);setMsg('');setErr('');}} style={{padding:'6px 14px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>CLEAR FILES</button>
         </div>
       </div>

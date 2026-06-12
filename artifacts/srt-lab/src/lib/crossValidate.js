@@ -139,8 +139,18 @@ function crossValidate(modules){
     }
   }
   if(gpec){
+    const skimDisabled=gpec.skimByte===0x00||gpec.skimByte===0x02;
     if(gpec.skimByte===0x80)passed.push("GPEC2A SKIM: ENABLED (0x80)");
-    else if(gpec.skimByte===0x00)warnings.push("GPEC2A SKIM: DISABLED (0x00) — bypassed");
+    else if(skimDisabled){
+      // Loud catch (user request): an ECM/PCM can read as fully "synced"
+      // (SEC6 populated + FF FF FF AA marker) yet have SKIM OFF, so the
+      // engine starts regardless of the secret. A naive verdict calls that
+      // "good"; we surface it as an explicit warning (NOT an export-blocking
+      // issue — SKIM at its default is legitimate; the writers never touch
+      // it) with a message spelling out the consequence, louder when paired.
+      const looksPaired=pcmPopulated(gpec);
+      warnings.push("GPEC2A/ECM SKIM @0x0011 = 0x"+(gpec.skimByte||0).toString(16).padStart(2,'0').toUpperCase()+" — IMMOBILIZER DISABLED / BYPASSED. The engine module ignores the secret and starts regardless"+(looksPaired?", even though its SEC6 reads as paired — a SEC6 sync will NOT be enforced until SKIM is re-enabled (0x80).":". Re-enable SKIM (0x80) for the immo to be enforced."));
+    }
     /* Skip the key-consistency mismatch when the GPEC vehicle/skim key is
      * virgin/erased (all-FF) — that's expected on a virgin GPEC, not a
      * fault. The 0x0203 field is GPEC-internal and unrelated to the
