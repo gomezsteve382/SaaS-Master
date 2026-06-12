@@ -5,7 +5,7 @@ import {
   Cpu, Zap, BookOpen,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
-import {JOBS, JOB_OF} from '../workspaceJobs.js';
+import {JOBS, JOB_OF, JOB_BY_ID} from '../workspaceJobs.js';
 
 /* SRT command-center design tokens (graduated from the approved canvas mockup). */
 const T = {
@@ -247,7 +247,64 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
   );
 }
 
-/* ── Command shell: slim top bar + 5-item workflow rail + drawer ── */
+/* ── Mode strip ──
+ * When the active tab belongs to a job with more than one member, render the
+ * job's members as a horizontal strip of "modes" across the top of the
+ * workspace. This is what collapses the duplication on screen: the 8 KEYS
+ * tabs (or 10 READ tabs) stop being 8 separate drawer entries and become
+ * mode pills inside one job screen. Primary mode is first (model order). */
+function ModeStrip({tabs, activeTab, onSelect}) {
+  const jobId = JOB_OF[activeTab];
+  const job = jobId && JOB_BY_ID[jobId];
+  if (!job || job.members.length <= 1) return null;
+  const byId = {};
+  for (const t of tabs) byId[t.id] = t;
+  const modes = job.members.map((id) => byId[id]).filter(Boolean);
+  if (modes.length <= 1) return null;
+  return (
+    <div
+      data-testid={`mode-strip-${jobId}`}
+      style={{
+        display: 'flex', gap: 7, alignItems: 'center', overflowX: 'auto',
+        padding: '11px 22px 0', maxWidth: 1200, margin: '0 auto',
+        scrollbarWidth: 'thin',
+      }}
+    >
+      <span style={{
+        fontFamily: "'Righteous',sans-serif", fontSize: 11, letterSpacing: 1,
+        color: T.muted, flexShrink: 0, paddingRight: 4,
+      }}>{job.label}</span>
+      {modes.map((t) => {
+        const active = t.id === activeTab;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            data-testid={`mode-${t.id}`}
+            title={t.s}
+            onClick={() => onSelect(t.id)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
+              background: active ? T.red : T.panel,
+              color: active ? '#fff' : T.ink,
+              border: `1px solid ${active ? T.red : T.line}`,
+              borderRadius: 999, padding: '6px 12px', cursor: 'pointer',
+              fontFamily: "'Nunito',sans-serif", fontWeight: 800, fontSize: 12,
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#fff7f5'; }}
+            onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = T.panel; }}
+          >
+            <span style={{fontSize: 14, lineHeight: 1}}>{t.i}</span>
+            {t.l}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Command shell: slim top bar + 6-job rail + mode strip + drawer ── */
 export default function CommandShell({
   vehicle, onBack, onOpenWizard, onOpenCopilot, tabs, categories, activeTab, onSelect, children,
 }) {
@@ -432,7 +489,8 @@ export default function CommandShell({
 
         {/* Content slot */}
         <main data-testid="command-content" style={{flex: 1, minWidth: 0, overflow: 'auto', background: T.base}}>
-          <div style={{maxWidth: 1200, margin: '0 auto', padding: '22px 22px 60px'}}>
+          <ModeStrip tabs={tabs} activeTab={activeTab} onSelect={onSelect} />
+          <div style={{maxWidth: 1200, margin: '0 auto', padding: '14px 22px 60px'}}>
             {children}
           </div>
         </main>

@@ -137,7 +137,7 @@ export default function MarrySyncTab() {
   );
 
   return (
-    <div>
+    <div data-testid="marry-sync-tab">
       <div style={{fontFamily: "'Righteous'", fontSize: 20, letterSpacing: 1, marginBottom: 6}}>MARRY / SYNC</div>
       <div style={{color: C.ts, fontSize: 12, marginBottom: 12, maxWidth: 780}}>
         Derive a module's immobilizer secret from a married source, write it with the verified writer, and confirm

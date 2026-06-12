@@ -4,8 +4,9 @@
  *
  * Unlike keyTransferTab.ui.test.jsx (which renders KeyTransferTab in isolation
  * and asserts PRIMARY_NAV contains a 'keyxfer' entry), this test renders the
- * full App → VehicleWorkspace → CommandShell, clicks the `rail-keyxfer` rail
- * button, and asserts the `key-transfer-tab` content actually renders.
+ * full App → VehicleWorkspace → CommandShell, opens the KEYS job door
+ * (`rail-keyprog`), clicks the `mode-keyxfer` mode pill, and asserts the
+ * `key-transfer-tab` content actually renders.
  *
  * It guards against navigation drift: if the rail key, the `tab==='keyxfer'`
  * switch, or the KeyTransferTab wiring is renamed/broken, the workspace would
@@ -37,15 +38,21 @@ describe('Key Program rail navigation (full shell)', () => {
     // Landing page → pick a vehicle to enter the per-vehicle workspace.
     await act(async () => { fireEvent.click(screen.getByText('CHARGER')); });
 
-    // The command shell is up; the rail Key Program button is present.
-    const railBtn = screen.getByTestId('rail-keyxfer');
-    expect(railBtn).toBeTruthy();
+    // Post job-flow rebuild: the rail exposes the KEYS job door (primary
+    // `keyprog`), not a standalone keyxfer button.
+    const keysDoor = screen.getByTestId('rail-keyprog');
+    expect(keysDoor).toBeTruthy();
 
     // Default landing tab is Dumps, not the key-transfer tab.
     expect(screen.queryByTestId('key-transfer-tab')).toBeNull();
 
-    // Click the rail button → the key-transfer tab content should render.
-    await act(async () => { fireEvent.click(railBtn); });
+    // Open the KEYS door → its mode strip exposes a keyxfer mode pill.
+    await act(async () => { fireEvent.click(keysDoor); });
+    const modePill = screen.getByTestId('mode-keyxfer');
+    expect(modePill).toBeTruthy();
+
+    // Click the keyxfer mode → the key-transfer tab content renders.
+    await act(async () => { fireEvent.click(modePill); });
 
     expect(screen.getByTestId('key-transfer-tab')).toBeTruthy();
     // And specifically not the Dumps fallback.

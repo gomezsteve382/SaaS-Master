@@ -21,6 +21,7 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect, useContext } from "react";
 import { Bot } from "lucide-react";
 import CommandShell from "./components/CommandShell.jsx";
+import { JOBS } from "./workspaceJobs.js";
 import CopilotPanel from "./components/CopilotPanel.jsx";
 import ReferencePanel, { ReferencePanelTrigger } from "./components/ReferencePanel.jsx";
 import GpecTab from "./tabs/GpecTab";
@@ -1233,7 +1234,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         activeTab={tab}
         onSelect={setTab}
       >
-        {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
+        {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')} onOpenTab={setTab}/>}
         {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
         {tab==='secsync'   && <MarrySyncTab/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
@@ -1319,7 +1320,39 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
 }
 
 /* ═══ DUMPS TAB v2 — vehicle-aware ═══ */
-export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
+/* Job-card hero for the Diagnose landing — the six job doors rendered as
+ * "what are you trying to do?" cards, reading their labels straight from the
+ * shared JOB MODEL so the landing, the rail and the drawer all agree. Clicking
+ * a card opens that job's primary workspace (whose mode-strip then exposes the
+ * member modes). Gated behind `onOpenTab` at the call site, so the many
+ * DumpsTabV2 test harnesses that don't pass it render the landing unchanged. */
+const JOB_CARD_ICON = { read:'🔍', marry:'🔐', keys:'🔑', flash:'⚡', live:'📡', ref:'📚' };
+const JOB_CARD_TINT = { read:'#00838F', marry:'#D32F2F', keys:'#6A1B9A', flash:'#E65100', live:'#1565C0', ref:'#455A64' };
+function JobCards({onOpenJob}){
+  return (
+    <div data-testid="job-cards">
+      <div style={{fontSize:11,fontWeight:900,letterSpacing:1.5,color:C.ts,marginBottom:10}}>WHAT ARE YOU TRYING TO DO?</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:10}}>
+        {JOBS.map(j=>{
+          const tint = JOB_CARD_TINT[j.id] || C.a4;
+          return (
+            <button key={j.id} type="button" data-testid={`job-card-${j.id}`} onClick={()=>onOpenJob(j.primary)}
+              style={{textAlign:'left',cursor:'pointer',padding:'14px',borderRadius:12,background:C.c2,border:`1.5px solid ${C.bd}`,borderTop:`3px solid ${tint}`,display:'flex',flexDirection:'column',gap:5,transition:'all .15s'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=tint;e.currentTarget.style.transform='translateY(-2px)';}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=C.bd;e.currentTarget.style.transform='none';}}>
+              <span style={{fontSize:22,lineHeight:1}}>{JOB_CARD_ICON[j.id]||'🔧'}</span>
+              <span style={{fontWeight:900,fontSize:13,letterSpacing:.5,color:C.tx}}>{j.label}</span>
+              <span style={{fontSize:11,color:C.ts,lineHeight:1.35}}>{j.sub}</span>
+              <span style={{fontSize:10,fontWeight:800,letterSpacing:1,color:tint,marginTop:2}}>{j.members.length} TOOL{j.members.length>1?'S':''} →</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab}){
   const [tv, setTv] = useState('');
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
@@ -1604,6 +1637,10 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   };
 
   return <div style={{display:'grid',gridTemplateColumns:'1fr',gap:16}}>
+    {/* Job-card hero — the six job doors as a "what are you trying to do?"
+        picker. Only rendered in the live app (onOpenTab provided), so the
+        DumpsTabV2 unit tests render the landing unchanged. */}
+    {onOpenTab && <JobCards onOpenJob={onOpenTab}/>}
     {/* Target VIN input */}
     <Card>
       <div style={{display:'flex',gap:14,alignItems:'center',flexWrap:'wrap'}}>
