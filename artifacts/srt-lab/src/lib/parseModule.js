@@ -743,6 +743,19 @@ function resolveBcmSec16(data){
     const c=candidates[key];
     if(c&&!c.blank){chosen=c;source=key;break;}
   }
+  /* sharedConstant: the resolved value is the `00…31 3E 00 10 00 18 00 0A 00`
+   * block that is BYTE-IDENTICAL across multiple unrelated VINs (proven on
+   * 527958 / 592745 / 539430 — three different cars) and only ever appears on
+   * BCMs whose split records are blank (un-programmed / donor). So it is NOT a
+   * per-vehicle secret. Its status as a real family/default secret is NOT
+   * established (the codebase claims FCA-SINCRO confirmation; no matched married
+   * set proves it). We keep returning the bytes (don't break the existing
+   * behavior/tests) but flag them so the marry/UI never present them as a
+   * confident per-car secret — honest provenance over a guess in either
+   * direction. */
+  const SHARED_CONST=[0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x31,0x3E,0x00,0x10,0x00,0x18,0x00,0x0A,0x00];
+  const sharedConstant=!!chosen&&source!=='split'&&chosen.bytes.length===16&&
+    SHARED_CONST.every((v,i)=>chosen.bytes[i]===v);
   /* allBlank: all candidates are structurally blank (all-FF / all-00).
    * This is the only condition under which a BCM is treated as virgin. */
   const allBlank=
@@ -764,6 +777,7 @@ function resolveBcmSec16(data){
     candidates,
     blank:allBlank,
     sec16Absent,
+    sharedConstant,
   };
 }
 

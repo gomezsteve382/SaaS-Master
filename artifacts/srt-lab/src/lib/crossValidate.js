@@ -86,6 +86,13 @@ function crossValidate(modules){
       warnings.push("BCM legacy flat 0x40C9 STALE — live SEC16 ("+bcm.bcmSec16.source+")="+fmtHex(resolved)+" but flat slice (LE)="+fmtHex(flat)+". Open Module Sync → 'Repair flat 0x40C9 from split records' so legacy CGDI/Autel readers see the live secret.");
     }
   }
+  /* Shared-constant guard — the BCM SEC16 resolved to the `00…31 3E…0A`
+   * block that is byte-identical across unrelated VINs and only appears on
+   * un-programmed/donor BCMs (proven, see resolveBcmSec16). Warn so the marry/
+   * key flows never treat it as a confident per-car secret. */
+  if(bcm?.bcmSec16?.sharedConstant){
+    warnings.push("BCM SEC16: SHARED-DEFAULT value ("+fmtHex(bcm.bcmSec16.bytes)+") — this block is byte-identical across multiple unrelated cars and only appears on un-programmed/donor BCMs. Treat as a placeholder, NOT a confirmed per-car secret; do not derive RFHUB/PCM security from it without a bench-verified secret.");
+  }
   if(rfhub&&rfhub.sec16s){
     if(rfhub.sec16valid)passed.push("RFHUB SEC16: VALID — slots 1&2 match, non-blank");
     else if(rfhub.sec16s[0]?.blank)warnings.push("RFHUB SEC16: BLANK (all FF/00) — virgin module");
