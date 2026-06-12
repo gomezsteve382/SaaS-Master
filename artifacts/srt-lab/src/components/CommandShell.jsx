@@ -2,8 +2,10 @@ import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Stethoscope, Terminal, Fingerprint, DownloadCloud, Bot,
   ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks, KeyRound, Lock,
+  Cpu, Zap, BookOpen,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
+import {JOBS, JOB_OF} from '../workspaceJobs.js';
 
 /* SRT command-center design tokens (graduated from the approved canvas mockup). */
 const T = {
@@ -16,18 +18,28 @@ const T = {
   good: '#2E7D32',
 };
 
-/* The five per-vehicle workflow panes. Each maps to an existing workspace
- * tab id so the battle-tested tab content components keep rendering. */
-export const PRIMARY_NAV = [
-  {key: 'dumps',       label: 'Diagnose',      sub: 'Drop \u2192 verdict \u2192 fix', icon: Stethoscope},
-  {key: 'vinsync',     label: 'VIN \u2192 Sync',    sub: 'Checksums then security',        icon: ListChecks},
-  {key: 'secsync',     label: 'Security Sync', sub: 'BCM \u00b7 RFHUB \u00b7 PCM side-by-side', icon: Lock},
-  {key: 'keyxfer',     label: 'Key Program',   sub: 'Add transponder key offline',    icon: KeyRound},
-  {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          icon: Terminal},
-  {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          icon: Fingerprint},
-  {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            icon: DownloadCloud},
-  {key: 'investigation', label: 'AI Copilot',  sub: 'Guided investigation',           icon: Bot},
-];
+/* The six job doors, derived from the shared JOB MODEL (workspaceJobs.js).
+ * Each door opens its job's `primary` workspace tab, so the battle-tested tab
+ * content components keep rendering \u2014 but the rail, the drawer and the landing
+ * cards now read ONE label per job from the same source. `jobId` lets the rail
+ * stay highlighted while you're on any member tab of that job (e.g. you're on
+ * BCM, which lives under READ, and the READ door stays lit). */
+const JOB_ICON = {
+  read:  Cpu,
+  marry: Lock,
+  keys:  KeyRound,
+  flash: Zap,
+  live:  DownloadCloud,
+  ref:   BookOpen,
+};
+
+export const PRIMARY_NAV = JOBS.map((j) => ({
+  key: j.primary,
+  jobId: j.id,
+  label: j.label,
+  sub: j.sub,
+  icon: JOB_ICON[j.id] || Stethoscope,
+}));
 
 const PRIMARY_KEYS = new Set(PRIMARY_NAV.map(n => n.key));
 
@@ -38,15 +50,13 @@ export const FOOTER_NAV = [
   {key: 'canuniverse', label: 'CAN Universe \u00b7 Intel', icon: Search},
 ];
 
-const CATEGORY_META = {
-  MODULES: {label: 'MODULES',          blurb: 'Read & edit a single module'},
-  MARRY:   {label: 'MARRY & KEYS',     blurb: 'Pairing, sync, key programming'},
-  FLASH:   {label: 'FLASH & FIRMWARE', blurb: 'Offline image patch & program'},
-  LIVE:    {label: 'LIVE & DIAGNOSTICS', blurb: 'Connected OBD / UDS & traces'},
-  DATA:    {label: 'DATA & WORKFLOW',  blurb: 'Dumps, backups, jobs'},
-  INTEL:   {label: 'INTEL & REFERENCE', blurb: 'Read-only catalogs & research'},
-};
-const SECTION_ORDER = ['MODULES', 'MARRY', 'FLASH', 'LIVE', 'DATA', 'INTEL'];
+/* Drawer sections are the SAME six jobs as the rail (workspaceJobs.js), so a
+ * tool wears one group name whether you reach it from the rail or the drawer.
+ * Keyed by job id; label/blurb come straight from the shared model. */
+const CATEGORY_META = Object.fromEntries(
+  JOBS.map((j) => [j.id, {label: j.label, blurb: j.sub}]),
+);
+const SECTION_ORDER = JOBS.map((j) => j.id);
 
 function matchesQuery(tab, q) {
   if (!q) return true;
@@ -62,7 +72,7 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
   // While searching, any section with a match opens automatically.
   const [expanded, setExpanded] = useState(() => new Set());
   const toggleSection = (key) => setExpanded((s) => { const n = new Set(s); n.has(key) ? n.delete(key) : n.add(key); return n; });
-  const sectionOpen = (key, count) => (q ? count > 0 : (expanded.has(key) || key === categories[activeTab]));
+  const sectionOpen = (key, count) => (q ? count > 0 : (expanded.has(key) || key === JOB_OF[activeTab]));
 
   // Everything that isn't one of the five primary panes belongs here.
   const advancedTabs = useMemo(
@@ -74,13 +84,16 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
     const g = {};
     for (const key of SECTION_ORDER) g[key] = [];
     for (const t of advancedTabs) {
-      const cat = categories[t.id];
-      if (!cat || !g[cat]) continue;
+      // Group by the shared job model. Falls back to REFERENCE so a tab that
+      // isn't explicitly placed still appears in the drawer instead of
+      // silently vanishing.
+      const cat = JOB_OF[t.id] || 'ref';
+      if (!g[cat]) continue;
       if (!matchesQuery(t, q)) continue;
       g[cat].push(t);
     }
     return g;
-  }, [advancedTabs, categories, q]);
+  }, [advancedTabs, q]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -356,7 +369,11 @@ export default function CommandShell({
           </div>
 
           {PRIMARY_NAV.map((item) => {
-            const isActive = item.key === activeTab;
+            // Door lights up when the active tab belongs to this job — so
+            // drilling into a member tab (e.g. BCM under READ) keeps the
+            // parent door highlighted, not just an exact id match.
+            const isActive = (JOB_OF[activeTab] || activeTab) === item.jobId
+              || item.key === activeTab;
             const Icon = item.icon;
             return (
               <button
