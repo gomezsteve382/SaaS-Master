@@ -1052,6 +1052,28 @@ function parseModule(data,filename,opts){
     }
     info.sec16SourceSlot=1;
     info.rfhGen=sz===4096?'Gen2 (24C32)':sz===8192?'Gen2-x2 (8192B, unusual)':sz===2048?'Gen1 (24C16)':'Unknown';
+    /* ── Honest SEC16 status (grounded in the RFHUB corpus; see
+     * RFHUB_GEN2_LAYOUT.md). The legacy `sec16valid` above requires a
+     * matched-mirror pair + valid CS at the size-derived offset. That is
+     * correct when the secret lives there and matches (every "6.2" 4 KB hub:
+     * 0x050E == 0x0522). But it must NOT be reported as "INVALID / MISMATCH"
+     * — which implies an unsynced/wrong secret — when the bytes simply don't
+     * fit that format (e.g. the 592745 hub, whose data is neither a matched
+     * 0x050E pair nor a clean 0x00AE pair). Distinguish "validated" from
+     * "we can't validate this layout from the file" so the UI stops false-
+     * flagging. Roles of the per-car blocks at 0x050E / 0x0226 are NOT
+     * established, so nothing here claims they are a sync secret. */
+    const _s16=info.sec16s[0];
+    info.sec16Status=(!_s16||_s16.blank)?'blank'
+      :(info.sec16match&&_s16.csOk)?'verified-mirror'
+      :'unverified-layout';
+    /* Key-count byte for the 4 KB "6.2" RFHUB variant: 0x0150, mirrored at
+     * 0x01D4. PROVEN: incremented 0x02→0x03 across a verified same-VIN
+     * before/after key-add (VIN 615142), and equal on every independent 6.2
+     * hub (530589/652640/167935 = 01/06/01). Surfaced ONLY when the two
+     * mirror bytes agree (the variant invariant); left undefined otherwise
+     * rather than guess (the 592745 variant shows 0xF9 vs 0x04 → undefined). */
+    if(sz===4096&&data[0x150]===data[0x1D4]) info.rfhKeyCountByte=data[0x150];
   }else if(type==='XC2268_RFHUB'){
     // Task #634 — Infineon XC2268-class RFHUB. Surface VIN slots + CRC16/CCITT
     // status + image-wide checksum so the inspector renders bench-ready data
