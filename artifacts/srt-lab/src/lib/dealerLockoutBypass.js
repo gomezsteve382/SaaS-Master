@@ -30,9 +30,16 @@
 import { build } from '@workspace/uds';
 
 export const BYPASS_LEVEL = 0x0B;          // alternate SA sub-function level
-export const BYPASS_ROUTINE_ID = 0xFF00;   // clear-lockout routine identifier
+/* ⚠ UNVERIFIED + DANGEROUS: 0xFF00 is the GENERIC ISO-14229 firmware-erase
+ * RoutineIdentifier (the same eraseRid the flasher uses), here relabeled
+ * "clear lockout counter", and the A5 5A C3 3C payload is invented — neither
+ * is grounded in any extraction or bench capture (see algoProvenance.js
+ * WRITER_GROUNDING.dealerLockoutBypass). On a module where 0xFF00 means
+ * "erase", running this can brick the RFHUB. The clear-lockout step will not
+ * transmit unless the caller passes acknowledgeEraseRisk:true. */
+export const BYPASS_ROUTINE_ID = 0xFF00;   // clear-lockout routine identifier (GENERIC ERASE RID)
 export const BYPASS_RESET_TYPE = 0x01;     // hard reset after clearing
-export const BYPASS_PAYLOAD = new Uint8Array([0xA5, 0x5A, 0xC3, 0x3C]);
+export const BYPASS_PAYLOAD = new Uint8Array([0xA5, 0x5A, 0xC3, 0x3C]); // UNVERIFIED payload
 
 function hex(arr) {
   return Array.from(arr || []).map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
@@ -124,7 +131,24 @@ export async function runDealerLockoutBypass(cfg) {
     if (!ok) return finish(false);
   }
 
-  /* 3. Clear-lockout routine ───────────────────────────────────────────── */
+  /* 3. Clear-lockout routine — DESTRUCTIVE-CAPABLE, gated ──────────────────
+   * 0xFF00 is the generic firmware-erase RID and the payload is UNVERIFIED.
+   * Refuse to transmit it unless the caller explicitly acknowledged the risk
+   * (the UI must gate this behind a confirmation). The harmless session + SA
+   * probe steps above already ran, so the operator still gets a diagnosis. */
+  if (cfg.acknowledgeEraseRisk !== true) {
+    steps.push({
+      id: 'clear',
+      title: 'RoutineControl 0xFF00 — clear lockout counter',
+      ok: false,
+      refused: true,
+      reason: 'REFUSED: 0xFF00 is the generic ISO-14229 firmware-erase routine and the A5 5A C3 3C '
+        + 'payload is UNVERIFIED. Set acknowledgeEraseRisk:true only after confirming on THIS module '
+        + 'that 0xFF00 clears the lockout counter rather than erasing flash — otherwise it can brick the RFHUB.',
+    });
+    log('✋ clear-lockout REFUSED — 0xFF00 is the generic erase RID; acknowledgeEraseRisk not set', 'warn');
+    return { ...finish(false), refused: true };
+  }
   {
     const req = build.routineControl({
       type: 0x01,                          // startRoutine

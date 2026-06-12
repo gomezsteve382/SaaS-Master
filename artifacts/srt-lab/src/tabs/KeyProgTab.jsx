@@ -447,6 +447,7 @@ export default function KeyProgTab() {
   const [files, setFiles] = useState({ BCM: null, RFH: null, PCM: null });
   const [vin, setVin] = useState('');
   const [promoteBank, setPromoteBank] = useState(false);
+  const [allowUnverified, setAllowUnverified] = useState(false);
   const [unknownDrops, setUnknownDrops] = useState([]);
   const [zipSummary, setZipSummary] = useState(null);
   const [presets, setPresets] = useState([]);
@@ -568,12 +569,17 @@ export default function KeyProgTab() {
     try {
       return runKeyProgPatch({
         bcm: files.BCM, rfh: files.RFH, pcm: files.PCM,
-        vin, promoteBank,
+        vin, promoteBank, allowUnverifiedTarget: allowUnverified,
       });
     } catch (e) {
       return { ok: false, checks: [{ label: 'Patcher threw error', pass: false, detail: String(e) }], files: [], before: null, after: null };
     }
-  }, [files, vin, promoteBank]);
+  }, [files, vin, promoteBank, allowUnverified]);
+
+  // An XC2268 RFHUB write uses the UNVERIFIED writer; the patcher refuses it
+  // until acknowledged. Surface that as an opt-in checkbox.
+  const needsUnverifiedAck = !!(result && !result.ok
+    && (result.checks || []).some((c) => /UNVERIFIED/i.test(c.label) && !c.pass));
 
   const checksAllGreen = !!(result && result.ok && Array.isArray(result.checks)
     && result.checks.length > 0 && result.checks.every((c) => c.pass));
@@ -1146,6 +1152,13 @@ export default function KeyProgTab() {
               </span>
             )}
           </div>
+
+          {needsUnverifiedAck && (
+            <label style={{ display: 'block', margin: '0 0 12px', fontSize: 12, color: C.er, fontWeight: 600 }}>
+              <input type="checkbox" checked={allowUnverified} onChange={(e) => setAllowUnverified(e.target.checked)} style={{ marginRight: 6 }} />
+              This RFHUB is XC2268 (2019+ Ram) and its SEC16 writer is UNVERIFIED — writing it can brick the module. Proceed anyway.
+            </label>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             {/* Checklist */}

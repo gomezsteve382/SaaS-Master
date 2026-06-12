@@ -64,11 +64,12 @@ describe('gpec2aUnlocker fixture — EXT_EEPROM locked (384 KB)', () => {
     expect(d.length).toBeGreaterThan(UNLOCK_FLAG_OFFSET);
   });
 
-  (skip ? it.skip : it)('flag byte at 0x2FFFC is 0x3A (LOCKED state)', () => {
+  (skip ? it.skip : it)('flag byte at 0x2FFF0 is not yet unlocked (≠ 0x96)', () => {
     const d = readFileSync(EXT_EEPROM_LOCKED);
-    // Golden assertion: 0x3A is the known locked state of this specific file.
-    // After unlocking with GPEC_Unlocker.exe the byte becomes 0x96 (UNLOCK_FLAG_BYTE).
-    expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x3A);
+    // Flag offset corrected to 0x2FFF0 (proven from a real INT_FLASH unlock).
+    // This EXT_EEPROM locked dump reads 0x4A there; the key invariant is it is
+    // NOT the unlocked value 0x96.
+    expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x4A);
     expect(d[UNLOCK_FLAG_OFFSET]).not.toBe(UNLOCK_FLAG_BYTE);
   });
 
@@ -86,7 +87,7 @@ describe('gpec2aUnlocker fixture — EXT_EEPROM locked (384 KB)', () => {
     // File content before the flag offset is unchanged (synthetic pattern not present).
     expect(r.patched.length).toBe(d.length);
     // Original is not mutated.
-    expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x3A);
+    expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x4A);
   });
 
   (skip ? it.skip : it)('patchGpec2aFile (synthetic opts) returns offset_only (pattern absent)', () => {
@@ -98,11 +99,15 @@ describe('gpec2aUnlocker fixture — EXT_EEPROM locked (384 KB)', () => {
     expect(r.matchOffset).toBeNull();
   });
 
-  (skip ? it.skip : it)('patchGpec2aFile without opts returns PATTERN_MISSING (module not activated)', () => {
+  (skip ? it.skip : it)('module is ACTIVATED; EXT_EEPROM lacks the INT_FLASH pattern → offset_only', () => {
     const d = new Uint8Array(readFileSync(EXT_EEPROM_LOCKED));
-    expect(PATTERNS_AVAILABLE).toBe(false);
+    expect(PATTERNS_AVAILABLE).toBe(true);
+    // The recovered UNLOCK_TARGET_PATTERN is INT_FLASH firmware; it is not
+    // present in EXT_EEPROM, so a real (no-opts) run sets the flag but finds no
+    // E8 patch site. EXT_EEPROM needs its own locked/unlocked pair (see header).
     const r = patchGpec2aFile(d);
-    expect(r.status).toBe('PATTERN_MISSING');
+    expect(r.status).toBe('offset_only');
+    expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE);
   });
 
   /*
@@ -139,7 +144,7 @@ describe('gpec2aUnlocker fixture — INT_FLASH locked (4 MB)', () => {
     expect(d.length).toBe(4194304);
   });
 
-  (skip ? it.skip : it)('flag byte at 0x2FFFC is 0x08 (LOCKED state, not 0x96)', () => {
+  (skip ? it.skip : it)('flag byte at 0x2FFF0 is 0x08 (LOCKED state, not 0x96)', () => {
     const d = readFileSync(INT_FLASH_LOCKED);
     expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x08);
     expect(d[UNLOCK_FLAG_OFFSET]).not.toBe(UNLOCK_FLAG_BYTE);
@@ -156,5 +161,24 @@ describe('gpec2aUnlocker fixture — INT_FLASH locked (4 MB)', () => {
     expect(r.flagSet).toBe(true);
     expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE);
     expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x08); // original not mutated
+  });
+
+  /* REAL ACTIVATION — no opts, the module's recovered patterns. The corpus
+   * INT_FLASH carries UNLOCK_TARGET_PATTERN (universal firmware code), so the
+   * production code path performs the genuine unlock. */
+  (skip ? it.skip : it)('REAL unlock (no opts): patches 0xE8 + flag 0x96, idempotent', () => {
+    const d = new Uint8Array(readFileSync(INT_FLASH_LOCKED));
+    expect(PATTERNS_AVAILABLE).toBe(true);
+    const r = patchGpec2aFile(d); // production patterns
+    expect(r.status).toBe('unlocked');
+    expect(r.matchOffset).not.toBeNull();
+    expect(r.patched[r.matchOffset]).toBe(0xE8);
+    expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE);
+    // exactly two bytes changed vs the locked input
+    let diffs = 0; for (let i = 0; i < d.length; i++) if (r.patched[i] !== d[i]) diffs++;
+    expect(diffs).toBe(2);
+    // re-running on the unlocked output is a no-op
+    expect(patchGpec2aFile(r.patched).status).toBe('already_unlocked');
+    expect(isAlreadyUnlocked(r.patched)).toBe(true);
   });
 });

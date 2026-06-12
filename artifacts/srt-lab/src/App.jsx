@@ -21,6 +21,7 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect, useContext } from "react";
 import { Bot } from "lucide-react";
 import CommandShell from "./components/CommandShell.jsx";
+import { JOBS } from "./workspaceJobs.js";
 import CopilotPanel from "./components/CopilotPanel.jsx";
 import ReferencePanel, { ReferencePanelTrigger } from "./components/ReferencePanel.jsx";
 import GpecTab from "./tabs/GpecTab";
@@ -48,10 +49,9 @@ import EcmFlasherTab from "./tabs/EcmFlasherTab.jsx";
 import Cda6SessionTab from "./tabs/Cda6SessionTab.jsx";
 import Cda6DatabaseToolsTab from "./tabs/Cda6DatabaseToolsTab.jsx";
 import VinProgrammerTab from "./tabs/VinProgrammerTab.jsx";
-import SecuritySyncTab from "./tabs/SecuritySyncTab.jsx";
+import MarrySyncTab from "./tabs/MarrySyncTab.jsx";
 import ProxiTab from "./tabs/ProxiTab.jsx";
 import ImmoBcm56xbTab from "./tabs/ImmoBcm56xbTab.jsx";
-import BcmPcmPairingTab from "./tabs/BcmPcmPairingTab.jsx";
 import BcmConfigTab from "./tabs/BcmConfigTab.jsx";
 import FcaModuleInspector from "./tabs/FcaModuleInspector.jsx";
 import UnlockCoverageTab from "./tabs/UnlockCoverageTab.jsx";
@@ -925,7 +925,7 @@ function VehicleLanding({onSelect}){
 const WORKSPACE_TABS = [
   {id:'dumps',     i:'📂', l:'DUMPS',        s:'VIN · SEC16 · Unlocks · Hex'},
   {id:'vinsync',   i:'🪪', l:'VIN → SYNC',   s:'Step 1 VIN+CRC · Step 2 security'},
-  {id:'secsync',   i:'🔐', l:'SECURITY SYNC',s:'BCM · RFHUB · PCM · SEC16/SEC6 side-by-side'},
+  {id:'secsync',   i:'🔐', l:'MARRY / SYNC', s:'Marry a module into a set · derive → write → verify'},
   {id:'modsync',   i:'🔄', l:'MODULE SYNC',  s:'BCM · RFHUB · PCM · SEC16'},
   {id:'keyprog',   i:'🔑', l:'KEY PROG',     s:'Stamp VIN to module set'},
   {id:'keyxfer',   i:'🔑', l:'KEY PROGRAM',  s:'Offline transponder-key transfer · no OBD'},
@@ -953,7 +953,6 @@ const WORKSPACE_TABS = [
   {id:'vinprog',   i:'🪪', l:'VIN + CHECKSUM', s:'Single-file VIN write + CRC patcher'},
   {id:'proxi',     i:'📋', l:'PROXI',        s:'BCM 0x2023 + DEnn feature decoder · read-only'},
   {id:'immobcm56xb',i:'🧠', l:'IMMO BCM 56xB',s:'64 KB MPC5606B · FULL / VIN_ONLY / LOCKED · file in/out'},
-  {id:'bcmpcmpair', i:'🔐', l:'BCM → PCM',    s:'MPC5606B full-flash · GPEC2A · SEC6 pairing workbench'},
   {id:'bcmconfig', i:'⚙️', l:'BCM CONFIG',   s:'DE00..DE0C · 155 toggles · SRT/Perf/Track'},
   {id:'inspector', i:'🔍', l:'MODULE INSPECTOR', s:'GPEC2A · RFHUB · BCM auto-detect'},
   {id:'unlockcov', i:'🗝️', l:'UNLOCK COV',   s:'81 DLLs · reversed vs dll_only'},
@@ -984,26 +983,35 @@ const WORKSPACE_TABS = [
   // any later duplicates so the sidebar renders one button per id.
   .filter((t, i, a) => a.findIndex(x => x.id === t.id) === i);
 
-/* Maps every workspace tab id to one of five sidebar categories.
- * INFO is intentionally absent — it lives in the reference panel. */
+/* Maps every workspace tab id to one of six drawer groups. Every non-primary
+ * tab MUST appear here — the drawer drops any tab without a category
+ * (CommandShell AdvancedDrawer), so an omission makes a tab unreachable.
+ * INFO is intentionally absent — it lives in the reference panel, not the drawer. */
 const WORKSPACE_CATEGORIES = {
-  // PROGRAM — anything that writes to a module / produces a flashable file.
-  jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
-  vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
-  ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
-  cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
-  // LIVE — connected OBD/J2534 sessions and external bench tools.
-  obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE',
-  // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
-  dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE', efd2bin:'ANALYZE',
-  proxi:'ANALYZE', smartbox:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
-  loganalyser:'ANALYZE', workflow:'ANALYZE',
-  // TOOLS — cross-cutting catalogs and coverage dashboards.
-  unlockcov:'TOOLS', alfaobd:'TOOLS', alfaintel:'TOOLS', dispatchcov:'TOOLS',
-  cda6db:'TOOLS', sigdisc:'TOOLS',
-  // RESEARCH — experimental / read-only knowledge surfaces (collapsed by default).
-  binintel:'RESEARCH', patterns:'RESEARCH', kg:'RESEARCH', investigation:'RESEARCH',
-  canuniverse:'RESEARCH', fwemul:'RESEARCH',
+  // MODULES — read / parse / edit a single module image.
+  bcm:'MODULES', rfhub:'MODULES', ecm:'MODULES', skim:'MODULES', skimlive:'MODULES',
+  smartbox:'MODULES', immobcm56xb:'MODULES', bcmconfig:'MODULES', inspector:'MODULES', proxi:'MODULES',
+  // MARRY & KEYS — secret pairing, sync, key programming (marryModule engine).
+  vinsync:'MARRY', secsync:'MARRY', modsync:'MARRY', keyprog:'MARRY', keyxfer:'MARRY',
+  keymgr:'MARRY', livekey:'MARRY', keywriter:'MARRY', radiocodes:'MARRY',
+  seed:'MARRY', jailbreak:'MARRY',
+  // FLASH & FIRMWARE — offline image patch / program.
+  flasher:'FLASH', cflash:'FLASH', gpecunlock:'FLASH', efd:'FLASH', efd2bin:'FLASH',
+  fwemul:'FLASH', vinprog:'FLASH', cdasession:'FLASH',
+  // LIVE & DIAGNOSTICS — connected OBD/UDS sessions and trace analysis.
+  obd:'LIVE', 'uds-console':'LIVE', udsanalyzer:'LIVE', loganalyser:'LIVE',
+  // DATA & WORKFLOW — dumps, backups, fixtures, job tracking.
+  dumps:'DATA', backups:'DATA', samples:'DATA', workflow:'DATA', investigation:'DATA',
+  // INTEL & REFERENCE — read-only catalogs, coverage dashboards, research surfaces.
+  alfaobd:'INTEL', alfaintel:'INTEL', binintel:'INTEL', dispatchcov:'INTEL', unlockcov:'INTEL',
+  canuniverse:'INTEL', patterns:'INTEL', kg:'INTEL', sigdisc:'INTEL', cda6db:'INTEL', exttools:'INTEL',
+};
+
+/* Retired tab ids → their replacement. The engine-backed Marry/Sync workspace
+ * (MarrySyncTab, rendered under 'secsync') subsumes the old BCM→PCM pairing tab;
+ * any deep-link / setTab('bcmpcmpair') lands on the unified tab instead. */
+const TAB_REDIRECTS = {
+  bcmpcmpair: 'secsync',
 };
 
 function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
@@ -1020,7 +1028,10 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
   const [referenceOpen, setReferenceOpen] = useState(false);
   const setTab = useCallback((next)=>{
     if (next === 'info') { setReferenceOpen(true); return; }
-    setTabRaw(VALID_TAB_IDS.has(next) ? next : 'dumps');
+    // Retired tabs consolidated into the engine-backed Marry/Sync workspace
+    // (rendered under the 'secsync' id). Redirect old ids / deep-links there.
+    const redirected = TAB_REDIRECTS[next] || next;
+    setTabRaw(VALID_TAB_IDS.has(redirected) ? redirected : 'dumps');
   },[VALID_TAB_IDS]);
   /* Window-level "open this tab" channel so deeply-nested components
    * (e.g. the inline CAN Universe panel rendered on tabs that don't
@@ -1223,9 +1234,9 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         activeTab={tab}
         onSelect={setTab}
       >
-        {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
+        {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')} onOpenTab={setTab}/>}
         {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
-        {tab==='secsync'   && <SecuritySyncTab/>}
+        {tab==='secsync'   && <MarrySyncTab/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
         {tab==='keyprog'   && <KeyProgTab/>}
         {tab==='keyxfer'   && <KeyTransferTab/>}
@@ -1252,7 +1263,6 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='vinprog'   && <VinProgrammerTab/>}
         {tab==='proxi'     && <ProxiTab/>}
         {tab==='immobcm56xb' && <ImmoBcm56xbTab/>}
-        {tab==='bcmpcmpair' && <BcmPcmPairingTab/>}
         {tab==='bcmconfig' && <BcmConfigTab vehicle={vehicle}/>}
         {tab==='inspector' && <FcaModuleInspector onOpenTab={setTab}/>}
         {tab==='unlockcov' && <UnlockCoverageTab/>}
@@ -1310,11 +1320,47 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
 }
 
 /* ═══ DUMPS TAB v2 — vehicle-aware ═══ */
-export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
+/* Job-card hero for the Diagnose landing — the six job doors rendered as
+ * "what are you trying to do?" cards, reading their labels straight from the
+ * shared JOB MODEL so the landing, the rail and the drawer all agree. Clicking
+ * a card opens that job's primary workspace (whose mode-strip then exposes the
+ * member modes). Gated behind `onOpenTab` at the call site, so the many
+ * DumpsTabV2 test harnesses that don't pass it render the landing unchanged. */
+const JOB_CARD_ICON = { read:'🔍', marry:'🔐', keys:'🔑', flash:'⚡', live:'📡', ref:'📚' };
+const JOB_CARD_TINT = { read:'#00838F', marry:'#D32F2F', keys:'#6A1B9A', flash:'#E65100', live:'#1565C0', ref:'#455A64' };
+function JobCards({onOpenJob}){
+  return (
+    <div data-testid="job-cards">
+      <div style={{fontSize:11,fontWeight:900,letterSpacing:1.5,color:C.ts,marginBottom:10}}>WHAT ARE YOU TRYING TO DO?</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:10}}>
+        {JOBS.map(j=>{
+          const tint = JOB_CARD_TINT[j.id] || C.a4;
+          return (
+            <button key={j.id} type="button" data-testid={`job-card-${j.id}`} onClick={()=>onOpenJob(j.primary)}
+              style={{textAlign:'left',cursor:'pointer',padding:'14px',borderRadius:12,background:C.c2,border:`1.5px solid ${C.bd}`,borderTop:`3px solid ${tint}`,display:'flex',flexDirection:'column',gap:5,transition:'all .15s'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=tint;e.currentTarget.style.transform='translateY(-2px)';}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=C.bd;e.currentTarget.style.transform='none';}}>
+              <span style={{fontSize:22,lineHeight:1}}>{JOB_CARD_ICON[j.id]||'🔧'}</span>
+              <span style={{fontWeight:900,fontSize:13,letterSpacing:.5,color:C.tx}}>{j.label}</span>
+              <span style={{fontSize:11,color:C.ts,lineHeight:1.35}}>{j.sub}</span>
+              <span style={{fontSize:10,fontWeight:800,letterSpacing:1,color:tint,marginTop:2}}>{j.members.length} TOOL{j.members.length>1?'S':''} →</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync, onOpenTab}){
   const [tv, setTv] = useState('');
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [rejected, setRejected] = useState([]);
+  // Separate opt-in: match VINs + recompute checksums as part of SYNC ALL.
+  // Checked → write VIN+CRC to BCM/RFH/PCM *and* sync security (legacy
+  // behavior). Unchecked → security-only sync, leave every VIN untouched.
+  const [matchVinCrc, setMatchVinCrc] = useState(true);
 
   /* Task #481 — per-vehicle target-chip selector for the SYNC ALL
    * MODULES PCM output. Bench programmers (Multi-PROG / CGDI / Xhorse)
@@ -1486,10 +1532,14 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       const log=[];
       let currentBcm = bcm.data;
       
-      // VIN write (all families)
-      const vinRes = engWriteBcmVin(currentBcm, tv);
-      currentBcm = vinRes.bytes;
-      log.push(`BCM VIN: ${vinRes.fullPatched} full slots, ${vinRes.shortPatched} short-VIN records patched (CRC 0x${vinRes.fullCrc.toString(16).toUpperCase()} / 0x${vinRes.tailCrc.toString(16).toUpperCase()})`);
+      // VIN write (all families) — gated on the "Match VINs + checksum" opt-in.
+      if (matchVinCrc) {
+        const vinRes = engWriteBcmVin(currentBcm, tv);
+        currentBcm = vinRes.bytes;
+        log.push(`BCM VIN: ${vinRes.fullPatched} full slots, ${vinRes.shortPatched} short-VIN records patched (CRC 0x${vinRes.fullCrc.toString(16).toUpperCase()} / 0x${vinRes.tailCrc.toString(16).toUpperCase()})`);
+      } else {
+        log.push('BCM VIN: left unchanged (VIN matching off — security-only sync)');
+      }
 
       // ── Security pairing — BCM is the SOURCE OF TRUTH ──
       // The BCM holds the canonical vehicle immobilizer secret (SEC16). SYNC
@@ -1520,9 +1570,14 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       
       // RFH write (VIN + SEC16 rewritten from BCM when both sides are Gen2)
       if(rfh){
-        const rfhRes = engWriteRfhVin(rfh.data, tv, false);
-        let currentRfh = rfhRes.bytes;
-        log.push(`RFH VIN: ${rfhRes.patched} slots patched`);
+        let currentRfh = rfh.data;
+        if (matchVinCrc) {
+          const rfhRes = engWriteRfhVin(rfh.data, tv, false);
+          currentRfh = rfhRes.bytes;
+          log.push(`RFH VIN: ${rfhRes.patched} slots patched`);
+        } else {
+          log.push('RFH VIN: left unchanged (VIN matching off)');
+        }
         if (bcmSecReal) {
           const rfhP = engParseRfh(currentRfh);
           if (rfhP.format === 'gen2') {
@@ -1546,9 +1601,13 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
       // PCM write (VIN + SEC6 if RFH available)
       if(pcm){
         let currentPcm = pcm.data;
-        const pcmVinRes = engWritePcmVin(currentPcm, tv);
-        currentPcm = pcmVinRes.bytes;
-        log.push(`PCM VIN: ${pcmVinRes.patched} slots patched`);
+        if (matchVinCrc) {
+          const pcmVinRes = engWritePcmVin(currentPcm, tv);
+          currentPcm = pcmVinRes.bytes;
+          log.push(`PCM VIN: ${pcmVinRes.patched} slots patched`);
+        } else {
+          log.push('PCM VIN: left unchanged (VIN matching off)');
+        }
         /* Task #399 — gate PCM download on SEC6 writer reporting ok===true.
          * A virgin GPEC2A PCM (no AA marker, all-FF SEC6) would otherwise
          * report 0 patches and still get shipped as "synced" to the tech. */
@@ -1595,6 +1654,10 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   };
 
   return <div style={{display:'grid',gridTemplateColumns:'1fr',gap:16}}>
+    {/* Job-card hero — the six job doors as a "what are you trying to do?"
+        picker. Only rendered in the live app (onOpenTab provided), so the
+        DumpsTabV2 unit tests render the landing unchanged. */}
+    {onOpenTab && <JobCards onOpenJob={onOpenTab}/>}
     {/* Target VIN input */}
     <Card>
       <div style={{display:'flex',gap:14,alignItems:'center',flexWrap:'wrap'}}>
@@ -1603,7 +1666,12 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
           <input className="vin-input" value={tv} maxLength={17} placeholder={`Enter customer ${vehicle.name} VIN`} onChange={e=>setTv(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,''))} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'2px solid '+(vinBad?C.er:vinGood?C.gn:C.bd),background:C.c2,fontFamily:"'JetBrains Mono'",fontSize:15,fontWeight:700,letterSpacing:3,textAlign:'center',outline:'none',boxSizing:'border-box',color:C.tx}}/>
         </div>
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
-          <Btn onClick={runFullSync} color={vehicle.accent} disabled={!vinGood||!bcm||blockers.length>0||hasCorruptModule} title={hasCorruptModule?'Remove corrupt captures before syncing':undefined}>▶ SYNC ALL MODULES</Btn>
+          <Btn onClick={runFullSync} color={vehicle.accent} disabled={(matchVinCrc&&!vinGood)||!bcm||blockers.length>0||hasCorruptModule} title={hasCorruptModule?'Remove corrupt captures before syncing':undefined}>▶ SYNC ALL MODULES</Btn>
+          {/* Separate VIN+checksum opt-in (Task — user request). Off = security-only sync. */}
+          <label data-testid="dumps-match-vin-toggle" style={{display:'flex',alignItems:'center',gap:7,fontSize:11,fontWeight:700,color:C.ts,cursor:'pointer',userSelect:'none'}}>
+            <input type="checkbox" checked={matchVinCrc} onChange={e=>setMatchVinCrc(e.target.checked)} style={{width:15,height:15,accentColor:vehicle.accent,cursor:'pointer'}}/>
+            Match VINs + recompute checksums
+          </label>
           <button onClick={()=>{setFiles([]);setMsg('');setErr('');}} style={{padding:'6px 14px',fontSize:10,background:'none',border:'1px solid '+C.bd,borderRadius:8,cursor:'pointer',color:C.ts,fontWeight:700,letterSpacing:1}}>CLEAR FILES</button>
         </div>
       </div>

@@ -468,7 +468,10 @@ export default function BcmConfigTab({ vehicle }) {
 
       {/* SECTIONS */}
       <div style={{ padding: '18px 22px 22px' }}>
-        {buckets.map(({ category, dids }) => (
+        {/* Open as a collapsed INDEX — only the first category expands on
+            load, the rest are one-line hero banners you open on demand. A
+            live search force-opens every matching section. */}
+        {buckets.map(({ category, dids }, i) => (
           category.id === 'perf' ? (
             <PerfShowcase
               key={category.id}
@@ -481,6 +484,7 @@ export default function BcmConfigTab({ vehicle }) {
               edits={edits}
               busy={busy !== ''}
               search={lcSearch}
+              defaultCollapsed={i > 0 && !lcSearch}
               vehicle={vehicle}
               onReadOne={onReadOne}
               onWriteOne={onWriteOne}
@@ -499,6 +503,7 @@ export default function BcmConfigTab({ vehicle }) {
               edits={edits}
               busy={busy !== ''}
               search={lcSearch}
+              defaultCollapsed={i > 0 && !lcSearch}
               onReadOne={onReadOne}
               onWriteOne={onWriteOne}
               onResetEdits={onResetEdits}
@@ -537,10 +542,10 @@ export default function BcmConfigTab({ vehicle }) {
 /* ───────── category section ───────── */
 
 const CategorySection = React.forwardRef(function CategorySection({
-  category, dids, counts, grouped, payloads, edits, busy, search,
+  category, dids, counts, grouped, payloads, edits, busy, search, defaultCollapsed,
   onReadOne, onWriteOne, onResetEdits, onEdit,
 }, ref) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(Boolean(defaultCollapsed));
 
   // search filter — keep DIDs whose category, DID hex, name or any field
   // name matches.
@@ -610,7 +615,7 @@ const CategorySection = React.forwardRef(function CategorySection({
         </div>
       </div>
 
-      {!collapsed && (
+      {(!collapsed || !!search) && (
         <div style={{ display: 'grid', gap: 10 }}>
           {visibleDids.map((did) => (
             <DidCard
@@ -636,10 +641,10 @@ const CategorySection = React.forwardRef(function CategorySection({
 const DE0A = 0xDE0A;
 
 const PerfShowcase = React.forwardRef(function PerfShowcase({
-  category, dids, counts, grouped, payloads, edits, busy, search, vehicle,
+  category, dids, counts, grouped, payloads, edits, busy, search, defaultCollapsed, vehicle,
   onReadOne, onWriteOne, onResetEdits, onEdit,
 }, ref) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(Boolean(defaultCollapsed));
 
   // The DE0A "Performance & SRT Configuration" payload powers the
   // showcase sub-panels. Everything else in this category (0x0503,
@@ -798,7 +803,7 @@ const PerfShowcase = React.forwardRef(function PerfShowcase({
         </div>
       </div>
 
-      {!collapsed && (
+      {(!collapsed || !!search) && (
         <>
           {/* DE0A SUB-PANELS */}
           {!de0aSlot && (

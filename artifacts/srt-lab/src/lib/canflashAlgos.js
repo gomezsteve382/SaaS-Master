@@ -1,9 +1,19 @@
 /* ==========================================================================
- * CANFLASH BYTE-VERIFIED ALGORITHMS
- * Source: Chrysler_J2534_Flash_Application/unlocks/*.dll
- * Each algorithm validated against the DLL's built-in verify() self-test.
- * This is the FIRST ground-truth seed-key catalog in this project — 
- * everything below produces byte-identical output to the factory Chrysler DLL.
+ * CANFLASH SEED-KEY ALGORITHMS  (UNVERIFIED — provenance corrected)
+ * Source: reconstructed from Chrysler_J2534_Flash_Application/unlocks/*.dll
+ *
+ * HONESTY CORRECTION: an earlier header claimed these were "BYTE-VERIFIED",
+ * "validated against the DLL's built-in verify() self-test", the "FIRST
+ * ground-truth catalog", and "byte-identical to the factory Chrysler DLL".
+ * That overstated the evidence:
+ *   - The source unlock DLLs are NOT in this repo and the build pipeline does
+ *     not decompile DLLs, so there is nothing here to diff against.
+ *   - The per-function "SELF-TEST: N/N ✓" markers below are SELF-PINNED
+ *     vectors (formula vs its own recorded output), NOT a live run of the
+ *     DLL's verify(). They catch regressions, not a wrong formula.
+ *   - None is confirmed against a live seed→key capture from a real ECU.
+ * Treat every algorithm here as UNVERIFIED — a candidate to try on the bench,
+ * not ground truth. See algoProvenance.js.
  * ========================================================================== */
 
 function cfRotR16(x,n){x&=0xFFFF;for(let i=0;i<n;i++){const b=x&1;x>>>=1;if(b)x|=0x8000;}return x&0xFFFF;}

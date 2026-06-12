@@ -86,6 +86,13 @@ function crossValidate(modules){
       warnings.push("BCM legacy flat 0x40C9 STALE — live SEC16 ("+bcm.bcmSec16.source+")="+fmtHex(resolved)+" but flat slice (LE)="+fmtHex(flat)+". Open Module Sync → 'Repair flat 0x40C9 from split records' so legacy CGDI/Autel readers see the live secret.");
     }
   }
+  /* Shared-constant guard — the BCM SEC16 resolved to the `00…31 3E…0A`
+   * block that is byte-identical across unrelated VINs and only appears on
+   * un-programmed/donor BCMs (proven, see resolveBcmSec16). Warn so the marry/
+   * key flows never treat it as a confident per-car secret. */
+  if(bcm?.bcmSec16?.sharedConstant){
+    warnings.push("BCM SEC16: SHARED-DEFAULT value ("+fmtHex(bcm.bcmSec16.bytes)+") — this block is byte-identical across multiple unrelated cars and only appears on un-programmed/donor BCMs. Treat as a placeholder, NOT a confirmed per-car secret; do not derive RFHUB/PCM security from it without a bench-verified secret.");
+  }
   if(rfhub&&rfhub.sec16s){
     if(rfhub.sec16valid)passed.push("RFHUB SEC16: VALID — slots 1&2 match, non-blank");
     else if(rfhub.sec16s[0]?.blank)warnings.push("RFHUB SEC16: BLANK (all FF/00) — virgin module");
@@ -132,8 +139,18 @@ function crossValidate(modules){
     }
   }
   if(gpec){
+    const skimDisabled=gpec.skimByte===0x00||gpec.skimByte===0x02;
     if(gpec.skimByte===0x80)passed.push("GPEC2A SKIM: ENABLED (0x80)");
-    else if(gpec.skimByte===0x00)warnings.push("GPEC2A SKIM: DISABLED (0x00) — bypassed");
+    else if(skimDisabled){
+      // Loud catch (user request): an ECM/PCM can read as fully "synced"
+      // (SEC6 populated + FF FF FF AA marker) yet have SKIM OFF, so the
+      // engine starts regardless of the secret. A naive verdict calls that
+      // "good"; we surface it as an explicit warning (NOT an export-blocking
+      // issue — SKIM at its default is legitimate; the writers never touch
+      // it) with a message spelling out the consequence, louder when paired.
+      const looksPaired=pcmPopulated(gpec);
+      warnings.push("GPEC2A/ECM SKIM @0x0011 = 0x"+(gpec.skimByte||0).toString(16).padStart(2,'0').toUpperCase()+" — IMMOBILIZER DISABLED / BYPASSED. The engine module ignores the secret and starts regardless"+(looksPaired?", even though its SEC6 reads as paired — a SEC6 sync will NOT be enforced until SKIM is re-enabled (0x80).":". Re-enable SKIM (0x80) for the immo to be enforced."));
+    }
     /* Skip the key-consistency mismatch when the GPEC vehicle/skim key is
      * virgin/erased (all-FF) — that's expected on a virgin GPEC, not a
      * fault. The 0x0203 field is GPEC-internal and unrelated to the

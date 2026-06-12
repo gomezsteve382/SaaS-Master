@@ -1,4 +1,5 @@
-import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs,RFH_GEN2_VIN_CS_KNOWN_MAGICS} from './crc.js';
+import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs,RFH_GEN2_VIN_CS_KNOWN_MAGICS,crc16ccitt} from './crc.js';
+import {reverse16} from './immoSecret.js';
 import {isXc2268Rfhub,parseXc2268Image} from './xc2268Rfhub.js';
 import {isZf8hpImage,parseZf8hpImage} from './zf8hp.js';
 import {TC,TL,SKIM_VALUES,IMMO_REC,IMMO_KC,IMMO_BLOCK,SKIM_OFF} from './constants.js';
@@ -647,7 +648,7 @@ function detectBySignature(data){
  * ---------------------------------------------------------------------------- */
 function resolveBcmSec16(data){
   const sz=data.length;
-  const candidates={split:null,mirror1:null,mirror2:null,flat:null};
+  const candidates={split:null,mirror1:null,mirror2:null,legacyMirror:null,flat:null};
   let inactiveBase=null;
   /* -- split records (0x81A0/C0/E0) -- */
   if(sz>=0x8200){
@@ -700,6 +701,30 @@ function resolveBcmSec16(data){
       candidates.mirror2={offset:m2,bytes:new Uint8Array(sec),blank,idx};
     }
   }
+  /* -- legacy 2014-era mirror records (0x00C8 / 0x00F0) — pre-gen2 BCM family
+   * (e.g. 68396563AC on a 2014 LX Charger). 22-byte record:
+   *   +0 idx · +1..+16 SEC16 · +17 tag 0x8F · +18..+19 FF FF · +20..+21 CRC16-BE
+   * Accept only when the 0x8F/FF/FF tag AND CRC-16/CCITT over the first 20 bytes
+   * validate, so blank early flash never yields a phantom. This mirrors
+   * engBcmParse/engParseBcm so the engine resolves the SAME secret ModuleSync
+   * does (proven by verify-bcm-resolve equivalence). -- */
+  if(sz>=0x00F0+22){
+    for(const off of [0x00C8,0x00F0]){
+      if(off+22>sz)continue;
+      if(data[off+17]!==0x8F||data[off+18]!==0xFF||data[off+19]!==0xFF)continue;
+      const idx=data[off];
+      const sec=data.slice(off+1,off+17);
+      const cin=new Uint8Array(20);cin[0]=idx;
+      for(let k=0;k<16;k++)cin[1+k]=sec[k];
+      cin[17]=0x8F;cin[18]=0xFF;cin[19]=0xFF;
+      const stored=(data[off+20]<<8)|data[off+21];
+      if(crc16ccitt(cin)!==stored)continue;
+      const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
+      if(!candidates.legacyMirror||candidates.legacyMirror.blank){
+        candidates.legacyMirror={offset:off,bytes:new Uint8Array(sec),blank,idx};
+      }
+    }
+  }
   /* -- legacy flat slice at 0x40C9 -- */
   if(sz>=0x40D9){
     const sec=data.slice(0x40C9,0x40D9);
@@ -714,16 +739,30 @@ function resolveBcmSec16(data){
    * only 5 non-zero/non-FF bytes but IS the authoritative vehicle secret,
    * confirmed by FCA SINCRO). */
   let chosen=null,source=null;
-  for(const key of ['split','mirror1','mirror2','flat']){
+  for(const key of ['split','mirror1','mirror2','legacyMirror','flat']){
     const c=candidates[key];
     if(c&&!c.blank){chosen=c;source=key;break;}
   }
+  /* sharedConstant: the resolved value is the `00…31 3E 00 10 00 18 00 0A 00`
+   * block that is BYTE-IDENTICAL across multiple unrelated VINs (proven on
+   * 527958 / 592745 / 539430 — three different cars) and only ever appears on
+   * BCMs whose split records are blank (un-programmed / donor). So it is NOT a
+   * per-vehicle secret. Its status as a real family/default secret is NOT
+   * established (the codebase claims FCA-SINCRO confirmation; no matched married
+   * set proves it). We keep returning the bytes (don't break the existing
+   * behavior/tests) but flag them so the marry/UI never present them as a
+   * confident per-car secret — honest provenance over a guess in either
+   * direction. */
+  const SHARED_CONST=[0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x31,0x3E,0x00,0x10,0x00,0x18,0x00,0x0A,0x00];
+  const sharedConstant=!!chosen&&source!=='split'&&chosen.bytes.length===16&&
+    SHARED_CONST.every((v,i)=>chosen.bytes[i]===v);
   /* allBlank: all candidates are structurally blank (all-FF / all-00).
    * This is the only condition under which a BCM is treated as virgin. */
   const allBlank=
     (!candidates.split||candidates.split.blank)&&
     (!candidates.mirror1||candidates.mirror1.blank)&&
     (!candidates.mirror2||candidates.mirror2.blank)&&
+    (!candidates.legacyMirror||candidates.legacyMirror.blank)&&
     (!candidates.flat||candidates.flat.blank);
   /* sec16Absent: true only when every candidate is blank — i.e. the module
    * is in a fully virgin / factory state with no real SEC16 anywhere.
@@ -738,6 +777,7 @@ function resolveBcmSec16(data){
     candidates,
     blank:allBlank,
     sec16Absent,
+    sharedConstant,
   };
 }
 
@@ -1026,6 +1066,28 @@ function parseModule(data,filename,opts){
     }
     info.sec16SourceSlot=1;
     info.rfhGen=sz===4096?'Gen2 (24C32)':sz===8192?'Gen2-x2 (8192B, unusual)':sz===2048?'Gen1 (24C16)':'Unknown';
+    /* ── Honest SEC16 status (grounded in the RFHUB corpus; see
+     * RFHUB_GEN2_LAYOUT.md). The legacy `sec16valid` above requires a
+     * matched-mirror pair + valid CS at the size-derived offset. That is
+     * correct when the secret lives there and matches (every "6.2" 4 KB hub:
+     * 0x050E == 0x0522). But it must NOT be reported as "INVALID / MISMATCH"
+     * — which implies an unsynced/wrong secret — when the bytes simply don't
+     * fit that format (e.g. the 592745 hub, whose data is neither a matched
+     * 0x050E pair nor a clean 0x00AE pair). Distinguish "validated" from
+     * "we can't validate this layout from the file" so the UI stops false-
+     * flagging. Roles of the per-car blocks at 0x050E / 0x0226 are NOT
+     * established, so nothing here claims they are a sync secret. */
+    const _s16=info.sec16s[0];
+    info.sec16Status=(!_s16||_s16.blank)?'blank'
+      :(info.sec16match&&_s16.csOk)?'verified-mirror'
+      :'unverified-layout';
+    /* Key-count byte for the 4 KB "6.2" RFHUB variant: 0x0150, mirrored at
+     * 0x01D4. PROVEN: incremented 0x02→0x03 across a verified same-VIN
+     * before/after key-add (VIN 615142), and equal on every independent 6.2
+     * hub (530589/652640/167935 = 01/06/01). Surfaced ONLY when the two
+     * mirror bytes agree (the variant invariant); left undefined otherwise
+     * rather than guess (the 592745 variant shows 0xF9 vs 0x04 → undefined). */
+    if(sz===4096&&data[0x150]===data[0x1D4]) info.rfhKeyCountByte=data[0x150];
   }else if(type==='XC2268_RFHUB'){
     // Task #634 — Infineon XC2268-class RFHUB. Surface VIN slots + CRC16/CCITT
     // status + image-wide checksum so the inspector renders bench-ready data
@@ -1213,7 +1275,7 @@ function parseModule(data,filename,opts){
       const csOk=storedCs===calcCs;
       const blank=raw16.every(b=>b===0xFF||b===0x00);
       const hex=Array.from(raw16).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
-      const reversed=new Uint8Array(16);for(let i=0;i<16;i++)reversed[i]=raw16[15-i];
+      const reversed=reverse16(raw16);
       const reversedHex=Array.from(reversed).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
       info.bcmSec16={offset:0x838,raw:raw16,hex,reversed,reversedHex,storedCs,calcCs,csOk,blank};
     }

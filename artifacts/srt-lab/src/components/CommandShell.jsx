@@ -2,8 +2,10 @@ import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Stethoscope, Terminal, Fingerprint, DownloadCloud, Bot,
   ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks, KeyRound, Lock,
+  Cpu, Zap, BookOpen,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
+import {JOBS, JOB_OF, JOB_BY_ID, HOME} from '../workspaceJobs.js';
 
 /* SRT command-center design tokens (graduated from the approved canvas mockup). */
 const T = {
@@ -16,18 +18,28 @@ const T = {
   good: '#2E7D32',
 };
 
-/* The five per-vehicle workflow panes. Each maps to an existing workspace
- * tab id so the battle-tested tab content components keep rendering. */
-export const PRIMARY_NAV = [
-  {key: 'dumps',       label: 'Diagnose',      sub: 'Drop \u2192 verdict \u2192 fix', icon: Stethoscope},
-  {key: 'vinsync',     label: 'VIN \u2192 Sync',    sub: 'Checksums then security',        icon: ListChecks},
-  {key: 'secsync',     label: 'Security Sync', sub: 'BCM \u00b7 RFHUB \u00b7 PCM side-by-side', icon: Lock},
-  {key: 'keyxfer',     label: 'Key Program',   sub: 'Add transponder key offline',    icon: KeyRound},
-  {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          icon: Terminal},
-  {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          icon: Fingerprint},
-  {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            icon: DownloadCloud},
-  {key: 'investigation', label: 'AI Copilot',  sub: 'Guided investigation',           icon: Bot},
-];
+/* The six job doors, derived from the shared JOB MODEL (workspaceJobs.js).
+ * Each door opens its job's `primary` workspace tab, so the battle-tested tab
+ * content components keep rendering \u2014 but the rail, the drawer and the landing
+ * cards now read ONE label per job from the same source. `jobId` lets the rail
+ * stay highlighted while you're on any member tab of that job (e.g. you're on
+ * BCM, which lives under READ, and the READ door stays lit). */
+const JOB_ICON = {
+  read:  Cpu,
+  marry: Lock,
+  keys:  KeyRound,
+  flash: Zap,
+  live:  DownloadCloud,
+  ref:   BookOpen,
+};
+
+export const PRIMARY_NAV = JOBS.map((j) => ({
+  key: j.primary,
+  jobId: j.id,
+  label: j.label,
+  sub: j.sub,
+  icon: JOB_ICON[j.id] || Stethoscope,
+}));
 
 const PRIMARY_KEYS = new Set(PRIMARY_NAV.map(n => n.key));
 
@@ -38,14 +50,13 @@ export const FOOTER_NAV = [
   {key: 'canuniverse', label: 'CAN Universe \u00b7 Intel', icon: Search},
 ];
 
-const CATEGORY_META = {
-  PROGRAM:  {label: 'PROGRAM',  blurb: 'Write to module'},
-  LIVE:     {label: 'LIVE',     blurb: 'Connected ECU'},
-  ANALYZE:  {label: 'ANALYZE',  blurb: 'Dumps & reports'},
-  TOOLS:    {label: 'TOOLS',    blurb: 'Cross-cutting utilities'},
-  RESEARCH: {label: 'RESEARCH', blurb: 'Experimental / catalogs'},
-};
-const SECTION_ORDER = ['PROGRAM', 'LIVE', 'ANALYZE', 'TOOLS', 'RESEARCH'];
+/* Drawer sections are the SAME six jobs as the rail (workspaceJobs.js), so a
+ * tool wears one group name whether you reach it from the rail or the drawer.
+ * Keyed by job id; label/blurb come straight from the shared model. */
+const CATEGORY_META = Object.fromEntries(
+  JOBS.map((j) => [j.id, {label: j.label, blurb: j.sub}]),
+);
+const SECTION_ORDER = JOBS.map((j) => j.id);
 
 function matchesQuery(tab, q) {
   if (!q) return true;
@@ -56,10 +67,16 @@ function matchesQuery(tab, q) {
 function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) {
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
+  // Collapsible groups: by default only the section the active tab lives in is
+  // open (so the 52-item list reads as a ~6-row index, not a 5-screen scroll).
+  // While searching, any section with a match opens automatically.
+  const [expanded, setExpanded] = useState(() => new Set());
+  const toggleSection = (key) => setExpanded((s) => { const n = new Set(s); n.has(key) ? n.delete(key) : n.add(key); return n; });
+  const sectionOpen = (key, count) => (q ? count > 0 : (expanded.has(key) || key === JOB_OF[activeTab]));
 
-  // Everything that isn't one of the five primary panes belongs here.
+  // Everything that isn't a job door primary or the HOME landing belongs here.
   const advancedTabs = useMemo(
-    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)),
+    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id) && t.id !== HOME.key),
     [tabs],
   );
 
@@ -67,13 +84,16 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
     const g = {};
     for (const key of SECTION_ORDER) g[key] = [];
     for (const t of advancedTabs) {
-      const cat = categories[t.id];
-      if (!cat || !g[cat]) continue;
+      // Group by the shared job model. Falls back to REFERENCE so a tab that
+      // isn't explicitly placed still appears in the drawer instead of
+      // silently vanishing.
+      const cat = JOB_OF[t.id] || 'ref';
+      if (!g[cat]) continue;
       if (!matchesQuery(t, q)) continue;
       g[cat].push(t);
     }
     return g;
-  }, [advancedTabs, categories, q]);
+  }, [advancedTabs, q]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -141,44 +161,80 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
           </div>
         </div>
 
-        <div style={{flex: 1, overflowY: 'auto', padding: '8px 12px 40px'}}>
+        <div style={{flex: 1, overflowY: 'auto', padding: '6px 10px 40px'}}>
           {SECTION_ORDER.map((key) => {
             const items = grouped[key] || [];
             if (items.length === 0) return null;
             const meta = CATEGORY_META[key];
+            const isOpen = sectionOpen(key, items.length);
+            const hasActive = items.some((t) => t.id === activeTab);
             return (
-              <div key={key} style={{marginBottom: 14}}>
-                <div style={{
-                  fontFamily: "'Righteous',sans-serif", fontSize: 11, letterSpacing: 2,
-                  color: T.muted, padding: '8px 8px 6px',
-                }} title={meta.blurb}>{meta.label}</div>
-                {items.map((t) => {
-                  const active = activeTab === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      type="button"
-                      data-testid={`drawer-tab-${t.id}`}
-                      onClick={() => { onSelect(t.id); onClose(); }}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 11, width: '100%',
-                        background: active ? T.red : T.panel,
-                        color: active ? '#fff' : T.ink,
-                        border: `1px solid ${active ? T.red : T.line}`,
-                        borderRadius: 9, padding: '9px 11px', marginBottom: 6, cursor: 'pointer',
-                        textAlign: 'left', fontFamily: "'Nunito',sans-serif",
-                      }}
-                      onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#fff7f5'; }}
-                      onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = T.panel; }}
-                    >
-                      <span style={{fontSize: 17, lineHeight: 1, flexShrink: 0}}>{t.i}</span>
-                      <span style={{display: 'flex', flexDirection: 'column', minWidth: 0}}>
-                        <span style={{fontWeight: 800, fontSize: 12.5, letterSpacing: 0.5, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{t.l}</span>
-                        <span style={{fontSize: 11, opacity: active ? 0.85 : 0.6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{t.s}</span>
-                      </span>
-                    </button>
-                  );
-                })}
+              <div key={key} style={{marginBottom: 6}}>
+                <button
+                  type="button"
+                  onClick={() => toggleSection(key)}
+                  title={meta.blurb}
+                  data-testid={`drawer-section-${key}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 9, width: '100%',
+                    background: isOpen ? T.panel : 'transparent',
+                    border: `1px solid ${isOpen ? T.line : 'transparent'}`,
+                    borderRadius: 9, padding: '9px 10px', cursor: 'pointer',
+                    textAlign: 'left', fontFamily: "'Righteous',sans-serif",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = T.panel; }}
+                  onMouseLeave={(e) => { if (!isOpen) e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <ChevronRight
+                    size={15}
+                    style={{
+                      color: hasActive ? T.red : T.muted, flexShrink: 0,
+                      transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s ease',
+                    }}
+                  />
+                  <span style={{flex: 1, fontSize: 11.5, letterSpacing: 1.5, color: hasActive ? T.red : T.ink}}>{meta.label}</span>
+                  <span style={{
+                    fontFamily: "'Nunito',sans-serif", fontSize: 11, fontWeight: 800,
+                    color: T.muted, background: T.base, border: `1px solid ${T.line}`,
+                    borderRadius: 20, minWidth: 20, textAlign: 'center', padding: '1px 7px',
+                  }}>{items.length}</span>
+                </button>
+
+                {isOpen && (
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6,
+                    padding: '7px 2px 4px', alignItems: 'stretch',
+                  }}>
+                    {items.map((t) => {
+                      const active = activeTab === t.id;
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          data-testid={`drawer-tab-${t.id}`}
+                          title={t.s}
+                          onClick={() => { onSelect(t.id); onClose(); }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                            background: active ? T.red : T.panel,
+                            color: active ? '#fff' : T.ink,
+                            border: `1px solid ${active ? T.red : T.line}`,
+                            borderRadius: 9, padding: '8px 9px', cursor: 'pointer',
+                            textAlign: 'left', fontFamily: "'Nunito',sans-serif", minWidth: 0,
+                          }}
+                          onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#fff7f5'; }}
+                          onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = T.panel; }}
+                        >
+                          <span style={{fontSize: 15, lineHeight: 1, flexShrink: 0}}>{t.i}</span>
+                          <span style={{
+                            fontWeight: 800, fontSize: 11, letterSpacing: 0.3, textTransform: 'uppercase',
+                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0,
+                          }}>{t.l}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -191,7 +247,64 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
   );
 }
 
-/* ── Command shell: slim top bar + 5-item workflow rail + drawer ── */
+/* ── Mode strip ──
+ * When the active tab belongs to a job with more than one member, render the
+ * job's members as a horizontal strip of "modes" across the top of the
+ * workspace. This is what collapses the duplication on screen: the 8 KEYS
+ * tabs (or 10 READ tabs) stop being 8 separate drawer entries and become
+ * mode pills inside one job screen. Primary mode is first (model order). */
+function ModeStrip({tabs, activeTab, onSelect}) {
+  const jobId = JOB_OF[activeTab];
+  const job = jobId && JOB_BY_ID[jobId];
+  if (!job || job.members.length <= 1) return null;
+  const byId = {};
+  for (const t of tabs) byId[t.id] = t;
+  const modes = job.members.map((id) => byId[id]).filter(Boolean);
+  if (modes.length <= 1) return null;
+  return (
+    <div
+      data-testid={`mode-strip-${jobId}`}
+      style={{
+        display: 'flex', gap: 7, alignItems: 'center', overflowX: 'auto',
+        padding: '11px 22px 0', maxWidth: 1200, margin: '0 auto',
+        scrollbarWidth: 'thin',
+      }}
+    >
+      <span style={{
+        fontFamily: "'Righteous',sans-serif", fontSize: 11, letterSpacing: 1,
+        color: T.muted, flexShrink: 0, paddingRight: 4,
+      }}>{job.label}</span>
+      {modes.map((t) => {
+        const active = t.id === activeTab;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            data-testid={`mode-${t.id}`}
+            title={t.s}
+            onClick={() => onSelect(t.id)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
+              background: active ? T.red : T.panel,
+              color: active ? '#fff' : T.ink,
+              border: `1px solid ${active ? T.red : T.line}`,
+              borderRadius: 999, padding: '6px 12px', cursor: 'pointer',
+              fontFamily: "'Nunito',sans-serif", fontWeight: 800, fontSize: 12,
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#fff7f5'; }}
+            onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = T.panel; }}
+          >
+            <span style={{fontSize: 14, lineHeight: 1}}>{t.i}</span>
+            {t.l}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Command shell: slim top bar + 6-job rail + mode strip + drawer ── */
 export default function CommandShell({
   vehicle, onBack, onOpenWizard, onOpenCopilot, tabs, categories, activeTab, onSelect, children,
 }) {
@@ -199,7 +312,7 @@ export default function CommandShell({
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const advancedCount = useMemo(
-    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)).length,
+    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id) && t.id !== HOME.key).length,
     [tabs],
   );
 
@@ -312,8 +425,44 @@ export default function CommandShell({
             PER-VEHICLE WORKFLOW
           </div>
 
+          {/* HOME / Diagnose landing — pinned above the job doors. It is not a
+              job, so landing here lights HOME (not a job door). */}
+          {(() => {
+            const isActive = activeTab === HOME.key;
+            return (
+              <button
+                type="button"
+                data-testid={`rail-${HOME.key}`}
+                onClick={() => onSelect(HOME.key)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 11, width: '100%', textAlign: 'left',
+                  padding: '11px 11px', borderRadius: 10, cursor: 'pointer', border: 'none',
+                  marginBottom: 4,
+                  background: isActive ? T.red : 'transparent',
+                  color: isActive ? '#fff' : T.ink,
+                  boxShadow: isActive ? '0 6px 16px -6px rgba(211,47,47,.6)' : 'none',
+                  fontFamily: "'Nunito',sans-serif",
+                }}
+                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#F4F1EC'; }}
+                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+              >
+                <Stethoscope size={19} style={{flexShrink: 0, opacity: isActive ? 1 : 0.7}} />
+                <span style={{lineHeight: 1.2, minWidth: 0}}>
+                  <span style={{display: 'block', fontWeight: 800, fontSize: 13.5}}>{HOME.label}</span>
+                  <span style={{display: 'block', fontSize: 11, opacity: isActive ? 0.85 : 0.55}}>{HOME.sub}</span>
+                </span>
+              </button>
+            );
+          })()}
+
+          <div style={{height: 1, background: T.line, margin: '6px 8px 8px'}} />
+
           {PRIMARY_NAV.map((item) => {
-            const isActive = item.key === activeTab;
+            // Door lights up when the active tab belongs to this job — so
+            // drilling into a member tab (e.g. BCM under READ) keeps the
+            // parent door highlighted, not just an exact id match.
+            const isActive = (JOB_OF[activeTab] || activeTab) === item.jobId
+              || item.key === activeTab;
             const Icon = item.icon;
             return (
               <button
@@ -372,7 +521,8 @@ export default function CommandShell({
 
         {/* Content slot */}
         <main data-testid="command-content" style={{flex: 1, minWidth: 0, overflow: 'auto', background: T.base}}>
-          <div style={{maxWidth: 1200, margin: '0 auto', padding: '22px 22px 60px'}}>
+          <ModeStrip tabs={tabs} activeTab={activeTab} onSelect={onSelect} />
+          <div style={{maxWidth: 1200, margin: '0 auto', padding: '14px 22px 60px'}}>
             {children}
           </div>
         </main>

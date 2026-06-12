@@ -29,6 +29,8 @@ import {
   writeRfhSec16FromBcm,
   writeXc2268Sec16,
 } from './securityBytes.js';
+import { reverse16 } from './immoSecret.js';
+import { writerGrounding, GROUNDING } from './algoProvenance.js';
 
 const IMMO_BACKUP_SIZE = 24 * 8; // 192 bytes (IMMO_REC × IMMO_KC)
 
@@ -327,7 +329,7 @@ export function resolvePcmOutput(pcmInData, idP, requestedChip) {
       + 'Load a matching virgin or rerun with --pcm-chip ' + (inChip?.chipKey || '4kb') + '.' };
 }
 
-export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmChip = null } = {}) {
+export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmChip = null, allowUnverifiedTarget = false } = {}) {
   const checks = [];
   let allOk = true;
   const ok = (label, pass, detail = '') => {
@@ -493,6 +495,24 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
       && idB.info?.bcmSec16?.bytes && !idB.info.bcmSec16.blank) {
     const bcmSec16Bytes = new Uint8Array(idB.info.bcmSec16.bytes);
     const isXc2268 = idR.info?.type === 'XC2268_RFHUB';
+    // Ultimate-machine gate: the XC2268 SEC16 writer is UNVERIFIED (offset map +
+    // image checksum reconstructed from a screenshot — algoProvenance.js).
+    // Writing an unverified secret to a real 2019+ Ram RFHUB can brick it, so
+    // require explicit allowUnverifiedTarget. (Gen2 Yazaki is bench-verified.)
+    if (isXc2268 && writerGrounding('writeXc2268Sec16').level !== GROUNDING.BENCH && !allowUnverifiedTarget) {
+      return {
+        ok: false,
+        checks: [...checks, {
+          label: 'XC2268 RFHUB SEC16 writer is UNVERIFIED',
+          pass: false,
+          detail: writerGrounding('writeXc2268Sec16').caveat
+            + ' — writing this to a real 2019+ Ram RFHUB can brick it. Pass allowUnverifiedTarget:true to proceed.',
+        }],
+        sharedSecret,
+        before: { bcmFullVins: beforeBcmFullVins, bcmPartials: beforeBcmPartials },
+        after: null, files: [], verifyText: '',
+      };
+    }
     try {
       const wr = isXc2268
         ? writeXc2268Sec16(rfhOut, bcmSec16Bytes)
@@ -625,7 +645,7 @@ export function runKeyProgPatch({ bcm, rfh, pcm, vin, promoteBank = false, pcmCh
  * patch (ok=false, files=[]). Caller is expected to gate the button on the
  * cross-check report's `blockingErrors.length === 0`.
  * ========================================================================== */
-export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
+export function runRfhBcmSync({ rfh, bcm, direction, allowUnverifiedTarget = false } = {}) {
   const checks = [];
   let allOk = true;
   const ok = (label, pass, detail = '') => {
@@ -663,8 +683,7 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
     let bcmPatched;
     try {
       const r1 = writeBcmSec16Gen2(bcm.data, rfhSec16);
-      const bcmSec16BE = new Uint8Array(16);
-      for (let i = 0; i < 16; i++) bcmSec16BE[i] = rfhSec16[15 - i];
+      const bcmSec16BE = reverse16(rfhSec16);
       // writeBcmFlatSec16 self-guards against an overlapping mirror1 at
       // 0x40C0 (see securityBytes.js) — no caller-side skip needed.
       const flat = writeBcmFlatSec16(r1.bytes, bcmSec16BE);
@@ -720,6 +739,13 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
   // SEC16 writer (writeXc2268Sec16) that refreshes the image-wide CRC32
   // at the trailing 4 bytes instead of the Gen2 crc8_65 slot checksum.
   const isXc2268Rfh = idR.info?.type === 'XC2268_RFHUB';
+  // Ultimate-machine gate: XC2268 SEC16 writer is UNVERIFIED (algoProvenance.js)
+  // — refuse to stamp an unverified secret into a real 2019+ Ram RFHUB without
+  // explicit allowUnverifiedTarget.
+  if (isXc2268Rfh && writerGrounding('writeXc2268Sec16').level !== GROUNDING.BENCH && !allowUnverifiedTarget) {
+    return fail('XC2268 RFHUB SEC16 writer is UNVERIFIED — ' + writerGrounding('writeXc2268Sec16').caveat
+      + '. Pass allowUnverifiedTarget:true to proceed (can brick a real module).');
+  }
   try {
     const rfhWork = new Uint8Array(rfh.data);
     // Gen2 marker normalization is Yazaki-only; XC2268 has no such marker.
@@ -749,7 +775,7 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
   const rfhAfter = parseModule(rfhPatched, rfh.name + '_SYNC');
   const slot1 = rfhAfter?.sec16s?.[0];
   const slot2 = rfhAfter?.sec16s?.[1];
-  const expectedRfh = Array.from(bcmSec16BE).reverse();
+  const expectedRfh = reverse16(bcmSec16BE);
   const slot1Eq = slot1?.raw && expectedRfh.every((b, i) => slot1.raw[i] === b);
   const slot2Eq = slot2?.raw && expectedRfh.every((b, i) => slot2.raw[i] === b);
   ok('Round-trip: parseModule(patched RFH).sec16s[0].raw = reverse(BCM SEC16)', !!slot1Eq);

@@ -368,11 +368,10 @@ export async function eraseAllKeys(engine, { tx, rx } = DEFAULT_ADDR, {
  * tx/rx byte so a tech can pause before committing and the
  * `bench-override` UI gate is the second line of defence. */
 
-function reverse16(arr) {
-  const out = new Uint8Array(16);
-  for (let i = 0; i < 16; i++) out[i] = arr[15 - i];
-  return out;
-}
+/* reverse16 is the single-source-of-truth BCM<->RFH transform, imported from
+ * immoSecret.js (see import below). All four DID builders/extractors here pass
+ * exactly 16 bytes, so the strict-length core is a drop-in replacement for the
+ * former local copy. */
 
 export const SEC16_WRITE_RECIPES = {
   RFHUB_GEN2_DID_F102: {
@@ -456,6 +455,7 @@ function bytesEqual16(a, b) {
 
 import { logSec16Sync } from './sec16SyncLog.js';
 import { classifyPlatform } from './sec16Platforms.js';
+import { reverse16 } from './immoSecret.js';
 
 /* ─── writeSec16 ────────────────────────────────────────────────────────────
  * Task #678 — live SEC16 writer with module-specific recipe.
