@@ -61,13 +61,19 @@ export const JOBS = [
   {
     id: 'ref',
     label: 'REFERENCE',
-    sub: 'Dumps · catalogs · research',
-    primary: 'dumps',
-    members: ['dumps', 'backups', 'samples', 'workflow', 'investigation',
+    sub: 'Backups · catalogs · research',
+    primary: 'backups',
+    members: ['backups', 'samples', 'workflow', 'investigation',
               'alfaobd', 'alfaintel', 'binintel', 'dispatchcov', 'unlockcov',
               'canuniverse', 'patterns', 'kg', 'sigdisc', 'cda6db', 'exttools'],
   },
 ];
+
+/* The Diagnose landing. It is a HOME destination, not a job — pinned above the
+ * job doors in the rail — so landing on it lights HOME, not a job door. It is
+ * deliberately NOT a member of any job (JOB_OF.dumps is undefined), and is
+ * excluded from the Advanced drawer (it's the home screen, not a tool). */
+export const HOME = { key: 'dumps', label: 'Diagnose', sub: 'Drop → verdict → fix' };
 
 /* Rail / drawer order. */
 export const JOB_ORDER = JOBS.map((j) => j.id);

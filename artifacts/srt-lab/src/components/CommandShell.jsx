@@ -5,7 +5,7 @@ import {
   Cpu, Zap, BookOpen,
 } from 'lucide-react';
 import {MasterVinContext} from '../lib/masterVinContext.jsx';
-import {JOBS, JOB_OF, JOB_BY_ID} from '../workspaceJobs.js';
+import {JOBS, JOB_OF, JOB_BY_ID, HOME} from '../workspaceJobs.js';
 
 /* SRT command-center design tokens (graduated from the approved canvas mockup). */
 const T = {
@@ -74,9 +74,9 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
   const toggleSection = (key) => setExpanded((s) => { const n = new Set(s); n.has(key) ? n.delete(key) : n.add(key); return n; });
   const sectionOpen = (key, count) => (q ? count > 0 : (expanded.has(key) || key === JOB_OF[activeTab]));
 
-  // Everything that isn't one of the five primary panes belongs here.
+  // Everything that isn't a job door primary or the HOME landing belongs here.
   const advancedTabs = useMemo(
-    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)),
+    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id) && t.id !== HOME.key),
     [tabs],
   );
 
@@ -312,7 +312,7 @@ export default function CommandShell({
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const advancedCount = useMemo(
-    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id)).length,
+    () => tabs.filter(t => !PRIMARY_KEYS.has(t.id) && t.id !== HOME.key).length,
     [tabs],
   );
 
@@ -424,6 +424,38 @@ export default function CommandShell({
           <div style={{fontSize: 10.5, fontWeight: 800, letterSpacing: '.12em', color: T.muted, padding: '4px 10px 8px'}}>
             PER-VEHICLE WORKFLOW
           </div>
+
+          {/* HOME / Diagnose landing — pinned above the job doors. It is not a
+              job, so landing here lights HOME (not a job door). */}
+          {(() => {
+            const isActive = activeTab === HOME.key;
+            return (
+              <button
+                type="button"
+                data-testid={`rail-${HOME.key}`}
+                onClick={() => onSelect(HOME.key)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 11, width: '100%', textAlign: 'left',
+                  padding: '11px 11px', borderRadius: 10, cursor: 'pointer', border: 'none',
+                  marginBottom: 4,
+                  background: isActive ? T.red : 'transparent',
+                  color: isActive ? '#fff' : T.ink,
+                  boxShadow: isActive ? '0 6px 16px -6px rgba(211,47,47,.6)' : 'none',
+                  fontFamily: "'Nunito',sans-serif",
+                }}
+                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = '#F4F1EC'; }}
+                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+              >
+                <Stethoscope size={19} style={{flexShrink: 0, opacity: isActive ? 1 : 0.7}} />
+                <span style={{lineHeight: 1.2, minWidth: 0}}>
+                  <span style={{display: 'block', fontWeight: 800, fontSize: 13.5}}>{HOME.label}</span>
+                  <span style={{display: 'block', fontSize: 11, opacity: isActive ? 0.85 : 0.55}}>{HOME.sub}</span>
+                </span>
+              </button>
+            );
+          })()}
+
+          <div style={{height: 1, background: T.line, margin: '6px 8px 8px'}} />
 
           {PRIMARY_NAV.map((item) => {
             // Door lights up when the active tab belongs to this job — so

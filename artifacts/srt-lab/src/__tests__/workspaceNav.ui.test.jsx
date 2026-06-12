@@ -22,7 +22,7 @@ import { render, screen, cleanup, fireEvent, act } from '@testing-library/react'
 
 import App from '../App.jsx';
 import { PRIMARY_NAV, FOOTER_NAV } from '../components/CommandShell.jsx';
-import { JOB_OF } from '../workspaceJobs.js';
+import { JOB_OF, HOME } from '../workspaceJobs.js';
 
 // Each rail door opens a JOB. `job` is the mode-strip id that always renders
 // for that door; optional `testid` is a stable root testid on the primary tab.
@@ -32,7 +32,7 @@ const PRIMARY_EXPECT = {
   keyprog:   { job: 'keys' },
   flasher:   { job: 'flash' },
   obd:       { job: 'live', testid: 'live-obd-tab' },
-  dumps:     { job: 'ref', testid: 'dumps-pcm-target-chip-selector' },
+  backups:   { job: 'ref', testid: 'backups-tab' },
 };
 
 // FOOTER_NAV links (still reached via rail-footer-<key>).
@@ -82,6 +82,19 @@ describe('Workspace navigation (full shell, job-flow model)', () => {
     for (const item of FOOTER_NAV) {
       expect(FOOTER_EXPECT[item.key], `Footer key "${item.key}" has no FOOTER_EXPECT entry.`).toBeTruthy();
     }
+  });
+
+  it('HOME (Diagnose) is pinned above the job doors and is not a job', () => {
+    enterWorkspace();
+    // The HOME button renders the Diagnose landing (dumps) ...
+    const homeBtn = screen.getByTestId(`rail-${HOME.key}`);
+    expect(homeBtn).toBeTruthy();
+    act(() => { fireEvent.click(homeBtn); });
+    expect(screen.getByTestId('dumps-pcm-target-chip-selector')).toBeTruthy();
+    // ... and HOME is deliberately NOT a job (no door lights for it).
+    expect(JOB_OF[HOME.key]).toBeUndefined();
+    // The job-card hero on the landing exposes the six doors.
+    expect(screen.getByTestId('job-cards')).toBeTruthy();
   });
 
   describe('PRIMARY_NAV job doors render their destination', () => {
