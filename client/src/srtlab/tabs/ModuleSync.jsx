@@ -14,7 +14,7 @@ import { writerGrounding, GROUNDING } from "../lib/algoProvenance.js";
 import { isXc2268Rfhub } from "../lib/xc2268Rfhub.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
 import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, detectCorruptFill, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
-import { engResolveBcmSec16 } from "../lib/engBcmParse.js";
+
 import { crossValidate } from "../lib/crossValidate.js";
 import { checkExportSafety, formatBlockingMessage } from "../lib/exportSafetyGate.js";
 import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
@@ -323,7 +323,7 @@ function engCrc16(data, init = 0xFFFF, poly = 0x1021) {
   return c & 0xFFFF;
 }
 
-export { engParseBcm, engResolveBcmSec16 };
+export { engParseBcm };
 
 export function engParseRfh(bytes, filename) {
   /* Reject files smaller than a real Yazaki FCM EEPROM (Gen1 24C16, 2 KB).
