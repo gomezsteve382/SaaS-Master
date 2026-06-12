@@ -3,8 +3,6 @@
  * Defines 6 "job doors" (READ, MARRY, KEYS, FLASH, LIVE, REFERENCE) and maps
  * all ~61 tabs to their parent job. The rail, drawer, mode-strip, and job-cards
  * all derive from this model — changes here propagate everywhere.
- *
- * Tab IDs must match the `id` field in WORKSPACE_TABS (App.jsx).
  */
 
 export const JOBS = [
@@ -12,16 +10,11 @@ export const JOBS = [
     id: 'read',
     label: 'READ',
     sub: 'Parse · diagnose · inspect',
-    primary: 'dumps',
+    primary: 'ipccluster',
     members: [
-      // Core dump analysis
-      'dumps', 'inspector', 'bcmconfig', 'proxi',
-      // Specialized dump readers
-      'rfhdump', 'rfhub', 'bcm', 'ecm', 'smartbox',
-      // Flash / binary analysis
-      'flashbin', 'cflash', 'efd', 'efd2bin', 'efdiff', 'benchval',
-      // Logs and traces
-      'loganalyser', 'udsanalyzer',
+      'ipccluster', 'bcmconfig', 'rfhubconfig', 'pcmconfig',
+      'bcmparse', 'rfhparse', 'pcmparse', 'immoparse',
+      'proxi', 'canuniverse', 'patterns', 'sigdisc',
     ],
   },
   {
@@ -30,14 +23,8 @@ export const JOBS = [
     sub: 'VIN · SEC · module sync',
     primary: 'secsync',
     members: [
-      // Core sync workflows
-      'secsync', 'vinsync', 'modsync', 'marrymodule',
-      // VIN programming
-      'vinprog', 'keyprog',
-      // BCM/PCM pairing
-      'bcmpcmpair', 'immobcm56xb',
-      // Quick wizard
-      'quickclone',
+      'secsync', 'vinsync', 'modsync', 'keyprog',
+      'marrymodule',
     ],
   },
   {
@@ -46,46 +33,28 @@ export const JOBS = [
     sub: 'RFHUB · immobilizer · programming',
     primary: 'keyxfer',
     members: [
-      // Key programming and transfer
-      'keyxfer', 'keytransplant', 'keyimporter', 'keymgr',
-      // Transponder readers
-      'hitagaes', 'hitag2',
-      // Key writing and management
-      'keywriter', 'livekey',
-      // Seed/key algorithms
-      'seed',
-      // Immobilizer tools
-      'skimlive', 'skim', 'jailbreak',
-      // GPEC unlock
-      'gpecunlock',
+      'keyxfer', 'keyprogram', 'rfhubkeytransplant',
+      'immoprogram', 'gpec2aimmo',
     ],
   },
   {
     id: 'flash',
     label: 'FLASH',
     sub: 'Firmware · calibration · updates',
-    primary: 'flasher',
+    primary: 'cdaj2534',
     members: [
-      // ECM/PCM flashing
-      'flasher', 'ipccluster',
-      // CDA6 / UDS programming sessions
-      'cdasession', 'cdadbtools',
-      // Checksum and validation tools
-      'checksum',
-      // Radio codes
-      'radiocodes',
-      // External tools
-      'exttools', 'witech',
+      'cdaj2534', 'modulesync', 'twintab', 'flashtab',
+      'fwupdate', 'calibupdate',
     ],
   },
   {
     id: 'live',
     label: 'LIVE',
-    sub: 'Real-time · OBD · J2534',
-    primary: 'obd',
+    sub: 'Real-time · monitoring · diagnostics',
+    primary: 'livedata',
     members: [
-      // Live OBD and UDS sessions
-      'obd', 'uds-console', 'cda-j2534', 'autelsgw',
+      'livedata', 'livediag', 'rfhubmonitor', 'bcmmonitor',
+      'canmonitor', 'j2534monitor',
     ],
   },
   {
@@ -94,18 +63,9 @@ export const JOBS = [
     sub: 'Backups · catalogs · research',
     primary: 'backups',
     members: [
-      // History and samples
-      'backups', 'samples', 'workflow',
-      // AI and investigation
-      'investigation',
-      // AlfaOBD catalogs
-      'alfaobd', 'alfaintel',
-      // Coverage and dispatch
-      'dispatchcov', 'unlockcov',
-      // Knowledge and research
-      'binintel', 'patterns', 'kg', 'sigdisc', 'canuniverse',
-      // Firmware emulation
-      'fwemul',
+      'backups', 'samples', 'workflow', 'investigation',
+      'alfaobd', 'alfaintel', 'binintel', 'dispatchcov', 'unlockcov',
+      'canuniverse', 'patterns', 'kg', 'sigdisc', 'cda6db', 'exttools',
     ],
   },
 ];
@@ -115,9 +75,6 @@ export const JOBS = [
  * job doors in the rail — so landing on it lights HOME, not a job door. It is
  * deliberately NOT a member of any job (JOB_OF.dumps is undefined), and is
  * excluded from the Advanced drawer (it's the home screen, not a tool).
- *
- * NOTE: 'dumps' is also listed in the READ job so it appears in the drawer.
- * The HOME constant is used by the rail to render the special HOME button.
  */
 export const HOME = { key: 'dumps', label: 'Diagnose', sub: 'Drop → verdict → fix' };
 
