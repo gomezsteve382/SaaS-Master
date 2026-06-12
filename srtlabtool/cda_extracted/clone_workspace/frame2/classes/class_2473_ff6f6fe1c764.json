@@ -1,0 +1,129 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2473,
+  "className": "mx.rpc.ActiveCalls",
+  "classNameNormalized": "mx.rpc.ActiveCalls",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42688,
+  "cinitMethod": 42687,
+  "iinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "8e9fd53ea357efbad1247576c5ef00a89991ede0c567dab401c5b1371a917dec",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addCall",
+      "traitKind": "method",
+      "methodIndex": 42689,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "a456ed7f8d02f8d607664785f59535c0c596e7764448198928cbee865cd84766",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "cancelLast",
+      "traitKind": "method",
+      "methodIndex": 42691,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "9a6f6c28db05ae7af62a7d854c79e4ef7072915f8cd51c30c1b7513700cbd6c3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getAllMessages",
+      "traitKind": "method",
+      "methodIndex": 42690,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "0339f5bd4c86e3cc0e158a1a2918b38f8358547d89306c170f55bc8f1d9f9f1a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hasActiveCalls",
+      "traitKind": "method",
+      "methodIndex": 42692,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "b7651c7a4d4bb99fdc0cf7542bede10fb5f68ebe36b43901c292e6df465bde1d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeCall",
+      "traitKind": "method",
+      "methodIndex": 42693,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "eccc1759370a8d779a637d0ca839c561d59b2132aa28cd5a3037545ea04d0858",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "wasLastCall",
+      "traitKind": "method",
+      "methodIndex": 42694,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "9f4612a49fe682fc6efbc23d5884a2aa131b11b41bb9e1dd3553e4f82a202e27",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

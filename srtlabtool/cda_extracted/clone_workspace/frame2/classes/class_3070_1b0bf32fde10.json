@@ -1,0 +1,203 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3070,
+  "className": "wde.common.domain.impl.XMLDataTranslator",
+  "classNameNormalized": "wde.common.domain.impl.XMLDataTranslator",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "wde.common.domain.IDataTranslator",
+    "wde.common.logging.ILoggable",
+    "wde.common.framework.IDisposable"
+  ],
+  "iinitMethod": 48952,
+  "cinitMethod": 48941,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 48943,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "cddda297aafee15f9c720e145452406080510425b63bbdeaf85cf1fbbe6dda84",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "logger",
+      "traitKind": "getter",
+      "methodIndex": 48942,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "85a6c0754b1622101fbab13308dac61191dfc7d3a705ee38caf310717568853d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.createValue",
+      "traitKind": "method",
+      "methodIndex": 48950,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "wde.common.domain.impl.PropertyDefinition"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "6b11485fb73ea2fd040f1703011bf9552b002e6867f28c428fa75d981a45e76b",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.createValueObjectFromNestedXMLObject",
+      "traitKind": "method",
+      "methodIndex": 48949,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "XML"
+      ],
+      "returnType": "wde.common.domain.IValueObject",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "48e86834f86460f65c0a5b65da072bef72d9c292c84e71d5cfe01802d2aba6b2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.createValueObjectFromXML",
+      "traitKind": "method",
+      "methodIndex": 48947,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "Class"
+      ],
+      "returnType": "wde.common.domain.IValueObject",
+      "hasBody": true,
+      "codeLength": 223,
+      "bytecode": {
+        "codeLength": 223,
+        "codeSha256": "5707fcba7d5f6a333c866c43b8804724851025d127f2d62231ef63fd5a3f1089",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "PrivateNs.getXMLObjectList",
+      "traitKind": "method",
+      "methodIndex": 48946,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XMLList",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "06e600b0b0c7be689b7a5eb94a4f987c835269e5b3ec0c6f65998f21e9382764",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.getXMLPropertyValue",
+      "traitKind": "method",
+      "methodIndex": 48948,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.domain.impl.PropertyDefinition",
+        "Object",
+        "XML"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 118,
+      "bytecode": {
+        "codeLength": 118,
+        "codeSha256": "f38d7c5ccf99c0fc1087aa5a9f71b21f2d6dee4e2ecc09f655f488e8c0f20e5f",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.throwXMLToObjectConversionError",
+      "traitKind": "method",
+      "methodIndex": 48951,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "eff14edbf7271ccde35d7a6625ba270ae07ff76c6ae266e90c1c0bdb08636491",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.xmlToObject",
+      "traitKind": "method",
+      "methodIndex": 48945,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 186,
+      "bytecode": {
+        "codeLength": 186,
+        "codeSha256": "d140254cbdc7c3a19147d3d6d9e147a8e7043accacb06194c214226e434d090c",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "translate",
+      "traitKind": "method",
+      "methodIndex": 48944,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.domain.impl.TranslationOptions"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "39aa20905211727af4318dc33c7c032d41248a478a2810dacb73a145c3c52f31",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

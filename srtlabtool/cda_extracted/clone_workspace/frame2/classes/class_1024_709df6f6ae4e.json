@@ -1,0 +1,190 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1024,
+  "className": "com.chrysler.cda.presentation.component.proxi.components.popovers.file.load.ImportFilePopover",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.popovers.file.load.ImportFilePopover",
+  "superName": "com.chrysler.cda.presentation.component.proxi.components.popovers.Popover",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.popovers.Popover",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 21822,
+  "cinitMethod": 21811,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "99759d54d26008d066d74e0b40e2f642a3228f8fa29ba578220a332c79dd911f",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.popovers.file.load:ImportFilePopover.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 21821,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7d5f2f800dd24f459b57a488b0dcba08643d0fc2ab6729bb5f9d46eb1b8e3fc1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 21819,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bbac40d0d1aa257c8e3a0bb16e1a2df400be547c41e0d93ab951c62d9f6948fe",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 21820,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "ccee942453c61eb3772219d3280ee16cb020e5b7b81ec7a6a405d19f2d980675",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "importFile",
+      "traitKind": "method",
+      "methodIndex": 21814,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "3ec74411805a385f1580728b406efbb47ba4711931c12ec5a1069a0fba2a67dd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ok",
+      "traitKind": "method",
+      "methodIndex": 21815,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "2254f4c58a4991e37b4072fdcbb4d2d1a3da8bea74911b7d19d3de869f8e4784",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onFileImportFailed",
+      "traitKind": "method",
+      "methodIndex": 21816,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.FileSupportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "c2cfc5ea7eb3825271c40938ea06804dbfd67c7da2a8c3a883f2f3adb3e2507e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 21817,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.proxi.components.popovers.file.load.ImportPopoverPM",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c52a0b4b48da34fe642c1b272926cb7472a9c8fac63778aa8d8aaed24eef279e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 21818,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.components.popovers.file.load.ImportPopoverPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "86952114b002066b876777658df507bfc39d1f1547b22e05adea7d6af9d0f2b1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "radioButtonChanged",
+      "traitKind": "method",
+      "methodIndex": 21812,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 131,
+      "bytecode": {
+        "codeLength": 131,
+        "codeSha256": "04d6aaea7db6906e617a7be81998214889506dd1ec73d691baf7a718797cd310",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "selectFile",
+      "traitKind": "method",
+      "methodIndex": 21813,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "a96fc5d35410f7d93fc407ff16ba4c8f65fd18e516e6ca00e84c6a4924fa6f22",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

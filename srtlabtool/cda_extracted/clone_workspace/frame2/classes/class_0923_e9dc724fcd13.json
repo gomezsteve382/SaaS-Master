@@ -1,0 +1,209 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 923,
+  "className": "com.chrysler.cda.presentation.component.jira.create.CreateJira",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.jira.create.CreateJira",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 18559,
+  "cinitMethod": 18558,
+  "iinitBytecode": {
+    "codeLength": 11,
+    "codeSha256": "8a484089246de6ec1ba515418df57194cb27ea89269e7298f31b01ab27d2e0a6",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "b30d3ae6779852de9b4adcad9ac2749d4a32848466880efca3558c9c4819a0b5",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 18568,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7e9fb085e6933d4407d7005b3af2ec7da646f8a3365161e3f27cd54d0c2283a3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 18569,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "cc44c141cb09cca744abb24820b3ebf65a54fa76442b3c9391aea4039312d055",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.jira.create:CreateJira.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 18570,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "46b545828ba5352b5d85a3e2efb087858a6448e12a488c359e1ecc795298baf1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "getter",
+      "methodIndex": 18562,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.jira.create.CreateJiraController",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "dd180506397a4c7c55edabd28509e080b26e532cc677a3932082aac9e210f5a5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "setter",
+      "methodIndex": 18563,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.jira.create.CreateJiraController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f6851d071b9f6b00406ec65866eac90cb34344a148d7b1b61ce5ead4cf056f8d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 18566,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bc6a8941e5061c549da5bd26e752d06a523d554e7dae47be610dee883c40222a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 18567,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4eb8fb2cb341fe9b1acad558de248ac1c8429d462248cde2acd9bece4354c39b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onDragDrop",
+      "traitKind": "method",
+      "methodIndex": 18561,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.NativeDragEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "2abb38817e97fa707849488f9f46e2f37dcf482e47fed317fc9f7a714017a122",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onDragEnter",
+      "traitKind": "method",
+      "methodIndex": 18560,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.NativeDragEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "8f04e02e12eb17ad618dfe23219c192f649db9b9d9f28354df531ea4e72a85d8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 18564,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.jira.create.CreateJiraPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "95cc6ba00670f9056337eb63e577436ece0fa93c8118ae1489c7bf5560a82caf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 18565,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.jira.create.CreateJiraPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "762dfd118c47dd64e5880c3c87120e407d3cfb2feb015a1d03f76d897a914e60",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,130 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3150,
+  "className": "PrivateNs.NetConnectionMessageResponder",
+  "classNameNormalized": "PrivateNs.NetConnectionMessageResponder",
+  "superName": "mx.messaging.MessageResponder",
+  "superNameNormalized": "mx.messaging.MessageResponder",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49863,
+  "cinitMethod": 49862,
+  "iinitBytecode": {
+    "codeLength": 55,
+    "codeSha256": "c8aec3e96004615efb61ad3d7c1dd0f59bb44cd57180a66be35bfa8d903da036",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "NetConnectionChannel.as$159:NetConnectionMessageResponder.channelDisconnectHandler",
+      "traitKind": "method",
+      "methodIndex": 49867,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.events.ChannelEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "eac969c8882251b764b78e7ca226e0ba9135b46befe3836922ad77c8b32dd4cc",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "NetConnectionChannel.as$159:NetConnectionMessageResponder.channelFaultHandler",
+      "traitKind": "method",
+      "methodIndex": 49868,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.events.ChannelFaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "556433537dfc8514f552b6dd7b84b1d0d3b8f706ef5310040a2a25673eaccf1d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "NetConnectionChannel.as$159:NetConnectionMessageResponder.requestTimedOut",
+      "traitKind": "method",
+      "methodIndex": 49866,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "6b375ce3293b17751b20ebbcfefcbafbece9d8ebd2163ad6cd3f19b957d6a424",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "NetConnectionChannel.as$159:NetConnectionMessageResponder.resultHandler",
+      "traitKind": "method",
+      "methodIndex": 49864,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 290,
+      "bytecode": {
+        "codeLength": 290,
+        "codeSha256": "296b32057e54ed9f2f2f41d5df1ca8c149a041f4db483a019c834d7a16a20aac",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "NetConnectionChannel.as$159:NetConnectionMessageResponder.statusHandler",
+      "traitKind": "method",
+      "methodIndex": 49865,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 378,
+      "bytecode": {
+        "codeLength": 378,
+        "codeSha256": "c8d316a50fde519fa5c91e15483f3c27d237b565b401fa93241a61d7016bcd7e",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs.disconnect",
+      "traitKind": "method",
+      "methodIndex": 49869,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "e495016a11796ea3de76cfec16de7d891797478a86ec9763b968ebff864374a6",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

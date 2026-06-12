@@ -1,0 +1,300 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1179,
+  "className": "com.chrysler.core.infrastructure.communication.HTTPStreamer",
+  "classNameNormalized": "com.chrysler.core.infrastructure.communication.HTTPStreamer",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 26662,
+  "cinitMethod": 26645,
+  "iinitBytecode": {
+    "codeLength": 28,
+    "codeSha256": "9d248e4c344d67242320f776af1be9aebf806d1713d9c2a11cab60faf4a93a48",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "3559cfbc40e49c77c534ec5962d9ef4131985c64bf69872414e6beb6d4a47e76",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "close",
+      "traitKind": "method",
+      "methodIndex": 26646,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "7d2487afd684698a8a2ccf93edefc44030ec4f2e58293b77159d8a6380bec100",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.asUrl",
+      "traitKind": "method",
+      "methodIndex": 26656,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "fc50ad322fdeb9101f693d40d8cafa765573d3e606c8e5dac7e82b52ac241a91",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.closeSocketQuietly",
+      "traitKind": "method",
+      "methodIndex": 26661,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.proxies.RFC2817Socket"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "f3ca9242060c0af785fd8d2015518e2b45ceed8699f75c0510a06d4f674ab82b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.onClose",
+      "traitKind": "method",
+      "methodIndex": 26655,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "6861b4c37c7b59042c9fe000f88f76136c958e3b8f8697f1a738253a1dbf1a70",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.onConnect",
+      "traitKind": "method",
+      "methodIndex": 26657,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 205,
+      "bytecode": {
+        "codeLength": 205,
+        "codeSha256": "42e2db0f85b0204ee458a576379027578af85b0ed62557431eb70ad2bb8917e1",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.onConnectIOError",
+      "traitKind": "method",
+      "methodIndex": 26659,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "f93cdce0ed518db4bdd28fda0d8c453eeba6332c2f0deefb1c3661c471e3bac4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.onConnectSecurityError",
+      "traitKind": "method",
+      "methodIndex": 26660,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SecurityErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "e058691f9f6e5bd4810882d21e7bdc6fe3eff79165404cb01b2e339ea7332a2c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.onResponse",
+      "traitKind": "method",
+      "methodIndex": 26651,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "2e0b38b36d63bc1123379ba4c7d8157bd9469d3b94af697b39ba5c1f5259e51a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.core.infrastructure.communication.processData",
+      "traitKind": "method",
+      "methodIndex": 26652,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "a85fa745e8ffcfc25ca781df352844f759ea3569d36559af58838a6e3c4b3874",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "connect",
+      "traitKind": "method",
+      "methodIndex": 26647,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 171,
+      "bytecode": {
+        "codeLength": 171,
+        "codeSha256": "8f0fedcd753f1ae56a79e5048239a789387c3eee35e6c2769be6eeb91f9d1d99",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.readContent",
+      "traitKind": "method",
+      "methodIndex": 26654,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.infrastructure.ByteBuffer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 135,
+      "bytecode": {
+        "codeLength": 135,
+        "codeSha256": "2fc840c2de9d88821f20306fd35d91b359902a448f0582e3ca2637489e1a4f1a",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.readHeader",
+      "traitKind": "method",
+      "methodIndex": 26653,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "c8609e3305dca5d8d1855645c362c7e69a7ef35575cce2bf1f0a9929cddec455",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.writeLine",
+      "traitKind": "method",
+      "methodIndex": 26658,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "87f4e9cc60ec51ff6648863ce47c898259494c12d45882d25536b68e7cf87bde",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "startTimerExample",
+      "traitKind": "method",
+      "methodIndex": 26648,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 109,
+      "bytecode": {
+        "codeLength": 109,
+        "codeSha256": "d6a763d8906ff5d28a9b90bccd9fa074d5e029e6853ee59f21d72ca3ee9ecc5e",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "stopTimerExample",
+      "traitKind": "method",
+      "methodIndex": 26649,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "0eee58e783f2f80a4f7654748a730a81a1d8aa9dcc0cffcff3eef972f231e903",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "timerHandler",
+      "traitKind": "method",
+      "methodIndex": 26650,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "af0c63b2f222241546a44e76731bc804cd253365b1f105ab06968f07a3d23982",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,231 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 313,
+  "className": "spark.accessibility.SliderBaseAccImpl",
+  "classNameNormalized": "spark.accessibility.SliderBaseAccImpl",
+  "superName": "mx.accessibility.AccImpl",
+  "superNameNormalized": "mx.accessibility.AccImpl",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 6834,
+  "cinitMethod": 6831,
+  "iinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "6e169716f1463eda7943f61b57f550eb07814d4d57719a63e4a78f0e0ca5a4f2",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "accDoDefaultAction",
+      "traitKind": "method",
+      "methodIndex": 6838,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "3988318288116298c764442aa7704ef5ec9a03245485f149a2bfb570f14b3d90",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "accLocation",
+      "traitKind": "method",
+      "methodIndex": 6839,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "e6719620f1c0c9dc77855252562c9aba3e62a9b139fcc25e633016e714bb8f21",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "get_accDefaultAction",
+      "traitKind": "method",
+      "methodIndex": 6837,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "5ade0b49b85223874e34f7073177ee0dfc3d0f93ab9bdce37e47c9ca3b355247",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "get_accRole",
+      "traitKind": "method",
+      "methodIndex": 6835,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 128,
+      "bytecode": {
+        "codeLength": 128,
+        "codeSha256": "1c7e455727480e3d63a464f4535a3ca9d9071da1c91cde4fddeadacd429a2014",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "get_accState",
+      "traitKind": "method",
+      "methodIndex": 6843,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "3d7598ccf1a6c3c2662a215a3838db2907e9164cb2370325b82cd6590acb5d75",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "get_accValue",
+      "traitKind": "method",
+      "methodIndex": 6840,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "22c753e61ae28b92b9fe3f71a1e8b475867b2fd60a4c6b2ce20b1f9e6b273086",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "getChildIDArray",
+      "traitKind": "method",
+      "methodIndex": 6841,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "04f88b0cf5709c2cd61d663e29cd87219cba1994b61add4690cf80dcb5eb953b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.accessibility:SliderBaseAccImpl.eventHandler",
+      "traitKind": "method",
+      "methodIndex": 6844,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 137,
+      "bytecode": {
+        "codeLength": 137,
+        "codeSha256": "e2cdd5d1ec188f4bad23066a673fac742a377ffd867397eaeb9e45c54e8be8e1",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "spark.accessibility:SliderBaseAccImpl.eventsToHandle",
+      "traitKind": "getter",
+      "methodIndex": 6836,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "0b94b2d51bb30122edbd312ff452b0ade9c2de3fd10a12fbd15d8520a34080b6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.accessibility:SliderBaseAccImpl.getName",
+      "traitKind": "method",
+      "methodIndex": 6842,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 192,
+      "bytecode": {
+        "codeLength": 192,
+        "codeSha256": "1f34d49325e9cc0db02545aebd05950c48348fb26aa9912a3ea2cceb2b4e7f5c",
+        "bytecodeLineCount": 12
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "enableAccessibility",
+      "traitKind": "method",
+      "methodIndex": 6832,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "5c677bcbeb3ea6c6626670d6387e2804b768c536cb6c5c61818d70bc8cd77e4d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createAccessibilityImplementation",
+      "traitKind": "method",
+      "methodIndex": 6833,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.UIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ea26c4f289c3482d845be815ad57b4991d224159295f6dc85d8e61fb5d84ea95",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

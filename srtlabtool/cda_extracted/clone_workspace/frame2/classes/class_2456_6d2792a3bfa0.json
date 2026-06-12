@@ -1,0 +1,77 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2456,
+  "className": "com.chrysler.cda.event.message.discover.ConnectDeviceMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.discover.ConnectDeviceMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42429,
+  "cinitMethod": 42425,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "fbca39708a6494658fdba63e6aabcb4bc6d250a900ee53af5f8f988841cd55ca",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "deviceType",
+      "traitKind": "getter",
+      "methodIndex": 42426,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5fda90005d01025bc4405b8c372104a0bf7e281cb59b4637fdb86e0d95201f55",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "discoveredDevice",
+      "traitKind": "getter",
+      "methodIndex": 42428,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.discovery.device.DiscoveredDevice",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ef8b49827624f67c1a174a764db20bef79214b2064871d3159858613fbe29f92",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mode",
+      "traitKind": "getter",
+      "methodIndex": 42427,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "01ec63b58954e3a4aedeffb8803926e9f175ef53ab9a84de41bd7f1cd7923a0b",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

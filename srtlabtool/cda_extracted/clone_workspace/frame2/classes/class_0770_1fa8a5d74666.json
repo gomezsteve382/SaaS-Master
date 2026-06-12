@@ -1,0 +1,196 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 770,
+  "className": "com.chrysler.cda.presentation.component.reports.ScanReportGeneratorCSVImpl",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.reports.ScanReportGeneratorCSVImpl",
+  "superName": "com.chrysler.cda.presentation.component.reports.ScanReportGeneratorBase",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.reports.ScanReportGeneratorBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.reports.IScanReportGenerator"
+  ],
+  "iinitMethod": 14837,
+  "cinitMethod": 14827,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 634,
+    "codeSha256": "7b3ca70f9a50424fa474ed71f258e0d16c7b749c8678480fce105a70bb34acd2",
+    "bytecodeLineCount": 40
+  },
+  "instanceMembers": [
+    {
+      "traitName": "generateReport",
+      "traitKind": "method",
+      "methodIndex": 14834,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "fac856004866ca79dee2fcb926ab24e2769c1d2438e507778d5caea49b8a02fd",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "openSavedFile",
+      "traitKind": "method",
+      "methodIndex": 14835,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.reports.ScanReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "48da8a33c54b945b869bdea672eed46570dc9573ec2ff02284e1d0402bf9cce5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "transformReportXML",
+      "traitKind": "method",
+      "methodIndex": 14836,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.reports.ScanReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 932,
+      "bytecode": {
+        "codeLength": 932,
+        "codeSha256": "d33c554337ed75d74e74afb8c596430a0964287d91223256f12ded3d0e55265e",
+        "bytecodeLineCount": 59
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports.CreateRows",
+      "traitKind": "method",
+      "methodIndex": 14832,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Object",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 150,
+      "bytecode": {
+        "codeLength": 150,
+        "codeSha256": "2ff8c6f6bb84b3980e8d30ffb1f28008d546f09b482309164610dbe47e498b85",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports.CreateTSVRows",
+      "traitKind": "method",
+      "methodIndex": 14831,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "Object",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "1f60522cb22dc3b5343a7832fd9c74d139d2e91f7abc7bb2e5cd20d8570d37db",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports.headerXMLListToObject",
+      "traitKind": "method",
+      "methodIndex": 14828,
+      "methodName": "",
+      "paramTypes": [
+        "XMLList",
+        "Boolean"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 258,
+      "bytecode": {
+        "codeLength": 258,
+        "codeSha256": "5fd5bb57c3ad3eab983653e4290502842ff3f8b07c0cb7137d36e79b156b6bac",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports.setRowHeaders",
+      "traitKind": "method",
+      "methodIndex": 14833,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "0fe1bc203825cefda032b0fc9a8ad50f3ae6ad631acaef134dd2b573245318f3",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports.xmlListToArrayOfObjects",
+      "traitKind": "method",
+      "methodIndex": 14829,
+      "methodName": "",
+      "paramTypes": [
+        "XMLList"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "1ec66068e501eb5bb84337d9d081f15c07e02265df1fcd0106dd3e63a6271bee",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.reports.xmlListToSortableObject",
+      "traitKind": "method",
+      "methodIndex": 14830,
+      "methodName": "",
+      "paramTypes": [
+        "XMLList",
+        "Boolean"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "ca6129be28dc646cce933c309161387f75a85bcd020a6bcfdd8f375c27f0cef2",
+        "bytecodeLineCount": 10
+      }
+    }
+  ]
+}

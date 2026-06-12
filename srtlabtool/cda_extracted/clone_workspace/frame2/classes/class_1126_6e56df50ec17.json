@@ -1,0 +1,154 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1126,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.offBoardRoutines.RequestOffboardRoutineQualificationCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.offBoardRoutines.RequestOffboardRoutineQualificationCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 24691,
+  "cinitMethod": 24681,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "67a6fc1e9e461b7179a8d7e0ac2c4ad4fa38cc7817292cdedded18984b066a57",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application.diagnostic.ecu.offBoardRoutines:RequestOffboardRoutineQualificationCommand.addQueryParameters",
+      "traitKind": "method",
+      "methodIndex": 24690,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 137,
+      "bytecode": {
+        "codeLength": 137,
+        "codeSha256": "b3dd7f1fbda04bc388fafcd35c5274d8d5ccac3207294be610ef467c2f7b027e",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.diagnostic.ecu.offBoardRoutines:RequestOffboardRoutineQualificationCommand.makeTheURL",
+      "traitKind": "method",
+      "methodIndex": 24689,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "3017e34521168b8c1e50ea93732c5bb2a342c5621c0845942d823b52cde6750a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onGetQualifiers",
+      "traitKind": "method",
+      "methodIndex": 24685,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.offBoardRoutines.GetOffboardRoutinesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 207,
+      "bytecode": {
+        "codeLength": 207,
+        "codeSha256": "17e5785bab3c570af59a1af5cda725932846133640865a1fadb51277917dfe41",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "onRequestOffBoardRoutines",
+      "traitKind": "method",
+      "methodIndex": 24686,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.offBoardRoutines.GetOffboardRoutinesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "cbd868e013eac4536e759f536f53c8d369c522cd5e45b0369eaaf932336cb8d3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "requestOffBoardRoutineMessageError",
+      "traitKind": "method",
+      "methodIndex": 24688,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.offBoardRoutines.GetOffboardRoutinesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "b90937c9dda4dd9d057e434548438e788622c98b4cb08303c374a48c2c4b8516",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "requestOffBoardRoutinesMessageResult",
+      "traitKind": "method",
+      "methodIndex": 24687,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.offBoardRoutines.GetOffboardRoutinesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "8d7943ed918ce660b7e0b64cd2b33e5aad393894e2457ae3fbcaaf5f5a4de38f",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "startGetOffboardRoutines",
+      "traitKind": "method",
+      "methodIndex": 24682,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.offBoardRoutines.GetOffboardRoutinesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "50c55c0c2118d2812bb617da482fe64c889294d7cf10ff56c84ed2156ea9164e",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

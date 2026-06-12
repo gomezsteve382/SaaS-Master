@@ -1,0 +1,128 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3566,
+  "className": "com.diagnosticProcedures.node.SelectFlashForPart",
+  "classNameNormalized": "com.diagnosticProcedures.node.SelectFlashForPart",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.rpc.IResponder"
+  ],
+  "iinitMethod": 53608,
+  "cinitMethod": 53607,
+  "iinitBytecode": {
+    "codeLength": 95,
+    "codeSha256": "49c396829cad611a088d782663a147614f017a33fdf306b2c168244d78fe14e4",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "c8389c4a2e4ff34eb771b9ceed96a8750a360888e40c53366e8f17b104569fbf",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "execute",
+      "traitKind": "method",
+      "methodIndex": 53609,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b5887d844c59122e7c2451e2e48c58a78a48573f261c184f62963fe119867a86",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fault",
+      "traitKind": "method",
+      "methodIndex": 53614,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "8e254dc350032c75994f269500050c2fae448809c590d37dd4971e5f964c515c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.getFlashesForPart",
+      "traitKind": "method",
+      "methodIndex": 53612,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 376,
+      "bytecode": {
+        "codeLength": 376,
+        "codeSha256": "0d73eb9956069bfafd2168253607a567b7b9e793878a992f5ad3bd8813d820a9",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs.retrievePartFlashList",
+      "traitKind": "method",
+      "methodIndex": 53611,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "4a9d759cade76cbbd3834818d39d6bc89049aa88d510abfa916051b7ab1844fb",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.retrieveVinFlashList",
+      "traitKind": "method",
+      "methodIndex": 53610,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "0eeaa3fadfb5f3e17bbc4251a942558ca972d9e16a94c4e3bb656a7f89767b8a",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "result",
+      "traitKind": "method",
+      "methodIndex": 53613,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 164,
+      "bytecode": {
+        "codeLength": 164,
+        "codeSha256": "9491302c8a6c255e2e36d2e36fa37e34b8279523c58894cd21efaec661fae4e7",
+        "bytecodeLineCount": 11
+      }
+    }
+  ],
+  "staticMembers": []
+}

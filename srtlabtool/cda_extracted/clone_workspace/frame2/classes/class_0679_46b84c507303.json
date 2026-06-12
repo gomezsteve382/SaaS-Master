@@ -1,0 +1,297 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 679,
+  "className": "flashx.textLayout.compose.FlowComposerBase",
+  "classNameNormalized": "flashx.textLayout.compose.FlowComposerBase",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 13332,
+  "cinitMethod": 13330,
+  "iinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "59135099268d0b21fb0a4bcdf20ce3d0d1420b58e2f3597d0531fc879f4fe882",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addLine",
+      "traitKind": "method",
+      "methodIndex": 13345,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.TextFlowLine",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 810,
+      "bytecode": {
+        "codeLength": 810,
+        "codeSha256": "37bfc93b2f0a286cd391047f2a48c17203359bc736a772d9005077f2503442d3",
+        "bytecodeLineCount": 51
+      }
+    },
+    {
+      "traitName": "damage",
+      "traitKind": "method",
+      "methodIndex": 13341,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 195,
+      "bytecode": {
+        "codeLength": 195,
+        "codeSha256": "d1b8f10a20922bedea174a4e8ef27a95768c0122cd04dc241c2152d6653dcccf",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "damageAbsoluteStart",
+      "traitKind": "getter",
+      "methodIndex": 13337,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "876bdd647da271e84d07a4f1f329e9b52640c4b305e2b2723caf2990fd121018",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "findLineAtPosition",
+      "traitKind": "method",
+      "methodIndex": 13344,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "flashx.textLayout.compose.TextFlowLine",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "3f518adcd14dba20d579aeef6d26667c44de1655c5456620a19155a817fa419f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "findLineIndexAtPosition",
+      "traitKind": "method",
+      "methodIndex": 13343,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "fccb05dc643e93ac0751b0524e26a1dc701b6a5dd01988dc3bd4355a5b154214",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:FlowComposerBase.finalizeLinesAfterCompose",
+      "traitKind": "method",
+      "methodIndex": 13339,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 150,
+      "bytecode": {
+        "codeLength": 150,
+        "codeSha256": "531dade7170c0d5dbe8c0aca2e635fd2270fbf769e5cff7b5aead634abc0f5ce",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:FlowComposerBase.initializeLines",
+      "traitKind": "method",
+      "methodIndex": 13338,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 209,
+      "bytecode": {
+        "codeLength": 209,
+        "codeSha256": "0278381c593b4fdfd571478e39c76a2c78700c80e71191e76dfc8867bd26e3a8",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "getLineAt",
+      "traitKind": "method",
+      "methodIndex": 13334,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flashx.textLayout.compose.TextFlowLine",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "f437766d6232932bc699c302f1c8501c1ffddb55564a5a193b4b221a29e79a0e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isDamaged",
+      "traitKind": "method",
+      "methodIndex": 13342,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "f5e54c2aaf2a2768df05ead9005186b483c139447ccf1aba4f86710086af32f8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "lines",
+      "traitKind": "getter",
+      "methodIndex": 13333,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "696a8aae001f37e1f55e5733cfd8023c5cde66c897251ecadfcfda1eb2f50a85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "numLines",
+      "traitKind": "getter",
+      "methodIndex": 13335,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "02d9aae2a053f2ea7e1c8e9f806bd5a6f40b86c9c153629d6fae3fd604adf41c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "swfContext",
+      "traitKind": "getter",
+      "methodIndex": 13346,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.compose.ISWFContext",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "119056209448f3d9808af29da46ef8aefa1efaead446d1f0502d2120362b24e6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "swfContext",
+      "traitKind": "setter",
+      "methodIndex": 13347,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.ISWFContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "bf43f3d5a1b6434c4fea666f0f3f79950d79d1db640b9a3883f77caf12ff2626",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "textFlow",
+      "traitKind": "getter",
+      "methodIndex": 13336,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.TextFlow",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4027966c5723387dbb0db87cca034232c6c2dbf474f69274779cb61fcde180f9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "updateLengths",
+      "traitKind": "method",
+      "methodIndex": 13340,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 518,
+      "bytecode": {
+        "codeLength": 518,
+        "codeSha256": "2e87cf3bc1da398d37d4f3086e6b2e7d5cb957ef1a1b7adfbac37952166a3286",
+        "bytecodeLineCount": 33
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.computeBaseSWFContext",
+      "traitKind": "method",
+      "methodIndex": 13331,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.ISWFContext"
+      ],
+      "returnType": "flashx.textLayout.compose.ISWFContext",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "84a32aca64544c9f00a013a92a24fc6f89116fbd7118fd3d46ebb6a6abf62dd7",
+        "bytecodeLineCount": 4
+      }
+    }
+  ]
+}

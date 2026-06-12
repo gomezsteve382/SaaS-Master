@@ -1,0 +1,322 @@
+{
+  "frame": "frame1",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2,
+  "className": "mx.managers.ISystemManager",
+  "classNameNormalized": "mx.managers.ISystemManager",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher",
+    "mx.core.IChildList",
+    "mx.core.IFlexModuleFactory"
+  ],
+  "iinitMethod": 56,
+  "cinitMethod": 30,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.managers:ISystemManager.cursorChildren",
+      "traitKind": "getter",
+      "methodIndex": 31,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IChildList",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.deployMouseShields",
+      "traitKind": "method",
+      "methodIndex": 54,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.document",
+      "traitKind": "getter",
+      "methodIndex": 32,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.document",
+      "traitKind": "setter",
+      "methodIndex": 33,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.embeddedFontList",
+      "traitKind": "getter",
+      "methodIndex": 34,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.focusPane",
+      "traitKind": "getter",
+      "methodIndex": 35,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Sprite",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.focusPane",
+      "traitKind": "setter",
+      "methodIndex": 36,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Sprite"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.getDefinitionByName",
+      "traitKind": "method",
+      "methodIndex": 47,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.getSandboxRoot",
+      "traitKind": "method",
+      "methodIndex": 52,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.getTopLevelRoot",
+      "traitKind": "method",
+      "methodIndex": 51,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.getVisibleApplicationRect",
+      "traitKind": "method",
+      "methodIndex": 53,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle",
+        "Boolean"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.invalidateParentSizeAndDisplayList",
+      "traitKind": "method",
+      "methodIndex": 55,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.isFontFaceEmbedded",
+      "traitKind": "method",
+      "methodIndex": 49,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.TextFormat"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.isProxy",
+      "traitKind": "getter",
+      "methodIndex": 37,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.isTopLevel",
+      "traitKind": "method",
+      "methodIndex": 48,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.isTopLevelRoot",
+      "traitKind": "method",
+      "methodIndex": 50,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.loaderInfo",
+      "traitKind": "getter",
+      "methodIndex": 38,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.LoaderInfo",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.numModalWindows",
+      "traitKind": "getter",
+      "methodIndex": 39,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.numModalWindows",
+      "traitKind": "setter",
+      "methodIndex": 40,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.popUpChildren",
+      "traitKind": "getter",
+      "methodIndex": 41,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IChildList",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.rawChildren",
+      "traitKind": "getter",
+      "methodIndex": 42,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IChildList",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.screen",
+      "traitKind": "getter",
+      "methodIndex": 43,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.stage",
+      "traitKind": "getter",
+      "methodIndex": 44,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Stage",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.toolTipChildren",
+      "traitKind": "getter",
+      "methodIndex": 45,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IChildList",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.managers:ISystemManager.topLevelSystemManager",
+      "traitKind": "getter",
+      "methodIndex": 46,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.ISystemManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

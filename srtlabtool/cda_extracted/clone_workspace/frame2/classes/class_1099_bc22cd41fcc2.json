@@ -1,0 +1,84 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1099,
+  "className": "com.chrysler.cda.application.diagnostic.flash.StartFlashCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.flash.StartFlashCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23756,
+  "cinitMethod": 23752,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "dcaf20d8b429a312813048f9cae8b357d2a83d8a204350b583be626f4969049c",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onStartFlashWithDeviceConfig",
+      "traitKind": "method",
+      "methodIndex": 23755,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.flash.StartFlashWithDeviceConfigMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 153,
+      "bytecode": {
+        "codeLength": 153,
+        "codeSha256": "6aa5b18c18c0cccdc6f76bd31f6d8c7193d22237b2ba8f36b304da4669db2d2f",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "onStartFlashWithYearBody",
+      "traitKind": "method",
+      "methodIndex": 23754,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.flash.StartFlashWithYearBodyMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 319,
+      "bytecode": {
+        "codeLength": 319,
+        "codeSha256": "1b27236fc8db7a438851ba8d90eaadcdf30cd00b7688265571adbd9bc54bb762",
+        "bytecodeLineCount": 20
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "resolveSupercedenceCheck",
+      "traitKind": "method",
+      "methodIndex": 23753,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "e98423fb17189ce89ae89bd0adcd1e36e85ba873a924c54e6c83d5311fe6cf5d",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

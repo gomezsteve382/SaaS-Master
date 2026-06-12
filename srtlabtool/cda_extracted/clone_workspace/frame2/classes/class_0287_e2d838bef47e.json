@@ -1,0 +1,297 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 287,
+  "className": "spark.accessibility.DataGridAccImpl",
+  "classNameNormalized": "spark.accessibility.DataGridAccImpl",
+  "superName": "spark.accessibility.ListBaseAccImpl",
+  "superNameNormalized": "spark.accessibility.ListBaseAccImpl",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 6531,
+  "cinitMethod": 6528,
+  "iinitBytecode": {
+    "codeLength": 30,
+    "codeSha256": "235151c0cef67bd2babf5c556e001901a2840906663c405e5dd3317fadc47ae8",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "accDoDefaultAction",
+      "traitKind": "method",
+      "methodIndex": 6536,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 184,
+      "bytecode": {
+        "codeLength": 184,
+        "codeSha256": "f6eeca2a1597e2958b02c8c88ddbbf4c32491375a9aeb6f42a2a59f2ab7d63f5",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "accLocation",
+      "traitKind": "method",
+      "methodIndex": 6538,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "eb2387ae70f242742089ce5c1f8e2258991d4ce6e793967a37cc11f9f7fe89ff",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "accSelect",
+      "traitKind": "method",
+      "methodIndex": 6541,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 701,
+      "bytecode": {
+        "codeLength": 701,
+        "codeSha256": "43d3052fba57dd927f65d0cc2beed74a23ebf8e3c28ea83d40fa9f89419deb02",
+        "bytecodeLineCount": 44
+      }
+    },
+    {
+      "traitName": "get_accDefaultAction",
+      "traitKind": "method",
+      "methodIndex": 6535,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "ab8095d702819d4fcf403fbdfa07eb840ba1bab2706ce8a51f9c05e72037304a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "get_accFocus",
+      "traitKind": "method",
+      "methodIndex": 6539,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "451c461e0dd66a34b7795dde3a99ed5737f95a3ff224bc42a5604711d0e6c956",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "get_accRole",
+      "traitKind": "method",
+      "methodIndex": 6533,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "f4fde0cf4208066a1535f7cebd52597bd3d5369afe202b0d7cb907297975289b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "get_accSelection",
+      "traitKind": "method",
+      "methodIndex": 6542,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 212,
+      "bytecode": {
+        "codeLength": 212,
+        "codeSha256": "daebc99a07a052f3a05a2161df6c21688d4afec499ab95634b63b6e172b9f867",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "get_accState",
+      "traitKind": "method",
+      "methodIndex": 6534,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 483,
+      "bytecode": {
+        "codeLength": 483,
+        "codeSha256": "125ee58e944ab9d8a0e52dec1ea569fd45db70e429a1225d7cf67148e2b831c2",
+        "bytecodeLineCount": 31
+      }
+    },
+    {
+      "traitName": "getChildIDArray",
+      "traitKind": "method",
+      "methodIndex": 6537,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "b6fb169fba0db83d88fb4978139496716b6b1ed98d516dd4febbaab6348bdf5f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.cellName",
+      "traitKind": "method",
+      "methodIndex": 6545,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "1e67acbec8f76f6acdb607c0b12a13203e96885f0051f9906cd0dad54fa79af9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.makeRowString",
+      "traitKind": "method",
+      "methodIndex": 6544,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.ItemAccInfo"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "d1e53d7658b27d354654e37482e7bfb483f1a695bf1891914c34ef1ba9a9fff5",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "spark.accessibility:DataGridAccImpl.eventHandler",
+      "traitKind": "method",
+      "methodIndex": 6543,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1165,
+      "bytecode": {
+        "codeLength": 1165,
+        "codeSha256": "29be3fe1bb6e550fa5ab64edf6fc68b7946ed099e679e81dafb7ab2157e2ea45",
+        "bytecodeLineCount": 73
+      }
+    },
+    {
+      "traitName": "spark.accessibility:DataGridAccImpl.eventsToHandle",
+      "traitKind": "getter",
+      "methodIndex": 6532,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "e6d0f913ba8a737688eb78950bc73170b66ad8129588bc7b7f6dfe0b8b790ab1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.accessibility:DataGridAccImpl.getName",
+      "traitKind": "method",
+      "methodIndex": 6540,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 594,
+      "bytecode": {
+        "codeLength": 594,
+        "codeSha256": "ab0e60c9d67841c787dc8e448556e4585963760e391dff2f82757d5f2e27f0b6",
+        "bytecodeLineCount": 38
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "enableAccessibility",
+      "traitKind": "method",
+      "methodIndex": 6529,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "7cb49df176bcf8c4cfbb55ac505a419f7f4add48a62d87fb4589f6d0f99df92c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createAccessibilityImplementation",
+      "traitKind": "method",
+      "methodIndex": 6530,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.UIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "76828cdb276944c0b5a28c1d2c4b75e4162fdcf837a961b16bbf9446626cb3c1",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

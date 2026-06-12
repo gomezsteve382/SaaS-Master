@@ -1,0 +1,585 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 823,
+  "className": "com.chrysler.cda.presentation.component.proxi.viewer.ProxiFileViewerImpl",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.viewer.ProxiFileViewerImpl",
+  "superName": "com.chrysler.cda.presentation.component.proxi.viewer.ProxiFileViewer",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.proxi.viewer.ProxiFileViewer",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 16053,
+  "cinitMethod": 16049,
+  "iinitBytecode": {
+    "codeLength": 381,
+    "codeSha256": "408d4a82140f49820de5ba3dbe50f5760c8e3da4823a8ca51f7506b94cf9deec",
+    "bytecodeLineCount": 24
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "5a8569b3ca7e526726526e381e3e9a73f1d83e7ad5672cf302ceb9a2cd234e0b",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___ProxiFileViewerImpl_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 16065,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "debc1f95a36f8bffc441c3183ba198e06449f5e3c5faf41c54d71d8467489464",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.viewer:ProxiFileViewerImpl.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 16111,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "cdefbdbf043b7620d29484f0d09096cf9e7a37624894e54e4f2d220451d18b39",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 16055,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 16054,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "9d4c52167dd368330ea777feaa0934bfbcf311107b7405bb1e7b1e83b1651506",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 16056,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "b94f635f8fda8f88fa8d5ab084ce3e051065f24a587c159d02ffdb1d08137e52",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 16110,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 596,
+      "bytecode": {
+        "codeLength": 596,
+        "codeSha256": "e3ae5b0166fa09dbdeb4511f46a35b3239f46521e3b59a06e84a0f5893c41b66",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 16064,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "26445149fd344d9233a4bd6a1733f43c1822496af8781f68fa419c18455d71f6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_ClassFactory1_c",
+      "traitKind": "method",
+      "methodIndex": 16074,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b11122ebc4442da93544f7bbd2958371acfa67c44c9c61f2a50d6e8794367730",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_ClassFactory2_c",
+      "traitKind": "method",
+      "methodIndex": 16076,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b11122ebc4442da93544f7bbd2958371acfa67c44c9c61f2a50d6e8794367730",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_ClassFactory3_c",
+      "traitKind": "method",
+      "methodIndex": 16078,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b11122ebc4442da93544f7bbd2958371acfa67c44c9c61f2a50d6e8794367730",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_ClassFactory4_c",
+      "traitKind": "method",
+      "methodIndex": 16080,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b11122ebc4442da93544f7bbd2958371acfa67c44c9c61f2a50d6e8794367730",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_ClassFactory5_c",
+      "traitKind": "method",
+      "methodIndex": 16082,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b11122ebc4442da93544f7bbd2958371acfa67c44c9c61f2a50d6e8794367730",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_ClassFactory6_c",
+      "traitKind": "method",
+      "methodIndex": 16084,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b11122ebc4442da93544f7bbd2958371acfa67c44c9c61f2a50d6e8794367730",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_ClassFactory7_c",
+      "traitKind": "method",
+      "methodIndex": 16086,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ClassFactory",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b11122ebc4442da93544f7bbd2958371acfa67c44c9c61f2a50d6e8794367730",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_DataGridColumn1_i",
+      "traitKind": "method",
+      "methodIndex": 16073,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "efc89c05aa9b19dea5072d4f8ae245e4f857e874bfa0efb18e8ef13df8b32477",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_DataGridColumn2_i",
+      "traitKind": "method",
+      "methodIndex": 16075,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "8fe9d8a5d80bdcab5a8b943e60be267b73e9fc9ca757cec6536a00df83e54360",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_DataGridColumn3_i",
+      "traitKind": "method",
+      "methodIndex": 16077,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "d437e5d5e93b396acfc23b0640093e87aafdc13ff5a8100588663b44308396d7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_DataGridColumn4_i",
+      "traitKind": "method",
+      "methodIndex": 16079,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "03effd0145c2fc5d40c0389f1ed9d6ab8201b701354ee87f481f091167a7b729",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_DataGridColumn5_i",
+      "traitKind": "method",
+      "methodIndex": 16081,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "7b05c68e461494ea17b3b1da557420477c6ab66807f016699627306d78b81940",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_DataGridColumn6_i",
+      "traitKind": "method",
+      "methodIndex": 16083,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "fe6f5e77f7735797f779d808a4fd31bced3d5e32930b82534ca525ea2c31f3db",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_DataGridColumn7_i",
+      "traitKind": "method",
+      "methodIndex": 16085,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "3e0dfd4c5d511f52dbfcbbac2c375839f58ab7dff011b1b4f2e2a8306c0cfcee",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_HGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 16062,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "8919ade803a90e139468ae6c4406dfbdd08d62d30ca4a5cd493693e078560290",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_HGroup2_c",
+      "traitKind": "method",
+      "methodIndex": 16066,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "20d4fee8f9e7e3bb872a38b935bf04acde6df30bc6b462542531177a5013db23",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_RichEditableText1_i",
+      "traitKind": "method",
+      "methodIndex": 16072,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 120,
+      "bytecode": {
+        "codeLength": 120,
+        "codeSha256": "31da1985ab8960f0f842ebef8f9e15b75672d1229e63c0e25100eb277710f4ab",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_RichText1_i",
+      "traitKind": "method",
+      "methodIndex": 16068,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "02a26ee40bd95086a441830bb047c3a4f19f4364dfa6578d292f605821e10fbb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_RichText2_i",
+      "traitKind": "method",
+      "methodIndex": 16069,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "27f0aab3d1dc609331634b3b1be58e7dd8af6a80d12bb0398eaecd3e4d075c7f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_RichText3_i",
+      "traitKind": "method",
+      "methodIndex": 16070,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "61bcdbf17a778b76d2b0ee53d861ab21316f172daf29a3ab945c74da54e75756",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_Scroller1_c",
+      "traitKind": "method",
+      "methodIndex": 16071,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "f62566407577e7a164275b0e7f5f8d1b24b4cebd9ed96a9b42f0b6ce49ea9f71",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_TextInput1_i",
+      "traitKind": "method",
+      "methodIndex": 16063,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "136dd08159ed94c65619ffdda3b7dc2e9f542b1c9221aad13b7da94c8e1c1cbe",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_VDividedBox1_c",
+      "traitKind": "method",
+      "methodIndex": 16061,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.containers.VDividedBox",
+      "hasBody": true,
+      "codeLength": 183,
+      "bytecode": {
+        "codeLength": 183,
+        "codeSha256": "7d013fd4ca0018fb2e582f71b8bdc9608cc93ef255184a6e29b9466eb36cd70f",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs._ProxiFileViewerImpl_VGroup2_i",
+      "traitKind": "method",
+      "methodIndex": 16067,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "790199d6ced3a0a8f06613115357bdd2ddb82a21e14c024ce61650c506d29325",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.filterClosure",
+      "traitKind": "getter",
+      "methodIndex": 16114,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.FilterDataGridHandler",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "61c5a8d88f3ba247028c57866ab73e8ed3c7f113f861fbc16b424e6e5eafbead",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.filterClosure",
+      "traitKind": "setter",
+      "methodIndex": 16115,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.FilterDataGridHandler"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "06539fb79641827d83b4895abb6a01181572904f9712cdef75691f2274931602",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "vehicleDetails",
+      "traitKind": "getter",
+      "methodIndex": 16112,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "137f3fe86b0133ff0404232051aa59f9104a83d5e627187feca5585313977457",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "vehicleDetails",
+      "traitKind": "setter",
+      "methodIndex": 16113,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.VGroup"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "50b95046a5b5b6b9a2cd250d7a64fbabbf09a75dadda22381719f2620e4c8f3d",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 16050,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "93370f6f44148512603d4bdc8702aa271f9140786177780dd2bf7e82b011a165",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

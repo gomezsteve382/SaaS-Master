@@ -1,0 +1,505 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2706,
+  "className": "spark.components.supportClasses.DropDownController",
+  "classNameNormalized": "spark.components.supportClasses.DropDownController",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 45367,
+  "cinitMethod": 45366,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "closeDropDown",
+      "traitKind": "method",
+      "methodIndex": 45384,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "4678da26cc05f505ff7eeb4b02c582dbb82eeb96e5bb98cd72fefee6303ad0a4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "dropDown",
+      "traitKind": "getter",
+      "methodIndex": 45373,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "896f689bc6787410ae9ae366b6c4c9f6826a0b5dcb50a6705f5e1643e2c37235",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dropDown",
+      "traitKind": "setter",
+      "methodIndex": 45372,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "5dc3eab878463b2864f27e97cc80695cfe1afb6b7618aa53961c017696953c56",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.openButton_buttonDownHandler",
+      "traitKind": "method",
+      "methodIndex": 45385,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "e181eadee74dd859fc645481261f6ca395d18ce10e8e6f32500b3050ac92d056",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.openButton_rollOverHandler",
+      "traitKind": "method",
+      "methodIndex": 45386,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "14e6bf0010407422fa94e1b61fab83a672b5ab78a097d602aceb3c78a9308ad8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.systemManager_mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 45389,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 214,
+      "bytecode": {
+        "codeLength": 214,
+        "codeSha256": "df0d7a6672a545d6b65e772057db53e0989e7cc7eb4b489d4a8a372d6998c14d",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.systemManager_mouseMoveHandler",
+      "traitKind": "method",
+      "methodIndex": 45390,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "355d63190be4353d80c7c2a3303854c058266d32fb43e9c6eb1c7b458f93fc9d",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.systemManager_mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 45392,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "e58c6cc94d9dc4e6cd668c3c79ab9c7ec8cb056b3d47322a33d1702741e04f97",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.systemManager_mouseUpHandler_noRollOverOpenDelay",
+      "traitKind": "method",
+      "methodIndex": 45391,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "9075186644a87ea118b68760a36d382aaf3077a6605ec9c984b041387a093d76",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.systemManager_resizeHandler",
+      "traitKind": "method",
+      "methodIndex": 45393,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "59ae5e15a0743a463c591882cead1475e5093670e90c38ec0c496910e0c8363e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isOpen",
+      "traitKind": "getter",
+      "methodIndex": 45374,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "62c3c25393a6e86f062627cd469895452ddbfd4e4130d5f2664579d63fa5050e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "openButton",
+      "traitKind": "getter",
+      "methodIndex": 45369,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.supportClasses.ButtonBase",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a19f30a12786dcf98030bb3f726b8b875cce9471d765f3132977bd6ef64f43c7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "openButton",
+      "traitKind": "setter",
+      "methodIndex": 45368,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.supportClasses.ButtonBase"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "b3d0c6995a2a173c2c98c0023edcb2ed7a688ef54635d03f3fec960b5918d7f9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "openDropDown",
+      "traitKind": "method",
+      "methodIndex": 45382,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "cfc4c21cc5384862d0cf0f86655868b4f929e22481b018f68f87124f632ae5c3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.addCloseTriggers",
+      "traitKind": "method",
+      "methodIndex": 45379,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 261,
+      "bytecode": {
+        "codeLength": 261,
+        "codeSha256": "1cf2e3968ff2cff95c1c76004add9b813f97a33e393dc1b5f219f93d42c13173",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.addOpenTriggers",
+      "traitKind": "method",
+      "methodIndex": 45377,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "f380d6b79298c64d67b8d9538df7724e4a276b3821ffdca3b5f42bb67078040c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.isTargetOverDropDownOrOpenButton",
+      "traitKind": "method",
+      "methodIndex": 45381,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "a74a3201db40d77fa50c48c23155267006b4101590d6273a486e439f63877ed0",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.openButton_rollOutHandler",
+      "traitKind": "method",
+      "methodIndex": 45387,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "093b9540f0c3ef0cc38a85e67ceb637feb29d6388bb87d4f7969bf6785b86b06",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.openDropDownHelper",
+      "traitKind": "method",
+      "methodIndex": 45383,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "6e0c2e6f7c32444e88f414ba4ec2e2cf788bc7d0cb6ba9e553d8834b446c6a88",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeCloseTriggers",
+      "traitKind": "method",
+      "methodIndex": 45380,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 304,
+      "bytecode": {
+        "codeLength": 304,
+        "codeSha256": "da40bb1e0e1034b992f59f52a7fed44ece665ff437d682034424c4d14695dcdb",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeOpenTriggers",
+      "traitKind": "method",
+      "methodIndex": 45378,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "ed22192541fbca752da38ebacffd11a128a29c4e4fbeb95b0a646ab504d66737",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.rollOverDelay_timerCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 45388,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "b90da0216a147bf31f6c0998eccb248979047088f18af59e6d261e052d902933",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.systemManager_mouseWheelHandler",
+      "traitKind": "method",
+      "methodIndex": 45394,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "dab9e9500b6ccc142519ad92801e48efc537a45d063e2887ebf42c24b95119bb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "processFocusOut",
+      "traitKind": "method",
+      "methodIndex": 45395,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "603ff4f65d61d01a8f09e850f5051f228c1240d76c54e3c84583a49ecff4b8e0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "processKeyDown",
+      "traitKind": "method",
+      "methodIndex": 45396,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 191,
+      "bytecode": {
+        "codeLength": 191,
+        "codeSha256": "c65f6c6306951be42fe7479c1bc1deb6808c3edcc541f1a7ccc20c7443b0f703",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "rollOverOpenDelay",
+      "traitKind": "getter",
+      "methodIndex": 45375,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e1977980d600891acfb1e500e400db0a90d66708df82712d1830f776245add96",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "rollOverOpenDelay",
+      "traitKind": "setter",
+      "methodIndex": 45376,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "8cf9a797b082c8d333f45b37f504fd619c716281679eb9cc081fe7f4fafcae98",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "systemManager",
+      "traitKind": "getter",
+      "methodIndex": 45371,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.ISystemManager",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "ea976447976ac2427d3f5129d07ed47a57c4fafac95c1e33175a2c07f7b0da5b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "systemManager",
+      "traitKind": "setter",
+      "methodIndex": 45370,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.ISystemManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "6517fe651e5596cb76f53c5398b635d74abccff3a413ab976fa02316bffabeda",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

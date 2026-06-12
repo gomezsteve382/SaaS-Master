@@ -1,0 +1,144 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2323,
+  "className": "com.chrysler.cda.domain.diagnostics.ecu.ConsolidatedDataDisplayDDEVO",
+  "classNameNormalized": "com.chrysler.cda.domain.diagnostics.ecu.ConsolidatedDataDisplayDDEVO",
+  "superName": "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO",
+  "superNameNormalized": "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 41098,
+  "cinitMethod": 41093,
+  "iinitBytecode": {
+    "codeLength": 30,
+    "codeSha256": "603b1e90985db4e67eea813d7b179294141b069549926a345af3fc86ff5379c5",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "key",
+      "traitKind": "getter",
+      "methodIndex": 41101,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "a08c3c79576d808418273074af4507c905f018fc5826f85370061861ed022a0e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readComServiceID",
+      "traitKind": "getter",
+      "methodIndex": 41096,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "13b72f807abf8560cc42c5007bc9530951e78fe34883fbf529ddbc2c174eabaa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readOnly",
+      "traitKind": "getter",
+      "methodIndex": 41099,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "3a8fca06e1840763d80542a439722a432c3ef2e86207e0f8882d5d48c14fbcf1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeComServiceID",
+      "traitKind": "getter",
+      "methodIndex": 41097,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7cfd8fc98fd83a7edc57799af0aebcf172cb96e9fd179fe911cc95ed4dd8101c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "writeOnly",
+      "traitKind": "getter",
+      "methodIndex": 41100,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "fe0d410f33fd84fdafb25ed164f50b9889e56d2a478f739faafb491537dcf2ae",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "asConsolidatedDataDisplayDDEVO",
+      "traitKind": "method",
+      "methodIndex": 41095,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "com.chrysler.cda.domain.diagnostics.ecu.ComServiceVO"
+      ],
+      "returnType": "flash.utils.Dictionary",
+      "hasBody": true,
+      "codeLength": 374,
+      "bytecode": {
+        "codeLength": 374,
+        "codeSha256": "ab1fd334b45307dbb432adfe90017133bc27687bc26a9cec36f5f57ea0be720b",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "Key",
+      "traitKind": "method",
+      "methodIndex": 41094,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "ac7124580df220bacd79b98312fa15cc3b603345df4b7a1850f7359158b41236",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

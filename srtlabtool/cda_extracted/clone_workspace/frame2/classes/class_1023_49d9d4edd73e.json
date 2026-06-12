@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1023,
+  "className": "com.chrysler.cda.domain.SecureStorage",
+  "classNameNormalized": "com.chrysler.cda.domain.SecureStorage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 21809,
+  "cinitMethod": 21804,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "c2ef897fd1bafc8556dc8c37a05833df005b72fdfef56cbba502e440333566f0",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getItem",
+      "traitKind": "method",
+      "methodIndex": 21806,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "a9155b5f5822335510f5e3a03bb16a30bb1f2ecad1ee001f60acfece06712d2d",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "removeItem",
+      "traitKind": "method",
+      "methodIndex": 21808,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "48ecbd4ef5dc4d8c20648b95f7b9e16c6bf051f4cd19d252bc96571a9bfe27e5",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "reset",
+      "traitKind": "method",
+      "methodIndex": 21807,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "b96c22c1d385e9e0708201a446cf846de443bace06edcc82bc9d944b6f1e7d66",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "setItem",
+      "traitKind": "method",
+      "methodIndex": 21805,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.utils.ByteArray",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "b3a9ef0c3b8d0881e64838aeee4632b72de4aa80ef4cce336ab68b06975380a0",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": []
+}

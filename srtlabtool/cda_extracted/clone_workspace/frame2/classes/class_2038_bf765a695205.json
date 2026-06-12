@@ -1,0 +1,379 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2038,
+  "className": "mx.controls.dataGridClasses.DataGridItemRenderer",
+  "classNameNormalized": "mx.controls.dataGridClasses.DataGridItemRenderer",
+  "superName": "mx.core.UITextField",
+  "superNameNormalized": "mx.core.UITextField",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IDataRenderer",
+    "mx.controls.listClasses.IDropInListItemRenderer",
+    "mx.managers.ILayoutManagerClient",
+    "mx.controls.listClasses.IListItemRenderer",
+    "mx.styles.IStyleClient"
+  ],
+  "iinitMethod": 37671,
+  "cinitMethod": 37670,
+  "iinitBytecode": {
+    "codeLength": 74,
+    "codeSha256": "fd4b7fa91aedc795e5294c9a05250bb275d351d689050c7b2d606154a3a1b6c6",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clearStyle",
+      "traitKind": "method",
+      "methodIndex": 37686,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "6a5c43ad94ea3f963a276cdcabc97097c0ac6364f475cc93ae800cd7ad875802",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "getter",
+      "methodIndex": 37673,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "96d4eaf093dcc009040c8f96ffe73e2ee1729a2b3ac263958384b41953c46d80",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "setter",
+      "methodIndex": 37674,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "a24523efa61330e9f0969f8912ec3e89212ec040d40c7e11ef40ddcf2431ab1d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getClassStyleDeclarations",
+      "traitKind": "method",
+      "methodIndex": 37691,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 222,
+      "bytecode": {
+        "codeLength": 222,
+        "codeSha256": "49b5e0d7eb3a41d1463381d34a21e532d936c6f99c46040aadc313e589c28102",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "getStyle",
+      "traitKind": "method",
+      "methodIndex": 37681,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "ed044c99de85dd61fca8edda4c8e63835d334495e514b6df934e6c1d0712ad69",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 37679,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "d137281d628324cb0efd59a0475f6f04ae0c5ba215a441f4a1944b0e8ea96b34",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initProtoChain",
+      "traitKind": "method",
+      "methodIndex": 37688,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 451,
+      "bytecode": {
+        "codeLength": 451,
+        "codeSha256": "e7d5ef36c90c30f2fc23569525345a32a146a652a21f9ca4ab1a9a2552b677d4",
+        "bytecodeLineCount": 29
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "getter",
+      "methodIndex": 37675,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.listClasses.BaseListData",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "09644773c7508f24c22d842f0c860ea3a4794f67befbb37d1f732db3ec43e451",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "setter",
+      "methodIndex": 37676,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.listClasses.BaseListData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "bff313ccc2ea042ab922c2049e8687891aee9b28e268055f5deaa1b3ddda8d9b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.controls.dataGridClasses:DataGridItemRenderer.toolTipShowHandler",
+      "traitKind": "method",
+      "methodIndex": 37692,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.ToolTipEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "4ef6c2961540abdf7af2b20bbfdbdf8150c55db14b97601b4b4f92c384711d9c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "nestLevel",
+      "traitKind": "setter",
+      "methodIndex": 37672,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "7df790794610f02caa9d045033e0289542b38b4c9d3c81217dbb5f5bdb941993",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "notifyStyleChangeInChildren",
+      "traitKind": "method",
+      "methodIndex": 37687,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "regenerateStyleCache",
+      "traitKind": "method",
+      "methodIndex": 37689,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "dc7f6aa03193660cb1027bfa1d51fa3ee57790a393c66391c2778cb0fcce7b43",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "registerEffects",
+      "traitKind": "method",
+      "methodIndex": 37690,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setStyle",
+      "traitKind": "method",
+      "methodIndex": 37682,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 231,
+      "bytecode": {
+        "codeLength": 231,
+        "codeSha256": "dae2c185ab841e812506862d04f9dd3590029468b8518c02e3a90ce9490a4887",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "styleDeclaration",
+      "traitKind": "getter",
+      "methodIndex": 37677,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.styles.CSSStyleDeclaration",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "750a276f966ce22734b1ba9ae9b54bdfb2a1756cc73d8b3f4fb2fa337e3bc23d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "styleDeclaration",
+      "traitKind": "setter",
+      "methodIndex": 37678,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.CSSStyleDeclaration"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "fc13df5c468e648ee79d8619250ff1eb882034f18b2c17812d1332b4211be9ef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "validateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 37685,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5a31fcfc3e9ab6564846425cd46d228c59c3b2886b9028ff51cfd46172f80c4a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "validateNow",
+      "traitKind": "method",
+      "methodIndex": 37680,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 166,
+      "bytecode": {
+        "codeLength": 166,
+        "codeSha256": "6cff8998a5dd3a3cd6bab351a7cd6fe908c2c6059b11cd0934408af99a62273c",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "validateProperties",
+      "traitKind": "method",
+      "methodIndex": 37683,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 332,
+      "bytecode": {
+        "codeLength": 332,
+        "codeSha256": "8eb340ddb7ae0e42df3f68c42ad74f759ac7a8e86b031fa0e56fa75941fcb598",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "validateSize",
+      "traitKind": "method",
+      "methodIndex": 37684,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "7e71f8956ebaeba48d58a4915fd643ac5e2a180fe7ec026949b2faf34c1b25af",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

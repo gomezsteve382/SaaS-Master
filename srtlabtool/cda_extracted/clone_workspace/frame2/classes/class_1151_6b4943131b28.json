@@ -1,0 +1,136 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1151,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.sessions.EnterDiagnosticSessionCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.sessions.EnterDiagnosticSessionCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 25434,
+  "cinitMethod": 25427,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "5fa17a4b7adc2fa20148187fca06df625b20fe9e87bce2c2629a23e92668d257",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application.diagnostic.ecu.sessions:EnterDiagnosticSessionCommand.extendedDiagnosticModeWorker",
+      "traitKind": "method",
+      "methodIndex": 25433,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "b88d86f727c536defe90b291130ad25eedf72e30e429d5a8366d649c951f7fd3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "enterDiagnosticSession",
+      "traitKind": "method",
+      "methodIndex": 25428,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.sessions.EnterDiagnosticSessionMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "0052d1213b6895c191bd32b8fcd608a495500b05a8acd919f5685faa0525019f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "enterExtendedDiagnosticMode",
+      "traitKind": "method",
+      "methodIndex": 25429,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "a60de66cad2fb32316a815691ab0c4506aebe4fffdec6536228ead89398f3004",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "startExtendedDiagnosticMode",
+      "traitKind": "method",
+      "methodIndex": 25430,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.ExtendedDiagnosticModeMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "a60de66cad2fb32316a815691ab0c4506aebe4fffdec6536228ead89398f3004",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "startExtendedDiagnosticModeError",
+      "traitKind": "method",
+      "methodIndex": 25432,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.diagnostic.ecu.ExtendedDiagnosticModeMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "990773e0a30274e734cf48c105b464380eb7eccd73651d52c34ec746a0e8abb9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "startExtendedDiagnosticModeResult",
+      "traitKind": "method",
+      "methodIndex": 25431,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.ExtendedDiagnosticModeMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "847115df4faea1e2292c30cf06064806710994604ee0ebb29b95acce4bbf5ef6",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

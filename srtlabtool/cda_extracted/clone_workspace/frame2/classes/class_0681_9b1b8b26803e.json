@@ -1,0 +1,159 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 681,
+  "className": "flashx.textLayout.elements.BackgroundManager",
+  "classNameNormalized": "flashx.textLayout.elements.BackgroundManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 13388,
+  "cinitMethod": 13387,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "43f324bcb73d6b333e73129f0b28eba8ab4d06c43b761387a39f243818494745",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addNumberLine",
+      "traitKind": "method",
+      "methodIndex": 13390,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextLine",
+        "flash.text.engine.TextLine"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "db2ac3aacb42e27aef25014d08a61eef9711fc36fa4f5422da430261679a5e02",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "addRect",
+      "traitKind": "method",
+      "methodIndex": 13389,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextLine",
+        "flashx.textLayout.elements.FlowLeafElement",
+        "flash.geom.Rectangle",
+        "uint",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 187,
+      "bytecode": {
+        "codeLength": 187,
+        "codeSha256": "6d349320b188742318455264d333bd968c90671a9b1211dbdbbfc554b36373ef",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "drawAllRects",
+      "traitKind": "method",
+      "methodIndex": 13393,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flash.display.Shape",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 515,
+      "bytecode": {
+        "codeLength": 515,
+        "codeSha256": "d4c640f4dd9a3b8c28aac298d5a5f84de39ff347d432cc95547db233eb834368",
+        "bytecodeLineCount": 33
+      }
+    },
+    {
+      "traitName": "finalizeLine",
+      "traitKind": "method",
+      "methodIndex": 13391,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.TextFlowLine"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.getEntry",
+      "traitKind": "method",
+      "methodIndex": 13392,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextLine"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "0b91a6a781749631cbf49c382662e4d295c66fffe12281016d7fc9ef2814da1b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onUpdateComplete",
+      "traitKind": "method",
+      "methodIndex": 13395,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 512,
+      "bytecode": {
+        "codeLength": 512,
+        "codeSha256": "4a4e2f44c8d124e8093e6cea6bcaa053ad3aebb856a86b6ec25ad7176c1492f6",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "removeLineFromCache",
+      "traitKind": "method",
+      "methodIndex": 13394,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextLine"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "a4aed0213b98bf191fba385e9a5144c02362f2e2438814ce1730f6bb1e671101",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

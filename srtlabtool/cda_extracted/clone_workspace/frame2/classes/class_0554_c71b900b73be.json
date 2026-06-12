@@ -1,0 +1,272 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 554,
+  "className": "mx.managers.systemClasses.ActiveWindowManager",
+  "classNameNormalized": "mx.managers.systemClasses.ActiveWindowManager",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IActiveWindowManager"
+  ],
+  "iinitMethod": 10668,
+  "cinitMethod": 10665,
+  "iinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "65a4c0b9cb807d4d9332ace22d3d3ad4aefbd68e32551296e1afbfc8c700d608",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "activate",
+      "traitKind": "method",
+      "methodIndex": 10671,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "9ed666e3622fbf3cffeeddd1a0bf8507bff3044c85a1968a81a5a9c158308a9b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "addFocusManager",
+      "traitKind": "method",
+      "methodIndex": 10678,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.IFocusManagerContainer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "ce0e74907aabd7b95e24d8ffb10ac9dfa82429f354d2aeade7f3b7ea2b2c3d5e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "deactivate",
+      "traitKind": "method",
+      "methodIndex": 10673,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "e4406efe14363e294336ca9ab320d23db3e3f995cb030505b1980cc067c21203",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "numModalWindows",
+      "traitKind": "getter",
+      "methodIndex": 10669,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a44cb22a6e1463ade360e76452dd27de2f42b5e4f7c5dc57cb5a181bca483e37",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "numModalWindows",
+      "traitKind": "setter",
+      "methodIndex": 10670,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "6548ae9c72ffc561dc5ceac4ce25c89a816f9744763c0abf281e63aa1e269dd1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.activateForm",
+      "traitKind": "method",
+      "methodIndex": 10672,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 218,
+      "bytecode": {
+        "codeLength": 218,
+        "codeSha256": "4fb477e12214740859f5b0b21627579a11402855f25e2a59b77f5ddf086f0058",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "PrivateNs.canActivateLocalComponent",
+      "traitKind": "method",
+      "methodIndex": 10677,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "10c9c1f82d7ace83f7f90081929bd2d50773da2c5897b2bc16fc3263332f4ab8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.canActivatePopUp",
+      "traitKind": "method",
+      "methodIndex": 10676,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "e714adacdf3f5d9057aa44f2b9bf38ad2ce7c47e3f0d0324bbddb707ee7f2587",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.deactivateForm",
+      "traitKind": "method",
+      "methodIndex": 10674,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 221,
+      "bytecode": {
+        "codeLength": 221,
+        "codeSha256": "410c74f2beb70231b4ec156d7b535a048e6131a92e9502b7ebc050211a6c1ba5",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "PrivateNs.findLastActiveForm",
+      "traitKind": "method",
+      "methodIndex": 10675,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "a232883a3886377e4fc51d363e886ff3c92e211a22ce782cceb0ae9ec88b4f75",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 10680,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 938,
+      "bytecode": {
+        "codeLength": 938,
+        "codeSha256": "89f3bf39209f4a5421844265728c6117919c2044e2b179adb94e78c16d57b1cd",
+        "bytecodeLineCount": 59
+      }
+    },
+    {
+      "traitName": "removeFocusManager",
+      "traitKind": "method",
+      "methodIndex": 10679,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.IFocusManagerContainer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "bbd0d9c2f5e65f16f6e8d3fe0e4c76b2a3d4b12f0439f5164040cdb68d9d20d8",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 10666,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "9c9e60d603b08c7e96b82f3b293badc5e860688c790704d4d7b5524def9e2450",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.getChildListIndex",
+      "traitKind": "method",
+      "methodIndex": 10667,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IChildList",
+        "Object"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "a8984ab9637df71f2526101cdd822e5b0184ce26fd0ceaf42caa29cb9d0515ce",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

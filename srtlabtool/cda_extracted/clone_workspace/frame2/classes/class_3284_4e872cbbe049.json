@@ -1,0 +1,183 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3284,
+  "className": "PrivateNs.DefaultSingletonObjectDefinitionBuilder",
+  "classNameNormalized": "PrivateNs.DefaultSingletonObjectDefinitionBuilder",
+  "superName": "org.spicefactory.parsley.core.registry.builder.impl.AbstractObjectDefinitionBuilder",
+  "superNameNormalized": "org.spicefactory.parsley.core.registry.builder.impl.AbstractObjectDefinitionBuilder",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.registry.builder.SingletonObjectDefinitionBuilder"
+  ],
+  "iinitMethod": 50880,
+  "cinitMethod": 50879,
+  "iinitBytecode": {
+    "codeLength": 8,
+    "codeSha256": "759834360b3138b4f9f149bb91b34cde0e9d339d5cd03f58962655320a4089b4",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "build",
+      "traitKind": "method",
+      "methodIndex": 50888,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinition",
+      "hasBody": true,
+      "codeLength": 132,
+      "bytecode": {
+        "codeLength": 132,
+        "codeSha256": "ee62834df6ed1464022e3f5eb0381d59c97b793c876a65a1e4b51161545b3f11",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "buildAndRegister",
+      "traitKind": "method",
+      "methodIndex": 50889,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinition",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "857a7dccc52503d5a68367f18bf7e6c9b6b730d4e9f3700a75388816cc1554de",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "decorator",
+      "traitKind": "method",
+      "methodIndex": 50886,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinitionDecorator"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.builder.SingletonObjectDefinitionBuilder",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "4814e60bcb1d94c413d266df3a3d2b0a78115559a36a53c5891fa91254fac547",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "decorators",
+      "traitKind": "method",
+      "methodIndex": 50887,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.builder.SingletonObjectDefinitionBuilder",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "a40d717a32cec42e20160332fd4078ae362ad3adca8655ddc071e15a51328997",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "id",
+      "traitKind": "method",
+      "methodIndex": 50882,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.builder.SingletonObjectDefinitionBuilder",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "f944ad259e350c0720b0890084e9b61218e47cce9bc8362b1d2525f4a77a7a85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "instantiator",
+      "traitKind": "method",
+      "methodIndex": 50885,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectInstantiator"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.builder.SingletonObjectDefinitionBuilder",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "f12f611ee72edd59c8e8be16972d857b385d390ca1de102a14b624bbbfe30655",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "lazy",
+      "traitKind": "method",
+      "methodIndex": 50883,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.builder.SingletonObjectDefinitionBuilder",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "b37df4dfd3c823cfb85297d7d70cf86010754ed8d04f0c822828816a1fa19213",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "order",
+      "traitKind": "method",
+      "methodIndex": 50884,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.builder.SingletonObjectDefinitionBuilder",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "79eb0354bd6a23b02a660d0813fde92a74ec78dfef57db209f4ab265054ad734",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "singleton",
+      "traitKind": "method",
+      "methodIndex": 50881,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.builder.SingletonObjectDefinitionBuilder",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "550fad4d9ebfe89bb9d05544c8711f47e31a210e78c4d929266a2b4d1b5ccc97",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

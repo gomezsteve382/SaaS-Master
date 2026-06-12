@@ -1,0 +1,119 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1116,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.FindQualificationCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.FindQualificationCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 24282,
+  "cinitMethod": 24276,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "7a24881f0fefc728c4fdc4b9083efd14d6b6a13acb79ea1a07f2e3c05e9de512",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onFindQualificationForComServiceType",
+      "traitKind": "method",
+      "methodIndex": 24277,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.GetComServicesByTypeMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "be5b4a053eff78faa8cf425a1f64ee22a522e21c9b90fd8d058ef167cf8190f3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindQualificationForDtcSnapshotData",
+      "traitKind": "method",
+      "methodIndex": 24278,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDtcCompontentQualificationDataMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "be5b4a053eff78faa8cf425a1f64ee22a522e21c9b90fd8d058ef167cf8190f3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindQualificationForDtcSnapshotDataError",
+      "traitKind": "method",
+      "methodIndex": 24281,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDtcCompontentQualificationDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "d92306639157938f7c08ca5d8895820424f4a736cf2542a0dcc78e81ee05979b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onFindQualificationForDtcSnapshotDataForScanReport",
+      "traitKind": "method",
+      "methodIndex": 24279,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.report.GetDtcComponentQualificationDataForScanReportMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "be5b4a053eff78faa8cf425a1f64ee22a522e21c9b90fd8d058ef167cf8190f3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindQualificationForDtcSnapshotDataResult",
+      "traitKind": "method",
+      "methodIndex": 24280,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDtcCompontentQualificationDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 158,
+      "bytecode": {
+        "codeLength": 158,
+        "codeSha256": "bddd10da3a966fe80c6ece73308a94b66743bfc91ec27bc42ead895837481997",
+        "bytecodeLineCount": 10
+      }
+    }
+  ],
+  "staticMembers": []
+}

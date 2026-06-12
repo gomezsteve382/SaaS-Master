@@ -1,0 +1,410 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3035,
+  "className": "deng.fzip.FZipFile",
+  "classNameNormalized": "deng.fzip.FZipFile",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 48602,
+  "cinitMethod": 48601,
+  "iinitBytecode": {
+    "codeLength": 73,
+    "codeSha256": "feb17bc536579fdf14774ff15476e52c2b6c5b322a5019e158819fc604aedd51",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 215,
+    "codeSha256": "e2e926328de084ef7494e38b2ce98f190a6deb871016f6ea0459c61e4dea3a3a",
+    "bytecodeLineCount": 14
+  },
+  "instanceMembers": [
+    {
+      "traitName": "content",
+      "traitKind": "getter",
+      "methodIndex": 48607,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "9572053902fd70f7c99c00fe6178bfabdb6c3a4b78eb1e92b42a004923595d92",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "content",
+      "traitKind": "setter",
+      "methodIndex": 48608,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "861bc6b969aed5a7be0f36cb45fa6712328102f1e2301882023583e94039a58e",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "date",
+      "traitKind": "getter",
+      "methodIndex": 48603,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Date",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3b3e81f7be3e140523eac49cacad31bc6b8839bbfc30be3013f86924ce1b5d2f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "date",
+      "traitKind": "setter",
+      "methodIndex": 48604,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "900328c77059e355b3a322bbaed0113c9ed2ab23b3a96138b1753f70565dfd15",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "deng.fzip:FZipFile.compress",
+      "traitKind": "method",
+      "methodIndex": 48623,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 167,
+      "bytecode": {
+        "codeLength": 167,
+        "codeSha256": "1fdbb5a3dc15c82a320b758a5d23dc8be7282a77042dc925eab088e292896ea1",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "deng.fzip:FZipFile.parseContent",
+      "traitKind": "method",
+      "methodIndex": 48622,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 263,
+      "bytecode": {
+        "codeLength": 263,
+        "codeSha256": "571c90f92e3cec370a089d04f1d8b3cb4da904ca7761976661235e5ad65bfe7f",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "deng.fzip:FZipFile.parseHead",
+      "traitKind": "method",
+      "methodIndex": 48620,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 430,
+      "bytecode": {
+        "codeLength": 430,
+        "codeSha256": "8290c08dd7ef05c208b2fa893788ad19ab6447221d9ced76be47e8b16f89fb6a",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "deng.fzip:FZipFile.parseHeadExt",
+      "traitKind": "method",
+      "methodIndex": 48621,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 258,
+      "bytecode": {
+        "codeLength": 258,
+        "codeSha256": "76dfa66e8f8875a1e13f33c1ace65723cc7716953a0919b63dbeac5f40f1e83b",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "deng.fzip:FZipFile.uncompress",
+      "traitKind": "method",
+      "methodIndex": 48624,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 99,
+      "bytecode": {
+        "codeLength": 99,
+        "codeSha256": "cf56c0a0fbfb9f0f619843c35d8748c1cac8f0fc4633ef8c4a90aeb0466d53f8",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "deng.fzip.parse",
+      "traitKind": "method",
+      "methodIndex": 48615,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "47f2b383c82812696b9147e0f4393e3c89be5f4b8401abcabaf06763c1f1e9f5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "filename",
+      "traitKind": "getter",
+      "methodIndex": 48605,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f90f0fc3dcc61b3f087cbddc0e337f4f1665c9c4a54bf8accec4bc309ca6c560",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "filename",
+      "traitKind": "setter",
+      "methodIndex": 48606,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "0eff26294a66705655f5562bd68190596f3dc22d4d0357ea27eb82111c343219",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getContentAsString",
+      "traitKind": "method",
+      "methodIndex": 48612,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "c2653e366502618fa8554c617bb5c7d8e01ee61764275246c3faa94be53c793e",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseFileContent",
+      "traitKind": "method",
+      "methodIndex": 48619,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "ce64a5bcb5dc8d60f481f4a6ff560230f78189b6d65f8476bcbf585dc6869f0c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseFileHead",
+      "traitKind": "method",
+      "methodIndex": 48617,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "6a6e2c701d308fd4894d5efbf35858a1520c42653fdb459a8b927e51de0c5961",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseFileHeadExt",
+      "traitKind": "method",
+      "methodIndex": 48618,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "6e5ef44eb7a2e2279464b05c988c7bf0382d5b01eab789bfc2a7311f6f4a1da0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseFileIdle",
+      "traitKind": "method",
+      "methodIndex": 48616,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "8bd91b4d6662c2af4743360fdfdadd0ffd59568f99d5771831541eb0e40a633f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serialize",
+      "traitKind": "method",
+      "methodIndex": 48614,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataOutput",
+        "Boolean",
+        "Boolean",
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 886,
+      "bytecode": {
+        "codeLength": 886,
+        "codeSha256": "a79ee7c9effdaa552b4d955a7e6c46ddc2e794f3cd20e0dad0929ce3a0fb7eed",
+        "bytecodeLineCount": 56
+      }
+    },
+    {
+      "traitName": "setContentAsString",
+      "traitKind": "method",
+      "methodIndex": 48613,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 123,
+      "bytecode": {
+        "codeLength": 123,
+        "codeSha256": "45f839f51b054173bf84704f2efb6d82eb57a2280025bc88e301785a237bed14",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "sizeCompressed",
+      "traitKind": "getter",
+      "methodIndex": 48610,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c3ccb54a70397ab77d6916b4be528920f4f580c1b699090db60d2b5169b79c7b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sizeUncompressed",
+      "traitKind": "getter",
+      "methodIndex": 48611,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0a1d21ca0142fb15f1d54610c08516b72496d167ae81736295fcd39d4e638992",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 48625,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "f7840910f7e925e7015f51163d49be3037909a181b35f5094ec3b1faa89a7cca",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "versionNumber",
+      "traitKind": "getter",
+      "methodIndex": 48609,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5db2ca9355026fe51aba14692d06890ab2e070a20a191e8c4a1eaff86d8541ed",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

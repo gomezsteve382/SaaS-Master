@@ -1,0 +1,221 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 933,
+  "className": "com.chrysler.cda.presentation.component.file.SaveConfigurationPM",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.file.SaveConfigurationPM",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 18881,
+  "cinitMethod": 18869,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "b49a960e682c2497392a81cc70c20810189271caf9ad3bbe73805a46d0ae255c",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 18876,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "78e96d4591a1377c83aecd3f970b241c670a6e0161f6988380daba63f18ac4e4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "customizationManager",
+      "traitKind": "getter",
+      "methodIndex": 18872,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.infrastructure.configuration.CustomizationManager",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "177d9d1aa8c33ccad36c62ae664b853a821bc81e10499b6cd13dc8656ba42f60",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "customizationManager",
+      "traitKind": "setter",
+      "methodIndex": 18873,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.infrastructure.configuration.CustomizationManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "140bce7c1093158a08111cebcd99e484c93c49095d5b4dbd488eb048fe35fb04",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "desktopPM",
+      "traitKind": "getter",
+      "methodIndex": 18874,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.DesktopPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f01568243eb94f3b457ecb702be9730054f27b5a74bef13378ae5fb8da78c5c1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "desktopPM",
+      "traitKind": "setter",
+      "methodIndex": 18875,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.DesktopPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "5587522a2d0b464d00690be6354b5cd468a11f65ec150dba1bd639876768e925",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 18877,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "9a53ea25f3529b276a972b358870bb42544cbca194a37b6ada4425e7e4d52f99",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 18878,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "bbea8b7722706897a0b412cf61e3cf5e2b564ef6b965f7631f9635acd6b9b0c8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "produceConfigurableWindows",
+      "traitKind": "method",
+      "methodIndex": 18871,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "5301461051128b50d53be58661f8af6f669549ba026218f7c76d052407b1feb3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 18879,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "6ccbc08d8bc275e936e539b0de32d9ec1275e17a001156d4a33df3c209bc3c3f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "saveCustomizationContext",
+      "traitKind": "method",
+      "methodIndex": 18870,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "094608be3a3c2ff0a3b798ef600cc04befae5b4284d2cd6923456b9d01cc557d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 18880,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ceb0a4bedd54548cfa7545870eb2deeb0cc9eaf7e90008f9d514c39b7b0fc6e4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

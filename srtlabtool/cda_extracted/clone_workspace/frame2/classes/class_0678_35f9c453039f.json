@@ -1,0 +1,395 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 678,
+  "className": "flashx.textLayout.compose.IFlowComposer",
+  "classNameNormalized": "flashx.textLayout.compose.IFlowComposer",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 13328,
+  "cinitMethod": 13298,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.addController",
+      "traitKind": "method",
+      "methodIndex": 13309,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.addControllerAt",
+      "traitKind": "method",
+      "methodIndex": 13310,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.compose",
+      "traitKind": "method",
+      "methodIndex": 13305,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.composeToController",
+      "traitKind": "method",
+      "methodIndex": 13307,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.composeToPosition",
+      "traitKind": "method",
+      "methodIndex": 13306,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.composing",
+      "traitKind": "getter",
+      "methodIndex": 13322,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.damage",
+      "traitKind": "method",
+      "methodIndex": 13327,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.damageAbsoluteStart",
+      "traitKind": "getter",
+      "methodIndex": 13301,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.findControllerIndexAtPosition",
+      "traitKind": "method",
+      "methodIndex": 13316,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.findLineAtPosition",
+      "traitKind": "method",
+      "methodIndex": 13318,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "flashx.textLayout.compose.TextFlowLine",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.findLineIndexAtPosition",
+      "traitKind": "method",
+      "methodIndex": 13317,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.getControllerAt",
+      "traitKind": "method",
+      "methodIndex": 13314,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flashx.textLayout.container.ContainerController",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.getControllerIndex",
+      "traitKind": "method",
+      "methodIndex": 13315,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.getLineAt",
+      "traitKind": "method",
+      "methodIndex": 13319,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flashx.textLayout.compose.TextFlowLine",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.interactionManagerChanged",
+      "traitKind": "method",
+      "methodIndex": 13325,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.ISelectionManager"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.isDamaged",
+      "traitKind": "method",
+      "methodIndex": 13321,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.numControllers",
+      "traitKind": "getter",
+      "methodIndex": 13308,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.numLines",
+      "traitKind": "getter",
+      "methodIndex": 13320,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.removeAllControllers",
+      "traitKind": "method",
+      "methodIndex": 13313,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.removeController",
+      "traitKind": "method",
+      "methodIndex": 13311,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.removeControllerAt",
+      "traitKind": "method",
+      "methodIndex": 13312,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.rootElement",
+      "traitKind": "getter",
+      "methodIndex": 13299,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.elements.ContainerFormattedElement",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.setFocus",
+      "traitKind": "method",
+      "methodIndex": 13304,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.setRootElement",
+      "traitKind": "method",
+      "methodIndex": 13300,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.ContainerFormattedElement"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.swfContext",
+      "traitKind": "getter",
+      "methodIndex": 13323,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.compose.ISWFContext",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.swfContext",
+      "traitKind": "setter",
+      "methodIndex": 13324,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.ISWFContext"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.updateAllControllers",
+      "traitKind": "method",
+      "methodIndex": 13302,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.updateLengths",
+      "traitKind": "method",
+      "methodIndex": 13326,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "flashx.textLayout.compose:IFlowComposer.updateToController",
+      "traitKind": "method",
+      "methodIndex": 13303,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,157 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2472,
+  "className": "mx.netmon.NetworkMonitor",
+  "classNameNormalized": "mx.netmon.NetworkMonitor",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42685,
+  "cinitMethod": 42677,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "adjustNetConnectionURL",
+      "traitKind": "method",
+      "methodIndex": 42680,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "a4cdf46bdf5f9a10e7d1c44b8445f8566823b95ec318b2a6e1af98502319e3d4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "adjustURLRequest",
+      "traitKind": "method",
+      "methodIndex": 42679,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.URLRequest",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "99a21abb1433afa4af8109c1ff5c1ffc0325296db6db3850701a5d04c9ce60f0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "isMonitoring",
+      "traitKind": "method",
+      "methodIndex": 42678,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "86a84ec973a4061945b7801eea7b0456445d3157c71777ae9f2c60a5a6624494",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "monitorEvent",
+      "traitKind": "method",
+      "methodIndex": 42681,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "738be3807b64ca6c798c4a994aff3a1e5b13ead84d23e7ab418ede3526f3ff13",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "monitorFault",
+      "traitKind": "method",
+      "methodIndex": 42684,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "872e96f78313de233057e22ab92265d46b49f703b9a4f581b1b19b8fe3ce820f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "monitorInvocation",
+      "traitKind": "method",
+      "methodIndex": 42682,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "818cda46895aa797adc1f9c44781e197e4d5baf70982748ab9c7fd9287cbf852",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "monitorResult",
+      "traitKind": "method",
+      "methodIndex": 42683,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "7fe38386ab0a7374d3f341f0c3859de28dc29dd2dd4dda4303c202b2dfa2e388",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

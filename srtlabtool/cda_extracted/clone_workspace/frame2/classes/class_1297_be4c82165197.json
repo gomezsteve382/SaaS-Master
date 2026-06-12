@@ -1,0 +1,132 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1297,
+  "className": "mx.utils.UIDUtil",
+  "classNameNormalized": "mx.utils.UIDUtil",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 28237,
+  "cinitMethod": 28230,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 73,
+    "codeSha256": "c8b68248ee83021a2edfc1445f0cce4126ae3fb76bffddfa088210de26f94058",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "createUID",
+      "traitKind": "method",
+      "methodIndex": 28231,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 345,
+      "bytecode": {
+        "codeLength": 345,
+        "codeSha256": "99dc671e029084d9cfd04754a319004eff737b0d6d6ca46d2ceca535ade6027e",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "fromByteArray",
+      "traitKind": "method",
+      "methodIndex": 28232,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "901a4dda4e8b7871d63ba6db94d03f419aa166c785379c40b3aaac30eb719476",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "getUID",
+      "traitKind": "method",
+      "methodIndex": 28235,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 693,
+      "bytecode": {
+        "codeLength": 693,
+        "codeSha256": "bdaf3e7311c86d474cfa3a3b29b3241dce3a3226147cd731ca18ca614c469174",
+        "bytecodeLineCount": 44
+      }
+    },
+    {
+      "traitName": "isUID",
+      "traitKind": "method",
+      "methodIndex": 28233,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 153,
+      "bytecode": {
+        "codeLength": 153,
+        "codeSha256": "b84cfd99636a9997b097f8a51cfae704b1bcb7eff48bc7cb77811dffd25b76ea",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDigit",
+      "traitKind": "method",
+      "methodIndex": 28236,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 282,
+      "bytecode": {
+        "codeLength": 282,
+        "codeSha256": "1853455500d5962bade549a62421fff30a774defc55d2d46c7315ac619766e52",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "toByteArray",
+      "traitKind": "method",
+      "methodIndex": 28234,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 159,
+      "bytecode": {
+        "codeLength": 159,
+        "codeSha256": "f112717df67add16a7d97bc18b2cd46351d671000bcd158d5cc7d901d641df00",
+        "bytecodeLineCount": 10
+      }
+    }
+  ]
+}

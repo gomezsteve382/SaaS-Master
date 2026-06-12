@@ -1,0 +1,111 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3802,
+  "className": "mx.rpc.soap.types.DataSetType",
+  "classNameNormalized": "mx.rpc.soap.types.DataSetType",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.rpc.soap.types.ICustomSOAPType"
+  ],
+  "iinitMethod": 56260,
+  "cinitMethod": 56259,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decode",
+      "traitKind": "method",
+      "methodIndex": 56262,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.SOAPDecoder",
+        "*",
+        "*",
+        "*",
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 502,
+      "bytecode": {
+        "codeLength": 502,
+        "codeSha256": "c09617799559d4ef02f87da1752050849197e78be7a962a6e078c9b2c9f13ad5",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "encode",
+      "traitKind": "method",
+      "methodIndex": 56261,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.SOAPEncoder",
+        "XML",
+        "QName",
+        "*",
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "c791300b167ff750ba4332fa5697e41f552495a855762263b93587a74718da73",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.processColumns",
+      "traitKind": "method",
+      "methodIndex": 56264,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.SOAPDecoder",
+        "XML"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 139,
+      "bytecode": {
+        "codeLength": 139,
+        "codeSha256": "81ce7b85005d17d0f63f62fa63cae3d66121ca1af73ae7088614b07e14364734",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.processTables",
+      "traitKind": "method",
+      "methodIndex": 56263,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "f15dfd0cb85c6c4c24f601bde932f13c7cb7121d8b996a2bcff8cbb02649904b",
+        "bytecodeLineCount": 10
+      }
+    }
+  ],
+  "staticMembers": []
+}

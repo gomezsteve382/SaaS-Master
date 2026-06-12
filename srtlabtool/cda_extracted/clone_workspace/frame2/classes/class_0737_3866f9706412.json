@@ -1,0 +1,284 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 737,
+  "className": "spark.components.VScrollBar",
+  "classNameNormalized": "spark.components.VScrollBar",
+  "superName": "spark.components.supportClasses.ScrollBarBase",
+  "superNameNormalized": "spark.components.supportClasses.ScrollBarBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 14359,
+  "cinitMethod": 14358,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 41,
+    "codeSha256": "dfc7db84d85902cf0f74f469a0cd5dfebd0967d17aa66083b2d40e945010953c",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "changeValueByPage",
+      "traitKind": "method",
+      "methodIndex": 14365,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "64baeb531023bf61af6715fe99284e940d22552ff7d6736f9387f87ffc33c403",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "changeValueByStep",
+      "traitKind": "method",
+      "methodIndex": 14367,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "4f289c77d108f0befd9c8e0b333960a5b63d20d3927ae5b47cfd96a8872365bc",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.mouseWheelHandler",
+      "traitKind": "method",
+      "methodIndex": 14373,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 253,
+      "bytecode": {
+        "codeLength": 253,
+        "codeSha256": "ab7f5c7e9a3b49cd3be0d796a25cbffa2995b7d9f5c796e046b940fc83aad5c9",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewportContentHeightChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 14371,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "85f15cabe73801af7a93f21a313be7927b36a28dd2c5cbfc3536bbd1388def5e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewportResizeHandler",
+      "traitKind": "method",
+      "methodIndex": 14370,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.ResizeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "243ea306711a2a8a69fe32f128bf1b74a74cadde202fb4a16e8c734f84d25275",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewportVerticalScrollPositionChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 14369,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "d0bac5c7336fb9191361da17c5acf6657eed81a314dd113f198a5ff4053d0a1f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateMaximumAndPageSize",
+      "traitKind": "method",
+      "methodIndex": 14360,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 149,
+      "bytecode": {
+        "codeLength": 149,
+        "codeSha256": "bd1c403f58492be71e0143e3620148487ed557c48e625891a93aec25cd2a6754",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "spark.components:VScrollBar.animatePaging",
+      "traitKind": "method",
+      "methodIndex": 14366,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "d595484d98f1cf5e499f81592e8e0e844484b42399c934c2b4d790f5214d5e8d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.components:VScrollBar.partAdded",
+      "traitKind": "method",
+      "methodIndex": 14368,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "0ce45fd5fdc6dd4ffa381767ff4e109299fc132b895293d3fe11b2aa6a70a0b0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.components:VScrollBar.pointToValue",
+      "traitKind": "method",
+      "methodIndex": 14362,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "70582561659cc97ae082d9df984a542e6e82aed52aa987480eb1ff930eeb190a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.components:VScrollBar.setValue",
+      "traitKind": "method",
+      "methodIndex": 14364,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "553d00a904ba7759daea8cc024276af4e95dbd2c3efffe171c84571073655558",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components:VScrollBar.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 14374,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bcb1bcf0c3130060296edcd679a35f87aeb9676f124f243ae294d68dfc901349",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components:VScrollBar.updateSkinDisplayList",
+      "traitKind": "method",
+      "methodIndex": 14363,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 510,
+      "bytecode": {
+        "codeLength": 510,
+        "codeSha256": "a5bd05ec56861d0576004865ac018a0440336ba1eebf6398643eeb63046f2770",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 14372,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "e9880363045eaa7947ce7d6b57c992a7bd185f2ac8aa1051c1c2f5879076dc84",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "viewport",
+      "traitKind": "setter",
+      "methodIndex": 14361,
+      "methodName": "",
+      "paramTypes": [
+        "spark.core.IViewport"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 114,
+      "bytecode": {
+        "codeLength": 114,
+        "codeSha256": "5bd92cdc6a2618d676cefc2b711ee4fa2d2a23850a1a02b02655a09a46295b37",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

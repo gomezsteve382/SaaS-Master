@@ -1,0 +1,250 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3239,
+  "className": "org.spicefactory.parsley.core.bootstrap.BootstrapInfo",
+  "classNameNormalized": "org.spicefactory.parsley.core.bootstrap.BootstrapInfo",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [],
+  "iinitMethod": 50500,
+  "cinitMethod": 50479,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.context",
+      "traitKind": "getter",
+      "methodIndex": 50488,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.context.Context",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.createDynamicInfo",
+      "traitKind": "method",
+      "methodIndex": 50498,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.bootstrap.BootstrapInfo",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.description",
+      "traitKind": "getter",
+      "methodIndex": 50480,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.domain",
+      "traitKind": "getter",
+      "methodIndex": 50482,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.system.ApplicationDomain",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.globalState",
+      "traitKind": "getter",
+      "methodIndex": 50487,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.state.manager.GlobalStateManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.lifecycleManager",
+      "traitKind": "getter",
+      "methodIndex": 50491,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.lifecycle.ObjectLifecycleManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.messageRouter",
+      "traitKind": "getter",
+      "methodIndex": 50489,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.messaging.MessageRouter",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.messageSettings",
+      "traitKind": "getter",
+      "methodIndex": 50485,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.messaging.MessageSettings",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.objectProviderFactory",
+      "traitKind": "getter",
+      "methodIndex": 50496,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.context.provider.ObjectProviderFactory",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.objectProviderFactory",
+      "traitKind": "setter",
+      "methodIndex": 50497,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.provider.ObjectProviderFactory"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.parent",
+      "traitKind": "getter",
+      "methodIndex": 50499,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.context.Context",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.parents",
+      "traitKind": "getter",
+      "methodIndex": 50483,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.properties",
+      "traitKind": "getter",
+      "methodIndex": 50486,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.ConfigurationProperties",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.registry",
+      "traitKind": "getter",
+      "methodIndex": 50490,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectDefinitionRegistry",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.scopeExtensions",
+      "traitKind": "getter",
+      "methodIndex": 50495,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.Dictionary",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.scopeInfoRegistry",
+      "traitKind": "getter",
+      "methodIndex": 50494,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.scope.ScopeInfoRegistry",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.scopeManager",
+      "traitKind": "getter",
+      "methodIndex": 50493,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.scope.ScopeManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.viewManager",
+      "traitKind": "getter",
+      "methodIndex": 50492,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.view.ViewManager",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.viewRoot",
+      "traitKind": "getter",
+      "methodIndex": 50481,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.bootstrap:BootstrapInfo.viewSettings",
+      "traitKind": "getter",
+      "methodIndex": 50484,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.view.ViewSettings",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

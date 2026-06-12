@@ -1,0 +1,102 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 954,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.GetComServiceDDEDataCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.GetComServiceDDEDataCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 19454,
+  "cinitMethod": 19449,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onGetComServiceDDEDataCommand",
+      "traitKind": "method",
+      "methodIndex": 19450,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.GetComServiceDDEMetaDataMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "cab27337eaa027183ea9592946505480497090f2a615a50295cf5da990dd32bf",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "onGetComServiceDDEDataComplete",
+      "traitKind": "method",
+      "methodIndex": 19451,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.GetComServiceDDEMetaDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "fc12b332fab2dba5a4ef01aada5da1f3e31b83bac58d353136f787872fd10beb",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onGetComServiceDDEDataError",
+      "traitKind": "method",
+      "methodIndex": 19452,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.diagnostic.ecu.GetComServiceDDEMetaDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "ba3cb74822c270a70db420c1d059760cce1568616b11ba25deb94c01239d8b1b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "propagate",
+      "traitKind": "method",
+      "methodIndex": 19453,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "09bf8948547c77eae3feb5fa58a94b3ad76726576d8255a7af18e3c7ac6df83d",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

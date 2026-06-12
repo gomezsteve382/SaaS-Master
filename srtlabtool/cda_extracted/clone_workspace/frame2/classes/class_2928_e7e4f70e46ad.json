@@ -1,0 +1,86 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2928,
+  "className": "flashx.textLayout.utils.HitTestArea",
+  "classNameNormalized": "flashx.textLayout.utils.HitTestArea",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 47356,
+  "cinitMethod": 47355,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "9547f6c179e227b96afe949e2fd495525c6cd7260ae08ff7c48f0e8e4d9802ea",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "hitTest",
+      "traitKind": "method",
+      "methodIndex": 47358,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "flashx.textLayout.elements.FlowElement",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "67c5d87589df36d46d1972e907d37bbec0d9f5b0fc3791b9670fe2cdce996f50",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.initialize",
+      "traitKind": "method",
+      "methodIndex": 47357,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 835,
+      "bytecode": {
+        "codeLength": 835,
+        "codeSha256": "5137679d9badb84e4cec5d2670f88f88afa2627dfedc295016d6dde0ec03351c",
+        "bytecodeLineCount": 53
+      }
+    },
+    {
+      "traitName": "PrivateNs.addQuadrant",
+      "traitKind": "method",
+      "methodIndex": 47359,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "6c986d240dbaccc635bc5a27e4e1bed68e170ef3d43d7fa59114055c6525d2ea",
+        "bytecodeLineCount": 10
+      }
+    }
+  ],
+  "staticMembers": []
+}

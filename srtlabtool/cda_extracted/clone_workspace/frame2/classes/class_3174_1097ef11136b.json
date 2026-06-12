@@ -1,0 +1,137 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3174,
+  "className": "com.hurlant.crypto.hash.SHA1",
+  "classNameNormalized": "com.hurlant.crypto.hash.SHA1",
+  "superName": "com.hurlant.crypto.hash.SHABase",
+  "superNameNormalized": "com.hurlant.crypto.hash.SHABase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.hash.IHash"
+  ],
+  "iinitMethod": 50041,
+  "cinitMethod": 50034,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "a3dcd8ad7f5a5ac657a8f2204a7009a2887ed5bb7b4db22ea37348a65fafb1bc",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.hurlant.crypto.hash:SHA1.core",
+      "traitKind": "method",
+      "methodIndex": 50036,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "uint"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 427,
+      "bytecode": {
+        "codeLength": 427,
+        "codeSha256": "53c8839dffc8cb1113960efb4ebad694b31dfafd49d1078510a60615cefee029",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "getHashSize",
+      "traitKind": "method",
+      "methodIndex": 50035,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "72b98aa782eecfd59655185800e62fde7e854998607ee90267ebac3d29688b5e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.ft",
+      "traitKind": "method",
+      "methodIndex": 50038,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint",
+        "uint",
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "6343cd97ed508b1221772d03d7401ced7c77ed6de9a727ebea2b721cd105ef1d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.kt",
+      "traitKind": "method",
+      "methodIndex": 50039,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "faf469567596a23db8882ac1952b0a7694bd1f17060d983e15acf1769ad3a538",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.rol",
+      "traitKind": "method",
+      "methodIndex": 50037,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "942158b2a839ecb12bc297ad5da8dde0f67893271f998b46831c923164642de3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 50040,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1f364ca2a9eb1eb8b69591b40c87f8721ea110acff42f6e1376b2779b8473872",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

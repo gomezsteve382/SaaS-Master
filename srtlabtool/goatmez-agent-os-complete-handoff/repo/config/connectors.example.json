@@ -1,0 +1,126 @@
+[
+  {
+    "id": "openai",
+    "name": "OpenAI API",
+    "type": "api",
+    "enabled": false,
+    "requiredSecrets": [
+      "OPENAI_API_KEY"
+    ],
+    "allowedAgents": [
+      "operator"
+    ],
+    "riskLevel": "medium",
+    "description": "LLM provider connector. Stores the API key in the local encrypted vault and supports dry-run/execute Responses calls.",
+    "metadata": {
+      "baseUrl": "https://api.openai.com/v1",
+      "primarySecret": "OPENAI_API_KEY",
+      "authHeader": "Authorization",
+      "authScheme": "Bearer",
+      "defaultModel": "gpt-4.1-mini",
+      "defaultHeaders": {
+        "content-type": "application/json"
+      }
+    }
+  },
+  {
+    "id": "ghl",
+    "name": "GoHighLevel",
+    "type": "api",
+    "enabled": false,
+    "requiredSecrets": [
+      "GHL_API_KEY",
+      "GHL_LOCATION_ID"
+    ],
+    "allowedAgents": [
+      "operator"
+    ],
+    "riskLevel": "high",
+    "description": "CRM connector scaffold for contact search, workflow automation, and lead operations.",
+    "metadata": {
+      "baseUrl": "https://services.leadconnectorhq.com",
+      "primarySecret": "GHL_API_KEY",
+      "authHeader": "Authorization",
+      "authScheme": "Bearer",
+      "defaultHeaders": {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "version": "2021-07-28"
+      }
+    }
+  },
+  {
+    "id": "gmail",
+    "name": "Gmail",
+    "type": "api",
+    "enabled": false,
+    "requiredSecrets": [
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET",
+      "GOOGLE_REFRESH_TOKEN"
+    ],
+    "allowedAgents": [
+      "operator"
+    ],
+    "riskLevel": "high",
+    "description": "Gmail connector scaffold for draft creation and later send/reply workflows.",
+    "metadata": {
+      "baseUrl": "https://gmail.googleapis.com/gmail/v1",
+      "primarySecret": "GOOGLE_REFRESH_TOKEN"
+    }
+  },
+  {
+    "id": "calendar",
+    "name": "Google Calendar",
+    "type": "api",
+    "enabled": false,
+    "requiredSecrets": [
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET",
+      "GOOGLE_REFRESH_TOKEN"
+    ],
+    "allowedAgents": [
+      "operator"
+    ],
+    "riskLevel": "high",
+    "description": "Calendar connector scaffold for event payloads and future scheduling actions.",
+    "metadata": {
+      "baseUrl": "https://www.googleapis.com/calendar/v3",
+      "primarySecret": "GOOGLE_REFRESH_TOKEN"
+    }
+  },
+  {
+    "id": "stripe",
+    "name": "Stripe/Webhooks",
+    "type": "webhook",
+    "enabled": false,
+    "requiredSecrets": [
+      "STRIPE_SECRET_KEY",
+      "STRIPE_WEBHOOK_SECRET"
+    ],
+    "allowedAgents": [
+      "operator"
+    ],
+    "riskLevel": "critical",
+    "description": "Stripe/webhook connector scaffold for event testing and future billing automations.",
+    "metadata": {
+      "baseUrl": "https://api.stripe.com/v1",
+      "primarySecret": "STRIPE_SECRET_KEY",
+      "authHeader": "Authorization",
+      "authScheme": "Bearer"
+    }
+  },
+  {
+    "id": "filesystem-mcp",
+    "name": "Filesystem MCP",
+    "type": "mcp",
+    "enabled": false,
+    "requiredSecrets": [],
+    "allowedAgents": [
+      "operator"
+    ],
+    "riskLevel": "high",
+    "description": "Local MCP connector profile. Keep approval-gated when writing files.",
+    "metadata": {}
+  }
+]

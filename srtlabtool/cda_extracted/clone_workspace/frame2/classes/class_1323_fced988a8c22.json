@@ -1,0 +1,317 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1323,
+  "className": "spark.components.RadioButtonGroup",
+  "classNameNormalized": "spark.components.RadioButtonGroup",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IMXMLObject"
+  ],
+  "iinitMethod": 28820,
+  "cinitMethod": 28819,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "3505f853341cdec01b522954ccc42fd687c8d9f7d76378b8427fa19710bf0dcc",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "enabled",
+      "traitKind": "getter",
+      "methodIndex": 28821,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "73c583e0789576bac260a680c0f410991ff2f9e708a68dff96ec50cdc510acfd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enabled",
+      "traitKind": "setter",
+      "methodIndex": 28822,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "ea607cbe5fb2c0c1771d48dbe4b2e722ddf9093a5c36f583fa8973cadb0ac47a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getRadioButtonAt",
+      "traitKind": "method",
+      "methodIndex": 28829,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "spark.components.RadioButton",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "ea5c26aacb35ab69efb7027c436275f678df97fa607d1c32ba2464333a82ebe1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.addInstance",
+      "traitKind": "method",
+      "methodIndex": 28831,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RadioButton"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "518bbb7865894ffc03726aa70bb5ea8429a9628968eb2e75398c0baae765a589",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.name",
+      "traitKind": "getter",
+      "methodIndex": 28830,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "41fab6722fa7eb3eabe18a653174b21ed8e7e6908c06fa11641716620887d475",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setSelection",
+      "traitKind": "method",
+      "methodIndex": 28833,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RadioButton",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "769f61f19e34a9d1f73017eaf1b473e7e1157dc3046f2ae32bb852cb73576fd8",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "initialized",
+      "traitKind": "method",
+      "methodIndex": 28828,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "99b30306d22f25131095d71d5ea7200fcfd260a963fd91fe680cab52f773b63a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "numRadioButtons",
+      "traitKind": "getter",
+      "methodIndex": 28823,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "92356622695441532deec4a6c217212010a899db7e147fe50ce7dec74be8d33e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.breadthOrderCompare",
+      "traitKind": "method",
+      "methodIndex": 28835,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 376,
+      "bytecode": {
+        "codeLength": 376,
+        "codeSha256": "c3d4013727fea0c2e61b27abb5ab859143001c400ac9c5b790d620396a4ed950",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs.changeSelection",
+      "traitKind": "method",
+      "methodIndex": 28834,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "6b0ae7e6c48b83625d2c960567f856ab4d71cff94d6154cf1afc74beb4f9cde1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.radioButton_addedHandler",
+      "traitKind": "method",
+      "methodIndex": 28836,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "4026ddee6db2eeadbb08f3114a3ce70add5bf08aad6ae9afb729558b14d251a1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.radioButton_removedHandler",
+      "traitKind": "method",
+      "methodIndex": 28837,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "230ff053a337f61929e4b54ebe9cb92bc8476f9ba19cc820d43e0618a690bf8a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeInstance",
+      "traitKind": "method",
+      "methodIndex": 28832,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RadioButton"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 163,
+      "bytecode": {
+        "codeLength": 163,
+        "codeSha256": "5f4dc12f77b93e11ae904337d0f11d8eb1e56fee566c0051c6c21f9dcf5219c3",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "selectedValue",
+      "traitKind": "getter",
+      "methodIndex": 28824,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "33399a364046994ec04eeb54354d3110726ca1cab0e41828294ad404b58eb770",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "selectedValue",
+      "traitKind": "setter",
+      "methodIndex": 28825,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 124,
+      "bytecode": {
+        "codeLength": 124,
+        "codeSha256": "957031671c889ebceb36773e3fecd258c4a5bd1eaf88d5a7c68395537b0f2729",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "selection",
+      "traitKind": "getter",
+      "methodIndex": 28826,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RadioButton",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b4a1ffcbefb3d1386c3d1d70db147b276302551e44d0bd8a7d39aecb6402d5e0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selection",
+      "traitKind": "setter",
+      "methodIndex": 28827,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RadioButton"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "39cbbdb3f71592d23fec57f53362ee6b7997cda69fc164dea673ee266ac8ed40",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

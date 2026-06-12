@@ -1,0 +1,603 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2259,
+  "className": "mx.validators.Validator",
+  "classNameNormalized": "mx.validators.Validator",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IMXMLObject",
+    "mx.validators.IValidator"
+  ],
+  "iinitMethod": 40376,
+  "cinitMethod": 40372,
+  "iinitBytecode": {
+    "codeLength": 56,
+    "codeSha256": "4175aac3c1db7dcd3b4d8a4acbf226ae7c7903e23bb56f43994e765f591d5b08",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 39,
+    "codeSha256": "ff7b4815e6401ccc1ac604ce32f3c817bc8c57ab14eb85b6c2f21fa8e3f99764",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "enabled",
+      "traitKind": "getter",
+      "methodIndex": 40379,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a13cf86cd900c61be191d0ff82ab07ebd692bef7474826cb57b64327306fe8b7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enabled",
+      "traitKind": "setter",
+      "methodIndex": 40380,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "648d631af423262a4405036ba3b0d078f6760b7b06fd0278f6359b95beab6765",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialized",
+      "traitKind": "method",
+      "methodIndex": 40394,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "aa6de81f7105eed3ef0c40aa1a518f517615296d889af4876f4c4910f91d845c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listener",
+      "traitKind": "getter",
+      "methodIndex": 40381,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4eb594538771f630a20ced77dce92816b65fd8b182c411b873f7a1a3283a3f35",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listener",
+      "traitKind": "setter",
+      "methodIndex": 40382,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "bdd2cad3dc7a03ab78b8da81ed42e0d6f10d36934c25f28ecbcf6be1e5f7e931",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.actualListeners",
+      "traitKind": "getter",
+      "methodIndex": 40378,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "aab61a7325083322f1b4c7847d8b54c1e10a8163749e5994ba875bb7246398cd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.actualTrigger",
+      "traitKind": "getter",
+      "methodIndex": 40377,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.IEventDispatcher",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "c81bdb05f2cfb13cabc5c08924572008998184614b35e7af90798c7dfb0a9d88",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.addListenerHandler",
+      "traitKind": "method",
+      "methodIndex": 40398,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "73da3f93251aad6e6999fec7a19049ff718756ef913075671dfc5c37073b8306",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.doValidation",
+      "traitKind": "method",
+      "methodIndex": 40404,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "07ca1a4d987bda0f69370f10bb05abeb2bf968e1708f4bd28b6bb68cd8d046c3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.getValueFromSource",
+      "traitKind": "method",
+      "methodIndex": 40402,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 146,
+      "bytecode": {
+        "codeLength": 146,
+        "codeSha256": "677e948307decdf2ed885c536abb9b55ec998a3695b1be039cbe8b59da9ee93f",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.handleResults",
+      "traitKind": "method",
+      "methodIndex": 40406,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "mx.events.ValidationResultEvent",
+      "hasBody": true,
+      "codeLength": 218,
+      "bytecode": {
+        "codeLength": 218,
+        "codeSha256": "8140bd7d9bb92249a3c6aa56d845e2b5d8d45a2f6dc8788879b9dc11ca4f877f",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.isRealValue",
+      "traitKind": "method",
+      "methodIndex": 40400,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "90e9b1ba869a04830e896726593580ed5190f31d17d019351a6311014d44d2b6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.removeListenerHandler",
+      "traitKind": "method",
+      "methodIndex": 40399,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "7491e2099324c9c06d39084f86720ad4cc3888610b73e34bb238a3d900b6270f",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.resourceManager",
+      "traitKind": "getter",
+      "methodIndex": 40385,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.resources.IResourceManager",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a081a87e1dc193038c57b800c22f00d133e55e3cf720853c475fcb7f40d3258d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.validators:Validator.resourcesChanged",
+      "traitKind": "method",
+      "methodIndex": 40395,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "cbed6ed4c98ec131a0f7bd21a2a253f8e46575c05e32c874d2388edc4fcf53d2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.addTriggerHandler",
+      "traitKind": "method",
+      "methodIndex": 40396,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "ad08b6a659195b976b2931fd5a5c8e894a8954aaf60676b9f4c4a8aceed79c73",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.processValidation",
+      "traitKind": "method",
+      "methodIndex": 40403,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "mx.events.ValidationResultEvent",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "dc6fd8d932029311544ddf56f24828043188f11f50389beb1605f3db08fc95a5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeTriggerHandler",
+      "traitKind": "method",
+      "methodIndex": 40397,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "b5608cf0622f8658c2ae29dabd0abbba369f2c55ff35262352e4b301f678e57c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.resourceManager_changeHandler",
+      "traitKind": "method",
+      "methodIndex": 40408,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f6da22de7c97d54f8ffe99804d595475bab4f4123343ba58e2eb55faecb5fee8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.triggerHandler",
+      "traitKind": "method",
+      "methodIndex": 40407,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "4172aab771843144026a9c85b2e84a7989eb31665bc32ac1dd03b40292f56fd4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.validateRequired",
+      "traitKind": "method",
+      "methodIndex": 40405,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.validators.ValidationResult",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "68b03e854f9b282f4401d52c637a4b04f9bfe3a01714f06a6a76cf3cf53d8caf",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "property",
+      "traitKind": "getter",
+      "methodIndex": 40383,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "44704968fbe8fd424c4c2b36447ce7432f9dca18fcabc59cb75833554e8a4a3a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "property",
+      "traitKind": "setter",
+      "methodIndex": 40384,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "6c30dc5bcd0e8e69c04b72a515363fc99665b9ceac83939db2c316bc595034be",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "requiredFieldError",
+      "traitKind": "getter",
+      "methodIndex": 40392,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3f2418ae09d2920c35bdec0a9b848f26a80d381c402e11f4589624d9130e47e0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "requiredFieldError",
+      "traitKind": "setter",
+      "methodIndex": 40393,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "35df1540845ef4f1bfa9dd83a96a48adf065490e4ebe4cae0637ea3873861c7c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "source",
+      "traitKind": "getter",
+      "methodIndex": 40386,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a95108ee762c7aa752f0c9682b0004a210794f239a76ac542683c7b90acf0e1b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "source",
+      "traitKind": "setter",
+      "methodIndex": 40387,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "a767a5c171b844d59b5b3e4134764523506ba764016c0680e023da109a595482",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "trigger",
+      "traitKind": "getter",
+      "methodIndex": 40388,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.IEventDispatcher",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5d6b09ed5c4a0bd0a68c6c1e587e1bbee88ec10a31c3c6de8b77f4f9725492e4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "trigger",
+      "traitKind": "setter",
+      "methodIndex": 40389,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IEventDispatcher"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "2989cae631db8ae0670796e250dbc1c992f4f0d24d420dda4bd30352fad6e93a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "triggerEvent",
+      "traitKind": "getter",
+      "methodIndex": 40390,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a3e7bf338f846d3682a8bd36169f99780618a0f9bf3558229b02c8d77058428b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "triggerEvent",
+      "traitKind": "setter",
+      "methodIndex": 40391,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "774577b7e88673f01a2c7b3ccab0b0454af500af7159dfb8c88a638318dfc615",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "validate",
+      "traitKind": "method",
+      "methodIndex": 40401,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "mx.events.ValidationResultEvent",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "cb627270a41907135d4cd09cfb66e0f1836c94208a919b6db1aa5ba9bb286c5e",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.findObjectFromString",
+      "traitKind": "method",
+      "methodIndex": 40374,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 264,
+      "bytecode": {
+        "codeLength": 264,
+        "codeSha256": "ed55155cb664d062d5bc36ce4ede9b051cfdd1f7e9349de89c4c8a2f6739a7be",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.trimString",
+      "traitKind": "method",
+      "methodIndex": 40375,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "a98e96c98b99702a165ca6a70388fa497167d91e22e746881ffa9ac09aaaa7ad",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "validateAll",
+      "traitKind": "method",
+      "methodIndex": 40373,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "78dde48ea40c729fe5597a81d9dfc1a94093708e220960486d11fc1c9187f0e5",
+        "bytecodeLineCount": 8
+      }
+    }
+  ]
+}

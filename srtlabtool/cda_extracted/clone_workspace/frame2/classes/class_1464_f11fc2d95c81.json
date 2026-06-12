@@ -1,0 +1,245 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1464,
+  "className": "mx.core.EmbeddedFontRegistry",
+  "classNameNormalized": "mx.core.EmbeddedFontRegistry",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IEmbeddedFontRegistry"
+  ],
+  "iinitMethod": 32188,
+  "cinitMethod": 32175,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 70,
+    "codeSha256": "12a521cf3da10ab9493fc8140eb2b3d4e3b9954cb4743180679ec5afb5acf4d0",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "deregisterFont",
+      "traitKind": "method",
+      "methodIndex": 32184,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.EmbeddedFont",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "3673489cdb79a73fa070cb3e7fad856b8a1445e551657c3df99dfb50a5bb0ce8",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "getAssociatedModuleFactory",
+      "traitKind": "method",
+      "methodIndex": 32187,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean",
+        "Boolean",
+        "Object",
+        "mx.core.IFlexModuleFactory",
+        "mx.managers.ISystemManager",
+        "*"
+      ],
+      "returnType": "mx.core.IFlexModuleFactory",
+      "hasBody": true,
+      "codeLength": 576,
+      "bytecode": {
+        "codeLength": 576,
+        "codeSha256": "bb8c0ef65d8eb7de8fc9ab79e65f4cb511b9c6123ef786bf67f1e9cdf8d948b6",
+        "bytecodeLineCount": 36
+      }
+    },
+    {
+      "traitName": "getFonts",
+      "traitKind": "method",
+      "methodIndex": 32186,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "1b363d2dc0d65474c065f7eb2dab8589a45ef8c52d48f552f7bef4ca1ea89cdd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getFontStyle",
+      "traitKind": "method",
+      "methodIndex": 32182,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "aa10589f7b363f06d56a0d052b1c2f3d832f96ad69cbffd66d40b758e46432d7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "isFontRegistered",
+      "traitKind": "method",
+      "methodIndex": 32185,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.EmbeddedFont",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "979b79e18a877c753bf84f8251127fc90bccaa8fbc683004d6b6f97df0bdece2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.resourceManager",
+      "traitKind": "getter",
+      "methodIndex": 32181,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.resources.IResourceManager",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "82ea604baef1a53c47a62eb375e903cfc4cabb1c331f3fd8e8a6617847b87f8b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "registerFont",
+      "traitKind": "method",
+      "methodIndex": 32183,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.EmbeddedFont",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "e8a56e2b2f10b915753b66e62bf3fa48a076744bbed9b37f1f257f57c6beb690",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 32176,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IEmbeddedFontRegistry",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "1043dd81cbd20f986723ed8b927c9fbdec501d04c046f07ecadd0e504d712708",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.createEmbeddedFont",
+      "traitKind": "method",
+      "methodIndex": 32178,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.core.EmbeddedFont",
+      "hasBody": true,
+      "codeLength": 226,
+      "bytecode": {
+        "codeLength": 226,
+        "codeSha256": "8383859a371fed3654663371e4e2f230c706323149272523a567f0c434757f82",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.createFontKey",
+      "traitKind": "method",
+      "methodIndex": 32177,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.EmbeddedFont"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "8e731227bf4350f1401b30f7304a79c158a6cfb414f4c782b83f89108890b1c5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.endsWith",
+      "traitKind": "method",
+      "methodIndex": 32179,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "91c3965093a484ab6d33d3ed5554ab2638f81c40af3059af8a1d1201e65d33a5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "registerFonts",
+      "traitKind": "method",
+      "methodIndex": 32180,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 386,
+      "bytecode": {
+        "codeLength": 386,
+        "codeSha256": "d0221633e9b07371bce08023f7035415fcbf3ed8c7b3f29818ae9af1baac93ee",
+        "bytecodeLineCount": 25
+      }
+    }
+  ]
+}

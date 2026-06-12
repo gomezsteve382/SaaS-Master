@@ -1,0 +1,218 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2012,
+  "className": "com.chrysler.cda.infrastructure.Byte",
+  "classNameNormalized": "com.chrysler.cda.infrastructure.Byte",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 37173,
+  "cinitMethod": 37170,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "ff8c78e128741220e53f93dc825cb961ff510b21d9ea82b750b545382218d12e",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 195,
+    "codeSha256": "3ef58f1f8e0573ffeafba81cf2aeda61db8c0281c53036af22da01e88fcb7a80",
+    "bytecodeLineCount": 13
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addBits",
+      "traitKind": "method",
+      "methodIndex": 37177,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int",
+        "int"
+      ],
+      "returnType": "com.chrysler.cda.infrastructure.Byte",
+      "hasBody": true,
+      "codeLength": 267,
+      "bytecode": {
+        "codeLength": 267,
+        "codeSha256": "5f29a45ae9bab898d6ff51a1090dae393249ad1f63ec5fa673d7852530d8afbb",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "bitArrayToHex",
+      "traitKind": "method",
+      "methodIndex": 37175,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "0b9c13b24dd5211792484aaa2b46f54f3d6805d4abb43fa9264f174d852c7a9f",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "byteString",
+      "traitKind": "getter",
+      "methodIndex": 37179,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 242,
+      "bytecode": {
+        "codeLength": 242,
+        "codeSha256": "0a657ef602f4d6a640ff75a0ca3e199d7faf521646fa322aca60d823aeaaaead",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "currentBitPosition",
+      "traitKind": "getter",
+      "methodIndex": 37178,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "55dcfcd0afb311198d53271a9816053d27cbbc5020c0cfb246675c6c9fbea058",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getArrayOfBits",
+      "traitKind": "method",
+      "methodIndex": 37180,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 480,
+      "bytecode": {
+        "codeLength": 480,
+        "codeSha256": "828b22964bd5192fc3d15a124bddd4aa8391502e2e7c2b804b2b6ae74beb4415",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "getHexPart",
+      "traitKind": "method",
+      "methodIndex": 37176,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "833fac5a5527b1de1df3709e51d00646007bc81858aaf04bd31ba82429937a8f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.makeBitArray",
+      "traitKind": "method",
+      "methodIndex": 37182,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "160668382662dc3211939c498ec9416ce896869a30c8bd407a2833805264b8a4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "requestBitArray",
+      "traitKind": "method",
+      "methodIndex": 37174,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 133,
+      "bytecode": {
+        "codeLength": 133,
+        "codeSha256": "48d208b194ce334e0f5db3525a74a88e1c887f3b49ea0412c9a4564566ec6b3a",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "transformBitString",
+      "traitKind": "method",
+      "methodIndex": 37181,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 492,
+      "bytecode": {
+        "codeLength": 492,
+        "codeSha256": "d18cc4a16b70456cb54f896b5548238357e3fc4180ff4b6d7ec6301c97b9c00b",
+        "bytecodeLineCount": 31
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 37172,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.infrastructure.Byte",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "7ac86ee7ecd869003790f4e5847938fc81cd201aa5a0e34acb70bd1eb4546852",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "SupportOperations",
+      "traitKind": "method",
+      "methodIndex": 37171,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "11cce33d4308724a9c564bdc0c4e5e0855e8b0f6f67b16b30c5b567f8380448f",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

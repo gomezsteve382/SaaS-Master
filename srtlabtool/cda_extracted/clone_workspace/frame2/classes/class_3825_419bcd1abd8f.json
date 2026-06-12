@@ -1,0 +1,135 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3825,
+  "className": "org.spicefactory.parsley.dsl.core.impl.DefaultConstructorBuilder",
+  "classNameNormalized": "org.spicefactory.parsley.dsl.core.impl.DefaultConstructorBuilder",
+  "superName": "org.spicefactory.parsley.dsl.core.impl.AbstractParameterBuilder",
+  "superNameNormalized": "org.spicefactory.parsley.dsl.core.impl.AbstractParameterBuilder",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.dsl.core.ConstructorBuilder",
+    "org.spicefactory.parsley.dsl.impl.ObjectDefinitionBuilderPart"
+  ],
+  "iinitMethod": 56476,
+  "cinitMethod": 56475,
+  "iinitBytecode": {
+    "codeLength": 22,
+    "codeSha256": "c5fc76c3ecd8e9fc10c8941ef904b3ea3214623f9476e1f5c8b3f7896c9b24c6",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "apply",
+      "traitKind": "method",
+      "methodIndex": 56482,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "700ae02dcbddd69a5e4ade30b67aa358928682aff5be240777b8db4a506095b4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "injectAllByType",
+      "traitKind": "method",
+      "methodIndex": 56477,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "86e4dfa6b7474241c54a99f8719a5bff2a23b1b07851064ce452c908d835f86f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "injectById",
+      "traitKind": "method",
+      "methodIndex": 56479,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.ConstructorBuilder",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "c073c5b9215635a1ab6e7beeefb84cc2feeb2529a23c4dab9520d2f8ff85f0b4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "injectByType",
+      "traitKind": "method",
+      "methodIndex": 56478,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.ConstructorBuilder",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "4c6be1d470a94a7be15edc5f49e2733fb75d50af053e74df4989a137f1004f25",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "injectFromDefinition",
+      "traitKind": "method",
+      "methodIndex": 56480,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.DynamicObjectDefinition"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.ConstructorBuilder",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "91b3c865bea88d7a4a8910d07d7eb61dc3dadc953ae8ba4c5ef9baac380f846b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "value",
+      "traitKind": "method",
+      "methodIndex": 56481,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "org.spicefactory.parsley.dsl.core.ConstructorBuilder",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "9170365f64bc59c1f639cb6b877c133a17cdf766679ba4c4b8d47081b4e7093e",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

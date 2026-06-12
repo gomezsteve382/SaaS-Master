@@ -1,0 +1,316 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1066,
+  "className": "mx.rpc.AbstractInvoker",
+  "classNameNormalized": "mx.rpc.AbstractInvoker",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23196,
+  "cinitMethod": 23195,
+  "iinitBytecode": {
+    "codeLength": 49,
+    "codeSha256": "e5843fc0c780ae61d18800c8c0fbb68a67b3e263d92182dffee17067aecc9f89",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "e972d83eca9bd986f55173b6131be281d7dd0edb2f66de7accb50186b3c6ad85",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cancel",
+      "traitKind": "method",
+      "methodIndex": 23200,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "8d0af5b347356f2bf6a7adfd6fe2895d00f5c2882e2089084b15889ff328414d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "clearResult",
+      "traitKind": "method",
+      "methodIndex": 23201,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "37bddd6307e9283b2eeca2c30ee6a66c5f9302fe02b928706d8454d844ad4d50",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.asyncRequest",
+      "traitKind": "getter",
+      "methodIndex": 23212,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncRequest",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "7def9198f1146cb1a85248e12551b01615a33903db0bb84e9a7eef5ad692516e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.asyncRequest",
+      "traitKind": "setter",
+      "methodIndex": 23213,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.AsyncRequest"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b8034c6b8d8c8726b62e2c609013346d8ed8d92a49c5c9ad7dc4bd8e1d7c1f73",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.dispatchRpcEvent",
+      "traitKind": "method",
+      "methodIndex": 23203,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.AbstractEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "f7f4e9097a93c6ebfbe673394990d40eb0ae825f1de225c34c7a1a0684786d4f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.faultHandler",
+      "traitKind": "method",
+      "methodIndex": 23206,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.events.MessageFaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 213,
+      "bytecode": {
+        "codeLength": 213,
+        "codeSha256": "f2d79f8eea916af95c1a64c11e480d5ce2e8f007f435353e41f8ac6b5aa07daf",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getNetmonId",
+      "traitKind": "method",
+      "methodIndex": 23207,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.invoke",
+      "traitKind": "method",
+      "methodIndex": 23208,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage",
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 391,
+      "bytecode": {
+        "codeLength": 391,
+        "codeSha256": "f59df35cf213eddcaebe127d20641f57a3fa086bd78648caa6c426f9622c81cb",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.monitorRpcEvent",
+      "traitKind": "method",
+      "methodIndex": 23204,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.AbstractEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "27dfd6ca0fe380a39f0a933edc84924ea4d6897f96bde3e5c67fdde2fb7f4df2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.preHandle",
+      "traitKind": "method",
+      "methodIndex": 23209,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.events.MessageEvent"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "e196d072ef09a7223d62297806c5f68f3f9b614244e66debda841f8214838ea1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.processFault",
+      "traitKind": "method",
+      "methodIndex": 23210,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage",
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "d585616625656f7803c9407d288dca461830151e2b66e2009440e239c604ef48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.processResult",
+      "traitKind": "method",
+      "methodIndex": 23211,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage",
+        "mx.rpc.AsyncToken"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "480ccbe2702fe478734b9f3ffcd7c1566151f036941e90e508cd99b357996845",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.resultHandler",
+      "traitKind": "method",
+      "methodIndex": 23205,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.events.MessageEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "d19cf6631de2edb0206f3ea63daf5ed3007168335222bc88d017b1b02828e063",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "lastResult",
+      "traitKind": "getter",
+      "methodIndex": 23197,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1358536c54352f57d86020b49a69e89e465d1f9b4aa3d05ae15e6f30dbffe7eb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "makeObjectsBindable",
+      "traitKind": "getter",
+      "methodIndex": 23198,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b39105dcd64e81b83457f23f9eaa034b7c8ad9706254832dfcdbc5d61eb5c9a4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "makeObjectsBindable",
+      "traitKind": "setter",
+      "methodIndex": 23199,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "110c016d5fc30fdb48cf2d52fc2438b6d81708165ed4d2531127bcc271484aa1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setResult",
+      "traitKind": "method",
+      "methodIndex": 23202,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "c6ca8fa4a87923173bd4c5646c3925824b5979d9f53e8b1e583ff92072d843a4",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

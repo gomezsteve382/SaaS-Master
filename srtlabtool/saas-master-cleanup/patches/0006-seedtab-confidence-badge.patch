@@ -1,0 +1,59 @@
+From 95e0ca4a27cb789ccae7aff2fbfd5b55762d0423 Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 04:38:38 +0000
+Subject: [PATCH] SeedTab: show a confidence dot per algorithm from the trust
+ ledger
+
+Every seed-key algorithm in the picker now carries a green/amber/red dot
+(bench-verified / extracted-unconfirmed / unverified) sourced from
+algoProvenance.js, plus a legend. The operator can no longer pick an
+unverified algorithm without seeing it flagged. JSX validated with esbuild.
+---
+ artifacts/srt-lab/src/tabs/SeedTab.jsx | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/artifacts/srt-lab/src/tabs/SeedTab.jsx b/artifacts/srt-lab/src/tabs/SeedTab.jsx
+index 0b3eb58..4a2c79e 100644
+--- a/artifacts/srt-lab/src/tabs/SeedTab.jsx
++++ b/artifacts/srt-lab/src/tabs/SeedTab.jsx
+@@ -3,6 +3,7 @@ import {C} from "../lib/constants.js";
+ import {Card,Btn} from "../lib/ui.jsx";
+ import {getAuth29Detections, subscribeAuth29, clearAuth29Detections, loadAuth29Detections, getAuth29Unlocks, clearAuth29Unlocks} from "../lib/auth29State.js";
+ import {ALGOS, UNLOCK_FALLBACK, xtea_sgw_full, alfaW6, alfaW6By, u32} from "../lib/algos.js";
++import {groundingFor, confidenceBadge} from "../lib/algoProvenance.js";
+ import {AOBD_W6, AOBD_W7, AOBD_DISPATCH} from "../lib/alfaobdAlgorithms.generated.js";
+ import {EXTENDED_ALGORITHMS} from "../lib/extendedAlgorithms.generated.js";
+ import {mergeDispatch, STATUS_BRANCH_KNOWN} from "../lib/alfaobdDispatchAuxiliary.js";
+@@ -233,14 +234,26 @@ function SeedTab(){
+         </button>
+       </div>
+ 
++      <div style={{display:'flex',gap:14,alignItems:'center',fontSize:9,color:C.tm,marginBottom:6,flexWrap:'wrap'}}>
++        <span style={{fontWeight:800,letterSpacing:.5}}>CONFIDENCE:</span>
++        <span><span style={{display:'inline-block',width:6,height:6,borderRadius:'50%',background:'#2E7D32',marginRight:4}}/>bench-verified</span>
++        <span><span style={{display:'inline-block',width:6,height:6,borderRadius:'50%',background:'#F9A825',marginRight:4}}/>extracted · unconfirmed</span>
++        <span><span style={{display:'inline-block',width:6,height:6,borderRadius:'50%',background:'#D32F2F',marginRight:4}}/>unverified — try on bench, don't trust</span>
++      </div>
+       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))',gap:6,marginBottom:16}}>
+-        {PICKER_ALGOS.map(a=><div key={a.id} title={a.extended?(a.docstring||a.tag):a.h} onClick={()=>{setAl(a.id);setAll(false);setFallback(false);}} style={{
++        {PICKER_ALGOS.map(a=>{
++          // Confidence dot from the trust ledger (algoProvenance.js): green =
++          // bench-verified, amber = extracted-but-unconfirmed, red = unverified.
++          const badge=confidenceBadge(groundingFor(a.id));
++          const dot=badge.tone==='good'?'#2E7D32':badge.tone==='warn'?'#F9A825':'#D32F2F';
++          return <div key={a.id} title={`${a.extended?(a.docstring||a.tag):a.h} — ${badge.text}`} onClick={()=>{setAl(a.id);setAll(false);setFallback(false);}} style={{
+           padding:'9px 11px',borderRadius:10,cursor:'pointer',transition:'all 0.2s',position:'relative',
+           background:al===a.id&&!all&&!fallback?C.sr+'12':C.c2,border:`1.5px solid ${al===a.id&&!all&&!fallback?C.sr:C.bd}`}}>
+-          <div style={{fontSize:11,fontWeight:800,color:al===a.id&&!all&&!fallback?C.sr:C.tx}}>{a.n}</div>
++          <div style={{fontSize:11,fontWeight:800,color:al===a.id&&!all&&!fallback?C.sr:C.tx,paddingLeft:10}}>{a.n}</div>
+           <div style={{fontSize:8,color:C.tm}}>{a.h}</div>
++          <span title={badge.text} style={{position:'absolute',top:7,left:7,width:6,height:6,borderRadius:'50%',background:dot}}/>
+           {a.extended&&<span data-testid={`ext-chip-${a.tag}`} style={{position:'absolute',top:4,right:4,fontSize:7,fontWeight:800,letterSpacing:.5,padding:'1px 4px',borderRadius:3,background:'#9C27B014',color:'#6A1B9A'}}>EXT</span>}
+-        </div>)}
++        </div>;})}
+         <div data-testid="fallback-chain-tile" onClick={()=>{setFallback(true);setAll(false);}} style={{padding:'9px 11px',borderRadius:10,cursor:'pointer',background:fallback?'#1B5E2012':C.c2,border:`1.5px solid ${fallback?'#1B5E20':C.bd}`}}>
+           <div style={{fontSize:11,fontWeight:800,color:fallback?'#1B5E20':C.tx}}>FALLBACK</div>
+           <div style={{fontSize:8,color:C.tm}}>Try {FALLBACK_ALGOS.length} · UNLOCK_FALLBACK chain</div>
+-- 
+2.43.0
+

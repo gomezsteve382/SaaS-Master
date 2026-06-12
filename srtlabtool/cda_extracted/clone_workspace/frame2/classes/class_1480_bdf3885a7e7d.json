@@ -1,0 +1,565 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1480,
+  "className": "mx.managers.PopUpManagerImpl",
+  "classNameNormalized": "mx.managers.PopUpManagerImpl",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IPopUpManager"
+  ],
+  "iinitMethod": 32261,
+  "cinitMethod": 32253,
+  "iinitBytecode": {
+    "codeLength": 94,
+    "codeSha256": "d01c1781e25c3c331b8e5be457d416bd617e0e1699f87e08ec29707fd1ee14b7",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addPopUp",
+      "traitKind": "method",
+      "methodIndex": 32263,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexDisplayObject",
+        "flash.display.DisplayObject",
+        "Boolean",
+        "String",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1033,
+      "bytecode": {
+        "codeLength": 1033,
+        "codeSha256": "e7410fda89e981e0d2d9c9c49c5c61751da73cca65bfffd4be5180763f44057f",
+        "bytecodeLineCount": 65
+      }
+    },
+    {
+      "traitName": "bringToFront",
+      "traitKind": "method",
+      "methodIndex": 32267,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexDisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 182,
+      "bytecode": {
+        "codeLength": 182,
+        "codeSha256": "a23971069bcfff03f37c7e8b0bf37d5ed32d473229d8a846ba956c42ade588f9",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "centerPopUp",
+      "traitKind": "method",
+      "methodIndex": 32265,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexDisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 741,
+      "bytecode": {
+        "codeLength": 741,
+        "codeSha256": "a2dff2b150d62b972cd9d580075c2bb848efc181136f427195fd6ee0120f0338",
+        "bytecodeLineCount": 47
+      }
+    },
+    {
+      "traitName": "createPopUp",
+      "traitKind": "method",
+      "methodIndex": 32262,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "Class",
+        "Boolean",
+        "String",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "mx.core.IFlexDisplayObject",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "013d4bed1489ff82c90bde3641a286481df6ef94652a6432c3e46a23770c9c6a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createModalWindow",
+      "traitKind": "method",
+      "methodIndex": 32268,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "mx.managers.PopUpData",
+        "mx.core.IChildList",
+        "Boolean",
+        "mx.managers.ISystemManager",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 690,
+      "bytecode": {
+        "codeLength": 690,
+        "codeSha256": "c46a9e0594e7b8ac351fb0d038e0818303769955fa9f6b6a3a495398e58254d3",
+        "bytecodeLineCount": 44
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getTopLevelSystemManager",
+      "traitKind": "method",
+      "methodIndex": 32264,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "mx.managers.ISystemManager",
+      "hasBody": true,
+      "codeLength": 175,
+      "bytecode": {
+        "codeLength": 175,
+        "codeSha256": "2793d9f2e5a01317943f34e6667e6dc31c88884562752371a0340d47ffb2022c",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.hideModalWindow",
+      "traitKind": "method",
+      "methodIndex": 32272,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.PopUpData",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 348,
+      "bytecode": {
+        "codeLength": 348,
+        "codeSha256": "44a4cf84b56c8791b23e114e1bf81d10ba963ce029073beb89e089bed64e4e8c",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.showModalWindow",
+      "traitKind": "method",
+      "methodIndex": 32270,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.PopUpData",
+        "mx.managers.ISystemManager",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 290,
+      "bytecode": {
+        "codeLength": 290,
+        "codeSha256": "d9c7156f42cd0eb9a226bf045f92cc5acf9cb5364bfed17e5e335cc339ea203e",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "PrivateNs.addMouseOutEventListeners",
+      "traitKind": "method",
+      "methodIndex": 32274,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.PopUpData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 153,
+      "bytecode": {
+        "codeLength": 153,
+        "codeSha256": "c4a0e0bdc2db509e816b870bed42a8e3fe5cabf54071b4f65be2a84db4b4f398",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.effectEndHandler",
+      "traitKind": "method",
+      "methodIndex": 32284,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "9d65c08c666e157c7b82203ac6305e2e556306514dad68a62c3da2f4c998f1e1",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.endEffects",
+      "traitKind": "method",
+      "methodIndex": 32269,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.PopUpData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "22b8466a98a3da30e57d274b253a7db26899dcf74f20c8bc83d9f4f94a1b8de7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.fadeInEffectEndHandler",
+      "traitKind": "method",
+      "methodIndex": 32281,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "4705c69280b11f22199944ab72ddd0773aba26b8f59a448655f5a844440fa85e",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.fadeOutCloseEffectEndHandler",
+      "traitKind": "method",
+      "methodIndex": 32283,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "f24c7c073d9581b2ca78dc3f58ff9585c6fbb3722ab4643944d096fe02006749",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.fadeOutDestroyEffectEndHandler",
+      "traitKind": "method",
+      "methodIndex": 32282,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "fe24a0f239f551f30fb51eec97757c2cec2c19236aaf4b12ee878171590a8f3e",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.findPopupInfoByOwner",
+      "traitKind": "method",
+      "methodIndex": 32273,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.managers.PopUpData",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "67e4f79ae497f01e6b8a72585d23bcc67234f4e2718f5d6254690764d1874b5e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.hideOwnerHandler",
+      "traitKind": "method",
+      "methodIndex": 32279,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "981d6e9aaebdfc5b82d0d758added653b3994b8803c370925e391c1f6f9b25fd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.popupHideHandler",
+      "traitKind": "method",
+      "methodIndex": 32277,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "508cebaae109b2d14af0f937eb135398310fda7ebdf6e43bbd9262657e6c4e89",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.popupRemovedHandler",
+      "traitKind": "method",
+      "methodIndex": 32280,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 444,
+      "bytecode": {
+        "codeLength": 444,
+        "codeSha256": "3a424d9c2fe4750fedb97d030960093fe8ce68600d6d57e94585e9490dff70ee",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "PrivateNs.popupShowHandler",
+      "traitKind": "method",
+      "methodIndex": 32276,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "a2e3b765dcd3a94d0baca140be17b896c2d03f93ef09cbf818dd01602c624391",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeMouseOutEventListeners",
+      "traitKind": "method",
+      "methodIndex": 32275,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.PopUpData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 153,
+      "bytecode": {
+        "codeLength": 153,
+        "codeSha256": "b356a067ed25bd06ef1019b0ef564863fe657f93825558960e543bbaaf914ff3",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.showModalWindowInternal",
+      "traitKind": "method",
+      "methodIndex": 32271,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.PopUpData",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "mx.managers.ISystemManager",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 407,
+      "bytecode": {
+        "codeLength": 407,
+        "codeSha256": "c073ba0047d2c040b14ec908c94e42de9b8d0a708b33acb30916b57dbd3f27cb",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "PrivateNs.showOwnerHandler",
+      "traitKind": "method",
+      "methodIndex": 32278,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "4d1e8d459851715591603b45f68abf3059e3d6fa1049c13c36c71ccd4d9c397d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removePopUp",
+      "traitKind": "method",
+      "methodIndex": 32266,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexDisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 136,
+      "bytecode": {
+        "codeLength": 136,
+        "codeSha256": "d8bbd4a3659f2c9d55adf2defc3e39eb88d30e97eacfba6848e0dbaba652a680",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 32256,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.IPopUpManager",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "b01083eae960acdfba7cb723e81279bd90850651bde062a8c7c59c6612d90dc7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createPopUpData",
+      "traitKind": "method",
+      "methodIndex": 32254,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.PopUpData",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "470282eb1bcdb7f86daaad842762fee27295fc087a6d6701f50a9701717177a5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchMouseDownOutsideEvent",
+      "traitKind": "method",
+      "methodIndex": 32260,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 135,
+      "bytecode": {
+        "codeLength": 135,
+        "codeSha256": "3fce764d9ef458d5d55f99c1b17f8c92ac9db059e6b39669b134fad8ea7ac8d1",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchMouseWheelOutsideEvent",
+      "traitKind": "method",
+      "methodIndex": 32259,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 135,
+      "bytecode": {
+        "codeLength": 135,
+        "codeSha256": "87ac00cdfed8d5bc5f7f0de9a52d0850e6b00e765bb4d66843f3e1833d4d0b78",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.nonmodalMouseDownOutsideHandler",
+      "traitKind": "method",
+      "methodIndex": 32257,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "1a6b3f0ebdfc385c3bc12b8830b4923fa108a9c88e0ed614b72a17b950b83281",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.nonmodalMouseWheelOutsideHandler",
+      "traitKind": "method",
+      "methodIndex": 32258,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "aee3f50f7f9c271ff8ead0cf70712bee9ec4e443c2fc75bc264d546406c0e92a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.weakDependency",
+      "traitKind": "method",
+      "methodIndex": 32255,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

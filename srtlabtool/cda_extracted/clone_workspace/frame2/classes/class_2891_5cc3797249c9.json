@@ -1,0 +1,96 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2891,
+  "className": "flashx.textLayout.edit.MementoList",
+  "classNameNormalized": "flashx.textLayout.edit.MementoList",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.edit.IMemento"
+  ],
+  "iinitMethod": 47053,
+  "cinitMethod": 47052,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "PrivateNs.mementoList",
+      "traitKind": "getter",
+      "methodIndex": 47055,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "bc42ccecd1130c19a8e70fafb9d11a9dbb70c55cc9eabfa12409da4ef68d0d90",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "push",
+      "traitKind": "method",
+      "methodIndex": 47054,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.IMemento"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "a254c3d7ad9b4daaaf5c6eba6416f21149d99022f3fba2b5eb1b6aef204fcd70",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 47057,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "b2324b354a4d5c27677a862a2c8ba6cce1361dba11b633f9266e5d0519aaea11",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 47056,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "c13d0c1d835d7cb796e8d53a6120d7c7c94c82c25414fc7bf60a543fc6959c3e",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,68 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3839,
+  "className": "com.hurlant.crypto.cert.MozillaRootCertificates",
+  "classNameNormalized": "com.hurlant.crypto.cert.MozillaRootCertificates",
+  "superName": "com.hurlant.crypto.cert.X509CertificateCollection",
+  "superNameNormalized": "com.hurlant.crypto.cert.X509CertificateCollection",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56540,
+  "cinitMethod": 56539,
+  "iinitBytecode": {
+    "codeLength": 15842,
+    "codeSha256": "b58702be90f5f76008fc07f11bab5c2bf68731e42a9b649af056cf76bd893792",
+    "bytecodeLineCount": 991
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addCertificate",
+      "traitKind": "method",
+      "methodIndex": 56542,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.cert.X509Certificate"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "7cebbe6eaf916190dbcf7e69d57f39d384d92da2f7e35be996bc6d0d8f29a1b8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "addPEMCertificate",
+      "traitKind": "method",
+      "methodIndex": 56541,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "7cebbe6eaf916190dbcf7e69d57f39d384d92da2f7e35be996bc6d0d8f29a1b8",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

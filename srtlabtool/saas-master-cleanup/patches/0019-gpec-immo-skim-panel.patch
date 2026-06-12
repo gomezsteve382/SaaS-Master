@@ -1,0 +1,41 @@
+From b7da8d0ac65c140e48bcbd07bdc62fca9a60dd9e Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 22:42:54 +0000
+Subject: [PATCH] Gpec2aImmoPanel: show the SKIM immobilizer-enable card
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Surface the new analyzer skim field as a dedicated card (green ENABLED / red
+DISABLED-bypassed) between the SEC6 and IMMO-pattern cards, so the operator
+sees at a glance whether the immobilizer is actually enforced — not just
+whether the SEC6 secret is set. The bypass WARNING note already renders in the
+Notes card. esbuild-validated (data layer + CI test landed in 0018).
+---
+ artifacts/srt-lab/src/components/Gpec2aImmoPanel.jsx | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/artifacts/srt-lab/src/components/Gpec2aImmoPanel.jsx b/artifacts/srt-lab/src/components/Gpec2aImmoPanel.jsx
+index aac02cd..b35c856 100644
+--- a/artifacts/srt-lab/src/components/Gpec2aImmoPanel.jsx
++++ b/artifacts/srt-lab/src/components/Gpec2aImmoPanel.jsx
+@@ -144,6 +144,16 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
+         spaced: true,
+         sub: "@ 0x3C8 · State: " + (a.sec6 ? a.sec6.state : "—"),
+       },
++      {
++        title: "SKIM (Immobilizer Enable)",
++        accent: a.skim ? (a.skim.enabled ? C.gn : C.er) : C.tm,
++        badge: a.skim ? {value: a.skim.state, good: a.skim.enabled} : undefined,
++        value: a.skim ? a.skim.hex : "—",
++        spaced: true,
++        sub: a.skim
++          ? "@ 0x0011 · " + (a.skim.enabled ? "ENABLED — secret enforced" : "DISABLED — immo BYPASSED (SEC6 sync not enforced)")
++          : "@ 0x0011 · —",
++      },
+       {
+         title: "Current IMMO Pattern",
+         accent: a.immo?.synced ? C.gn : C.wn,
+-- 
+2.43.0
+

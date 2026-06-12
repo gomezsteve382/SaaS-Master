@@ -1,0 +1,224 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1399,
+  "className": "spark.primitives.Line",
+  "classNameNormalized": "spark.primitives.Line",
+  "superName": "spark.primitives.supportClasses.StrokedElement",
+  "superNameNormalized": "spark.primitives.supportClasses.StrokedElement",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 30549,
+  "cinitMethod": 30548,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "spark.primitives:Line.beginDraw",
+      "traitKind": "method",
+      "methodIndex": 30560,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Graphics"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 152,
+      "bytecode": {
+        "codeLength": 152,
+        "codeSha256": "b2f744acb638e9f3729a060396c2d65c7729b73acc99873de1d1c6b0f68ea650",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "spark.primitives:Line.canSkipMeasurement",
+      "traitKind": "method",
+      "methodIndex": 30558,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "8bd91b4d6662c2af4743360fdfdadd0ffd59568f99d5771831541eb0e40a633f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.primitives:Line.draw",
+      "traitKind": "method",
+      "methodIndex": 30561,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Graphics"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "b3a9ac365c3355c765b65d5060025a755a7c5bc9e57dcd5fad8db26ee13b83b3",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "spark.primitives:Line.measure",
+      "traitKind": "method",
+      "methodIndex": 30559,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "6c9e46189813def20ce3b678fa890c56b9fe3622490acd615422312d5a789a3f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "xFrom",
+      "traitKind": "getter",
+      "methodIndex": 30550,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0f26415a6d6e06d80d19406ba35e9b155eb818bc0aa2606fca28a9f54399d277",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xFrom",
+      "traitKind": "setter",
+      "methodIndex": 30551,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "3d515a7c6048d35de3048164daf3f24086bc546fbe5a3154b03ba5d7cb6388e3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "xTo",
+      "traitKind": "getter",
+      "methodIndex": 30552,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "004947529b61bf66fd5d8e4c3d28f492a8c99d9f546630771f2a1bf47f9b9cdf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xTo",
+      "traitKind": "setter",
+      "methodIndex": 30553,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "d7c4292b68da7dde3e495189865521877bf402f505ebbdcde535d8b91ef6e0d9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "yFrom",
+      "traitKind": "getter",
+      "methodIndex": 30554,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "dd5b883535a7a1c9b410329f7498026e53595fe865e0b6a9a44c7805b122297f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "yFrom",
+      "traitKind": "setter",
+      "methodIndex": 30555,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "fb83722666d6ae5c5238f718b10c091966c849b44fad62d6a7d3ba89455b1d00",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "yTo",
+      "traitKind": "getter",
+      "methodIndex": 30556,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "47a07c37bf7f217f90d51dba3539d112721e85344644a9d1956f6d68ac13bc1f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "yTo",
+      "traitKind": "setter",
+      "methodIndex": 30557,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "adadcd3604c47f17b0656dbc83b20d0870f928cb0f6e35bf636341feec61915c",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

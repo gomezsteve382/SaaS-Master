@@ -1,0 +1,197 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 444,
+  "className": "mx.skins.RectangularBorder",
+  "classNameNormalized": "mx.skins.RectangularBorder",
+  "superName": "mx.skins.Border",
+  "superNameNormalized": "mx.skins.Border",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IRectangularBorder"
+  ],
+  "iinitMethod": 9296,
+  "cinitMethod": 9295,
+  "iinitBytecode": {
+    "codeLength": 34,
+    "codeSha256": "8958de9aa95ca600809429d1a08d6f56038607a4a7a50d08775b85f599820457",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "backgroundImageBounds",
+      "traitKind": "getter",
+      "methodIndex": 9298,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "07097bbf5508c64409b60378ab8bd407f762170ec4f36d5d25a34e13fc644c26",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "backgroundImageBounds",
+      "traitKind": "setter",
+      "methodIndex": 9299,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "9b3e3d15831f5cf20d1d715dc363c4773a23d78234f92539696c4044b714a403",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hasBackgroundImage",
+      "traitKind": "getter",
+      "methodIndex": 9297,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "a686acc34525a7f8a9a26266cb73cabc42b6414e8ac54dfdae1363c57281b7f2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutBackgroundImage",
+      "traitKind": "method",
+      "methodIndex": 9302,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 548,
+      "bytecode": {
+        "codeLength": 548,
+        "codeSha256": "20fa2dac71397602b79a1d0d170e2727725ce8a90c86b7e64af0ce28727added",
+        "bytecodeLineCount": 35
+      }
+    },
+    {
+      "traitName": "mx.skins:RectangularBorder.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 9300,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 371,
+      "bytecode": {
+        "codeLength": 371,
+        "codeSha256": "5c9b4dc269b36d0f4322cc199c7f6fb8417fb3a81a9abfe5c60cc795013672c6",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs.completeEventHandler",
+      "traitKind": "method",
+      "methodIndex": 9305,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "03d3acd8d7ce25bfbfa8873e53bcdf7dbc24cb69273fe5627adf2a36e9431247",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.errorEventHandler",
+      "traitKind": "method",
+      "methodIndex": 9304,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.getBackgroundSize",
+      "traitKind": "method",
+      "methodIndex": 9303,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "fc5de87ca14f0cf40d86f37d0d7d084d3745c3c8e62e0fe83927298d337b744e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.initBackgroundImage",
+      "traitKind": "method",
+      "methodIndex": 9301,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 227,
+      "bytecode": {
+        "codeLength": 227,
+        "codeSha256": "6f8576ce629851b5dd05da1d608bdf259ab4adb9dbd470f614ace2d58cf9020b",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.removedHandler",
+      "traitKind": "method",
+      "methodIndex": 9306,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "e304be68ca9f3a4b6d0a36733a9c728ec7f0dde6d37750395386095af8ff15d8",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": []
+}

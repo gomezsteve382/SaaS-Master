@@ -1,0 +1,1711 @@
+=== W7-CHAIN: method 'w7' (row 199, 193 IL bytes) ===
+  0000: ldarg.0
+  0001: ldc.i4.0
+  0002: ldc.i4.4
+  0003: call b#row1093
+  0008: stloc.0
+  0009: ldloc.0
+  000A: ldc.i4.s 16
+  000C: call m#row1082
+  0011: ldc.i4 0xFF
+  0016: conv.i8
+  0017: call b#row1092
+  001C: ldc.i4.s 24
+  001E: call o#row1076
+  0023: stloc.1
+  0024: ldloc.1
+  0025: ldloc.0
+  0026: ldc.i4.s 24
+  0028: call m#row1082
+  002D: ldc.i4 0xFF
+  0032: conv.i8
+  0033: call b#row1092
+  0038: ldc.i4.s 16
+  003A: call o#row1076
+  003F: call j#row1086
+  0044: stloc.1
+  0045: ldloc.1
+  0046: ldloc.0
+  0047: ldc.i4.8
+  0048: call m#row1082
+  004D: ldc.i4 0xFF
+  0052: conv.i8
+  0053: call b#row1092
+  0058: call j#row1086
+  005D: stloc.1
+  005E: ldloc.1
+  005F: ldloc.0
+  0060: ldc.i4 0xFF
+  0065: conv.i8
+  0066: call b#row1092
+  006B: ldc.i4.8
+  006C: call o#row1076
+  0071: call j#row1086
+  0076: stloc.1
+  0077: ldloc.1
+  0078: ldc.i4.s 11
+  007A: call o#row1076
+  007F: ldloc.1
+  0080: ldc.i4.s 22
+  0082: call m#row1082
+  0087: call j#row1086
+  008C: ldsfld p
+  0091: call h#row1088
+  0096: ldsfld n
+  009B: ldsfld o
+  00A0: ldloc.0
+  00A1: call h#row1088
+  00A6: call l#row1084
+  00AB: call l#row1084
+  00B0: ldsfld p
+  00B5: call h#row1088
+  00BA: ldc.i4.4
+  00BB: call e#row1103
+  00C0: ret
+
+=== W7-CHAIN: method 'o' (row 1076, 31 IL bytes) ===
+  0000: ldarg.0
+  0001: ldarg.0
+  0002: ldlen
+  0003: conv.i4
+  0004: ldarg.1
+  0005: ldsfld d
+  000A: mul
+  000B: sub
+  000C: call h#row1098
+  0011: dup
+  0012: ldarg.1
+  0013: call g#row1100
+  0018: ldc.i4.1
+  0019: call j#row1095
+  001E: ret
+
+=== W7-CHAIN: method 'm' (row 1082, 31 IL bytes) ===
+  0000: ldarg.0
+  0001: ldarg.0
+  0002: ldlen
+  0003: conv.i4
+  0004: ldarg.1
+  0005: ldsfld d
+  000A: mul
+  000B: sub
+  000C: call h#row1098
+  0011: dup
+  0012: ldarg.1
+  0013: call l#row1083
+  0018: ldc.i4.1
+  0019: call j#row1095
+  001E: ret
+
+=== W7-CHAIN: method 'l' (row 1083, 152 IL bytes) ===
+  0000: ldarg.1
+  0001: ldsfld d
+  0006: div
+  0007: .byte 6C
+  0008: call Floor
+  000D: conv.i4
+  000E: stloc.1
+  000F: ldloc.1
+  0010: ldc.i4.0
+  0011: ble.s ->0015
+  0013: br.s ->0019
+  0015: ldc.i4.0
+  0016: stloc.0
+  0017: br.s ->007E
+  0019: ldc.i4.0
+  001A: stloc.0
+  001B: br.s ->002B
+  001D: ldarg.0
+  001E: ldloc.0
+  001F: ldarg.0
+  0020: ldloc.0
+  0021: ldloc.1
+  0022: add
+  0023: .byte 96
+  0024: .byte 9F
+  0025: ldloc.0
+  0026: ldc.i4.1
+  0027: add
+  0028: stloc.0
+  0029: br.s ->002B
+  002B: ldloc.0
+  002C: ldarg.0
+  002D: ldlen
+  002E: conv.i4
+  002F: ldloc.1
+  0030: sub
+  0031: blt.s ->001D
+  0033: br.s ->0035
+  0035: br.s ->0042
+  0037: ldarg.0
+  0038: ldloc.0
+  0039: ldc.i4.0
+  003A: conv.i8
+  003B: .byte 9F
+  003C: ldloc.0
+  003D: ldc.i4.1
+  003E: add
+  003F: stloc.0
+  0040: br.s ->0042
+  0042: ldloc.0
+  0043: ldarg.0
+  0044: ldlen
+  0045: conv.i4
+  0046: blt.s ->0037
+  0048: br.s ->004A
+  004A: ldarg.1
+  004B: ldsfld d
+  0050: rem
+  0051: .byte 10
+  0052: .byte 01
+  0053: br.s ->0015
+  0055: ldarg.0
+  0056: ldloc.0
+  0057: ldsfld e
+  005C: conv.i8
+  005D: ldarg.0
+  005E: ldloc.0
+  005F: ldc.i4.1
+  0060: add
+  0061: .byte 96
+  0062: ldsfld d
+  0067: ldarg.1
+  0068: sub
+  0069: ldc.i4.s 63
+  006B: and
+  006C: shl
+  006D: ldarg.0
+  006E: ldloc.0
+  006F: .byte 96
+  0070: ldarg.1
+  0071: ldc.i4.s 63
+  0073: and
+  0074: shr
+  0075: or
+  0076: and
+  0077: .byte 9F
+  0078: ldloc.0
+  0079: ldc.i4.1
+  007A: add
+  007B: stloc.0
+  007C: br.s ->007E
+  007E: ldloc.0
+  007F: ldarg.0
+  0080: ldlen
+  0081: conv.i4
+  0082: ldc.i4.1
+  0083: sub
+  0084: blt.s ->0055
+  0086: br.s ->0088
+  0088: ldarg.0
+  0089: ldloc.0
+  008A: .byte 8F
+  008B: .byte A3
+  008C: nop
+  008D: nop
+  008E: .byte 01
+  008F: dup
+  0090: .byte 4C
+  0091: ldarg.1
+  0092: ldc.i4.s 63
+  0094: and
+  0095: shr
+  0096: .byte 55
+  0097: ret
+
+=== W7-CHAIN: method 'l' (row 1084, 40 IL bytes) ===
+  0000: ldarg.0
+  0001: ldarg.0
+  0002: ldlen
+  0003: conv.i4
+  0004: ldarg.1
+  0005: ldlen
+  0006: conv.i4
+  0007: bgt.s ->000B
+  0009: br.s ->0010
+  000B: ldarg.0
+  000C: ldlen
+  000D: conv.i4
+  000E: br.s ->0015
+  0010: ldarg.1
+  0011: ldlen
+  0012: conv.i4
+  0013: br.s ->0015
+  0015: call h#row1098
+  001A: dup
+  001B: ldarg.1
+  001C: call k#row1085
+  0021: ldc.i4.1
+  0022: call j#row1095
+  0027: ret
+
+=== W7-CHAIN: method 'k' (row 1085, 138 IL bytes) ===
+  0000: ldarg.0
+  0001: ldlen
+  0002: conv.i4
+  0003: ldarg.1
+  0004: ldlen
+  0005: conv.i4
+  0006: bgt.s ->0036
+  0008: br.s ->002F
+  000A: ldloc.1
+  000B: ldarg.0
+  000C: ldloc.0
+  000D: .byte D4
+  000E: .byte 96
+  000F: add
+  0010: stloc.1
+  0011: ldarg.0
+  0012: ldloc.0
+  0013: .byte D4
+  0014: ldloc.1
+  0015: ldsfld e
+  001A: conv.i8
+  001B: and
+  001C: .byte 9F
+  001D: ldloc.1
+  001E: ldsfld d
+  0023: ldc.i4.s 63
+  0025: and
+  0026: shr
+  0027: stloc.1
+  0028: ldloc.0
+  0029: ldc.i4.1
+  002A: conv.i8
+  002B: add
+  002C: stloc.0
+  002D: br.s ->0079
+  002F: ldarg.0
+  0030: ldlen
+  0031: conv.i4
+  0032: conv.i8
+  0033: stloc.2
+  0034: br.s ->003D
+  0036: ldarg.1
+  0037: ldlen
+  0038: conv.i4
+  0039: conv.i8
+  003A: stloc.2
+  003B: br.s ->003D
+  003D: ldc.i4.0
+  003E: conv.i8
+  003F: stloc.1
+  0040: ldc.i4.0
+  0041: conv.i8
+  0042: stloc.0
+  0043: br.s ->006F
+  0045: ldloc.1
+  0046: ldarg.0
+  0047: ldloc.0
+  0048: .byte D4
+  0049: .byte 96
+  004A: ldarg.1
+  004B: ldloc.0
+  004C: .byte D4
+  004D: .byte 96
+  004E: xor
+  004F: add
+  0050: stloc.1
+  0051: ldarg.0
+  0052: ldloc.0
+  0053: .byte D4
+  0054: ldloc.1
+  0055: ldsfld e
+  005A: conv.i8
+  005B: and
+  005C: .byte 9F
+  005D: ldloc.1
+  005E: ldsfld d
+  0063: ldc.i4.s 63
+  0065: and
+  0066: shr
+  0067: stloc.1
+  0068: ldloc.0
+  0069: ldc.i4.1
+  006A: conv.i8
+  006B: add
+  006C: stloc.0
+  006D: br.s ->006F
+  006F: ldloc.0
+  0070: ldloc.2
+  0071: blt.s ->0045
+  0073: br.s ->0075
+  0075: ldloc.2
+  0076: stloc.0
+  0077: br.s ->0079
+  0079: ldloc.1
+  007A: ldc.i4.0
+  007B: conv.i8
+  007C: ble.s ->0089
+  007E: br.s ->0080
+  0080: ldloc.0
+  0081: ldarg.0
+  0082: ldlen
+  0083: conv.i4
+  0084: conv.i8
+  0085: blt.s ->000A
+  0087: br.s ->0089
+  0089: ret
+
+=== W7-CHAIN: method 'j' (row 1086, 44 IL bytes) ===
+  0000: ldarg.0
+  0001: ldarg.0
+  0002: ldlen
+  0003: conv.i4
+  0004: ldarg.1
+  0005: ldlen
+  0006: conv.i4
+  0007: bgt.s ->000B
+  0009: br.s ->0012
+  000B: ldarg.0
+  000C: ldlen
+  000D: conv.i4
+  000E: ldc.i4.1
+  000F: add
+  0010: br.s ->0019
+  0012: ldarg.1
+  0013: ldlen
+  0014: conv.i4
+  0015: ldc.i4.1
+  0016: add
+  0017: br.s ->0019
+  0019: call h#row1098
+  001E: dup
+  001F: ldarg.1
+  0020: call i#row1087
+  0025: ldc.i4.1
+  0026: call j#row1095
+  002B: ret
+
+=== W7-CHAIN: method 'i' (row 1087, 136 IL bytes) ===
+  0000: ldarg.0
+  0001: ldlen
+  0002: conv.i4
+  0003: ldarg.1
+  0004: ldlen
+  0005: conv.i4
+  0006: blt.s ->0034
+  0008: br.s ->002F
+  000A: ldloc.1
+  000B: ldarg.0
+  000C: ldloc.0
+  000D: .byte D4
+  000E: .byte 96
+  000F: add
+  0010: stloc.1
+  0011: ldarg.0
+  0012: ldloc.0
+  0013: .byte D4
+  0014: ldloc.1
+  0015: ldsfld e
+  001A: conv.i8
+  001B: and
+  001C: .byte 9F
+  001D: ldloc.1
+  001E: ldsfld d
+  0023: ldc.i4.s 63
+  0025: and
+  0026: shr
+  0027: stloc.1
+  0028: ldloc.0
+  0029: ldc.i4.1
+  002A: conv.i8
+  002B: add
+  002C: stloc.0
+  002D: br.s ->0077
+  002F: ldarg.1
+  0030: ldlen
+  0031: conv.i4
+  0032: br.s ->0039
+  0034: ldarg.0
+  0035: ldlen
+  0036: conv.i4
+  0037: br.s ->0039
+  0039: conv.i8
+  003A: stloc.2
+  003B: ldc.i4.0
+  003C: conv.i8
+  003D: stloc.1
+  003E: ldc.i4.0
+  003F: conv.i8
+  0040: stloc.0
+  0041: br.s ->006D
+  0043: ldloc.1
+  0044: ldarg.0
+  0045: ldloc.0
+  0046: .byte D4
+  0047: .byte 96
+  0048: ldarg.1
+  0049: ldloc.0
+  004A: .byte D4
+  004B: .byte 96
+  004C: add
+  004D: add
+  004E: stloc.1
+  004F: ldarg.0
+  0050: ldloc.0
+  0051: .byte D4
+  0052: ldloc.1
+  0053: ldsfld e
+  0058: conv.i8
+  0059: and
+  005A: .byte 9F
+  005B: ldloc.1
+  005C: ldsfld d
+  0061: ldc.i4.s 63
+  0063: and
+  0064: shr
+  0065: stloc.1
+  0066: ldloc.0
+  0067: ldc.i4.1
+  0068: conv.i8
+  0069: add
+  006A: stloc.0
+  006B: br.s ->006D
+  006D: ldloc.0
+  006E: ldloc.2
+  006F: blt.s ->0043
+  0071: br.s ->0073
+  0073: ldloc.2
+  0074: stloc.0
+  0075: br.s ->0077
+  0077: ldloc.1
+  0078: ldc.i4.0
+  0079: conv.i8
+  007A: ble.s ->0087
+  007C: br.s ->007E
+  007E: ldloc.0
+  007F: ldarg.0
+  0080: ldlen
+  0081: conv.i4
+  0082: conv.i8
+  0083: blt.s ->000A
+  0085: br.s ->0087
+  0087: ret
+
+=== W7-CHAIN: method 'h' (row 1088, 40 IL bytes) ===
+  0000: ldarg.0
+  0001: ldarg.0
+  0002: ldlen
+  0003: conv.i4
+  0004: ldarg.1
+  0005: ldlen
+  0006: conv.i4
+  0007: bgt.s ->000B
+  0009: br.s ->0010
+  000B: ldarg.0
+  000C: ldlen
+  000D: conv.i4
+  000E: br.s ->0015
+  0010: ldarg.1
+  0011: ldlen
+  0012: conv.i4
+  0013: br.s ->0015
+  0015: call h#row1098
+  001A: dup
+  001B: ldarg.1
+  001C: call g#row1089
+  0021: ldc.i4.1
+  0022: call j#row1095
+  0027: ret
+
+=== W7-CHAIN: method 'g' (row 1089, 138 IL bytes) ===
+  0000: ldarg.0
+  0001: ldlen
+  0002: conv.i4
+  0003: ldarg.1
+  0004: ldlen
+  0005: conv.i4
+  0006: bgt.s ->0036
+  0008: br.s ->002F
+  000A: ldloc.1
+  000B: ldarg.0
+  000C: ldloc.0
+  000D: .byte D4
+  000E: .byte 96
+  000F: add
+  0010: stloc.1
+  0011: ldarg.0
+  0012: ldloc.0
+  0013: .byte D4
+  0014: ldloc.1
+  0015: ldsfld e
+  001A: conv.i8
+  001B: and
+  001C: .byte 9F
+  001D: ldloc.1
+  001E: ldsfld d
+  0023: ldc.i4.s 63
+  0025: and
+  0026: shr
+  0027: stloc.1
+  0028: ldloc.0
+  0029: ldc.i4.1
+  002A: conv.i8
+  002B: add
+  002C: stloc.0
+  002D: br.s ->0079
+  002F: ldarg.0
+  0030: ldlen
+  0031: conv.i4
+  0032: conv.i8
+  0033: stloc.2
+  0034: br.s ->003D
+  0036: ldarg.1
+  0037: ldlen
+  0038: conv.i4
+  0039: conv.i8
+  003A: stloc.2
+  003B: br.s ->003D
+  003D: ldc.i4.0
+  003E: conv.i8
+  003F: stloc.1
+  0040: ldc.i4.0
+  0041: conv.i8
+  0042: stloc.0
+  0043: br.s ->006F
+  0045: ldloc.1
+  0046: ldarg.0
+  0047: ldloc.0
+  0048: .byte D4
+  0049: .byte 96
+  004A: ldarg.1
+  004B: ldloc.0
+  004C: .byte D4
+  004D: .byte 96
+  004E: and
+  004F: add
+  0050: stloc.1
+  0051: ldarg.0
+  0052: ldloc.0
+  0053: .byte D4
+  0054: ldloc.1
+  0055: ldsfld e
+  005A: conv.i8
+  005B: and
+  005C: .byte 9F
+  005D: ldloc.1
+  005E: ldsfld d
+  0063: ldc.i4.s 63
+  0065: and
+  0066: shr
+  0067: stloc.1
+  0068: ldloc.0
+  0069: ldc.i4.1
+  006A: conv.i8
+  006B: add
+  006C: stloc.0
+  006D: br.s ->006F
+  006F: ldloc.0
+  0070: ldloc.2
+  0071: blt.s ->0045
+  0073: br.s ->0075
+  0075: ldloc.2
+  0076: stloc.0
+  0077: br.s ->0079
+  0079: ldloc.1
+  007A: ldc.i4.0
+  007B: conv.i8
+  007C: ble.s ->0089
+  007E: br.s ->0080
+  0080: ldloc.0
+  0081: ldarg.0
+  0082: ldlen
+  0083: conv.i4
+  0084: conv.i8
+  0085: blt.s ->000A
+  0087: br.s ->0089
+  0089: ret
+
+=== W7-CHAIN: method 'b' (row 1092, 23 IL bytes) ===
+  0000: ldarg.0
+  0001: ldarg.0
+  0002: ldlen
+  0003: conv.i4
+  0004: call h#row1098
+  0009: dup
+  000A: ldarg.1
+  000B: call a#row1097
+  0010: ldc.i4.1
+  0011: call j#row1095
+  0016: ret
+
+=== W7-CHAIN: method 'b' (row 1093, 64 IL bytes) ===
+  0000: ldarg.0
+  0001: ldarg.1
+  0002: ldelem.u1
+  0003: ldc.i4 0xFF
+  0008: and
+  0009: ldarg.2
+  000A: ldc.i4.8
+  000B: mul
+  000C: ldc.i4.0
+  000D: call b#row1101
+  0012: stloc.0
+  0013: ldarg.1
+  0014: ldc.i4.1
+  0015: add
+  0016: stloc.1
+  0017: br.s ->0019
+  0019: ldloc.1
+  001A: ldarg.2
+  001B: ldarg.1
+  001C: add
+  001D: blt.s ->0021
+  001F: br.s ->003E
+  0021: ldloc.0
+  0022: ldc.i4.8
+  0023: call g#row1100
+  0028: ldloc.0
+  0029: ldarg.0
+  002A: ldloc.1
+  002B: ldelem.u1
+  002C: ldc.i4 0xFF
+  0031: and
+  0032: call k#row1094
+  0037: stloc.0
+  0038: ldloc.1
+  0039: ldc.i4.1
+  003A: add
+  003B: stloc.1
+  003C: br.s ->0019
+  003E: ldloc.0
+  003F: ret
+
+=== W7-CHAIN: method 'k' (row 1094, 25 IL bytes) ===
+  0000: ldarg.0
+  0001: ldarg.0
+  0002: ldlen
+  0003: conv.i4
+  0004: ldc.i4.1
+  0005: add
+  0006: call h#row1098
+  000B: dup
+  000C: ldarg.1
+  000D: call i#row1096
+  0012: ldc.i4.1
+  0013: call j#row1095
+  0018: ret
+
+=== W7-CHAIN: method 'j' (row 1095, 43 IL bytes) ===
+  0000: ldarg.0
+  0001: ldlen
+  0002: conv.i4
+  0003: stloc.0
+  0004: br.s ->0015
+  0006: ldarg.0
+  0007: ldloc.0
+  0008: ldc.i4.1
+  0009: sub
+  000A: .byte 96
+  000B: brfalse.s ->000F
+  000D: br.s ->001B
+  000F: ldloc.0
+  0010: ldc.i4.1
+  0011: sub
+  0012: stloc.0
+  0013: br.s ->0015
+  0015: ldloc.0
+  0016: ldc.i4.0
+  0017: ble.s ->001B
+  0019: br.s ->0006
+  001B: ldloc.0
+  001C: ldarg.1
+  001D: add
+  001E: newarr 16777379
+  0023: dup
+  0024: ldarg.0
+  0025: call d#row1099
+  002A: ret
+
+=== W7-CHAIN: method 'i' (row 1096, 113 IL bytes) ===
+  0000: ldarg.0
+  0001: ldc.i4.0
+  0002: .byte 8F
+  0003: .byte A3
+  0004: nop
+  0005: nop
+  0006: .byte 01
+  0007: dup
+  0008: .byte 4C
+  0009: ldarg.1
+  000A: conv.i8
+  000B: add
+  000C: .byte 55
+  000D: ldarg.0
+  000E: ldlen
+  000F: conv.i4
+  0010: conv.i8
+  0011: stloc.1
+  0012: ldc.i4.0
+  0013: conv.i8
+  0014: stloc.2
+  0015: ldc.i4.0
+  0016: conv.i8
+  0017: stloc.0
+  0018: br.s ->006A
+  001A: ldloc.0
+  001B: ldc.i4.1
+  001C: conv.i8
+  001D: add
+  001E: stloc.0
+  001F: br.s ->006A
+  0021: ldloc.2
+  0022: ldarg.0
+  0023: ldloc.0
+  0024: .byte D4
+  0025: .byte 96
+  0026: add
+  0027: stloc.2
+  0028: ldc.i4.0
+  0029: conv.i8
+  002A: stloc.3
+  002B: ldloc.2
+  002C: ldc.i4.0
+  002D: conv.i8
+  002E: bge.s ->004B
+  0030: br.s ->0032
+  0032: ldloc.2
+  0033: ldsfld d
+  0038: ldc.i4.s 63
+  003A: and
+  003B: shr
+  003C: neg
+  003D: stloc.3
+  003E: ldloc.2
+  003F: ldloc.3
+  0040: ldsfld f
+  0045: conv.i8
+  0046: mul
+  0047: add
+  0048: stloc.2
+  0049: br.s ->004B
+  004B: ldarg.0
+  004C: ldloc.0
+  004D: .byte D4
+  004E: ldloc.2
+  004F: ldsfld e
+  0054: conv.i8
+  0055: and
+  0056: .byte 9F
+  0057: ldloc.2
+  0058: ldsfld d
+  005D: ldc.i4.s 63
+  005F: and
+  0060: shr
+  0061: ldloc.3
+  0062: sub
+  0063: stloc.2
+  0064: ldloc.2
+  0065: brtrue.s ->001A
+  0067: br.s ->0069
+  0069: ret
+  006A: ldloc.0
+  006B: ldloc.1
+  006C: blt.s ->0021
+  006E: br.s ->0070
+  0070: ret
+
+=== W7-CHAIN: method 'a' (row 1097, 38 IL bytes) ===
+  0000: ldarg.0
+  0001: ldlen
+  0002: conv.i4
+  0003: stloc.1
+  0004: ldarg.0
+  0005: ldc.i4.0
+  0006: .byte 8F
+  0007: .byte A3
+  0008: nop
+  0009: nop
+  000A: .byte 01
+  000B: dup
+  000C: .byte 4C
+  000D: ldarg.1
+  000E: and
+  000F: .byte 55
+  0010: ldc.i4.1
+  0011: stloc.0
+  0012: br.s ->0014
+  0014: ldloc.0
+  0015: ldloc.1
+  0016: blt.s ->001A
+  0018: br.s ->0025
+  001A: ldarg.0
+  001B: ldloc.0
+  001C: ldc.i4.0
+  001D: conv.i8
+  001E: .byte 9F
+  001F: ldloc.0
+  0020: ldc.i4.1
+  0021: add
+  0022: stloc.0
+  0023: br.s ->0014
+  0025: ret
+
+=== W7-CHAIN: method 'h' (row 1098, 37 IL bytes) ===
+  0000: ldc.i4.0
+  0001: ldarg.0
+  0002: ldlen
+  0003: conv.i4
+  0004: ldarg.1
+  0005: bgt.s ->0009
+  0007: br.s ->000E
+  0009: ldarg.0
+  000A: ldlen
+  000B: conv.i4
+  000C: br.s ->0011
+  000E: ldarg.1
+  000F: br.s ->0011
+  0011: ldsfld d
+  0016: mul
+  0017: ldc.i4.0
+  0018: call b#row1101
+  001D: dup
+  001E: ldarg.0
+  001F: call d#row1099
+  0024: ret
+
+=== W7-CHAIN: method 'd' (row 1099, 67 IL bytes) ===
+  0000: ldarg.0
+  0001: ldlen
+  0002: conv.i4
+  0003: ldarg.1
+  0004: ldlen
+  0005: conv.i4
+  0006: blt.s ->0013
+  0008: br.s ->000E
+  000A: ldloc.1
+  000B: stloc.0
+  000C: br.s ->003A
+  000E: ldarg.1
+  000F: ldlen
+  0010: conv.i4
+  0011: br.s ->0018
+  0013: ldarg.0
+  0014: ldlen
+  0015: conv.i4
+  0016: br.s ->0018
+  0018: stloc.1
+  0019: ldc.i4.0
+  001A: stloc.0
+  001B: br.s ->0029
+  001D: ldarg.0
+  001E: ldloc.0
+  001F: ldarg.1
+  0020: ldloc.0
+  0021: .byte 96
+  0022: .byte 9F
+  0023: ldloc.0
+  0024: ldc.i4.1
+  0025: add
+  0026: stloc.0
+  0027: br.s ->0029
+  0029: ldloc.0
+  002A: ldloc.1
+  002B: blt.s ->001D
+  002D: br.s ->000A
+  002F: ldarg.0
+  0030: ldloc.0
+  0031: ldc.i4.0
+  0032: conv.i8
+  0033: .byte 9F
+  0034: ldloc.0
+  0035: ldc.i4.1
+  0036: add
+  0037: stloc.0
+  0038: br.s ->003A
+  003A: ldloc.0
+  003B: ldarg.0
+  003C: ldlen
+  003D: conv.i4
+  003E: blt.s ->002F
+  0040: br.s ->0042
+  0042: ret
+
+=== W7-CHAIN: method 'g' (row 1100, 159 IL bytes) ===
+  0000: ldarg.1
+  0001: ldsfld d
+  0006: div
+  0007: .byte 6C
+  0008: call Floor
+  000D: conv.i4
+  000E: stloc.1
+  000F: ldloc.1
+  0010: ldc.i4.0
+  0011: ble.s ->0050
+  0013: br.s ->0016
+  0015: ret
+  0016: ldarg.0
+  0017: ldlen
+  0018: conv.i4
+  0019: ldc.i4.1
+  001A: sub
+  001B: stloc.0
+  001C: br.s ->002C
+  001E: ldarg.0
+  001F: ldloc.0
+  0020: ldarg.0
+  0021: ldloc.0
+  0022: ldloc.1
+  0023: sub
+  0024: .byte 96
+  0025: .byte 9F
+  0026: ldloc.0
+  0027: ldc.i4.1
+  0028: sub
+  0029: stloc.0
+  002A: br.s ->002C
+  002C: ldloc.0
+  002D: ldloc.1
+  002E: bge.s ->001E
+  0030: br.s ->0032
+  0032: br.s ->003F
+  0034: ldarg.0
+  0035: ldloc.0
+  0036: ldc.i4.0
+  0037: conv.i8
+  0038: .byte 9F
+  0039: ldloc.0
+  003A: ldc.i4.1
+  003B: sub
+  003C: stloc.0
+  003D: br.s ->003F
+  003F: ldloc.0
+  0040: ldc.i4.0
+  0041: bge.s ->0034
+  0043: br.s ->0045
+  0045: ldarg.1
+  0046: ldsfld d
+  004B: rem
+  004C: .byte 10
+  004D: .byte 01
+  004E: br.s ->0050
+  0050: ldarg.1
+  0051: brtrue.s ->0055
+  0053: br.s ->0015
+  0055: ldarg.0
+  0056: ldlen
+  0057: conv.i4
+  0058: ldc.i4.1
+  0059: sub
+  005A: stloc.0
+  005B: br.s ->0086
+  005D: ldarg.0
+  005E: ldloc.0
+  005F: ldsfld e
+  0064: conv.i8
+  0065: ldarg.0
+  0066: ldloc.0
+  0067: .byte 96
+  0068: ldarg.1
+  0069: ldc.i4.s 63
+  006B: and
+  006C: shl
+  006D: ldarg.0
+  006E: ldloc.0
+  006F: ldc.i4.1
+  0070: sub
+  0071: .byte 96
+  0072: ldsfld d
+  0077: ldarg.1
+  0078: sub
+  0079: ldc.i4.s 63
+  007B: and
+  007C: shr
+  007D: or
+  007E: and
+  007F: .byte 9F
+  0080: ldloc.0
+  0081: ldc.i4.1
+  0082: sub
+  0083: stloc.0
+  0084: br.s ->0086
+  0086: ldloc.0
+  0087: ldc.i4.0
+  0088: bgt.s ->005D
+  008A: br.s ->008C
+  008C: ldarg.0
+  008D: ldloc.0
+  008E: ldsfld e
+  0093: conv.i8
+  0094: ldarg.0
+  0095: ldloc.0
+  0096: .byte 96
+  0097: ldarg.1
+  0098: ldc.i4.s 63
+  009A: and
+  009B: shl
+  009C: and
+  009D: .byte 9F
+  009E: ret
+
+=== W7-CHAIN: method 'b' (row 1101, 45 IL bytes) ===
+  0000: ldarg.1
+  0001: .byte 6C
+  0002: ldsfld d
+  0007: .byte 6C
+  0008: div
+  0009: call Ceiling
+  000E: conv.i4
+  000F: ldc.i4.1
+  0010: add
+  0011: stloc.0
+  0012: ldarg.2
+  0013: ldloc.0
+  0014: bgt.s ->0018
+  0016: br.s ->001B
+  0018: ldarg.2
+  0019: br.s ->001E
+  001B: ldloc.0
+  001C: br.s ->001E
+  001E: stloc.0
+  001F: ldloc.0
+  0020: newarr 16777379
+  0025: dup
+  0026: ldarg.0
+  0027: call f#row1102
+  002C: ret
+
+=== W7-CHAIN: method 'f' (row 1102, 43 IL bytes) ===
+  0000: ldarg.1
+  0001: stloc.1
+  0002: ldc.i4.0
+  0003: stloc.0
+  0004: br.s ->0006
+  0006: ldloc.0
+  0007: ldarg.0
+  0008: ldlen
+  0009: conv.i4
+  000A: blt.s ->000E
+  000C: br.s ->002A
+  000E: ldarg.0
+  000F: ldloc.0
+  0010: ldloc.1
+  0011: ldsfld e
+  0016: and
+  0017: conv.i8
+  0018: .byte 9F
+  0019: ldloc.1
+  001A: ldsfld d
+  001F: ldc.i4.s 31
+  0021: and
+  0022: shr
+  0023: stloc.1
+  0024: ldloc.0
+  0025: ldc.i4.1
+  0026: add
+  0027: stloc.0
+  0028: br.s ->0006
+  002A: ret
+
+=== W7-CHAIN: method 'e' (row 1103, 125 IL bytes) ===
+  0000: ldc.i4 0xA
+  0005: stloc 4
+  0009: ldarg.0
+  000A: ldc.i4.s 16
+  000C: call d#row1104
+  0011: stloc.0
+  0012: ldloc.0
+  0013: callvirt get_Length
+  0018: ldc.i4.2
+  0019: rem
+  001A: brfalse.s ->0049
+  001C: br.s ->0032
+  001E: ldloc.1
+  001F: ldloc.2
+  0020: ldloc.0
+  0021: ldloc.3
+  0022: ldc.i4.2
+  0023: callvirt Substring
+  0028: call l#row1298
+  002D: ldc.i4.0
+  002E: ldelem.u1
+  002F: stelem.i1
+  0030: br.s ->006B
+  0032: ldstr 1879108960
+  0037: ldloc 4
+  003B: call h#row25
+  0040: ldloc.0
+  0041: call Concat
+  0046: stloc.0
+  0047: br.s ->0049
+  0049: ldarg.1
+  004A: newarr 16777244
+  004F: stloc.1
+  0050: ldloc.0
+  0051: callvirt get_Length
+  0056: ldarg.1
+  0057: ldc.i4.2
+  0058: mul
+  0059: sub
+  005A: stloc.3
+  005B: ldc.i4.0
+  005C: stloc.2
+  005D: br.s ->0075
+  005F: ldloc.3
+  0060: ldc.i4.0
+  0061: bge.s ->001E
+  0063: br.s ->0065
+  0065: ldloc.1
+  0066: ldloc.2
+  0067: ldc.i4.0
+  0068: stelem.i1
+  0069: br.s ->006B
+  006B: ldloc.3
+  006C: ldc.i4.2
+  006D: add
+  006E: stloc.3
+  006F: ldloc.2
+  0070: ldc.i4.1
+  0071: add
+  0072: stloc.2
+  0073: br.s ->0075
+  0075: ldloc.2
+  0076: ldarg.1
+  0077: blt.s ->005F
+  0079: br.s ->007B
+  007B: ldloc.1
+  007C: ret
+
+=== W7-CHAIN: method 'd' (row 1104, 203 IL bytes) ===
+  0000: ldc.i4 0x11
+  0005: stloc 4
+  0009: ldstr 1879064697
+  000E: stloc.2
+  000F: ldsfld l
+  0014: ldlen
+  0015: conv.i4
+  0016: ldarg.0
+  0017: ldlen
+  0018: conv.i4
+  0019: beq.s ->004B
+  001B: br.s ->003E
+  001D: ldsfld l
+  0022: ldarg.1
+  0023: call c#row1107
+  0028: stloc.1
+  0029: ldsfld g
+  002E: ldloc.1
+  002F: ldc.i4.1
+  0030: callvirt Substring
+  0035: ldloc.2
+  0036: call Concat
+  003B: stloc.2
+  003C: br.s ->009D
+  003E: ldarg.0
+  003F: call e#row1105
+  0044: stsfld l
+  0049: br.s ->0058
+  004B: ldsfld l
+  0050: ldarg.0
+  0051: call d#row1099
+  0056: br.s ->0058
+  0058: ldarg.1
+  0059: ldc.i4.m1
+  005A: bne.un.s ->009D
+  005C: br.s ->005E
+  005E: ldarg.0
+  005F: ldlen
+  0060: conv.i4
+  0061: ldc.i4.1
+  0062: sub
+  0063: stloc.0
+  0064: br.s ->0082
+  0066: ldloc.2
+  0067: ldarg.0
+  0068: ldloc.0
+  0069: .byte 96
+  006A: ldc.i4.s 44
+  006C: conv.i8
+  006D: add
+  006E: stloc.3
+  006F: ldloca.s 3
+  0071: call ToString
+  0076: call Concat
+  007B: stloc.2
+  007C: ldloc.0
+  007D: ldc.i4.1
+  007E: sub
+  007F: stloc.0
+  0080: br.s ->0082
+  0082: ldloc.0
+  0083: ldc.i4.0
+  0084: bgt.s ->0066
+  0086: br.s ->0088
+  0088: ldloc.2
+  0089: ldarg.0
+  008A: ldc.i4.0
+  008B: .byte 8F
+  008C: .byte A3
+  008D: nop
+  008E: nop
+  008F: .byte 01
+  0090: call ToString
+  0095: call Concat
+  009A: stloc.2
+  009B: br.s ->00AE
+  009D: ldsfld l
+  00A2: call d#row1106
+  00A7: brfalse ->001D
+  00AC: br.s ->00AE
+  00AE: ldloc.2
+  00AF: callvirt get_Length
+  00B4: brtrue.s ->00C9
+  00B6: br.s ->00B8
+  00B8: ldstr 1879109028
+  00BD: ldloc 4
+  00C1: call h#row25
+  00C6: stloc.2
+  00C7: br.s ->00C9
+  00C9: ldloc.2
+  00CA: ret
+
+=== W7-CHAIN: method 'e' (row 1105, 16 IL bytes) ===
+  0000: ldarg.0
+  0001: ldlen
+  0002: conv.i4
+  0003: newarr 16777379
+  0008: dup
+  0009: ldarg.0
+  000A: call d#row1099
+  000F: ret
+
+=== W7-CHAIN: method 'd' (row 1106, 31 IL bytes) ===
+  0000: ldc.i4.0
+  0001: stloc.0
+  0002: br.s ->0015
+  0004: ldloc.0
+  0005: ldc.i4.1
+  0006: add
+  0007: stloc.0
+  0008: br.s ->0015
+  000A: ldarg.0
+  000B: ldloc.0
+  000C: .byte 96
+  000D: ldc.i4.0
+  000E: conv.i8
+  000F: ble.s ->0004
+  0011: br.s ->0013
+  0013: ldc.i4.0
+  0014: ret
+  0015: ldloc.0
+  0016: ldarg.0
+  0017: ldlen
+  0018: conv.i4
+  0019: blt.s ->000A
+  001B: br.s ->001D
+  001D: ldc.i4.1
+  001E: ret
+
+=== W7-CHAIN: method 'c' (row 1107, 57 IL bytes) ===
+  0000: ldc.i4.0
+  0001: stloc.1
+  0002: ldarg.0
+  0003: ldlen
+  0004: conv.i4
+  0005: ldc.i4.1
+  0006: sub
+  0007: stloc.0
+  0008: br.s ->000A
+  000A: ldloc.0
+  000B: ldc.i4.0
+  000C: bge.s ->0010
+  000E: br.s ->0037
+  0010: ldloc.1
+  0011: ldsfld f
+  0016: mul
+  0017: conv.i8
+  0018: ldarg.0
+  0019: ldloc.0
+  001A: .byte 96
+  001B: add
+  001C: stloc.2
+  001D: ldarg.0
+  001E: ldloc.0
+  001F: ldloc.2
+  0020: ldarg.1
+  0021: conv.i8
+  0022: div
+  0023: .byte 6C
+  0024: call Floor
+  0029: conv.i4
+  002A: conv.i8
+  002B: .byte 9F
+  002C: ldloc.2
+  002D: conv.i4
+  002E: ldarg.1
+  002F: rem
+  0030: stloc.1
+  0031: ldloc.0
+  0032: ldc.i4.1
+  0033: sub
+  0034: stloc.0
+  0035: br.s ->000A
+  0037: ldloc.1
+  0038: ret
+
+=== W7-CHAIN: method 'l' (row 1298, 337 IL bytes) ===
+  0000: ldarg.0
+  0001: callvirt get_Length
+  0006: ldc.i4.2
+  0007: div
+  0008: newarr 16777244
+  000D: stloc.0
+  000E: ldc.i4.0
+  000F: stloc.1
+  0010: ldc.i4.0
+  0011: stloc.2
+  0012: ldc.i4.0
+  0013: stloc.3
+  0014: ldc.i4.s 16
+  0016: newarr 16777244
+  001B: stloc.s 4
+  001D: ldloc.s 4
+  001F: ldc.i4.0
+  0020: ldc.i4.s 48
+  0022: stelem.i1
+  0023: ldloc.s 4
+  0025: ldc.i4.1
+  0026: ldc.i4.s 49
+  0028: stelem.i1
+  0029: ldloc.s 4
+  002B: ldc.i4.2
+  002C: ldc.i4.s 50
+  002E: stelem.i1
+  002F: ldloc.s 4
+  0031: ldc.i4.3
+  0032: ldc.i4.s 51
+  0034: stelem.i1
+  0035: ldloc.s 4
+  0037: ldc.i4.4
+  0038: ldc.i4.s 52
+  003A: stelem.i1
+  003B: ldloc.s 4
+  003D: ldc.i4.5
+  003E: ldc.i4.s 53
+  0040: stelem.i1
+  0041: ldloc.s 4
+  0043: ldc.i4.6
+  0044: ldc.i4.s 54
+  0046: stelem.i1
+  0047: ldloc.s 4
+  0049: ldc.i4.7
+  004A: ldc.i4.s 55
+  004C: stelem.i1
+  004D: ldloc.s 4
+  004F: ldc.i4.8
+  0050: ldc.i4.s 56
+  0052: stelem.i1
+  0053: ldloc.s 4
+  0055: ldc.i4.s 9
+  0057: ldc.i4.s 57
+  0059: stelem.i1
+  005A: ldloc.s 4
+  005C: ldc.i4.s 10
+  005E: ldc.i4.s 65
+  0060: stelem.i1
+  0061: ldloc.s 4
+  0063: ldc.i4.s 11
+  0065: ldc.i4.s 66
+  0067: stelem.i1
+  0068: ldloc.s 4
+  006A: ldc.i4.s 12
+  006C: ldc.i4.s 67
+  006E: stelem.i1
+  006F: ldloc.s 4
+  0071: ldc.i4.s 13
+  0073: ldc.i4.s 68
+  0075: stelem.i1
+  0076: ldloc.s 4
+  0078: ldc.i4.s 14
+  007A: ldc.i4.s 69
+  007C: stelem.i1
+  007D: ldloc.s 4
+  007F: ldc.i4.s 15
+  0081: ldc.i4.s 70
+  0083: stelem.i1
+  0084: ldc.i4.0
+  0085: stloc.s 5
+  0087: ldc.i4.0
+  0088: stloc.s 6
+  008A: ldc.i4.0
+  008B: stloc.s 7
+  008D: br ->0134
+  0092: ldloc.s 5
+  0094: ldloc.s 6
+  0096: and
+  0097: brfalse ->0127
+  009C: br.s ->0110
+  009E: ldc.i4.0
+  009F: stloc.s 5
+  00A1: ldc.i4.0
+  00A2: stloc.s 6
+  00A4: ldc.i4.0
+  00A5: stloc.s 8
+  00A7: br.s ->00CF
+  00A9: ldarg.0
+  00AA: ldloc.s 7
+  00AC: callvirt get_Chars
+  00B1: call ToByte
+  00B6: ldloc.s 4
+  00B8: ldloc.s 8
+  00BA: ldelem.u1
+  00BB: bne.un.s ->00C7
+  00BD: br.s ->00BF
+  00BF: ldloc.s 8
+  00C1: stloc.1
+  00C2: ldc.i4.1
+  00C3: stloc.s 5
+  00C5: br.s ->00D7
+  00C7: ldloc.s 8
+  00C9: ldc.i4.1
+  00CA: add
+  00CB: stloc.s 8
+  00CD: br.s ->00CF
+  00CF: ldloc.s 8
+  00D1: ldc.i4.s 16
+  00D3: blt.s ->00A9
+  00D5: br.s ->00D7
+  00D7: ldloc.s 7
+  00D9: ldc.i4.1
+  00DA: add
+  00DB: stloc.s 7
+  00DD: ldc.i4.0
+  00DE: stloc.s 9
+  00E0: br.s ->0108
+  00E2: ldarg.0
+  00E3: ldloc.s 7
+  00E5: callvirt get_Chars
+  00EA: call ToByte
+  00EF: ldloc.s 4
+  00F1: ldloc.s 9
+  00F3: ldelem.u1
+  00F4: bne.un.s ->0100
+  00F6: br.s ->00F8
+  00F8: ldloc.s 9
+  00FA: stloc.2
+  00FB: ldc.i4.1
+  00FC: stloc.s 6
+  00FE: br.s ->0092
+  0100: ldloc.s 9
+  0102: ldc.i4.1
+  0103: add
+  0104: stloc.s 9
+  0106: br.s ->0108
+  0108: ldloc.s 9
+  010A: ldc.i4.s 16
+  010C: blt.s ->00E2
+  010E: br.s ->0092
+  0110: ldloc.s 7
+  0112: ldc.i4.1
+  0113: sub
+  0114: ldc.i4.2
+  0115: div
+  0116: stloc.3
+  0117: ldloc.0
+  0118: ldloc.3
+  0119: ldloc.1
+  011A: ldc.i4.s 16
+  011C: mul
+  011D: ldloc.2
+  011E: add
+  011F: call ToByte
+  0124: stelem.i1
+  0125: br.s ->012C
+  0127: ldnull
+  0128: stloc.s 10
+  012A: .byte DE
+  012B: .byte 22
+  012C: ldloc.s 7
+  012E: ldc.i4.1
+  012F: add
+  0130: stloc.s 7
+  0132: br.s ->0134
+  0134: ldloc.s 7
+  0136: ldarg.0
+  0137: callvirt get_Length
+  013C: .byte 3F
+  013D: rem
+  013E: .byte FF
+  013F: .byte FF
+  0140: .byte FF
+  0141: br.s ->0143
+  0143: ldloc.0
+  0144: stloc.s 10
+  0146: .byte DE
+  0147: ldloc.0
+  0148: pop
+  0149: ldnull
+  014A: stloc.s 10
+  014C: .byte DE
+  014D: nop
+  014E: ldloc.s 10
+  0150: ret
+
+=== W7-CHAIN: method 'h' (row 25, 116 IL bytes) ===
+  0000: ldarg.0
+  0001: callvirt ToCharArray
+  0006: stloc.0
+  0007: ldc.i4 0x310B0FB9
+  000C: ldc.i4.0
+  000D: or
+  000E: ldc.i4.0
+  000F: or
+  0010: ldc.i4.0
+  0011: shr
+  0012: ldc.i4.0
+  0013: .byte D7
+  0014: ldc.i4.0
+  0015: shl
+  0016: ldc.i4.0
+  0017: shr.un
+  0018: ldc.i4.0
+  0019: or
+  001A: ldc.i4.0
+  001B: or
+  001C: ldc.i4.0
+  001D: shr.un
+  001E: ldc.i4.0
+  001F: .byte DA
+  0020: ldc.i4.0
+  0021: shr
+  0022: ldc.i4.0
+  0023: .byte DA
+  0024: ldc.i4.0
+  0025: add
+  0026: ldarg.1
+  0027: add
+  0028: stloc.1
+  0029: ldc.i4.0
+  002A: dup
+  002B: ldc.i4.1
+  002C: blt.s ->0061
+  002E: dup
+  002F: stloc.2
+  0030: ldloc.0
+  0031: ldloc.2
+  0032: ldloc.0
+  0033: ldloc.2
+  0034: .byte 92
+  0035: dup
+  0036: ldc.i4 0xFF
+  003B: and
+  003C: ldloc.1
+  003D: dup
+  003E: ldc.i4.1
+  003F: add
+  0040: stloc.1
+  0041: xor
+  0042: conv.u1
+  0043: stloc.3
+  0044: dup
+  0045: ldc.i4.8
+  0046: shr
+  0047: ldloc.1
+  0048: dup
+  0049: ldc.i4.1
+  004A: add
+  004B: stloc.1
+  004C: xor
+  004D: conv.u1
+  004E: stloc.s 4
+  0050: pop
+  0051: ldloc.s 4
+  0053: ldloc.3
+  0054: stloc.s 4
+  0056: stloc.3
+  0057: ldloc.s 4
+  0059: ldc.i4.8
+  005A: shl
+  005B: ldloc.3
+  005C: or
+  005D: conv.u2
+  005E: stelem.i2
+  005F: ldc.i4.1
+  0060: add
+  0061: dup
+  0062: ldloc.0
+  0063: ldlen
+  0064: conv.i4
+  0065: blt.s ->002E
+  0067: pop
+  0068: ldloc.0
+  0069: newobj .ctor
+  006E: call Intern
+  0073: ret
+
+=== W7-CHAIN: method 'w6' (row 200, 118 IL bytes) ===
+  0000: ldarg.0
+  0001: call e#row1057
+  0006: stloc.0
+  0007: ldarg.0
+  0008: call d#row1058
+  000D: stloc.1
+  000E: ldloc.1
+  000F: ldc.i4.s 11
+  0011: call d#row201
+  0016: ldloc.1
+  0017: ldc.i4.s 22
+  0019: shr
+  001A: add
+  001B: ldc.i4.m1
+  001C: conv.u8
+  001D: and
+  001E: stloc.1
+  001F: ldsfld s
+  0024: ldloc.0
+  0025: and
+  0026: ldc.i4.m1
+  0027: conv.u8
+  0028: and
+  0029: stloc.2
+  002A: ldloc.1
+  002B: ldsfld r
+  0030: xor
+  0031: ldloc.2
+  0032: xor
+  0033: ldc.i4.m1
+  0034: conv.u8
+  0035: and
+  0036: stloc.1
+  0037: ldc.i4.4
+  0038: newarr 16777244
+  003D: dup
+  003E: ldc.i4.0
+  003F: ldloc.1
+  0040: ldc.i4.s 24
+  0042: shr
+  0043: ldc.i4 0xFF
+  0048: conv.i8
+  0049: and
+  004A: conv.u1
+  004B: stelem.i1
+  004C: dup
+  004D: ldc.i4.1
+  004E: ldloc.1
+  004F: ldc.i4.s 16
+  0051: shr
+  0052: ldc.i4 0xFF
+  0057: conv.i8
+  0058: and
+  0059: conv.u1
+  005A: stelem.i1
+  005B: dup
+  005C: ldc.i4.2
+  005D: ldloc.1
+  005E: ldc.i4.8
+  005F: shr
+  0060: ldc.i4 0xFF
+  0065: conv.i8
+  0066: and
+  0067: conv.u1
+  0068: stelem.i1
+  0069: dup
+  006A: ldc.i4.3
+  006B: ldloc.1
+  006C: ldc.i4 0xFF
+  0071: conv.i8
+  0072: and
+  0073: conv.u1
+  0074: stelem.i1
+  0075: ret

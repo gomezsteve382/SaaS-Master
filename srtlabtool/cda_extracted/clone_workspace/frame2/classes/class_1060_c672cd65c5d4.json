@@ -1,0 +1,2827 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1060,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLite",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLite",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "buslog",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.infrastructure.IState",
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 22834,
+  "cinitMethod": 22829,
+  "iinitBytecode": {
+    "codeLength": 1091,
+    "codeSha256": "dab6f5e81365b93723c7399e63e66a7925bdefe6c7191b74914a85dbb9b60d7e",
+    "bytecodeLineCount": 69
+  },
+  "cinitBytecode": {
+    "codeLength": 82,
+    "codeSha256": "17e992372ca5a12afd10e0080e7126abf2b60440072f3383e574b988d1a847ae",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___BusLoggerLite_AbstractWindow1_click",
+      "traitKind": "method",
+      "methodIndex": 22953,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "c197e85cb0ac9f6268b425715d3b861674381a59f44e480e448f46d2b553d74b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_AbstractWindow1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 22950,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "8397a3cfcb0c6da3ff2db3bb32851500b9fcd860084ee2b6f7d20cc01df9e58b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_AbstractWindow1_hide",
+      "traitKind": "method",
+      "methodIndex": 22951,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "7934d7c147576da4f74b1b49ca08d826c05295ef7c3500ae67f33900b8875f31",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_AbstractWindow1_keyDown",
+      "traitKind": "method",
+      "methodIndex": 22954,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "6ed542bab62a74cc316eaaf790299d941f7e01a8a109bbce5358fb01b6e720db",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_AbstractWindow1_show",
+      "traitKind": "method",
+      "methodIndex": 22952,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "a6fd5db1b3a4f3c76ea26fd2c6464d4f783a766bd3c136dde699059373124358",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_AbstractWindow1_stateChangeComplete",
+      "traitKind": "method",
+      "methodIndex": 22955,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "cf5bc6d2f92161d1f20bcb8c67a6f143be5cc7c9f7e6c7880afa84e8490995e8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_Button2_click",
+      "traitKind": "method",
+      "methodIndex": 22935,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "96f5b07ec27fe73cb06347165abf18c4fb4d559359d7bcb1d85effb0044b410d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_QuickBarButton1_click",
+      "traitKind": "method",
+      "methodIndex": 22899,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "c4916dcf20a38a3b3ae8f2d81c5db58a3a3243bd0256f2661e297e9756a695d6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_QuickBarButton2_click",
+      "traitKind": "method",
+      "methodIndex": 22901,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "be91877845d32061e082d2ab4b09540b70784bff6a0b7f3528d5a040c35a5129",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_QuickBarButton3_click",
+      "traitKind": "method",
+      "methodIndex": 22903,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "506a0e75cba9972269658690e79356d1e62a9d35fe6494b66f3ff70552b30419",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_QuickBarButton4_click",
+      "traitKind": "method",
+      "methodIndex": 22905,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "89e794376c8b5f9dc63dfccd936b62e2914ac00670ef83c796bf5e455181a524",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_QuickBarButton5_click",
+      "traitKind": "method",
+      "methodIndex": 22907,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "ef80c3d672187649aa230fbacf4a310c86b9141105d40fb80b75199dfcaa898a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___BusLoggerLite_QuickBarButton7_click",
+      "traitKind": "method",
+      "methodIndex": 22916,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b81b7b368e780417d12628900c52b44e17b64a727516f1049fda66e44d8ff723",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__disableAllChannelsButton_click",
+      "traitKind": "method",
+      "methodIndex": 22947,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a3d39a80c7941d4cb20f15b9a9eb487e7c5346fb17724daa2cd80d9f3629c7fa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__dropdown_click",
+      "traitKind": "method",
+      "methodIndex": 22937,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "29f22fe8910db2437eee9c5c47cf4c0621c6770410b3aa6441a25289474cbafd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__enableAllChannelsButton_click",
+      "traitKind": "method",
+      "methodIndex": 22945,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "237f2c98b2ceec536a1c19f25ff7cc4cfff09228edf6eb2f33d68e9012330d83",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__exitButton_click",
+      "traitKind": "method",
+      "methodIndex": 22883,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f4cc07f29695a6fbfdf30b5cce7597c99f95c6780f5af3c116bcf8214cd33197",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__loadButton_click",
+      "traitKind": "method",
+      "methodIndex": 22914,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "3222ac2fa1e67793b6b1f808454c320ddd2097340945802cc0c6cc76f5762922",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__packetDataGridScroll_changeEnd",
+      "traitKind": "method",
+      "methodIndex": 22932,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "2178f187a658ef803d6e7f9298bfd69b84c137a2d66782cadc444acab516cac6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__removeAllFiltersButton_click",
+      "traitKind": "method",
+      "methodIndex": 22949,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "921e84e2a699f138fe21c4e34b7b91f1b1e7b5562cd706f13d3a719542575d6e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_BusLoggerLite_Group1",
+      "traitKind": "getter",
+      "methodIndex": 23005,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bc3b96e4e6f9a38ff2ad483f7a50bba09c2878dfba5f63532a2d020ef3bad98c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_BusLoggerLite_Group1",
+      "traitKind": "setter",
+      "methodIndex": 23006,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "15e52b6b6c053f2f1f2c9b95cf4cebb6114fb24e210dabfe13f0c99a1da03300",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_BusLoggerLite_Group2",
+      "traitKind": "getter",
+      "methodIndex": 23007,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "88d777671204f0f2b59b2bf028b9d4eafe666cfbe9435bfa74dccb9d0a28ea22",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_BusLoggerLite_Group2",
+      "traitKind": "setter",
+      "methodIndex": 23008,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "7602bbf86c63f25c5799f5086aa36ec31578a5ac727e4f0b1717cfd39326f27b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_BusLoggerLite_VDividedBox1",
+      "traitKind": "getter",
+      "methodIndex": 23009,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.containers.VDividedBox",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b49241b1506a4a967d4f11ca3f83d024257e124f3ce8284acad32e6592429af2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_BusLoggerLite_VDividedBox1",
+      "traitKind": "setter",
+      "methodIndex": 23010,
+      "methodName": "",
+      "paramTypes": [
+        "mx.containers.VDividedBox"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "973282d9d6517f0476d4458f31f1b3ff41f8efa4f32e7c192d0b953e1a86c600",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "busloggerAppNotPresent",
+      "traitKind": "method",
+      "methodIndex": 22838,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.ExternalAppNotPresentMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "deea00ef650c5c8cc84d41db872e40fb3bd7efe4d3f017571b8efa48cd70d91e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "busloggerConsoleMessage",
+      "traitKind": "method",
+      "methodIndex": 22841,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.ExternalAppLoggerConsoleMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "bee397deaa486181cbee6e9cd7db2409306be65707e7e66f8a7b3715eb27112a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "busloggerLaunchFailed",
+      "traitKind": "method",
+      "methodIndex": 22840,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.ExternalAppFailureMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "07733d2c9edd776f18c436967f5bc74c9c757e4e58eb6ed90887d53cbfb80526",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "busloggerLaunchOK",
+      "traitKind": "method",
+      "methodIndex": 22839,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.ExternalAppLaunched"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "07733d2c9edd776f18c436967f5bc74c9c757e4e58eb6ed90887d53cbfb80526",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 23057,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b14af1f62c7d7edfeeed7da8cd6923533c003c833fb2fdf6c4cf4400c1a3857d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 23058,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c12275f4ec82d0ce66a981e5388416e4b668088ea47950e27c072cdac333a55c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "clearState",
+      "traitKind": "method",
+      "methodIndex": 22837,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "c72d72c2c7766b7cb23451f36b65558333b1423062b6d03b59fe8143bea9592a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.buslogConfigurationComponentFilterChanged",
+      "traitKind": "method",
+      "methodIndex": 22864,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "1d88b553f49d1d998e89ef3b48ed64f25f1e664431e291c98ac9ca87323aed7e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.buslogConfigurationComponentFilterChangedSave",
+      "traitKind": "method",
+      "methodIndex": 22865,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "174343a90cb5a37dc6a6b7973cc742326a71b30f5c6f76e44a12579b4a02b1f0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.buslogGeneratorConfigurationComponentChangedSave",
+      "traitKind": "method",
+      "methodIndex": 22868,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 423,
+      "bytecode": {
+        "codeLength": 423,
+        "codeSha256": "2b53b40aafc0e157174d6c7ac9d5141cf9d6b689653036d23dd375c5ba3b02f7",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.buslogGeneratorKeyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 22869,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 170,
+      "bytecode": {
+        "codeLength": 170,
+        "codeSha256": "f824092fc9d213e7d4a836f3bad333bdc53edf1383d95bdbe3de46d6d350c388",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.clearClickHandler",
+      "traitKind": "method",
+      "methodIndex": 22844,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "fdc284f781b4300dacdd1eb48b837e64bdba3f44dc6264998e1c76cbe5ff9cb8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.configureClickHandler",
+      "traitKind": "method",
+      "methodIndex": 22855,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "ecac2d62251cb01ec19b9b188cdad168c522e9b28b3bd9ea642aced34718dd3f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.creationCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 22849,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "9f2072b15dab8da3ad343134cd7daa2032e0d862f73b5fd25882bddac4b9eba3",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.doHide",
+      "traitKind": "method",
+      "methodIndex": 22851,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "079ff8151d8e94f4d11a815c8054e10cd6877a3bf81a73144adb04f529c94c91",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.findVisibleRowCount",
+      "traitKind": "method",
+      "methodIndex": 22846,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "8ea9f491a9dca48deb5be3480d935f911f5b53be84a5e4e5210f9378000d206b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.focusTable",
+      "traitKind": "method",
+      "methodIndex": 22870,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "89dab755abfdcef6efb4c8d52125d8d536ebd0947e8898210ac39fcf30c584ac",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.hideHandler",
+      "traitKind": "method",
+      "methodIndex": 22850,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "f5ad4332119b00ee24955959431d3e2ff34f3449a8501ec9e48d8a98872460c4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.messageGeneratorClickHandler",
+      "traitKind": "method",
+      "methodIndex": 22866,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "23997c4575125b2550ed8c9320451e7661d173d70e4b6cb8c60593d5e05750ff",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.messageGeneratorPanelShow",
+      "traitKind": "method",
+      "methodIndex": 22867,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 167,
+      "bytecode": {
+        "codeLength": 167,
+        "codeSha256": "deddf6d5724bcda888e3947eb00ef778cd40e34dbbfed30fef09629519605d02",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.onShowHandler",
+      "traitKind": "method",
+      "methodIndex": 22848,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "10ba555dcc3813adec6dde625e24435f167c9df875145e0a193cfc5c965ad2f6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.openLoadConfiguration",
+      "traitKind": "method",
+      "methodIndex": 22860,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "18549a118a354278c8fc00c30eeca86f62765fd61475dc03ce954ada8740cc9f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.openSaveConfiguration",
+      "traitKind": "method",
+      "methodIndex": 22861,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "0f51d613cf10ebb9dd8efa65506d9f7ddf7682659f0855e1249a1efd0c848768",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.packetDataGrid_resizeHandler",
+      "traitKind": "method",
+      "methodIndex": 22857,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.ResizeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "3bf279b76a95e690e0b1e084d5ef7f82a22e9411301576e681129d218628aa49",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.packetDataGridScroll_changeEndHandler",
+      "traitKind": "method",
+      "methodIndex": 22856,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "02d463fb71e7760909d70e0c98bd671e47857716b2613a8ec355a1fe4ae8a7ff",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.refreshDataGrid",
+      "traitKind": "method",
+      "methodIndex": 22859,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "bacd57d00cc2fd7bf2e5e81a88a08f7a942b8767b2d0845e8b6a307a922657d5",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.saveClickHandler",
+      "traitKind": "method",
+      "methodIndex": 22842,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "0355492db3fb8245d3427cae5e7ca238fc9ee47688c6cc5dc16b0085b1239a9e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.setupFilters",
+      "traitKind": "method",
+      "methodIndex": 22863,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponent",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 99,
+      "bytecode": {
+        "codeLength": 99,
+        "codeSha256": "c3cc1e2db72e112ef1e503dbaeb8c62647143d360da9e02d89d952484152b94d",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 23004,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "049b0bbc6e55135f4aa58724e66b33075e87f15fa1ac7fee8d80b0cae74814b8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.startClickHandler",
+      "traitKind": "method",
+      "methodIndex": 22843,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "c1f960c123fde208fd0b52f2451f93cd71e050f1a57bce7460a4786cfda2f927",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.stateChangeCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 22852,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 232,
+      "bytecode": {
+        "codeLength": 232,
+        "codeSha256": "d2347696fe4dd626bed1e52b9c9088e893b5df915b6f24f7270c6eb7d4e344b5",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.stopClickHandler",
+      "traitKind": "method",
+      "methodIndex": 22845,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "794933314ed557175e00fa97cb7ce38981dbe6736835341dddec3516d2120a53",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog.clearControlBar",
+      "traitKind": "method",
+      "methodIndex": 22854,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 118,
+      "bytecode": {
+        "codeLength": 118,
+        "codeSha256": "36f248dca021aa34a35ff248465a263566d0e65285cba8ca6653b6e9f570d2d2",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog.removeAllBuslogConfigurationComponents",
+      "traitKind": "method",
+      "methodIndex": 22853,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 109,
+      "bytecode": {
+        "codeLength": 109,
+        "codeSha256": "1277b5c970f3b56369f37c0ac5ec45d4ca7bdd971029a0190520a36faed80cf4",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "configGroup",
+      "traitKind": "getter",
+      "methodIndex": 23011,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.containers.VBox",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "503a01297810a56206db89ef99686cff21085440bd1bc340da66a38401ff8813",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "configGroup",
+      "traitKind": "setter",
+      "methodIndex": 23012,
+      "methodName": "",
+      "paramTypes": [
+        "mx.containers.VBox"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "4a50cdcb3929c68e597c37c519fb146edf37edb5f4d2e3e0322d133b9758beb9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "console",
+      "traitKind": "getter",
+      "methodIndex": 23013,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.Console",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0faa6e3bf0476742c85f0cf14e1326ac6628fd12f369569a46da8762f94f50be",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "console",
+      "traitKind": "setter",
+      "methodIndex": 23014,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog.Console"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "ca54cff44e8094fee186111581262697d5205ce7892c5759b1f5a3f318988397",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "controlBarHGroup",
+      "traitKind": "getter",
+      "methodIndex": 23015,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "081a7152f01236c88df7b34ee4550399070b14e62965cde3e5ab7d65cba868f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controlBarHGroup",
+      "traitKind": "setter",
+      "methodIndex": 23016,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.HGroup"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c03cc1b4d8280f4c2130f9a546da2c145c6ed026c4254ad9fbd691df76f6233f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "disableAllChannelsButton",
+      "traitKind": "getter",
+      "methodIndex": 23017,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a2918d6694ba0028dc7218a27b096756eb567a8ba20ee319158f808ee69b1705",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disableAllChannelsButton",
+      "traitKind": "setter",
+      "methodIndex": 23018,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "92997b64efc1a950523586e8699e2644b6363129e8c760c192e808c2da214c52",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "disableAllChannelsHandler",
+      "traitKind": "method",
+      "methodIndex": 22872,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "86a94f76dbddda5643b4704aa48881c20227d34061ba7a46cf87191ed4d9e0f1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "dropdown",
+      "traitKind": "getter",
+      "methodIndex": 23019,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "403e4b5a28eaf46acd7e9c3a6bfdb5eed50c9d0dda4e3b7f083dd51c165d675f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dropdown",
+      "traitKind": "setter",
+      "methodIndex": 23020,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "6420d5af7409a52d5455ca716c13c3a4895bcbef53acc1ad6d1c0734158c76b9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dropdownButtonGroup",
+      "traitKind": "getter",
+      "methodIndex": 23021,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "23b8b96ccc8e9fd907dfb8a35a99828d712e525c88fc7df7a5a91369ed417b10",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dropdownButtonGroup",
+      "traitKind": "setter",
+      "methodIndex": 23022,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.VGroup"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "175dea25818362f7dca1fef6a24db5e8a6293b72ce1a4306c4befb14e70552ba",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dropDownClickHandler",
+      "traitKind": "method",
+      "methodIndex": 22871,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "f449252e174263a026a12cf08072a2a514368c5c9590003c643e4ed5188ceff6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dropdownPanel",
+      "traitKind": "getter",
+      "methodIndex": 23023,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.SkinnableContainer",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "03c80305c76aeea341c760603fad1ec002663f4db739a6b26cac6d95a63b96e3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dropdownPanel",
+      "traitKind": "setter",
+      "methodIndex": 23024,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.SkinnableContainer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "2aade6f77b5eeefff7836644f503bf8327e2f7c024840e7ada5549b8864aa211",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ecuContext",
+      "traitKind": "getter",
+      "methodIndex": 23055,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.EcuContext",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3c347096c3d91d53291f0a8742e66a38181d8e1c185c517204a2c3a5ef574ca2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuContext",
+      "traitKind": "setter",
+      "methodIndex": 23056,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.EcuContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "cc5a15ab423942dff5de57cb6b2503703306102fed6ddf0522d52d8d59e927e3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "enableAllChannelsButton",
+      "traitKind": "getter",
+      "methodIndex": 23025,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "50d36fd244500376c6cb3354cd5addf52534f6b5b9a72faf2b4b95851ef6497f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enableAllChannelsButton",
+      "traitKind": "setter",
+      "methodIndex": 23026,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "9e97b38fd3000b1eb5f4ee1fd2e1052f16dadaf9e5d57de3c744e3b82e26078d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "enableAllChannelsHandler",
+      "traitKind": "method",
+      "methodIndex": 22873,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "08da3dbddefc55642e37064cad3d8c7d0ff738fb1b431378f1fdf8e7bb57d0c3",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "exitButton",
+      "traitKind": "getter",
+      "methodIndex": 23027,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6104a55c580ff10649975e121616c77a0dfa684748b35cbbebd2b8ff4af82bf1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "exitButton",
+      "traitKind": "setter",
+      "methodIndex": 23028,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "54113c8402d2138233310cc2bfda544944f944098d0e00fbb223e4604b73da65",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "factoryModel",
+      "traitKind": "getter",
+      "methodIndex": 23063,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLiteExternalAppModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "030c040e480d7f742d8c3ed8e6744d3b76bf5657dfa8b2a59fef30b0478da94e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "factoryModel",
+      "traitKind": "setter",
+      "methodIndex": 23064,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLiteExternalAppModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5376dd2b8be6e6ea387feb936a9a3a3f01b1f67ef4142c12eb7a9c626c36f2f3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "filterButtons",
+      "traitKind": "getter",
+      "methodIndex": 23029,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.ButtonBar",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e71643d5ea60aab644ca1729241ff0905823626167b3d8d57d675c466fbb6274",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "filterButtons",
+      "traitKind": "setter",
+      "methodIndex": 23030,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.ButtonBar"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "f825f1bc7a0bb04c3c043ed3cc8338a1921a292b9a36be79561f9bb9d9dabcf9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "filterComponents",
+      "traitKind": "getter",
+      "methodIndex": 23031,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.containers.ViewStack",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e5f01e5744b5b8421615e9c55736372812fe62e7cb399e0b1e24561168f9a7bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "filterComponents",
+      "traitKind": "setter",
+      "methodIndex": 23032,
+      "methodName": "",
+      "paramTypes": [
+        "mx.containers.ViewStack"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "47e41f3dc7d7b82d045fa0a8ea6be1105c4249d05633a598ef72c16d0a1a8a6a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 23053,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "94884367af726d9492aa2577b453cb02d6bd4e1ee32671331bb136bd0259ba5b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 23054,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c26d1c083f52f97a1495dc031c35f9f7c90796d63486bb9551e9a8596c5634cb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "importing",
+      "traitKind": "getter",
+      "methodIndex": 23059,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fa8116170ea07382c168d7bc317c0dc7fa11a9fcbac22d341ac784fde14632d8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "importing",
+      "traitKind": "setter",
+      "methodIndex": 23060,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "ded620fddea3c2dd09794086a788e15c6f9811b2fd347894d534bd3ca588579e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 22836,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "loadButton",
+      "traitKind": "getter",
+      "methodIndex": 23033,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2d45c7c6751f895929cc89cb888d06d43642cba2967fb4e66d1a27e542c082f3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "loadButton",
+      "traitKind": "setter",
+      "methodIndex": 23034,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.QuickBarButton"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "888cb9ff36de534343cc13701fad960c803222068faa18c1bb342ae54b8b8c24",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "messageGenerator",
+      "traitKind": "getter",
+      "methodIndex": 23035,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponent",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4a590630d58669d953481f3786482ad02d8336dc638e6b7790a9137da37ede30",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "messageGenerator",
+      "traitKind": "setter",
+      "methodIndex": 23036,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "7aa93ed6f86b256e6281c4423a755d0c9912a10aa15f8b99a34173203eb5ce4e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "getter",
+      "methodIndex": 23051,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLitePM",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f8a270ce6f2834150bdcd64c23dac6089e58ab555f1a406d60f52c4614560365",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "setter",
+      "methodIndex": 23052,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLitePM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "49c9e941e9ce2279c220f938a647a8e917461a7706021e2a294615dac006486b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 22835,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "87a1843baea7fc866cb33e73341cdfc0b7fc0c6b1faa30eb9ab68ad9939203be",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "normalGroup",
+      "traitKind": "getter",
+      "methodIndex": 23037,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.containers.VBox",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f3a611a27bdeb956c590d62fbc9912da6aeb835247f272363c42d2a423acc58f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "normalGroup",
+      "traitKind": "setter",
+      "methodIndex": 23038,
+      "methodName": "",
+      "paramTypes": [
+        "mx.containers.VBox"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "08d5ba8bef09667888284ae3e54212caf589a2cc26bebea0d46a3d60e743aa2b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBuslogExportResult",
+      "traitKind": "method",
+      "methodIndex": 22858,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogExportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "fb66298588d136804e35e33409a32a9439bd3a41aa5c0f91897aacc11fd03747",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onBuslogStreamCountResult",
+      "traitKind": "method",
+      "methodIndex": 22847,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "c90ac9fae8e3aced63b8fb089744b095f4918b6b80a5c3653f62b161a2ae19af",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "onConfigurationMessage",
+      "traitKind": "method",
+      "methodIndex": 22862,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.ConfigurationStoreRequestMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 729,
+      "bytecode": {
+        "codeLength": 729,
+        "codeSha256": "4ef801c89300036417ebfd09841e6c38d3ae75c7da7d1903d77a067297e284ba",
+        "bytecodeLineCount": 46
+      }
+    },
+    {
+      "traitName": "packetDataGrid",
+      "traitKind": "getter",
+      "methodIndex": 23039,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.DataGrid",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "42c04f3694d218c759a8f65d715c7fe39108ecbf2a1fc26e1ccf7ff490278ac6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "packetDataGrid",
+      "traitKind": "setter",
+      "methodIndex": 23040,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.DataGrid"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "ea7717c6f5781f0d8967ecd0a90746f784edf3bc6c72e27714d7d67121894dde",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "packetDataGridScroll",
+      "traitKind": "getter",
+      "methodIndex": 23041,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VScrollBar",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d80dc94d55e5b184d7c14179d68316035a5dae2b93b579be53974f8a7d9a99a0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "packetDataGridScroll",
+      "traitKind": "setter",
+      "methodIndex": 23042,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.VScrollBar"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "1768ddee3deff3ed65fbda884a76129bc61a8dd43bd06e845cfc248027e6bdfc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Array15_c",
+      "traitKind": "method",
+      "methodIndex": 22940,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "2d2b7f28c3fddfe86eac97e8c2ea88602608a120acf828d63b55c7c8e7280b55",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Array4_c",
+      "traitKind": "method",
+      "methodIndex": 22878,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "fa5467402c215c4ab319f613e5e184eae4f9d3917c71fb0df453be2bb6daeac2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 23003,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 1197,
+      "bytecode": {
+        "codeLength": 1197,
+        "codeSha256": "9340b959f429a92dfbf060c1b43825bdc490d8c4aaa9eab837f77d0ef574d015",
+        "bytecodeLineCount": 75
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_BuslogGeneratorConfigurationComponent1_i",
+      "traitKind": "method",
+      "methodIndex": 22933,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponent",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "942997f413c4d4b00a60ae883d4f6a6ec684fa73db44c42cac3155f4a2238e48",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_BusLoggerBooleanDataGridColumn1_i",
+      "traitKind": "method",
+      "methodIndex": 22926,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanDataGridColumn",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "ad94d5b16f230a61f579134a6da02b41efe0da1859ec2f6c6be94dc2c6a304ae",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_BusLoggerBooleanDataGridColumn2_i",
+      "traitKind": "method",
+      "methodIndex": 22927,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanDataGridColumn",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "954e3bb15a13bf25be82739ed96b46c9fcafb8654eabccfb89c09c6c35636864",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_BusLoggerStringDataGridColumn1_i",
+      "traitKind": "method",
+      "methodIndex": 22924,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumn",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "30aefafbc789891552dbce9a26acf85db61bae83597e92feee5e38e2a2031bdb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_BusLoggerStringDataGridColumn2_i",
+      "traitKind": "method",
+      "methodIndex": 22925,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumn",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "07dc74ee19b7fb4a6c73671e3e9400ee5b4a90f37eacd3d59bf95a0e60007d4d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_BusLoggerStringDataGridColumn3_i",
+      "traitKind": "method",
+      "methodIndex": 22928,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumn",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "60081af94d61d15e0a3adda1a1c76018443204f6b00f3c4ca3746d392fa67321",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_BusLoggerStringDataGridColumn4_i",
+      "traitKind": "method",
+      "methodIndex": 22929,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumn",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "cb799fd35e556e97b005c4dfdfcc40c9900e3877e985db26e9d48c45e17f6fb2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_BusLoggerStringDataGridColumn5_i",
+      "traitKind": "method",
+      "methodIndex": 22930,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumn",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "2768bf43b1a4b2aee70a3e2792474fffe488a80b8e97949f77a6934789e30800",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 22882,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "d996789923cd4d6efc4a8f7e7c11632232c262cc935b862e62a1a09b92a8fe7d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 22934,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "0b183ed4149f6236d9d6a7db73996103d44129b203d4c822b362a99b452eed19",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Button3_i",
+      "traitKind": "method",
+      "methodIndex": 22936,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "49811ce3d563eeecd15860695ca82b59d2d2a25818f9939e07ae86fb75025949",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Button4_i",
+      "traitKind": "method",
+      "methodIndex": 22944,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "78da2495459a01cf9fea3cf792e037a9fcf5475ff63110c9507a44a0db4ed7ff",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Button5_i",
+      "traitKind": "method",
+      "methodIndex": 22946,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "79cd58b1ca6b5392c8ec36f5feacedd8f31f7d965a0093b20c0108fcb3d54baa",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Button6_i",
+      "traitKind": "method",
+      "methodIndex": 22948,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "a544709ddb548237a35a4e9532fbdb41c1c3f70a388096186b112d74a15a0006",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Console1_i",
+      "traitKind": "method",
+      "methodIndex": 22881,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.busLog.Console",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "3777f9c51f87a4a8a3510bc85baaacb8a6750e523d05a59653064d15cd656127",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_DataGrid1_i",
+      "traitKind": "method",
+      "methodIndex": 22923,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.DataGrid",
+      "hasBody": true,
+      "codeLength": 149,
+      "bytecode": {
+        "codeLength": 149,
+        "codeSha256": "d284ffd464487f6607d6f0951289af33f5c3d254bebe744c4b44dbee6097ff3b",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Group1_i",
+      "traitKind": "method",
+      "methodIndex": 22879,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 101,
+      "bytecode": {
+        "codeLength": 101,
+        "codeSha256": "478e4c15a5aa6a5a0a6634aceba988c9e02447e0956f75a03c121ecdc1fa257a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Group2_i",
+      "traitKind": "method",
+      "methodIndex": 22884,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "07fecf45d1eef34b3707a7fbf5b4137908b7aa55e3ef2f17f45faf34033365a7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Group3_c",
+      "traitKind": "method",
+      "methodIndex": 22908,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "ee42b5ae3547218676fa695dbd9f8a5eeddc04bf7017741c17a1da13415b7907",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Group4_c",
+      "traitKind": "method",
+      "methodIndex": 22918,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "78f074c4dc4f6e51eb6fb618663065ec6f6d4a0ab822a8762e22865a071d53ef",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Group5_c",
+      "traitKind": "method",
+      "methodIndex": 22922,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "6962c21db8ff8c960dfc0ece4aec927a248a42f3792322f6e514c81acb6d65e9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_HDividedBox1_c",
+      "traitKind": "method",
+      "methodIndex": 22897,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.containers.HDividedBox",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "dae79337304f9b7926f99086ac829920bcf5fa0dffb852cea4ebf8c2b0384193",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_HGroup1_i",
+      "traitKind": "method",
+      "methodIndex": 22877,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "80112ade25bbdcebd31a9aca2a47d440ed98aecab245b57d821709e1cd87ab68",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_HGroup3_c",
+      "traitKind": "method",
+      "methodIndex": 22912,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "2a4cd74949979c03d25fda33f0ecc5bc90cc4501394fa06ca5b30b5fa1b7cd90",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 22917,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "169ef6f32f8bf6e1dcdf3771509e3aef4020d078291921439954c0003bc4cb51",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_ProgressBar1_i",
+      "traitKind": "method",
+      "methodIndex": 22919,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.ProgressBar",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "622a8f5a8073f8dcc8ae1bc758a3c09f6f8ed2cd5c6384d4ac53ba45341208db",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_ProgressBar2_i",
+      "traitKind": "method",
+      "methodIndex": 22920,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.ProgressBar",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "10e0d6ab9ab66256f5798232f98ab10bb4bc542c2785e0e5c3307b9883492da9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_QuickBarButton1_i",
+      "traitKind": "method",
+      "methodIndex": 22898,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "01988be5e387eadfe734461b56e9eb6f5b3d630b579a2bad53b5d6c95ceb3b4f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_QuickBarButton2_i",
+      "traitKind": "method",
+      "methodIndex": 22900,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "baa225f48c5cef60bc8f1493185c016ee543afabc68ca558b8dde187ab586247",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_QuickBarButton3_i",
+      "traitKind": "method",
+      "methodIndex": 22902,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "73f4b2fa699b3d3a12c7039f534b740fffef50181d9caf6d4391b8873a282b72",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_QuickBarButton4_i",
+      "traitKind": "method",
+      "methodIndex": 22904,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "d2abc67d9e813384342c254ab3e5f8ad5a77ae217daba483590b19ab1a8e45d6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_QuickBarButton5_i",
+      "traitKind": "method",
+      "methodIndex": 22906,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "34132782c70dfe8df94bf064408de604b0bfdc22cc88df8e4335d62d874fe0c2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_QuickBarButton6_i",
+      "traitKind": "method",
+      "methodIndex": 22913,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "c8587f46136986d35ecbc9e23f9807e29290b0304be56dccb3de9575f97e15b3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_QuickBarButton7_i",
+      "traitKind": "method",
+      "methodIndex": 22915,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "a267628d54a68eefb9bc26080e165d51bae8b5af79c23bcdd19bd7a1ef9c8573",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Rect1_c",
+      "traitKind": "method",
+      "methodIndex": 22910,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "785af1f88ecc1aca7e9e78f6ef4886d42cf4f6d5261ad9df6356b48e6bcc80c8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Rect2_i",
+      "traitKind": "method",
+      "methodIndex": 22941,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "144f6dbf64fd312ac1c6c78e53095fc0ee63474ffff58661a3560ed80fefa5f7",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Resize1_i",
+      "traitKind": "method",
+      "methodIndex": 22876,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.Resize",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "d2526a6fcca574e41b80844243efd4acf5bddac0ff4de116ef4e059114005081",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Scroller1_i",
+      "traitKind": "method",
+      "methodIndex": 22921,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "92fed6d45b7c469a51a6ab3e717700ae1d9173227b1bfe0a8de50f9f6b5308e3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_SkinnableContainer1_i",
+      "traitKind": "method",
+      "methodIndex": 22939,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.SkinnableContainer",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "fe43c43e9ff886d5a916a5c6dd26c42374c25217bee61ca701c9697c1132364d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_SolidColor1_c",
+      "traitKind": "method",
+      "methodIndex": 22942,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "8f400e5a7e4afc413e26f96ab61445bd7a96e2f59e5c4055f47b8fe477cd02fa",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_SolidColorStroke1_c",
+      "traitKind": "method",
+      "methodIndex": 22911,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "69f180386046098c6b10b44e65c7218eabc4eb8fd4b569b057ef37d95ef4d5fe",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Spacer1_c",
+      "traitKind": "method",
+      "methodIndex": 22909,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "dd258f74943d9269add93962e4316b4d476016f488a3c0dc4b643eefee7beb96",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_TileLayout1_i",
+      "traitKind": "method",
+      "methodIndex": 22938,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.TileLayout",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "89ff214256d51db9b6bd0e273dbd7208ed15bf64cde6761242d64d5434f35fa2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_Transition1_c",
+      "traitKind": "method",
+      "methodIndex": 22875,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.states.Transition",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "8cfafe062e2160f98330b68eeeeb17744f28ff686971baaf83e5bae7a56a05e8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 22880,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "5c402cc4dcdb398fbc3526f4825095fc320f46af32bf13251c510883b5db44a5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_VGroup1_i",
+      "traitKind": "method",
+      "methodIndex": 22943,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "a5c6679368022d3f1a71d041357468c826948e3de9324af2cc60ee37ff5abe61",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._BusLoggerLite_VScrollBar1_i",
+      "traitKind": "method",
+      "methodIndex": 22931,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VScrollBar",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "1795e42597daede276084e6992ff3cc6b743af9f6276d47467ab975b701a6722",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.boxWidth",
+      "traitKind": "getter",
+      "methodIndex": 23065,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5b1c033b61cbc5adcacf8577f3a05d53ea98d7600987fe9b2d474dbc548946b7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.boxWidth",
+      "traitKind": "setter",
+      "methodIndex": 23066,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "acd3ad567c673f3d6611248bc5193d1557154f515f5f837dc60411425ec729d2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "rect",
+      "traitKind": "getter",
+      "methodIndex": 23043,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8101efd422d4eff8632b7953cbcb2c9ba287ff7ec2b39022d9b6af3bd9663a58",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "rect",
+      "traitKind": "setter",
+      "methodIndex": 23044,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "a7f6adbccf5fea8c52f3ad760b608e3107e754a2b9e4398fa8de7d31c50907c7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeAllFiltersButton",
+      "traitKind": "getter",
+      "methodIndex": 23045,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "79c8028c3cf69b483bcd9d02d4e4a836bad093c3ecc41d82e2fcd374b1dca582",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeAllFiltersButton",
+      "traitKind": "setter",
+      "methodIndex": 23046,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "87a93df35973aa95f29233b8ba7afdda507b755ca4ece8e3beabb3c86a46c927",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeAllFiltersHandler",
+      "traitKind": "method",
+      "methodIndex": 22874,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "8401536b456125df5fc56e7baf651496a84179d67e9f20ecbf1a984fc33e514b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "saveProgress",
+      "traitKind": "getter",
+      "methodIndex": 23047,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.ProgressBar",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1ecc86cd746e088c361124a9ae23d300242d5e0d1d8bda1a7c624912b24f7f86",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "saveProgress",
+      "traitKind": "setter",
+      "methodIndex": 23048,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.ProgressBar"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "060aa04927f6b2599a65f32bf96c6d9c8fa2b19d2f8c418e0d8a3b35d57d71c1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "saving",
+      "traitKind": "getter",
+      "methodIndex": 23061,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "252bac6373e1fc62fa7f248f5411e436ea4ea487e98f8d4b3a7cda634feefafb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "saving",
+      "traitKind": "setter",
+      "methodIndex": 23062,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "28d091ee8fb6dd52314121585dcd3e5d55d9722d6ee63da403351a929611ab7f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "startingProgress",
+      "traitKind": "getter",
+      "methodIndex": 23049,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.ProgressBar",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0ad7b7b0e7799ada9beafafbe0fde0c33f396277f0258c5c45d90080b1343ec6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "startingProgress",
+      "traitKind": "setter",
+      "methodIndex": 23050,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.ProgressBar"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "ff2a91d50581dc610ab80606485605e304cf484f48e6cbdffc4dc83347d32717",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.busLog:BusLoggerLite.changeDisabled",
+      "traitKind": "method",
+      "methodIndex": 22830,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponent",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "313ae1bb5035e49b28dd3f82ee4b4e50ea55a5e35f61b7b086dbd8dfa822d249",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 22831,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "1aee39cbfe850a3556ef067ff4c6a410a75ca04b431f3215ac8b7eb19efe6240",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

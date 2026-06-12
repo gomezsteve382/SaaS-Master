@@ -1,0 +1,81 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2467,
+  "className": "mx.rpc.events.InvokeEvent",
+  "classNameNormalized": "mx.rpc.events.InvokeEvent",
+  "superName": "mx.rpc.events.AbstractEvent",
+  "superNameNormalized": "mx.rpc.events.AbstractEvent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42590,
+  "cinitMethod": 42588,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "059bfaeb73c663cd017003d251b68fe21fdaf1b62cf73d860228de59b9bad216",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "8a260f4659cdd88bfa91c9e6e5a42abb56d8e9e0ee025603e9ea28b279472106",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 42591,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.Event",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "99d9a7914c5bf3e1741a931f855df7a6e1a0445df6cea7d6284ba656af080ee2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 42592,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "b9d7b3b73f9c277e6c6ee7616ea79e32b5352bc4e9d6204a65f1e45ddd016c1e",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createEvent",
+      "traitKind": "method",
+      "methodIndex": 42589,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.AsyncToken",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "mx.rpc.events.InvokeEvent",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "485e63933f4dbce84b6fd032cda9fd09064eaa70fbd907b7bc4b053987d9b679",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

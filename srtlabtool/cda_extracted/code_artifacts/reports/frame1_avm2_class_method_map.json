@@ -1,0 +1,6541 @@
+{
+  "abcPath": "C:\\Users\\gomez\\Documents\\Codex\\2026-05-20\\files-mentioned-by-the-user-srt\\cda_extracted\\assets\\doabc\\tag_0006_frame1.abc",
+  "generatedBy": "analyze-avm2-abc.mjs",
+  "classes": [
+    {
+      "classIndex": 6,
+      "className": "_CDA_mx_managers_SystemManager",
+      "classNameNormalized": "_CDA_mx_managers_SystemManager",
+      "superName": "mx.managers.SystemManager",
+      "superNameNormalized": "mx.managers.SystemManager",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [
+        "mx.core.IFlexModuleFactory",
+        "flashx.textLayout.compose.ISWFContext"
+      ],
+      "iinitMethod": 249,
+      "cinitMethod": 248,
+      "instanceMembers": [
+        {
+          "traitName": "allowDomain",
+          "traitKind": "method",
+          "methodIndex": 254,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 140
+        },
+        {
+          "traitName": "allowInsecureDomain",
+          "traitKind": "method",
+          "methodIndex": 255,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 140
+        },
+        {
+          "traitName": "callInContext",
+          "traitKind": "method",
+          "methodIndex": 250,
+          "methodName": "",
+          "paramTypes": [
+            "Function",
+            "Object",
+            "Array",
+            "Boolean"
+          ],
+          "returnType": "*",
+          "hasBody": true,
+          "codeLength": 24
+        },
+        {
+          "traitName": "create",
+          "traitKind": "method",
+          "methodIndex": 251,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 127
+        },
+        {
+          "traitName": "info",
+          "traitKind": "method",
+          "methodIndex": 252,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 190
+        },
+        {
+          "traitName": "preloadedRSLs",
+          "traitKind": "getter",
+          "methodIndex": 253,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.utils.Dictionary",
+          "hasBody": true,
+          "codeLength": 26
+        },
+        {
+          "traitName": "PrivateNs.addPreloadedRSLHandler",
+          "traitKind": "method",
+          "methodIndex": 256,
+          "methodName": "",
+          "paramTypes": [
+            "mx.events.RSLEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 196
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 5,
+      "className": "flashx.textLayout.compose.ISWFContext",
+      "classNameNormalized": "flashx.textLayout.compose.ISWFContext",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "flash",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [],
+      "iinitMethod": 246,
+      "cinitMethod": 244,
+      "instanceMembers": [
+        {
+          "traitName": "flashx.textLayout.compose:ISWFContext.callInContext",
+          "traitKind": "method",
+          "methodIndex": 245,
+          "methodName": "",
+          "paramTypes": [
+            "Function",
+            "Object",
+            "Array",
+            "Boolean"
+          ],
+          "returnType": "*",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 30,
+      "className": "mx.core.ApplicationDomainTarget",
+      "classNameNormalized": "mx.core.ApplicationDomainTarget",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": true,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 509,
+      "cinitMethod": 508,
+      "instanceMembers": [],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 35,
+      "className": "mx.core.DPIClassification",
+      "classNameNormalized": "mx.core.DPIClassification",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": true,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 540,
+      "cinitMethod": 539,
+      "instanceMembers": [],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 40,
+      "className": "mx.core.FlexShape",
+      "classNameNormalized": "mx.core.FlexShape",
+      "superName": "flash.display.Shape",
+      "superNameNormalized": "flash.display.Shape",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 609,
+      "cinitMethod": 608,
+      "instanceMembers": [
+        {
+          "traitName": "toString",
+          "traitKind": "method",
+          "methodIndex": 610,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 11
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 18,
+      "className": "mx.core.FlexSprite",
+      "classNameNormalized": "mx.core.FlexSprite",
+      "superName": "flash.display.Sprite",
+      "superNameNormalized": "flash.display.Sprite",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 399,
+      "cinitMethod": 398,
+      "instanceMembers": [
+        {
+          "traitName": "toString",
+          "traitKind": "method",
+          "methodIndex": 400,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 11
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 1,
+      "className": "mx.core.IChildList",
+      "classNameNormalized": "mx.core.IChildList",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [],
+      "iinitMethod": 28,
+      "cinitMethod": 16,
+      "instanceMembers": [
+        {
+          "traitName": "mx.core:IChildList.addChild",
+          "traitKind": "method",
+          "methodIndex": 18,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.addChildAt",
+          "traitKind": "method",
+          "methodIndex": 19,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.contains",
+          "traitKind": "method",
+          "methodIndex": 27,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.getChildAt",
+          "traitKind": "method",
+          "methodIndex": 22,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.getChildByName",
+          "traitKind": "method",
+          "methodIndex": 23,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.getChildIndex",
+          "traitKind": "method",
+          "methodIndex": 24,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "int",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.getObjectsUnderPoint",
+          "traitKind": "method",
+          "methodIndex": 26,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Point"
+          ],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.numChildren",
+          "traitKind": "getter",
+          "methodIndex": 17,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.removeChild",
+          "traitKind": "method",
+          "methodIndex": 20,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.removeChildAt",
+          "traitKind": "method",
+          "methodIndex": 21,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IChildList.setChildIndex",
+          "traitKind": "method",
+          "methodIndex": 25,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 3,
+      "className": "mx.core.IFlexDisplayObject",
+      "classNameNormalized": "mx.core.IFlexDisplayObject",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [
+        "flash.display.IBitmapDrawable",
+        "flash.events.IEventDispatcher"
+      ],
+      "iinitMethod": 113,
+      "cinitMethod": 58,
+      "instanceMembers": [
+        {
+          "traitName": "mx.core:IFlexDisplayObject.accessibilityProperties",
+          "traitKind": "getter",
+          "methodIndex": 107,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.accessibility.AccessibilityProperties",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.accessibilityProperties",
+          "traitKind": "setter",
+          "methodIndex": 108,
+          "methodName": "",
+          "paramTypes": [
+            "flash.accessibility.AccessibilityProperties"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.alpha",
+          "traitKind": "getter",
+          "methodIndex": 80,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.alpha",
+          "traitKind": "setter",
+          "methodIndex": 81,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.blendMode",
+          "traitKind": "getter",
+          "methodIndex": 94,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.blendMode",
+          "traitKind": "setter",
+          "methodIndex": 95,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.cacheAsBitmap",
+          "traitKind": "getter",
+          "methodIndex": 86,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.cacheAsBitmap",
+          "traitKind": "setter",
+          "methodIndex": 87,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.filters",
+          "traitKind": "getter",
+          "methodIndex": 92,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.filters",
+          "traitKind": "setter",
+          "methodIndex": 93,
+          "methodName": "",
+          "paramTypes": [
+            "Array"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.getBounds",
+          "traitKind": "method",
+          "methodIndex": 102,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.geom.Rectangle",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.getRect",
+          "traitKind": "method",
+          "methodIndex": 103,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.geom.Rectangle",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.globalToLocal",
+          "traitKind": "method",
+          "methodIndex": 100,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Point"
+          ],
+          "returnType": "flash.geom.Point",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.height",
+          "traitKind": "getter",
+          "methodIndex": 84,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.height",
+          "traitKind": "setter",
+          "methodIndex": 85,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.hitTestObject",
+          "traitKind": "method",
+          "methodIndex": 105,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.hitTestPoint",
+          "traitKind": "method",
+          "methodIndex": 106,
+          "methodName": "",
+          "paramTypes": [
+            "Number",
+            "Number",
+            "Boolean"
+          ],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.loaderInfo",
+          "traitKind": "getter",
+          "methodIndex": 104,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.LoaderInfo",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.localToGlobal",
+          "traitKind": "method",
+          "methodIndex": 101,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Point"
+          ],
+          "returnType": "flash.geom.Point",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.mask",
+          "traitKind": "getter",
+          "methodIndex": 64,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.mask",
+          "traitKind": "setter",
+          "methodIndex": 65,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.measuredHeight",
+          "traitKind": "getter",
+          "methodIndex": 109,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.measuredWidth",
+          "traitKind": "getter",
+          "methodIndex": 110,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.mouseX",
+          "traitKind": "getter",
+          "methodIndex": 76,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.mouseY",
+          "traitKind": "getter",
+          "methodIndex": 77,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.move",
+          "traitKind": "method",
+          "methodIndex": 111,
+          "methodName": "",
+          "paramTypes": [
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.name",
+          "traitKind": "getter",
+          "methodIndex": 61,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.name",
+          "traitKind": "setter",
+          "methodIndex": 62,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.opaqueBackground",
+          "traitKind": "getter",
+          "methodIndex": 88,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.opaqueBackground",
+          "traitKind": "setter",
+          "methodIndex": 89,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.parent",
+          "traitKind": "getter",
+          "methodIndex": 63,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.DisplayObjectContainer",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.root",
+          "traitKind": "getter",
+          "methodIndex": 59,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.rotation",
+          "traitKind": "getter",
+          "methodIndex": 78,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.rotation",
+          "traitKind": "setter",
+          "methodIndex": 79,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.scale9Grid",
+          "traitKind": "getter",
+          "methodIndex": 98,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.geom.Rectangle",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.scale9Grid",
+          "traitKind": "setter",
+          "methodIndex": 99,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Rectangle"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.scaleX",
+          "traitKind": "getter",
+          "methodIndex": 72,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.scaleX",
+          "traitKind": "setter",
+          "methodIndex": 73,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.scaleY",
+          "traitKind": "getter",
+          "methodIndex": 74,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.scaleY",
+          "traitKind": "setter",
+          "methodIndex": 75,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.scrollRect",
+          "traitKind": "getter",
+          "methodIndex": 90,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.geom.Rectangle",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.scrollRect",
+          "traitKind": "setter",
+          "methodIndex": 91,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Rectangle"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.setActualSize",
+          "traitKind": "method",
+          "methodIndex": 112,
+          "methodName": "",
+          "paramTypes": [
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.stage",
+          "traitKind": "getter",
+          "methodIndex": 60,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.Stage",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.transform",
+          "traitKind": "getter",
+          "methodIndex": 96,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.geom.Transform",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.transform",
+          "traitKind": "setter",
+          "methodIndex": 97,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Transform"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.visible",
+          "traitKind": "getter",
+          "methodIndex": 66,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.visible",
+          "traitKind": "setter",
+          "methodIndex": 67,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.width",
+          "traitKind": "getter",
+          "methodIndex": 82,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.width",
+          "traitKind": "setter",
+          "methodIndex": 83,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.x",
+          "traitKind": "getter",
+          "methodIndex": 68,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.x",
+          "traitKind": "setter",
+          "methodIndex": 69,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.y",
+          "traitKind": "getter",
+          "methodIndex": 70,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexDisplayObject.y",
+          "traitKind": "setter",
+          "methodIndex": 71,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 26,
+      "className": "mx.core.IFlexModule",
+      "classNameNormalized": "mx.core.IFlexModule",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [],
+      "iinitMethod": 446,
+      "cinitMethod": 443,
+      "instanceMembers": [
+        {
+          "traitName": "mx.core:IFlexModule.moduleFactory",
+          "traitKind": "getter",
+          "methodIndex": 445,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IFlexModuleFactory",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModule.moduleFactory",
+          "traitKind": "setter",
+          "methodIndex": 444,
+          "methodName": "",
+          "paramTypes": [
+            "mx.core.IFlexModuleFactory"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 0,
+      "className": "mx.core.IFlexModuleFactory",
+      "classNameNormalized": "mx.core.IFlexModuleFactory",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [],
+      "iinitMethod": 14,
+      "cinitMethod": 0,
+      "instanceMembers": [
+        {
+          "traitName": "mx.core:IFlexModuleFactory.addPreloadedRSL",
+          "traitKind": "method",
+          "methodIndex": 6,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.LoaderInfo",
+            "__AS3__.vec.Vector<mx.core.RSLData>"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.allowDomain",
+          "traitKind": "method",
+          "methodIndex": 7,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.allowDomainsInNewRSLs",
+          "traitKind": "getter",
+          "methodIndex": 1,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.allowDomainsInNewRSLs",
+          "traitKind": "setter",
+          "methodIndex": 2,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.allowInsecureDomain",
+          "traitKind": "method",
+          "methodIndex": 8,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.allowInsecureDomainsInNewRSLs",
+          "traitKind": "getter",
+          "methodIndex": 3,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.allowInsecureDomainsInNewRSLs",
+          "traitKind": "setter",
+          "methodIndex": 4,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.callInContext",
+          "traitKind": "method",
+          "methodIndex": 9,
+          "methodName": "",
+          "paramTypes": [
+            "Function",
+            "Object",
+            "Array",
+            "Boolean"
+          ],
+          "returnType": "*",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.create",
+          "traitKind": "method",
+          "methodIndex": 10,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.getImplementation",
+          "traitKind": "method",
+          "methodIndex": 11,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.info",
+          "traitKind": "method",
+          "methodIndex": 12,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.preloadedRSLs",
+          "traitKind": "getter",
+          "methodIndex": 5,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.utils.Dictionary",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IFlexModuleFactory.registerImplementation",
+          "traitKind": "method",
+          "methodIndex": 13,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 24,
+      "className": "mx.core.IInvalidating",
+      "classNameNormalized": "mx.core.IInvalidating",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [],
+      "iinitMethod": 433,
+      "cinitMethod": 428,
+      "instanceMembers": [
+        {
+          "traitName": "mx.core:IInvalidating.invalidateDisplayList",
+          "traitKind": "method",
+          "methodIndex": 431,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IInvalidating.invalidateProperties",
+          "traitKind": "method",
+          "methodIndex": 429,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IInvalidating.invalidateSize",
+          "traitKind": "method",
+          "methodIndex": 430,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IInvalidating.validateNow",
+          "traitKind": "method",
+          "methodIndex": 432,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 17,
+      "className": "mx.core.IRawChildrenContainer",
+      "classNameNormalized": "mx.core.IRawChildrenContainer",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [],
+      "iinitMethod": 395,
+      "cinitMethod": 393,
+      "instanceMembers": [
+        {
+          "traitName": "mx.core:IRawChildrenContainer.rawChildren",
+          "traitKind": "getter",
+          "methodIndex": 394,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IChildList",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 39,
+      "className": "mx.core.IRepeaterClient",
+      "classNameNormalized": "mx.core.IRepeaterClient",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [],
+      "iinitMethod": 606,
+      "cinitMethod": 597,
+      "instanceMembers": [
+        {
+          "traitName": "mx.core:IRepeaterClient.initializeRepeaterArrays",
+          "traitKind": "method",
+          "methodIndex": 605,
+          "methodName": "",
+          "paramTypes": [
+            "mx.core.IRepeaterClient"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IRepeaterClient.instanceIndices",
+          "traitKind": "getter",
+          "methodIndex": 598,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IRepeaterClient.instanceIndices",
+          "traitKind": "setter",
+          "methodIndex": 599,
+          "methodName": "",
+          "paramTypes": [
+            "Array"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IRepeaterClient.isDocument",
+          "traitKind": "getter",
+          "methodIndex": 600,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IRepeaterClient.repeaterIndices",
+          "traitKind": "getter",
+          "methodIndex": 601,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IRepeaterClient.repeaterIndices",
+          "traitKind": "setter",
+          "methodIndex": 602,
+          "methodName": "",
+          "paramTypes": [
+            "Array"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IRepeaterClient.repeaters",
+          "traitKind": "getter",
+          "methodIndex": 603,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IRepeaterClient.repeaters",
+          "traitKind": "setter",
+          "methodIndex": 604,
+          "methodName": "",
+          "paramTypes": [
+            "Array"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 8,
+      "className": "mx.core.IUIComponent",
+      "classNameNormalized": "mx.core.IUIComponent",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [
+        "mx.core.IFlexDisplayObject"
+      ],
+      "iinitMethod": 314,
+      "cinitMethod": 270,
+      "instanceMembers": [
+        {
+          "traitName": "mx.core:IUIComponent.baselinePosition",
+          "traitKind": "getter",
+          "methodIndex": 271,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.document",
+          "traitKind": "getter",
+          "methodIndex": 272,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.document",
+          "traitKind": "setter",
+          "methodIndex": 273,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.enabled",
+          "traitKind": "getter",
+          "methodIndex": 274,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.enabled",
+          "traitKind": "setter",
+          "methodIndex": 275,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.explicitHeight",
+          "traitKind": "getter",
+          "methodIndex": 276,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.explicitHeight",
+          "traitKind": "setter",
+          "methodIndex": 277,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.explicitMaxHeight",
+          "traitKind": "getter",
+          "methodIndex": 278,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.explicitMaxWidth",
+          "traitKind": "getter",
+          "methodIndex": 279,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.explicitMinHeight",
+          "traitKind": "getter",
+          "methodIndex": 280,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.explicitMinWidth",
+          "traitKind": "getter",
+          "methodIndex": 281,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.explicitWidth",
+          "traitKind": "getter",
+          "methodIndex": 282,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.explicitWidth",
+          "traitKind": "setter",
+          "methodIndex": 283,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.focusPane",
+          "traitKind": "getter",
+          "methodIndex": 284,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.Sprite",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.focusPane",
+          "traitKind": "setter",
+          "methodIndex": 285,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.Sprite"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.getExplicitOrMeasuredHeight",
+          "traitKind": "method",
+          "methodIndex": 311,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.getExplicitOrMeasuredWidth",
+          "traitKind": "method",
+          "methodIndex": 310,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.includeInLayout",
+          "traitKind": "getter",
+          "methodIndex": 286,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.includeInLayout",
+          "traitKind": "setter",
+          "methodIndex": 287,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.initialize",
+          "traitKind": "method",
+          "methodIndex": 308,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.isPopUp",
+          "traitKind": "getter",
+          "methodIndex": 288,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.isPopUp",
+          "traitKind": "setter",
+          "methodIndex": 289,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.maxHeight",
+          "traitKind": "getter",
+          "methodIndex": 290,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.maxWidth",
+          "traitKind": "getter",
+          "methodIndex": 291,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.measuredMinHeight",
+          "traitKind": "getter",
+          "methodIndex": 292,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.measuredMinHeight",
+          "traitKind": "setter",
+          "methodIndex": 293,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.measuredMinWidth",
+          "traitKind": "getter",
+          "methodIndex": 294,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.measuredMinWidth",
+          "traitKind": "setter",
+          "methodIndex": 295,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.minHeight",
+          "traitKind": "getter",
+          "methodIndex": 296,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.minWidth",
+          "traitKind": "getter",
+          "methodIndex": 297,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.owner",
+          "traitKind": "getter",
+          "methodIndex": 298,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.DisplayObjectContainer",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.owner",
+          "traitKind": "setter",
+          "methodIndex": 299,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObjectContainer"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.owns",
+          "traitKind": "method",
+          "methodIndex": 313,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.parentChanged",
+          "traitKind": "method",
+          "methodIndex": 309,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObjectContainer"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.percentHeight",
+          "traitKind": "getter",
+          "methodIndex": 300,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.percentHeight",
+          "traitKind": "setter",
+          "methodIndex": 301,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.percentWidth",
+          "traitKind": "getter",
+          "methodIndex": 302,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.percentWidth",
+          "traitKind": "setter",
+          "methodIndex": 303,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.setVisible",
+          "traitKind": "method",
+          "methodIndex": 312,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean",
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.systemManager",
+          "traitKind": "getter",
+          "methodIndex": 304,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.managers.ISystemManager",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.systemManager",
+          "traitKind": "setter",
+          "methodIndex": 305,
+          "methodName": "",
+          "paramTypes": [
+            "mx.managers.ISystemManager"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.tweeningProperties",
+          "traitKind": "getter",
+          "methodIndex": 306,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.core:IUIComponent.tweeningProperties",
+          "traitKind": "setter",
+          "methodIndex": 307,
+          "methodName": "",
+          "paramTypes": [
+            "Array"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 31,
+      "className": "mx.core.ResourceModuleRSLItem",
+      "classNameNormalized": "mx.core.ResourceModuleRSLItem",
+      "superName": "mx.core.RSLItem",
+      "superNameNormalized": "mx.core.RSLItem",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 512,
+      "cinitMethod": 511,
+      "instanceMembers": [
+        {
+          "traitName": "load",
+          "traitKind": "method",
+          "methodIndex": 513,
+          "methodName": "",
+          "paramTypes": [
+            "Function",
+            "Function",
+            "Function",
+            "Function",
+            "Function"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 178
+        },
+        {
+          "traitName": "PrivateNs.resourceErrorHandler",
+          "traitKind": "method",
+          "methodIndex": 514,
+          "methodName": "",
+          "paramTypes": [
+            "mx.events.ResourceEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 30
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 7,
+      "className": "mx.core.RSLData",
+      "classNameNormalized": "mx.core.RSLData",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 259,
+      "cinitMethod": 258,
+      "instanceMembers": [
+        {
+          "traitName": "applicationDomainTarget",
+          "traitKind": "getter",
+          "methodIndex": 260,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "digest",
+          "traitKind": "getter",
+          "methodIndex": 261,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "hashType",
+          "traitKind": "getter",
+          "methodIndex": 262,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "isSigned",
+          "traitKind": "getter",
+          "methodIndex": 263,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "moduleFactory",
+          "traitKind": "getter",
+          "methodIndex": 264,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IFlexModuleFactory",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "moduleFactory",
+          "traitKind": "setter",
+          "methodIndex": 265,
+          "methodName": "",
+          "paramTypes": [
+            "mx.core.IFlexModuleFactory"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "policyFileURL",
+          "traitKind": "getter",
+          "methodIndex": 266,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "rslURL",
+          "traitKind": "getter",
+          "methodIndex": 267,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "verifyDigest",
+          "traitKind": "getter",
+          "methodIndex": 268,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 7
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 19,
+      "className": "mx.core.RSLItem",
+      "classNameNormalized": "mx.core.RSLItem",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 403,
+      "cinitMethod": 402,
+      "instanceMembers": [
+        {
+          "traitName": "itemCompleteHandler",
+          "traitKind": "method",
+          "methodIndex": 406,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 23
+        },
+        {
+          "traitName": "itemErrorHandler",
+          "traitKind": "method",
+          "methodIndex": 407,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.ErrorEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 154
+        },
+        {
+          "traitName": "itemProgressHandler",
+          "traitKind": "method",
+          "methodIndex": 405,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.ProgressEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 34
+        },
+        {
+          "traitName": "load",
+          "traitKind": "method",
+          "methodIndex": 404,
+          "methodName": "",
+          "paramTypes": [
+            "Function",
+            "Function",
+            "Function",
+            "Function",
+            "Function"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 204
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 32,
+      "className": "mx.core.RSLListLoader",
+      "classNameNormalized": "mx.core.RSLListLoader",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 517,
+      "cinitMethod": 516,
+      "instanceMembers": [
+        {
+          "traitName": "getIndex",
+          "traitKind": "method",
+          "methodIndex": 521,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "getItem",
+          "traitKind": "method",
+          "methodIndex": 520,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "mx.core.RSLItem",
+          "hasBody": true,
+          "codeLength": 36
+        },
+        {
+          "traitName": "getItemCount",
+          "traitKind": "method",
+          "methodIndex": 522,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 10
+        },
+        {
+          "traitName": "isDone",
+          "traitKind": "method",
+          "methodIndex": 523,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 15
+        },
+        {
+          "traitName": "load",
+          "traitKind": "method",
+          "methodIndex": 518,
+          "methodName": "",
+          "paramTypes": [
+            "Function",
+            "Function",
+            "Function",
+            "Function",
+            "Function"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 41
+        },
+        {
+          "traitName": "PrivateNs.listCompleteHandler",
+          "traitKind": "method",
+          "methodIndex": 524,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 23
+        },
+        {
+          "traitName": "PrivateNs.listIOErrorHandler",
+          "traitKind": "method",
+          "methodIndex": 525,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 18
+        },
+        {
+          "traitName": "PrivateNs.listSecurityErrorHandler",
+          "traitKind": "method",
+          "methodIndex": 526,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 18
+        },
+        {
+          "traitName": "PrivateNs.loadNext",
+          "traitKind": "method",
+          "methodIndex": 519,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 79
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 34,
+      "className": "mx.core.RuntimeDPIProvider",
+      "classNameNormalized": "mx.core.RuntimeDPIProvider",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 536,
+      "cinitMethod": 534,
+      "instanceMembers": [
+        {
+          "traitName": "runtimeDPI",
+          "traitKind": "getter",
+          "methodIndex": 537,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 16
+        }
+      ],
+      "staticMembers": [
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.classifyDPI",
+          "traitKind": "method",
+          "methodIndex": 535,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 39
+        }
+      ]
+    },
+    {
+      "classIndex": 21,
+      "className": "mx.core.Singleton",
+      "classNameNormalized": "mx.core.Singleton",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 417,
+      "cinitMethod": 413,
+      "instanceMembers": [],
+      "staticMembers": [
+        {
+          "traitName": "getClass",
+          "traitKind": "method",
+          "methodIndex": 415,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "Class",
+          "hasBody": true,
+          "codeLength": 10
+        },
+        {
+          "traitName": "getInstance",
+          "traitKind": "method",
+          "methodIndex": 416,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 49
+        },
+        {
+          "traitName": "registerClass",
+          "traitKind": "method",
+          "methodIndex": 414,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Class"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 26
+        }
+      ]
+    },
+    {
+      "classIndex": 16,
+      "className": "mx.events.DynamicEvent",
+      "classNameNormalized": "mx.events.DynamicEvent",
+      "superName": "flash.events.Event",
+      "superNameNormalized": "flash.events.Event",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": false,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 390,
+      "cinitMethod": 389,
+      "instanceMembers": [
+        {
+          "traitName": "clone",
+          "traitKind": "method",
+          "methodIndex": 391,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.events.Event",
+          "hasBody": true,
+          "codeLength": 66
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 23,
+      "className": "mx.events.FlexEvent",
+      "classNameNormalized": "mx.events.FlexEvent",
+      "superName": "flash.events.Event",
+      "superNameNormalized": "flash.events.Event",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 425,
+      "cinitMethod": 424,
+      "instanceMembers": [
+        {
+          "traitName": "clone",
+          "traitKind": "method",
+          "methodIndex": 426,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.events.Event",
+          "hasBody": true,
+          "codeLength": 17
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 20,
+      "className": "mx.events.Request",
+      "classNameNormalized": "mx.events.Request",
+      "superName": "flash.events.Event",
+      "superNameNormalized": "flash.events.Event",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 410,
+      "cinitMethod": 409,
+      "instanceMembers": [
+        {
+          "traitName": "clone",
+          "traitKind": "method",
+          "methodIndex": 411,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.events.Event",
+          "hasBody": true,
+          "codeLength": 28
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 38,
+      "className": "mx.events.ResourceEvent",
+      "classNameNormalized": "mx.events.ResourceEvent",
+      "superName": "flash.events.ProgressEvent",
+      "superNameNormalized": "flash.events.ProgressEvent",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 594,
+      "cinitMethod": 593,
+      "instanceMembers": [
+        {
+          "traitName": "clone",
+          "traitKind": "method",
+          "methodIndex": 595,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.events.Event",
+          "hasBody": true,
+          "codeLength": 27
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 14,
+      "className": "mx.events.RSLEvent",
+      "classNameNormalized": "mx.events.RSLEvent",
+      "superName": "flash.events.ProgressEvent",
+      "superNameNormalized": "flash.events.ProgressEvent",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 372,
+      "cinitMethod": 371,
+      "instanceMembers": [
+        {
+          "traitName": "clone",
+          "traitKind": "method",
+          "methodIndex": 373,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.events.Event",
+          "hasBody": true,
+          "codeLength": 47
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 9,
+      "className": "mx.events.SandboxMouseEvent",
+      "classNameNormalized": "mx.events.SandboxMouseEvent",
+      "superName": "flash.events.Event",
+      "superNameNormalized": "flash.events.Event",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 318,
+      "cinitMethod": 316,
+      "instanceMembers": [
+        {
+          "traitName": "clone",
+          "traitKind": "method",
+          "methodIndex": 319,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.events.Event",
+          "hasBody": true,
+          "codeLength": 33
+        }
+      ],
+      "staticMembers": [
+        {
+          "traitName": "marshal",
+          "traitKind": "method",
+          "methodIndex": 317,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "mx.events.SandboxMouseEvent",
+          "hasBody": true,
+          "codeLength": 38
+        }
+      ]
+    },
+    {
+      "classIndex": 36,
+      "className": "mx.graphics.RectangularDropShadow",
+      "classNameNormalized": "mx.graphics.RectangularDropShadow",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 543,
+      "cinitMethod": 542,
+      "instanceMembers": [
+        {
+          "traitName": "alpha",
+          "traitKind": "getter",
+          "methodIndex": 544,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "alpha",
+          "traitKind": "setter",
+          "methodIndex": 545,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "angle",
+          "traitKind": "getter",
+          "methodIndex": 546,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "angle",
+          "traitKind": "setter",
+          "methodIndex": 547,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "blRadius",
+          "traitKind": "getter",
+          "methodIndex": 556,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "blRadius",
+          "traitKind": "setter",
+          "methodIndex": 557,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "blurX",
+          "traitKind": "getter",
+          "methodIndex": 560,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "blurX",
+          "traitKind": "setter",
+          "methodIndex": 561,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "blurY",
+          "traitKind": "getter",
+          "methodIndex": 562,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "blurY",
+          "traitKind": "setter",
+          "methodIndex": 563,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "brRadius",
+          "traitKind": "getter",
+          "methodIndex": 558,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "brRadius",
+          "traitKind": "setter",
+          "methodIndex": 559,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "color",
+          "traitKind": "getter",
+          "methodIndex": 548,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "color",
+          "traitKind": "setter",
+          "methodIndex": 549,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "distance",
+          "traitKind": "getter",
+          "methodIndex": 550,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "distance",
+          "traitKind": "setter",
+          "methodIndex": 551,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "drawShadow",
+          "traitKind": "method",
+          "methodIndex": 564,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.Graphics",
+            "Number",
+            "Number",
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 1011
+        },
+        {
+          "traitName": "PrivateNs.createShadowBitmaps",
+          "traitKind": "method",
+          "methodIndex": 565,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 770
+        },
+        {
+          "traitName": "tlRadius",
+          "traitKind": "getter",
+          "methodIndex": 552,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "tlRadius",
+          "traitKind": "setter",
+          "methodIndex": 553,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "trRadius",
+          "traitKind": "getter",
+          "methodIndex": 554,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "trRadius",
+          "traitKind": "setter",
+          "methodIndex": 555,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 2,
+      "className": "mx.managers.ISystemManager",
+      "classNameNormalized": "mx.managers.ISystemManager",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [
+        "flash.events.IEventDispatcher",
+        "mx.core.IChildList",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "iinitMethod": 56,
+      "cinitMethod": 30,
+      "instanceMembers": [
+        {
+          "traitName": "mx.managers:ISystemManager.cursorChildren",
+          "traitKind": "getter",
+          "methodIndex": 31,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IChildList",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.deployMouseShields",
+          "traitKind": "method",
+          "methodIndex": 54,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.document",
+          "traitKind": "getter",
+          "methodIndex": 32,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.document",
+          "traitKind": "setter",
+          "methodIndex": 33,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.embeddedFontList",
+          "traitKind": "getter",
+          "methodIndex": 34,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.focusPane",
+          "traitKind": "getter",
+          "methodIndex": 35,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.Sprite",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.focusPane",
+          "traitKind": "setter",
+          "methodIndex": 36,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.Sprite"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.getDefinitionByName",
+          "traitKind": "method",
+          "methodIndex": 47,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.getSandboxRoot",
+          "traitKind": "method",
+          "methodIndex": 52,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.getTopLevelRoot",
+          "traitKind": "method",
+          "methodIndex": 51,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.getVisibleApplicationRect",
+          "traitKind": "method",
+          "methodIndex": 53,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Rectangle",
+            "Boolean"
+          ],
+          "returnType": "flash.geom.Rectangle",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.invalidateParentSizeAndDisplayList",
+          "traitKind": "method",
+          "methodIndex": 55,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.isFontFaceEmbedded",
+          "traitKind": "method",
+          "methodIndex": 49,
+          "methodName": "",
+          "paramTypes": [
+            "flash.text.TextFormat"
+          ],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.isProxy",
+          "traitKind": "getter",
+          "methodIndex": 37,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.isTopLevel",
+          "traitKind": "method",
+          "methodIndex": 48,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.isTopLevelRoot",
+          "traitKind": "method",
+          "methodIndex": 50,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.loaderInfo",
+          "traitKind": "getter",
+          "methodIndex": 38,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.LoaderInfo",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.numModalWindows",
+          "traitKind": "getter",
+          "methodIndex": 39,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.numModalWindows",
+          "traitKind": "setter",
+          "methodIndex": 40,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.popUpChildren",
+          "traitKind": "getter",
+          "methodIndex": 41,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IChildList",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.rawChildren",
+          "traitKind": "getter",
+          "methodIndex": 42,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IChildList",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.screen",
+          "traitKind": "getter",
+          "methodIndex": 43,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.geom.Rectangle",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.stage",
+          "traitKind": "getter",
+          "methodIndex": 44,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.Stage",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.toolTipChildren",
+          "traitKind": "getter",
+          "methodIndex": 45,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IChildList",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManager.topLevelSystemManager",
+          "traitKind": "getter",
+          "methodIndex": 46,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.managers.ISystemManager",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 25,
+      "className": "mx.managers.ISystemManagerChildManager",
+      "classNameNormalized": "mx.managers.ISystemManagerChildManager",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [],
+      "iinitMethod": 441,
+      "cinitMethod": 435,
+      "instanceMembers": [
+        {
+          "traitName": "mx.managers:ISystemManagerChildManager.addingChild",
+          "traitKind": "method",
+          "methodIndex": 436,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManagerChildManager.childAdded",
+          "traitKind": "method",
+          "methodIndex": 437,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManagerChildManager.childRemoved",
+          "traitKind": "method",
+          "methodIndex": 438,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManagerChildManager.initializeTopLevelWindow",
+          "traitKind": "method",
+          "methodIndex": 440,
+          "methodName": "",
+          "paramTypes": [
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.managers:ISystemManagerChildManager.removingChild",
+          "traitKind": "method",
+          "methodIndex": 439,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 15,
+      "className": "mx.managers.SystemChildrenList",
+      "classNameNormalized": "mx.managers.SystemChildrenList",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [
+        "mx.core.IChildList"
+      ],
+      "iinitMethod": 376,
+      "cinitMethod": 375,
+      "instanceMembers": [
+        {
+          "traitName": "addChild",
+          "traitKind": "method",
+          "methodIndex": 378,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 55
+        },
+        {
+          "traitName": "addChildAt",
+          "traitKind": "method",
+          "methodIndex": 379,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 59
+        },
+        {
+          "traitName": "contains",
+          "traitKind": "method",
+          "methodIndex": 387,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 107
+        },
+        {
+          "traitName": "getChildAt",
+          "traitKind": "method",
+          "methodIndex": 382,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 28
+        },
+        {
+          "traitName": "getChildByName",
+          "traitKind": "method",
+          "methodIndex": 383,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "getChildIndex",
+          "traitKind": "method",
+          "methodIndex": 384,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 30
+        },
+        {
+          "traitName": "getObjectsUnderPoint",
+          "traitKind": "method",
+          "methodIndex": 386,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Point"
+          ],
+          "returnType": "Array",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "numChildren",
+          "traitKind": "getter",
+          "methodIndex": 377,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 26
+        },
+        {
+          "traitName": "removeChild",
+          "traitKind": "method",
+          "methodIndex": 380,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 93
+        },
+        {
+          "traitName": "removeChildAt",
+          "traitKind": "method",
+          "methodIndex": 381,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 61
+        },
+        {
+          "traitName": "setChildIndex",
+          "traitKind": "method",
+          "methodIndex": 385,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 25
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 4,
+      "className": "mx.managers.SystemManager",
+      "classNameNormalized": "mx.managers.SystemManager",
+      "superName": "flash.display.MovieClip",
+      "superNameNormalized": "flash.display.MovieClip",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [
+        "mx.core.IChildList",
+        "mx.core.IFlexDisplayObject",
+        "mx.core.IFlexModuleFactory",
+        "mx.managers.ISystemManager"
+      ],
+      "iinitMethod": 118,
+      "cinitMethod": 115,
+      "instanceMembers": [
+        {
+          "traitName": "addChild",
+          "traitKind": "method",
+          "methodIndex": 173,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 28
+        },
+        {
+          "traitName": "addChildAt",
+          "traitKind": "method",
+          "methodIndex": 174,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 54
+        },
+        {
+          "traitName": "addEventListener",
+          "traitKind": "method",
+          "methodIndex": 170,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Function",
+            "Boolean",
+            "int",
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 710
+        },
+        {
+          "traitName": "addPreloadedRSL",
+          "traitKind": "method",
+          "methodIndex": 153,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.LoaderInfo",
+            "__AS3__.vec.Vector<mx.core.RSLData>"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 58
+        },
+        {
+          "traitName": "allowDomain",
+          "traitKind": "method",
+          "methodIndex": 199,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 3
+        },
+        {
+          "traitName": "allowDomainsInNewRSLs",
+          "traitKind": "getter",
+          "methodIndex": 124,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "allowDomainsInNewRSLs",
+          "traitKind": "setter",
+          "methodIndex": 125,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "allowInsecureDomain",
+          "traitKind": "method",
+          "methodIndex": 200,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 3
+        },
+        {
+          "traitName": "allowInsecureDomainsInNewRSLs",
+          "traitKind": "getter",
+          "methodIndex": 126,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "allowInsecureDomainsInNewRSLs",
+          "traitKind": "setter",
+          "methodIndex": 127,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "application",
+          "traitKind": "getter",
+          "methodIndex": 128,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IUIComponent",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "callInContext",
+          "traitKind": "method",
+          "methodIndex": 185,
+          "methodName": "",
+          "paramTypes": [
+            "Function",
+            "Object",
+            "Array",
+            "Boolean"
+          ],
+          "returnType": "*",
+          "hasBody": true,
+          "codeLength": 6
+        },
+        {
+          "traitName": "childAllowsParent",
+          "traitKind": "getter",
+          "methodIndex": 168,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 29
+        },
+        {
+          "traitName": "contains",
+          "traitKind": "method",
+          "methodIndex": 184,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 144
+        },
+        {
+          "traitName": "create",
+          "traitKind": "method",
+          "methodIndex": 186,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 112
+        },
+        {
+          "traitName": "cursorChildren",
+          "traitKind": "getter",
+          "methodIndex": 131,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IChildList",
+          "hasBody": true,
+          "codeLength": 64
+        },
+        {
+          "traitName": "deployMouseShields",
+          "traitKind": "method",
+          "methodIndex": 240,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 47
+        },
+        {
+          "traitName": "document",
+          "traitKind": "getter",
+          "methodIndex": 135,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "document",
+          "traitKind": "setter",
+          "methodIndex": 136,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "embeddedFontList",
+          "traitKind": "getter",
+          "methodIndex": 137,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 164
+        },
+        {
+          "traitName": "explicitHeight",
+          "traitKind": "getter",
+          "methodIndex": 138,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "explicitHeight",
+          "traitKind": "setter",
+          "methodIndex": 139,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "explicitWidth",
+          "traitKind": "getter",
+          "methodIndex": 140,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "explicitWidth",
+          "traitKind": "setter",
+          "methodIndex": 141,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "focusPane",
+          "traitKind": "getter",
+          "methodIndex": 142,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.Sprite",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "focusPane",
+          "traitKind": "setter",
+          "methodIndex": 143,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.Sprite"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 54
+        },
+        {
+          "traitName": "getChildAt",
+          "traitKind": "method",
+          "methodIndex": 179,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 14
+        },
+        {
+          "traitName": "getChildByName",
+          "traitKind": "method",
+          "methodIndex": 180,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 9
+        },
+        {
+          "traitName": "getChildIndex",
+          "traitKind": "method",
+          "methodIndex": 181,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 14
+        },
+        {
+          "traitName": "getDefinitionByName",
+          "traitKind": "method",
+          "methodIndex": 205,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 92
+        },
+        {
+          "traitName": "getExplicitOrMeasuredHeight",
+          "traitKind": "method",
+          "methodIndex": 202,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 32
+        },
+        {
+          "traitName": "getExplicitOrMeasuredWidth",
+          "traitKind": "method",
+          "methodIndex": 201,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 32
+        },
+        {
+          "traitName": "getImplementation",
+          "traitKind": "method",
+          "methodIndex": 238,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 15
+        },
+        {
+          "traitName": "getObjectsUnderPoint",
+          "traitKind": "method",
+          "methodIndex": 183,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Point"
+          ],
+          "returnType": "Array",
+          "hasBody": true,
+          "codeLength": 93
+        },
+        {
+          "traitName": "getSandboxRoot",
+          "traitKind": "method",
+          "methodIndex": 236,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 248
+        },
+        {
+          "traitName": "getTopLevelRoot",
+          "traitKind": "method",
+          "methodIndex": 235,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 104
+        },
+        {
+          "traitName": "getVisibleApplicationRect",
+          "traitKind": "method",
+          "methodIndex": 239,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Rectangle",
+            "Boolean"
+          ],
+          "returnType": "flash.geom.Rectangle",
+          "hasBody": true,
+          "codeLength": 345
+        },
+        {
+          "traitName": "height",
+          "traitKind": "getter",
+          "methodIndex": 120,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.$addChildAt",
+          "traitKind": "method",
+          "methodIndex": 175,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 10
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.$addEventListener",
+          "traitKind": "method",
+          "methodIndex": 167,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Function",
+            "Boolean",
+            "int",
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 15
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.$numChildren",
+          "traitKind": "getter",
+          "methodIndex": 149,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.$removeChildAt",
+          "traitKind": "method",
+          "methodIndex": 176,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 9
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.$removeEventListener",
+          "traitKind": "method",
+          "methodIndex": 171,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Function",
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 11
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.applicationIndex",
+          "traitKind": "getter",
+          "methodIndex": 129,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.applicationIndex",
+          "traitKind": "setter",
+          "methodIndex": 130,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.cursorIndex",
+          "traitKind": "getter",
+          "methodIndex": 132,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.cursorIndex",
+          "traitKind": "setter",
+          "methodIndex": 133,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 16
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.densityScale",
+          "traitKind": "getter",
+          "methodIndex": 134,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 82
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.docFrameHandler",
+          "traitKind": "method",
+          "methodIndex": 217,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 16
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.initialize",
+          "traitKind": "method",
+          "methodIndex": 188,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 811
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.kickOff",
+          "traitKind": "method",
+          "methodIndex": 219,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 566
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.noTopMostIndex",
+          "traitKind": "getter",
+          "methodIndex": 147,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.noTopMostIndex",
+          "traitKind": "setter",
+          "methodIndex": 148,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 26
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.preloader_completeHandler",
+          "traitKind": "method",
+          "methodIndex": 218,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 39
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_addChild",
+          "traitKind": "method",
+          "methodIndex": 189,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 28
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_addChildAt",
+          "traitKind": "method",
+          "methodIndex": 190,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 45
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_contains",
+          "traitKind": "method",
+          "methodIndex": 198,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 9
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_getChildAt",
+          "traitKind": "method",
+          "methodIndex": 193,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 9
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_getChildByName",
+          "traitKind": "method",
+          "methodIndex": 194,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 9
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_getChildIndex",
+          "traitKind": "method",
+          "methodIndex": 195,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 9
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_getObjectsUnderPoint",
+          "traitKind": "method",
+          "methodIndex": 197,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Point"
+          ],
+          "returnType": "Array",
+          "hasBody": true,
+          "codeLength": 9
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_removeChild",
+          "traitKind": "method",
+          "methodIndex": 191,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 28
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_removeChildAt",
+          "traitKind": "method",
+          "methodIndex": 192,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 37
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rawChildren_setChildIndex",
+          "traitKind": "method",
+          "methodIndex": 196,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 10
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.toolTipIndex",
+          "traitKind": "getter",
+          "methodIndex": 162,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.toolTipIndex",
+          "traitKind": "setter",
+          "methodIndex": 163,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 26
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.topMostIndex",
+          "traitKind": "getter",
+          "methodIndex": 165,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.topMostIndex",
+          "traitKind": "setter",
+          "methodIndex": 166,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 26
+        },
+        {
+          "traitName": "info",
+          "traitKind": "method",
+          "methodIndex": 187,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 5
+        },
+        {
+          "traitName": "invalidateParentSizeAndDisplayList",
+          "traitKind": "method",
+          "methodIndex": 226,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 102
+        },
+        {
+          "traitName": "isFontFaceEmbedded",
+          "traitKind": "method",
+          "methodIndex": 209,
+          "methodName": "",
+          "paramTypes": [
+            "flash.text.TextFormat"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 275
+        },
+        {
+          "traitName": "isProxy",
+          "traitKind": "getter",
+          "methodIndex": 144,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 4
+        },
+        {
+          "traitName": "isTopLevel",
+          "traitKind": "method",
+          "methodIndex": 206,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "isTopLevelRoot",
+          "traitKind": "method",
+          "methodIndex": 207,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 19
+        },
+        {
+          "traitName": "isTopLevelWindow",
+          "traitKind": "method",
+          "methodIndex": 208,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 24
+        },
+        {
+          "traitName": "measuredHeight",
+          "traitKind": "getter",
+          "methodIndex": 145,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 31
+        },
+        {
+          "traitName": "measuredWidth",
+          "traitKind": "getter",
+          "methodIndex": 146,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 31
+        },
+        {
+          "traitName": "mouseX",
+          "traitKind": "getter",
+          "methodIndex": 231,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 23
+        },
+        {
+          "traitName": "mouseY",
+          "traitKind": "getter",
+          "methodIndex": 232,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 23
+        },
+        {
+          "traitName": "move",
+          "traitKind": "method",
+          "methodIndex": 203,
+          "methodName": "",
+          "paramTypes": [
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 3
+        },
+        {
+          "traitName": "numChildren",
+          "traitKind": "getter",
+          "methodIndex": 123,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "numModalWindows",
+          "traitKind": "getter",
+          "methodIndex": 150,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "numModalWindows",
+          "traitKind": "setter",
+          "methodIndex": 151,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "parent",
+          "traitKind": "getter",
+          "methodIndex": 234,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.DisplayObjectContainer",
+          "hasBody": true,
+          "codeLength": 27
+        },
+        {
+          "traitName": "parentAllowsChild",
+          "traitKind": "getter",
+          "methodIndex": 169,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 29
+        },
+        {
+          "traitName": "popUpChildren",
+          "traitKind": "getter",
+          "methodIndex": 158,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IChildList",
+          "hasBody": true,
+          "codeLength": 64
+        },
+        {
+          "traitName": "preloadedRSLs",
+          "traitKind": "getter",
+          "methodIndex": 152,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.utils.Dictionary",
+          "hasBody": true,
+          "codeLength": 4
+        },
+        {
+          "traitName": "preloaderBackgroundAlpha",
+          "traitKind": "getter",
+          "methodIndex": 154,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 14
+        },
+        {
+          "traitName": "preloaderBackgroundColor",
+          "traitKind": "getter",
+          "methodIndex": 155,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "uint",
+          "hasBody": true,
+          "codeLength": 28
+        },
+        {
+          "traitName": "preloaderBackgroundImage",
+          "traitKind": "getter",
+          "methodIndex": 156,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 14
+        },
+        {
+          "traitName": "preloaderBackgroundSize",
+          "traitKind": "getter",
+          "methodIndex": 157,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 14
+        },
+        {
+          "traitName": "PrivateNs.appCreationCompleteHandler",
+          "traitKind": "method",
+          "methodIndex": 225,
+          "methodName": "",
+          "paramTypes": [
+            "mx.events.FlexEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "PrivateNs.deferredNextFrame",
+          "traitKind": "method",
+          "methodIndex": 119,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 79
+        },
+        {
+          "traitName": "PrivateNs.docFrameListener",
+          "traitKind": "method",
+          "methodIndex": 212,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 54
+        },
+        {
+          "traitName": "PrivateNs.extraFrameHandler",
+          "traitKind": "method",
+          "methodIndex": 222,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 84
+        },
+        {
+          "traitName": "PrivateNs.extraFrameListener",
+          "traitKind": "method",
+          "methodIndex": 213,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 54
+        },
+        {
+          "traitName": "PrivateNs.getTopLevelSystemManager",
+          "traitKind": "method",
+          "methodIndex": 233,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "mx.managers.ISystemManager",
+          "hasBody": true,
+          "codeLength": 94
+        },
+        {
+          "traitName": "PrivateNs.idleTimer_timerHandler",
+          "traitKind": "method",
+          "methodIndex": 230,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.TimerEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 52
+        },
+        {
+          "traitName": "PrivateNs.initHandler",
+          "traitKind": "method",
+          "methodIndex": 211,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 207
+        },
+        {
+          "traitName": "PrivateNs.initializeTopLevelWindow",
+          "traitKind": "method",
+          "methodIndex": 224,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 551
+        },
+        {
+          "traitName": "PrivateNs.keyDownHandler",
+          "traitKind": "method",
+          "methodIndex": 220,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.KeyboardEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 287
+        },
+        {
+          "traitName": "PrivateNs.mouseEventHandler",
+          "traitKind": "method",
+          "methodIndex": 221,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.MouseEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 172
+        },
+        {
+          "traitName": "PrivateNs.mouseLeaveHandler",
+          "traitKind": "method",
+          "methodIndex": 242,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 20
+        },
+        {
+          "traitName": "PrivateNs.mouseMoveHandler",
+          "traitKind": "method",
+          "methodIndex": 228,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.MouseEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 9
+        },
+        {
+          "traitName": "PrivateNs.mouseUpHandler",
+          "traitKind": "method",
+          "methodIndex": 229,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.MouseEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 9
+        },
+        {
+          "traitName": "PrivateNs.nextFrameTimerHandler",
+          "traitKind": "method",
+          "methodIndex": 223,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.TimerEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 48
+        },
+        {
+          "traitName": "PrivateNs.preloader_preloaderDocFrameReadyHandler",
+          "traitKind": "method",
+          "methodIndex": 214,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 25
+        },
+        {
+          "traitName": "PrivateNs.preloader_preloaderDoneHandler",
+          "traitKind": "method",
+          "methodIndex": 215,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 207
+        },
+        {
+          "traitName": "PrivateNs.preloader_rslCompleteHandler",
+          "traitKind": "method",
+          "methodIndex": 216,
+          "methodName": "",
+          "paramTypes": [
+            "mx.events.RSLEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 124
+        },
+        {
+          "traitName": "PrivateNs.resizeMouseCatcher",
+          "traitKind": "method",
+          "methodIndex": 210,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 88
+        },
+        {
+          "traitName": "PrivateNs.Stage_resizeHandler",
+          "traitKind": "method",
+          "methodIndex": 227,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 800
+        },
+        {
+          "traitName": "PrivateNs.stageEventHandler",
+          "traitKind": "method",
+          "methodIndex": 241,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 111
+        },
+        {
+          "traitName": "rawChildren",
+          "traitKind": "getter",
+          "methodIndex": 159,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IChildList",
+          "hasBody": true,
+          "codeLength": 27
+        },
+        {
+          "traitName": "registerImplementation",
+          "traitKind": "method",
+          "methodIndex": 237,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 28
+        },
+        {
+          "traitName": "removeChild",
+          "traitKind": "method",
+          "methodIndex": 177,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 26
+        },
+        {
+          "traitName": "removeChildAt",
+          "traitKind": "method",
+          "methodIndex": 178,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 31
+        },
+        {
+          "traitName": "removeEventListener",
+          "traitKind": "method",
+          "methodIndex": 172,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Function",
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 469
+        },
+        {
+          "traitName": "screen",
+          "traitKind": "getter",
+          "methodIndex": 160,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.geom.Rectangle",
+          "hasBody": true,
+          "codeLength": 33
+        },
+        {
+          "traitName": "setActualSize",
+          "traitKind": "method",
+          "methodIndex": 204,
+          "methodName": "",
+          "paramTypes": [
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 87
+        },
+        {
+          "traitName": "setChildIndex",
+          "traitKind": "method",
+          "methodIndex": 182,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 15
+        },
+        {
+          "traitName": "stage",
+          "traitKind": "getter",
+          "methodIndex": 121,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.display.Stage",
+          "hasBody": true,
+          "codeLength": 121
+        },
+        {
+          "traitName": "toolTipChildren",
+          "traitKind": "getter",
+          "methodIndex": 161,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.core.IChildList",
+          "hasBody": true,
+          "codeLength": 64
+        },
+        {
+          "traitName": "topLevelSystemManager",
+          "traitKind": "getter",
+          "methodIndex": 164,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "mx.managers.ISystemManager",
+          "hasBody": true,
+          "codeLength": 17
+        },
+        {
+          "traitName": "width",
+          "traitKind": "getter",
+          "methodIndex": 122,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        }
+      ],
+      "staticMembers": [
+        {
+          "traitName": "getSWFRoot",
+          "traitKind": "method",
+          "methodIndex": 116,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 132
+        },
+        {
+          "traitName": "PrivateNs.getChildListIndex",
+          "traitKind": "method",
+          "methodIndex": 117,
+          "methodName": "",
+          "paramTypes": [
+            "mx.core.IChildList",
+            "Object"
+          ],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 38
+        }
+      ]
+    },
+    {
+      "classIndex": 11,
+      "className": "mx.managers.SystemManagerGlobals",
+      "classNameNormalized": "mx.managers.SystemManagerGlobals",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 336,
+      "cinitMethod": 335,
+      "instanceMembers": [],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 10,
+      "className": "mx.managers.SystemRawChildrenList",
+      "classNameNormalized": "mx.managers.SystemRawChildrenList",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [
+        "mx.core.IChildList"
+      ],
+      "iinitMethod": 322,
+      "cinitMethod": 321,
+      "instanceMembers": [
+        {
+          "traitName": "addChild",
+          "traitKind": "method",
+          "methodIndex": 325,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "addChildAt",
+          "traitKind": "method",
+          "methodIndex": 326,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 13
+        },
+        {
+          "traitName": "contains",
+          "traitKind": "method",
+          "methodIndex": 333,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "getChildAt",
+          "traitKind": "method",
+          "methodIndex": 324,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "getChildByName",
+          "traitKind": "method",
+          "methodIndex": 329,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "getChildIndex",
+          "traitKind": "method",
+          "methodIndex": 330,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "getObjectsUnderPoint",
+          "traitKind": "method",
+          "methodIndex": 332,
+          "methodName": "",
+          "paramTypes": [
+            "flash.geom.Point"
+          ],
+          "returnType": "Array",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "numChildren",
+          "traitKind": "getter",
+          "methodIndex": 323,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "int",
+          "hasBody": true,
+          "codeLength": 10
+        },
+        {
+          "traitName": "removeChild",
+          "traitKind": "method",
+          "methodIndex": 327,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "removeChildAt",
+          "traitKind": "method",
+          "methodIndex": 328,
+          "methodName": "",
+          "paramTypes": [
+            "int"
+          ],
+          "returnType": "flash.display.DisplayObject",
+          "hasBody": true,
+          "codeLength": 12
+        },
+        {
+          "traitName": "setChildIndex",
+          "traitKind": "method",
+          "methodIndex": 331,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject",
+            "int"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 13
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 27,
+      "className": "mx.preloaders.IPreloaderDisplay",
+      "classNameNormalized": "mx.preloaders.IPreloaderDisplay",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [
+        "flash.events.IEventDispatcher"
+      ],
+      "iinitMethod": 463,
+      "cinitMethod": 448,
+      "instanceMembers": [
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.backgroundAlpha",
+          "traitKind": "getter",
+          "methodIndex": 449,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.backgroundAlpha",
+          "traitKind": "setter",
+          "methodIndex": 450,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.backgroundColor",
+          "traitKind": "getter",
+          "methodIndex": 451,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "uint",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.backgroundColor",
+          "traitKind": "setter",
+          "methodIndex": 452,
+          "methodName": "",
+          "paramTypes": [
+            "uint"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.backgroundImage",
+          "traitKind": "getter",
+          "methodIndex": 453,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.backgroundImage",
+          "traitKind": "setter",
+          "methodIndex": 454,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.backgroundSize",
+          "traitKind": "getter",
+          "methodIndex": 455,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.backgroundSize",
+          "traitKind": "setter",
+          "methodIndex": 456,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.initialize",
+          "traitKind": "method",
+          "methodIndex": 462,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.preloader",
+          "traitKind": "setter",
+          "methodIndex": 457,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.Sprite"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.stageHeight",
+          "traitKind": "getter",
+          "methodIndex": 458,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.stageHeight",
+          "traitKind": "setter",
+          "methodIndex": 459,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.stageWidth",
+          "traitKind": "getter",
+          "methodIndex": 460,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.preloaders:IPreloaderDisplay.stageWidth",
+          "traitKind": "setter",
+          "methodIndex": 461,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 13,
+      "className": "mx.preloaders.Preloader",
+      "classNameNormalized": "mx.preloaders.Preloader",
+      "superName": "flash.display.Sprite",
+      "superNameNormalized": "flash.display.Sprite",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 356,
+      "cinitMethod": 355,
+      "instanceMembers": [
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rslCompleteHandler",
+          "traitKind": "method",
+          "methodIndex": 362,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 181
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rslErrorHandler",
+          "traitKind": "method",
+          "methodIndex": 363,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.ErrorEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 119
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.rslProgressHandler",
+          "traitKind": "method",
+          "methodIndex": 361,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.ProgressEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 107
+        },
+        {
+          "traitName": "initialize",
+          "traitKind": "method",
+          "methodIndex": 357,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean",
+            "Class",
+            "uint",
+            "Number",
+            "Object",
+            "String",
+            "Number",
+            "Number",
+            "Array",
+            "Array",
+            "Array",
+            "Array",
+            "flash.system.ApplicationDomain"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 612
+        },
+        {
+          "traitName": "PrivateNs.appCreationCompleteHandler",
+          "traitKind": "method",
+          "methodIndex": 367,
+          "methodName": "",
+          "paramTypes": [
+            "mx.events.FlexEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "PrivateNs.appProgressHandler",
+          "traitKind": "method",
+          "methodIndex": 368,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 20
+        },
+        {
+          "traitName": "PrivateNs.dispatchAppEndEvent",
+          "traitKind": "method",
+          "methodIndex": 360,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 34
+        },
+        {
+          "traitName": "PrivateNs.displayClassCompleteHandler",
+          "traitKind": "method",
+          "methodIndex": 366,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 146
+        },
+        {
+          "traitName": "PrivateNs.getByteValues",
+          "traitKind": "method",
+          "methodIndex": 359,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 122
+        },
+        {
+          "traitName": "PrivateNs.ioErrorHandler",
+          "traitKind": "method",
+          "methodIndex": 365,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.IOErrorEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 3
+        },
+        {
+          "traitName": "PrivateNs.timerHandler",
+          "traitKind": "method",
+          "methodIndex": 364,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.TimerEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 412
+        },
+        {
+          "traitName": "PrivateNs.waitAFrame",
+          "traitKind": "method",
+          "methodIndex": 369,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 22
+        },
+        {
+          "traitName": "registerApplication",
+          "traitKind": "method",
+          "methodIndex": 358,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.IEventDispatcher"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 58
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 29,
+      "className": "mx.preloaders.SparkDownloadProgressBar",
+      "classNameNormalized": "mx.preloaders.SparkDownloadProgressBar",
+      "superName": "flash.display.Sprite",
+      "superNameNormalized": "flash.display.Sprite",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [
+        "mx.preloaders.IPreloaderDisplay"
+      ],
+      "iinitMethod": 470,
+      "cinitMethod": 469,
+      "instanceMembers": [
+        {
+          "traitName": "backgroundAlpha",
+          "traitKind": "getter",
+          "methodIndex": 473,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 25
+        },
+        {
+          "traitName": "backgroundAlpha",
+          "traitKind": "setter",
+          "methodIndex": 474,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "backgroundColor",
+          "traitKind": "getter",
+          "methodIndex": 475,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "uint",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "backgroundColor",
+          "traitKind": "setter",
+          "methodIndex": 476,
+          "methodName": "",
+          "paramTypes": [
+            "uint"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "backgroundImage",
+          "traitKind": "getter",
+          "methodIndex": 477,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "backgroundImage",
+          "traitKind": "setter",
+          "methodIndex": 478,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "backgroundSize",
+          "traitKind": "getter",
+          "methodIndex": 479,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "backgroundSize",
+          "traitKind": "setter",
+          "methodIndex": 480,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "initialize",
+          "traitKind": "method",
+          "methodIndex": 486,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 14
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.completeHandler",
+          "traitKind": "method",
+          "methodIndex": 499,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 3
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.createChildren",
+          "traitKind": "method",
+          "methodIndex": 487,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 478
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.initCompleteHandler",
+          "traitKind": "method",
+          "methodIndex": 504,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 20
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.initProgressHandler",
+          "traitKind": "method",
+          "methodIndex": 503,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 141
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.progressHandler",
+          "traitKind": "method",
+          "methodIndex": 498,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.ProgressEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 80
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.rslCompleteHandler",
+          "traitKind": "method",
+          "methodIndex": 501,
+          "methodName": "",
+          "paramTypes": [
+            "mx.events.RSLEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 3
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.rslErrorHandler",
+          "traitKind": "method",
+          "methodIndex": 502,
+          "methodName": "",
+          "paramTypes": [
+            "mx.events.RSLEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 164
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.rslProgressHandler",
+          "traitKind": "method",
+          "methodIndex": 500,
+          "methodName": "",
+          "paramTypes": [
+            "mx.events.RSLEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 3
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.setDownloadProgress",
+          "traitKind": "method",
+          "methodIndex": 489,
+          "methodName": "",
+          "paramTypes": [
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 315
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.setInitProgress",
+          "traitKind": "method",
+          "methodIndex": 490,
+          "methodName": "",
+          "paramTypes": [
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 224
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.showDisplayForDownloading",
+          "traitKind": "method",
+          "methodIndex": 493,
+          "methodName": "",
+          "paramTypes": [
+            "int",
+            "flash.events.ProgressEvent"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 26
+        },
+        {
+          "traitName": "mx.preloaders:SparkDownloadProgressBar.showDisplayForInit",
+          "traitKind": "method",
+          "methodIndex": 494,
+          "methodName": "",
+          "paramTypes": [
+            "int",
+            "int"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 18
+        },
+        {
+          "traitName": "preloader",
+          "traitKind": "setter",
+          "methodIndex": 481,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.Sprite"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 106
+        },
+        {
+          "traitName": "PrivateNs.calcBackgroundSize",
+          "traitKind": "method",
+          "methodIndex": 497,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 58
+        },
+        {
+          "traitName": "PrivateNs.getPreloaderChromeColor",
+          "traitKind": "method",
+          "methodIndex": 488,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "uint",
+          "hasBody": true,
+          "codeLength": 108
+        },
+        {
+          "traitName": "PrivateNs.hide",
+          "traitKind": "method",
+          "methodIndex": 492,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 3
+        },
+        {
+          "traitName": "PrivateNs.initBackgroundImage",
+          "traitKind": "method",
+          "methodIndex": 496,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 191
+        },
+        {
+          "traitName": "PrivateNs.loadBackgroundImage",
+          "traitKind": "method",
+          "methodIndex": 495,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 230
+        },
+        {
+          "traitName": "PrivateNs.loader_completeHandler",
+          "traitKind": "method",
+          "methodIndex": 505,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.Event"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 29
+        },
+        {
+          "traitName": "PrivateNs.loader_ioErrorHandler",
+          "traitKind": "method",
+          "methodIndex": 506,
+          "methodName": "",
+          "paramTypes": [
+            "flash.events.IOErrorEvent"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 3
+        },
+        {
+          "traitName": "PrivateNs.show",
+          "traitKind": "method",
+          "methodIndex": 491,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 130
+        },
+        {
+          "traitName": "stageHeight",
+          "traitKind": "getter",
+          "methodIndex": 482,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "stageHeight",
+          "traitKind": "setter",
+          "methodIndex": 483,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "stageWidth",
+          "traitKind": "getter",
+          "methodIndex": 484,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "stageWidth",
+          "traitKind": "setter",
+          "methodIndex": 485,
+          "methodName": "",
+          "paramTypes": [
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 8
+        },
+        {
+          "traitName": "visible",
+          "traitKind": "getter",
+          "methodIndex": 471,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 7
+        },
+        {
+          "traitName": "visible",
+          "traitKind": "setter",
+          "methodIndex": 472,
+          "methodName": "",
+          "paramTypes": [
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 56
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 42,
+      "className": "mx.resources.IResourceBundle",
+      "classNameNormalized": "mx.resources.IResourceBundle",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [],
+      "iinitMethod": 621,
+      "cinitMethod": 617,
+      "instanceMembers": [
+        {
+          "traitName": "mx.resources:IResourceBundle.bundleName",
+          "traitKind": "getter",
+          "methodIndex": 618,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceBundle.content",
+          "traitKind": "getter",
+          "methodIndex": 619,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Object",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceBundle.locale",
+          "traitKind": "getter",
+          "methodIndex": 620,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "String",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 37,
+      "className": "mx.resources.IResourceManager",
+      "classNameNormalized": "mx.resources.IResourceManager",
+      "superName": "*",
+      "superNameNormalized": "",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": true,
+        "protectedNs": false
+      },
+      "interfaces": [
+        "flash.events.IEventDispatcher"
+      ],
+      "iinitMethod": 591,
+      "cinitMethod": 567,
+      "instanceMembers": [
+        {
+          "traitName": "mx.resources:IResourceManager.addResourceBundle",
+          "traitKind": "method",
+          "methodIndex": 572,
+          "methodName": "",
+          "paramTypes": [
+            "mx.resources.IResourceBundle",
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.findResourceBundleWithResource",
+          "traitKind": "method",
+          "methodIndex": 580,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String"
+          ],
+          "returnType": "mx.resources.IResourceBundle",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getBoolean",
+          "traitKind": "method",
+          "methodIndex": 587,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String",
+            "String"
+          ],
+          "returnType": "Boolean",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getBundleNamesForLocale",
+          "traitKind": "method",
+          "methodIndex": 578,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getClass",
+          "traitKind": "method",
+          "methodIndex": 588,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String",
+            "String"
+          ],
+          "returnType": "Class",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getInt",
+          "traitKind": "method",
+          "methodIndex": 585,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String",
+            "String"
+          ],
+          "returnType": "int",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getLocales",
+          "traitKind": "method",
+          "methodIndex": 576,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getNumber",
+          "traitKind": "method",
+          "methodIndex": 584,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String",
+            "String"
+          ],
+          "returnType": "Number",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getObject",
+          "traitKind": "method",
+          "methodIndex": 581,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String",
+            "String"
+          ],
+          "returnType": "*",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getPreferredLocaleChain",
+          "traitKind": "method",
+          "methodIndex": 577,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getResourceBundle",
+          "traitKind": "method",
+          "methodIndex": 579,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String"
+          ],
+          "returnType": "mx.resources.IResourceBundle",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getString",
+          "traitKind": "method",
+          "methodIndex": 582,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String",
+            "Array",
+            "String"
+          ],
+          "returnType": "String",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getStringArray",
+          "traitKind": "method",
+          "methodIndex": 583,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String",
+            "String"
+          ],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.getUint",
+          "traitKind": "method",
+          "methodIndex": 586,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String",
+            "String"
+          ],
+          "returnType": "uint",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.initializeLocaleChain",
+          "traitKind": "method",
+          "methodIndex": 590,
+          "methodName": "",
+          "paramTypes": [
+            "Array"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.installCompiledResourceBundles",
+          "traitKind": "method",
+          "methodIndex": 589,
+          "methodName": "",
+          "paramTypes": [
+            "flash.system.ApplicationDomain",
+            "Array",
+            "Array",
+            "Boolean"
+          ],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.loadResourceModule",
+          "traitKind": "method",
+          "methodIndex": 570,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Boolean",
+            "flash.system.ApplicationDomain",
+            "flash.system.SecurityDomain"
+          ],
+          "returnType": "flash.events.IEventDispatcher",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.localeChain",
+          "traitKind": "getter",
+          "methodIndex": 568,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Array",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.localeChain",
+          "traitKind": "setter",
+          "methodIndex": 569,
+          "methodName": "",
+          "paramTypes": [
+            "Array"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.removeResourceBundle",
+          "traitKind": "method",
+          "methodIndex": 573,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.removeResourceBundlesForLocale",
+          "traitKind": "method",
+          "methodIndex": 574,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.unloadResourceModule",
+          "traitKind": "method",
+          "methodIndex": 571,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Boolean"
+          ],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        },
+        {
+          "traitName": "mx.resources:IResourceManager.update",
+          "traitKind": "method",
+          "methodIndex": 575,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "void",
+          "hasBody": false,
+          "codeLength": 0
+        }
+      ],
+      "staticMembers": []
+    },
+    {
+      "classIndex": 22,
+      "className": "mx.utils.DensityUtil",
+      "classNameNormalized": "mx.utils.DensityUtil",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 422,
+      "cinitMethod": 419,
+      "instanceMembers": [],
+      "staticMembers": [
+        {
+          "traitName": "getDPIScale",
+          "traitKind": "method",
+          "methodIndex": 421,
+          "methodName": "",
+          "paramTypes": [
+            "Number",
+            "Number"
+          ],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 98
+        },
+        {
+          "traitName": "getRuntimeDPI",
+          "traitKind": "method",
+          "methodIndex": 420,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Number",
+          "hasBody": true,
+          "codeLength": 72
+        }
+      ]
+    },
+    {
+      "classIndex": 41,
+      "className": "mx.utils.GraphicsUtil",
+      "classNameNormalized": "mx.utils.GraphicsUtil",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 615,
+      "cinitMethod": 612,
+      "instanceMembers": [],
+      "staticMembers": [
+        {
+          "traitName": "drawRoundRectComplex",
+          "traitKind": "method",
+          "methodIndex": 613,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.Graphics",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 400
+        },
+        {
+          "traitName": "drawRoundRectComplex2",
+          "traitKind": "method",
+          "methodIndex": 614,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.Graphics",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number",
+            "Number"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 626
+        }
+      ]
+    },
+    {
+      "classIndex": 12,
+      "className": "mx.utils.LoaderUtil",
+      "classNameNormalized": "mx.utils.LoaderUtil",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 353,
+      "cinitMethod": 338,
+      "instanceMembers": [],
+      "staticMembers": [
+        {
+          "traitName": "createAbsoluteURL",
+          "traitKind": "method",
+          "methodIndex": 340,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "String"
+          ],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 280
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.isLocal",
+          "traitKind": "method",
+          "methodIndex": 342,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 31
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.OSToPlayerURI",
+          "traitKind": "method",
+          "methodIndex": 343,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "Boolean"
+          ],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 261
+        },
+        {
+          "traitName": "http://www.adobe.com/2006/flex/mx/internal.processRequiredRSLs",
+          "traitKind": "method",
+          "methodIndex": 341,
+          "methodName": "",
+          "paramTypes": [
+            "mx.core.IFlexModuleFactory",
+            "Array"
+          ],
+          "returnType": "Array",
+          "hasBody": true,
+          "codeLength": 446
+        },
+        {
+          "traitName": "normalizeURL",
+          "traitKind": "method",
+          "methodIndex": 339,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.LoaderInfo"
+          ],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 143
+        },
+        {
+          "traitName": "PrivateNs.dynamicURLFilter",
+          "traitKind": "method",
+          "methodIndex": 351,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "int"
+          ],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 11
+        },
+        {
+          "traitName": "PrivateNs.getParentModuleFactory",
+          "traitKind": "method",
+          "methodIndex": 344,
+          "methodName": "",
+          "paramTypes": [
+            "mx.core.IFlexModuleFactory"
+          ],
+          "returnType": "mx.core.IFlexModuleFactory",
+          "hasBody": true,
+          "codeLength": 38
+        },
+        {
+          "traitName": "PrivateNs.hasPlaceholderRSL",
+          "traitKind": "method",
+          "methodIndex": 347,
+          "methodName": "",
+          "paramTypes": [
+            "mx.core.IFlexModuleFactory",
+            "String"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 122
+        },
+        {
+          "traitName": "PrivateNs.importURLFilter",
+          "traitKind": "method",
+          "methodIndex": 352,
+          "methodName": "",
+          "paramTypes": [
+            "String",
+            "int"
+          ],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 34
+        },
+        {
+          "traitName": "PrivateNs.isLoadedIntoTopLevelApplicationDomain",
+          "traitKind": "method",
+          "methodIndex": 348,
+          "methodName": "",
+          "paramTypes": [
+            "mx.core.IFlexModuleFactory"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 72
+        },
+        {
+          "traitName": "PrivateNs.isMac",
+          "traitKind": "method",
+          "methodIndex": 350,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 21
+        },
+        {
+          "traitName": "PrivateNs.isRSLLoaded",
+          "traitKind": "method",
+          "methodIndex": 346,
+          "methodName": "",
+          "paramTypes": [
+            "mx.core.IFlexModuleFactory",
+            "String"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 104
+        },
+        {
+          "traitName": "PrivateNs.resolveApplicationDomainTarget",
+          "traitKind": "method",
+          "methodIndex": 345,
+          "methodName": "",
+          "paramTypes": [
+            "Array",
+            "mx.core.IFlexModuleFactory",
+            "mx.core.IFlexModuleFactory",
+            "mx.core.IFlexModuleFactory",
+            "mx.core.IFlexModuleFactory"
+          ],
+          "returnType": "Boolean",
+          "hasBody": true,
+          "codeLength": 188
+        },
+        {
+          "traitName": "PrivateNs.updateRSLModuleFactory",
+          "traitKind": "method",
+          "methodIndex": 349,
+          "methodName": "",
+          "paramTypes": [
+            "Array",
+            "mx.core.IFlexModuleFactory"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 37
+        }
+      ]
+    },
+    {
+      "classIndex": 33,
+      "className": "mx.utils.NameUtil",
+      "classNameNormalized": "mx.utils.NameUtil",
+      "superName": "Object",
+      "superNameNormalized": "Object",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 532,
+      "cinitMethod": 528,
+      "instanceMembers": [],
+      "staticMembers": [
+        {
+          "traitName": "createUniqueName",
+          "traitKind": "method",
+          "methodIndex": 529,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 112
+        },
+        {
+          "traitName": "displayObjectToString",
+          "traitKind": "method",
+          "methodIndex": 530,
+          "methodName": "",
+          "paramTypes": [
+            "flash.display.DisplayObject"
+          ],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 219
+        },
+        {
+          "traitName": "getUnqualifiedClassName",
+          "traitKind": "method",
+          "methodIndex": 531,
+          "methodName": "",
+          "paramTypes": [
+            "Object"
+          ],
+          "returnType": "String",
+          "hasBody": true,
+          "codeLength": 63
+        }
+      ]
+    },
+    {
+      "classIndex": 28,
+      "className": "PrivateNs.ErrorField",
+      "classNameNormalized": "PrivateNs.ErrorField",
+      "superName": "flash.display.Sprite",
+      "superNameNormalized": "flash.display.Sprite",
+      "domainBucket": "other",
+      "flags": {
+        "sealed": true,
+        "final": false,
+        "interface": false,
+        "protectedNs": true
+      },
+      "interfaces": [],
+      "iinitMethod": 467,
+      "cinitMethod": 465,
+      "instanceMembers": [
+        {
+          "traitName": "show",
+          "traitKind": "method",
+          "methodIndex": 468,
+          "methodName": "",
+          "paramTypes": [
+            "String"
+          ],
+          "returnType": "void",
+          "hasBody": true,
+          "codeLength": 217
+        },
+        {
+          "traitName": "SparkDownloadProgressBar.as$470:ErrorField.labelFormat",
+          "traitKind": "getter",
+          "methodIndex": 466,
+          "methodName": "",
+          "paramTypes": [],
+          "returnType": "flash.text.TextFormat",
+          "hasBody": true,
+          "codeLength": 31
+        }
+      ],
+      "staticMembers": []
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1730,
+  "className": "com.chrysler.cda.event.message.view.AvailableBenchtopECUsMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.view.AvailableBenchtopECUsMessage",
+  "superName": "com.chrysler.cda.event.message.LinkableMessage",
+  "superNameNormalized": "com.chrysler.cda.event.message.LinkableMessage",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.event.message.view.IECUMessage"
+  ],
+  "iinitMethod": 33743,
+  "cinitMethod": 33741,
+  "iinitBytecode": {
+    "codeLength": 16,
+    "codeSha256": "d1e2a0345c175c2d638be90cbf49de1adab93f252c6490bc3154b8c7e4cc85bc",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "7eb94483b9024281b1b555e5a81a4f87c7e1fca516899fc53c8cd92c97cff957",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "displayEcuList",
+      "traitKind": "getter",
+      "methodIndex": 33745,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "04abb493caba22773b0eabcd3483b99f0c3f915a6f05e0970d97da9199c6cd01",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "displayECUListAfter",
+      "traitKind": "method",
+      "methodIndex": 33744,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.event.message.view.IECUMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "4952a8e7d886a792054b38251777da787d9e854cb86d987f568589d7dde0e492",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "update",
+      "traitKind": "getter",
+      "methodIndex": 33742,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "d585616625656f7803c9407d288dca461830151e2b66e2009440e239c604ef48",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

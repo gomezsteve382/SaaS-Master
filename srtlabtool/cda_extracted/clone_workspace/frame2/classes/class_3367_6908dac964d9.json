@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3367,
+  "className": "com.diagnosticProcedures.logging.LoggingDecisionNode",
+  "classNameNormalized": "com.diagnosticProcedures.logging.LoggingDecisionNode",
+  "superName": "com.diagnosticProcedures.node.DecisionProcedureNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.DecisionProcedureNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.logging.LoggingNode"
+  ],
+  "iinitMethod": 51769,
+  "cinitMethod": 51768,
+  "iinitBytecode": {
+    "codeLength": 16,
+    "codeSha256": "f4a81d88e211deeb7ec540742d522b2bbeaf617136bf639f72181ee8dc7fe1c7",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.logging:LoggingDecisionNode.timeout",
+      "traitKind": "method",
+      "methodIndex": 51772,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "39df1a47ed8a5fd2151565e8ae16f3f78ac4c9429733b2303e26511f1aad589b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51770,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "d7ed58fe49b546a3557a16967f6f824698a2a2bfafe59394eb029ecbc1799104",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "processResult",
+      "traitKind": "method",
+      "methodIndex": 51771,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "2dbfe67e775d8c1476c003d4e0d5c39ea8a06ff9dba565a68f14f6d8f7e87f11",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

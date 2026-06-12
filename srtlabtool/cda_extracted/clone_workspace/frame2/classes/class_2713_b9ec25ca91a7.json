@@ -1,0 +1,742 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2713,
+  "className": "spark.components.gridClasses.DataGridEditor",
+  "classNameNormalized": "spark.components.gridClasses.DataGridEditor",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 45597,
+  "cinitMethod": 45596,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "c710c74505e4503fae5ec7325fd6cc9604472fad48c37e32c944ba04274b84cf",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dataGrid",
+      "traitKind": "getter",
+      "methodIndex": 45598,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.DataGrid",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8ff5409c16e1b192c128cf34485ca9ed74614a8fabab4a9e8c4e922ef9ed3601",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "editedItemPosition",
+      "traitKind": "getter",
+      "methodIndex": 45600,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "59d9cd5ea73a1a20752a145a8df5a9a75b38d7fa288cb6741bcd03609b3a8805",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "editedItemPosition",
+      "traitKind": "setter",
+      "methodIndex": 45601,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "a1657393a7eb3b9f5414668dfd2d1a4b4bd4f02106ee7c15bb7ced9c066d7abf",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "editedItemRenderer",
+      "traitKind": "getter",
+      "methodIndex": 45603,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IVisualElement",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a55df665971a0b168b2bce50f99c3875b9c50015717f9eb8e30b31cf7235ec7e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "editorColumnIndex",
+      "traitKind": "getter",
+      "methodIndex": 45604,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "62ba9dc67bece47217a0b950355c67c2089e3e4c5e66cdf9ef934def2507a642",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "editorRowIndex",
+      "traitKind": "getter",
+      "methodIndex": 45605,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "a39a6cb97d679e59c64420a7f57615663c0f854c64ede029be1fd6748d05ba58",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "endItemEditorSession",
+      "traitKind": "method",
+      "methodIndex": 45613,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "8748cf4f5eedfadc618a36ba167dd2b7f30f547a39b24a1945a2e6a162ff61c4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "grid",
+      "traitKind": "getter",
+      "methodIndex": 45599,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Grid",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "e5272dcce7a663e1cf26f5ed6c1095dfb1b3bab55ac9171190af3bbe85d93db3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.cancelEdit",
+      "traitKind": "method",
+      "methodIndex": 45614,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "2d8b233c3a0eea8479b3a9094ef76a33b803adf7927ea26f397347039657167d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createItemEditor",
+      "traitKind": "method",
+      "methodIndex": 45609,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 816,
+      "bytecode": {
+        "codeLength": 816,
+        "codeSha256": "db0f268f53034dd4d3c0b867ed6d75f507983675a41bc75ea298e223fcf0824e",
+        "bytecodeLineCount": 51
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.destroyItemEditor",
+      "traitKind": "method",
+      "methodIndex": 45608,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 376,
+      "bytecode": {
+        "codeLength": 376,
+        "codeSha256": "883123a442ac2adf3b7b561b35ecb3954f39896cba88f353d2d030963bbc4733",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 45606,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "0e0c81f63209d06b4b754324e8d5d06e39ec327db035023b33277cc16b3dcd6c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.addRemoveFlexEventEnterListener",
+      "traitKind": "method",
+      "methodIndex": 45623,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 179,
+      "bytecode": {
+        "codeLength": 179,
+        "codeSha256": "6854da94626729c9e3e129512cbde063749a82c6618b2d8f3ee4d0d000b2137c",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.canEditColumn",
+      "traitKind": "method",
+      "methodIndex": 45620,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c31b56f7ef71007df18d2d8c3ada62404f43a709d6d9f3aee5e78ef9dab71620",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.dataGrid_gridItemEditorSessionStartingHandler",
+      "traitKind": "method",
+      "methodIndex": 45628,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.GridItemEditorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "462a5eb2b85d8e64a79cdf72a787c94a6f03e6493e0efdf1e611ec61fb9a8dd4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.dataGrid_keyboardDownHandler",
+      "traitKind": "method",
+      "methodIndex": 45629,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 201,
+      "bytecode": {
+        "codeLength": 201,
+        "codeSha256": "ed9049ff69d0de1319182fe636e461bf2cceeee4a38feae3a5dc4e4591052aee",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.deactivateHandler",
+      "traitKind": "method",
+      "methodIndex": 45634,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "800288e3e0b332f5c235b1541318879a9d0123ea4176a45c3d07fe7ef8975821",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchCancelEvent",
+      "traitKind": "method",
+      "methodIndex": 45615,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "16dfbe4bd0ec33975da2503935ddaabf5252c0d2e191b3ffac7590a2961bfb2b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.doubleClickTimerHandler",
+      "traitKind": "method",
+      "methodIndex": 45633,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "72473d301d028da0d3be40fdbcdf6dddf97124f7c05c89ffa1b3f669cdaf03fb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.editor_enterHandler",
+      "traitKind": "method",
+      "methodIndex": 45636,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "0d8da8d388d894d7ecdd801b5886b331025083c29f70a0fad7db000ae37e882f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.editor_focusOutHandler",
+      "traitKind": "method",
+      "methodIndex": 45635,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "fe787c61141ca5650a7c4d0f6255abc418dd28418865a994c21376a5b3021927",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.editor_keyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 45637,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 409,
+      "bytecode": {
+        "codeLength": 409,
+        "codeSha256": "b3cd1b2f7a3ff551c74ee678f077e89b91dccca096c256523baf4b41b6f0f927",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "PrivateNs.editor_keyFocusChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 45638,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 255,
+      "bytecode": {
+        "codeLength": 255,
+        "codeSha256": "8357e2cbcc1f60ca00d9c8c2e41b85c1ce2494a557e26c88939d55e858eed91f",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.editorAncestorResizeHandler",
+      "traitKind": "method",
+      "methodIndex": 45639,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "cd8896583fc2aa7a42965f95bb5026589345fdad5affc222a2d603891ccb62f7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.editorOwns",
+      "traitKind": "method",
+      "methodIndex": 45625,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "f694ea8404693ed36ea3cec888a428b7a24339b4e05508baef0d3c8104e7d23f",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.editorOwnsClick",
+      "traitKind": "method",
+      "methodIndex": 45624,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "87604e65d140c160a749a3b198e4c79e442eb0ef32693aac5161ad33064df1c4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.endEdit",
+      "traitKind": "method",
+      "methodIndex": 45616,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 173,
+      "bytecode": {
+        "codeLength": 173,
+        "codeSha256": "6da6ecf267731f6e5c6b9e7eb227a1629f9c1930b36c309793f65757457848a4",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.getIUIComponent",
+      "traitKind": "method",
+      "methodIndex": 45626,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "mx.core.IUIComponent",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "9b9991cc6bdcfaf1816edd1899ab399b9608ebe50bf926ae5817ddecf9f8bcbf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getNextEditableCell",
+      "traitKind": "method",
+      "methodIndex": 45619,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 175,
+      "bytecode": {
+        "codeLength": 175,
+        "codeSha256": "d1c3daf08df016635a9cc37463385ed32b55181181ceefec08c3830b8868ff8a",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.grid_gridDoubleClickHandler",
+      "traitKind": "method",
+      "methodIndex": 45632,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.GridEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "2f6c5898920059af5ea7f09bded3c552f9b16c90647c1b2a66feb157447169ab",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.grid_gridMouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 45630,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.GridEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 208,
+      "bytecode": {
+        "codeLength": 208,
+        "codeSha256": "8650cf280bc28c38991b6e9c15a581a7a1e8bdca1fab361bdf757228ab83b355",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.grid_gridMouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 45631,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.GridEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 357,
+      "bytecode": {
+        "codeLength": 357,
+        "codeSha256": "9d13d7dbd3f731fa01bd363a2b185d49fa1b06a53b5717459889e706fc8b17cf",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "PrivateNs.isValidCellPosition",
+      "traitKind": "method",
+      "methodIndex": 45622,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "f884480fa3682cc6af4c2fe89cde4720127f48ab6420a49e3124408df98ed3a4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.openEditorInNextEditableCell",
+      "traitKind": "method",
+      "methodIndex": 45618,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "3ca23d897a66072de4e89648ee6930780740de8fb9a8f2c26022e39977574415",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.restoreFocusableChildrenFlags",
+      "traitKind": "method",
+      "methodIndex": 45627,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "a4409e3e8f4c7bd97cbb1bb41731d32dd191cce64fe9cfe1d3a98e4717e68c84",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.sandBoxRoot_mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 45640,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "e4688cb58489e55ac8b527ac30c24b23e0d313cf4830e193a66314be7050d231",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.saveItemEditorSession",
+      "traitKind": "method",
+      "methodIndex": 45617,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "ef211c124bdc0e438719414c750f19fad52b872add6fe6f438ff00106f990701",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.setEditedItemPosition",
+      "traitKind": "method",
+      "methodIndex": 45602,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 469,
+      "bytecode": {
+        "codeLength": 469,
+        "codeSha256": "6b1ff39536a0029301ffa3bb7002068c639474e7f679c6da5c4e4eb6de2fd810",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "PrivateNs.setFocusInItemRenderer",
+      "traitKind": "method",
+      "methodIndex": 45610,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.gridClasses.IGridItemRenderer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 304,
+      "bytecode": {
+        "codeLength": 304,
+        "codeSha256": "4a4eca2460a1c5c49137bf10ded18557eea64bef358fb5d57df627e5ceaef240",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "PrivateNs.wasCellPreviouslySelected",
+      "traitKind": "method",
+      "methodIndex": 45621,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c722c7afd5f0a2083545a853e1d7f5bae80ac932203a1d69dbc31d6841011284",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.wasLastEventMovingBackward",
+      "traitKind": "method",
+      "methodIndex": 45611,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "0db8db7548116c5007c43a6f8040beba2e629c89bad7dbcc95d6e421e42075ca",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "startItemEditorSession",
+      "traitKind": "method",
+      "methodIndex": 45612,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 275,
+      "bytecode": {
+        "codeLength": 275,
+        "codeSha256": "9f6e95f3b659e756834d3e3777432829291049560a5944011c2cf9b014bacae1",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "uninitialize",
+      "traitKind": "method",
+      "methodIndex": 45607,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "499a873f125584efef5ddba674f6c0f80e862f93784ef60976ca6f4674d2d1ba",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": []
+}

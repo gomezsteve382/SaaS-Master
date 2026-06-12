@@ -1,0 +1,1245 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 432,
+  "className": "mx.skins.spark.DefaultButtonSkin",
+  "classNameNormalized": "mx.skins.spark.DefaultButtonSkin",
+  "superName": "mx.skins.spark.SparkSkinForHalo",
+  "superNameNormalized": "mx.skins.spark.SparkSkinForHalo",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 8898,
+  "cinitMethod": 8897,
+  "iinitBytecode": {
+    "codeLength": 2657,
+    "codeSha256": "cc77b5b8c86a39f1273cf2c1548a098268a5aa25c188ac752834332a8f4282c9",
+    "bytecodeLineCount": 167
+  },
+  "cinitBytecode": {
+    "codeLength": 19,
+    "codeSha256": "8fa4460a5eb5026f24a62225c5f6330d292f4527992e0261b03119a850b2c37c",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry1",
+      "traitKind": "getter",
+      "methodIndex": 8941,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c23c0a5c2784b4780d0a1cafca50f954b42edd66be9ec0edd75781f7330ca48b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry1",
+      "traitKind": "setter",
+      "methodIndex": 8942,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "b2eb11cfa7f093172d8493361cfada2d46a60b37ffd4c7d557e99f44d7c8a4e8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry11",
+      "traitKind": "getter",
+      "methodIndex": 8943,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "24f515586bc579caa6b1437a99a991e1350fd7abd3a6eb3b01dfa5d716aacc71",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry11",
+      "traitKind": "setter",
+      "methodIndex": 8944,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "8ee10d9ca29f0666e775a8454a2610fdb016e4c17b2470d5c98e78465da363ab",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry12",
+      "traitKind": "getter",
+      "methodIndex": 8945,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "490d0ab0f9354003feee962db18fc5c5a9614a01c449c8f3afe9a541c9b1c444",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry12",
+      "traitKind": "setter",
+      "methodIndex": 8946,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0ae1f7d7259e490953e88d2e2bbdb226290e8fbe3659d70ff1e3ccfa401721c9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry2",
+      "traitKind": "getter",
+      "methodIndex": 8947,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b217893923f920816e2d3d0a49754080aa0e726e4bebbe07f77e5388ce9d9423",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry2",
+      "traitKind": "setter",
+      "methodIndex": 8948,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "18ff2c85343be9b4989d3f4903fc1cd47a9355fc81db4aa4ccecb36114d6716a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry3",
+      "traitKind": "getter",
+      "methodIndex": 8949,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "dab71a6096fc285422da44fcefde1aa9a65188ba86fdafeb903ab986f99d3928",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry3",
+      "traitKind": "setter",
+      "methodIndex": 8950,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "796f18bfc7d563b41d175732b3e2b9616a0e08baa1e32b54507439ec41c76b4d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry4",
+      "traitKind": "getter",
+      "methodIndex": 8951,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "cb6599f4fddbaa23842684ed7c94641cbcffc64f4ad91420764e168fc132968d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry4",
+      "traitKind": "setter",
+      "methodIndex": 8952,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "1af88578726a360b611bdff9957a91566823599555f75e2d866e7d2000cc1d6d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry8",
+      "traitKind": "getter",
+      "methodIndex": 8953,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "57eb34dc582f8107e3c873b5ef0dd86be52271338adda7147d217eb5c979c54b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry8",
+      "traitKind": "setter",
+      "methodIndex": 8954,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "8afe2e0f74cedb5e07f160634abf9d81646a75f938ac9aee0c3bf58e6ebacd1d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry9",
+      "traitKind": "getter",
+      "methodIndex": 8955,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "566feaf1f6f196d942732e84497ba7ae70f60105a24a1feada3df423889476d9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_DefaultButtonSkin_GradientEntry9",
+      "traitKind": "setter",
+      "methodIndex": 8956,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "1c490c49ced1a8cf111d1e67eaa4024ebf6379e835502f093d699174cf5224e8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "border",
+      "traitKind": "getter",
+      "methodIndex": 8957,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c1b12b7d88466ad72f2e3ef95e937588734a525b2c883ca600456fe471b52bfd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "border",
+      "traitKind": "setter",
+      "methodIndex": 8958,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "ab3b297f0aa9bb3c1f7656d21b903fbb60c499324796d54e20bf9606c628218a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "borderEntry1",
+      "traitKind": "getter",
+      "methodIndex": 8959,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b35d89dcca8f460db749a0cce32ff6369c3cff98f8f88d3447d2a5f7066bb237",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "borderEntry1",
+      "traitKind": "setter",
+      "methodIndex": 8960,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "af090d81618f3ea99ba6416e46355bc627310904bef02e7a77277cc4865a7d3c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "borderEntry2",
+      "traitKind": "getter",
+      "methodIndex": 8961,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bb3948184d282e425bbbb53e6de34489076c729b5aa4eee80d2d5aa664546484",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "borderEntry2",
+      "traitKind": "setter",
+      "methodIndex": 8962,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f12c90fd125b0f7e2b3ec04a62f227cd8ef23a8dcf6e1b6ea7062e6afa309ffe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "fill",
+      "traitKind": "getter",
+      "methodIndex": 8963,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c7c456e143472f8d779c1f25c87e21f8221c519efc8534aa3a182d85e1b3366d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fill",
+      "traitKind": "setter",
+      "methodIndex": 8964,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "452983071147f5f8436889665dd272c11033a43b0e29c7d3b392ddca16bc6fee",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "highlight",
+      "traitKind": "getter",
+      "methodIndex": 8965,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "61cf5687276ac18a861c3f613e60b3350ece42d642c7bf7773eb8ed4453adb30",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "highlight",
+      "traitKind": "setter",
+      "methodIndex": 8966,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "01b3680129f451bbb2b43d7135d6ef6e2aad8ac916ee44787d72ac556f6e9480",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "highlightStroke",
+      "traitKind": "getter",
+      "methodIndex": 8967,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a4f9e924332bcc636fe7683cf7be0f7362708d40f5d16d3262c332bccc33a8f8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "highlightStroke",
+      "traitKind": "setter",
+      "methodIndex": 8968,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "c2cadb5083f592ea811e0f135192f350411b4531971f08e285a83e18db45d165",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hldownstroke1",
+      "traitKind": "getter",
+      "methodIndex": 8969,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "00fa9c8f53f3dfbe769c55f77302d9f98a1ec99ff44fb8f644f1e3a78967b7ba",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hldownstroke1",
+      "traitKind": "setter",
+      "methodIndex": 8970,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a4ecd3dd6e6599d1e0e86158f02a0cf78d1573fb1892fba70bfa391603adc79f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hldownstroke2",
+      "traitKind": "getter",
+      "methodIndex": 8971,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fa8cc1980f996f56f9ec8d08907076c03d659c69b9ce8eda54d0c5f2c9cb6f88",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hldownstroke2",
+      "traitKind": "setter",
+      "methodIndex": 8972,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "8bc4cbaa00878cda0643766f0c951c9a68ea73f8fc4ed7808228bd83572b9bbe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 8900,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "lowlight",
+      "traitKind": "getter",
+      "methodIndex": 8973,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "305046df9dff7bfe3f952c341ee921f4a6e20f3ac67c203568eadfe68179bf47",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "lowlight",
+      "traitKind": "setter",
+      "methodIndex": 8974,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "8913fd0f99b5e261e12dfb2b034958e61b87669afb69b2ca5fb47041c998fa83",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 8899,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "d6e84df60755bf6d0ea4f69fcf8ee4b15764d3902ae047e8190e641f1cdfcd93",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.skins.spark:DefaultButtonSkin.borderItems",
+      "traitKind": "getter",
+      "methodIndex": 8901,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9ab270b0ae96e35d358b33c83ea71c5b75478267298a6d22f1a1225163b605a9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.skins.spark:DefaultButtonSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 8902,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.skins.spark:DefaultButtonSkin.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 8903,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 267,
+      "bytecode": {
+        "codeLength": 267,
+        "codeSha256": "98b98dc7f50a91c711fc7b3e742c504f1cca609e0554b6fb62dc728279c7576d",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry1_i",
+      "traitKind": "method",
+      "methodIndex": 8906,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "b39ff5a1c2d147e80e6347529c664c63d34a2aec59fca2be148a94c870dacc64",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry10_c",
+      "traitKind": "method",
+      "methodIndex": 8921,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "beaa8dd3014c9dc4aba119891be6a08957c9ba5bed8cfc2172f384afb52deb4f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry11_i",
+      "traitKind": "method",
+      "methodIndex": 8924,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "e89d7a11f72f42a87ef2fa37b84cb6e7561e21367de344b9a04e5c9281ebeb99",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry12_i",
+      "traitKind": "method",
+      "methodIndex": 8925,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "5a266c30fb1b769c7872db2c5dd2398e0f9f2a647a7e5198ed138253f84467fe",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry13_c",
+      "traitKind": "method",
+      "methodIndex": 8928,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "c1fc60d50bf2fc7c985d030a0a026468d7fe53a1153f34ac5de00ecb7585a5c5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry14_c",
+      "traitKind": "method",
+      "methodIndex": 8929,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "4077890da01f2243de80cb83f90e550635798a5c2b72b35952d8201a574085e1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry15_c",
+      "traitKind": "method",
+      "methodIndex": 8930,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "726d4aa5bc0729c1e12cc8180083a2eb728e3aa69ada63098cace0e91cf26e0c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry16_c",
+      "traitKind": "method",
+      "methodIndex": 8931,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "e4663e20b52fd264ff0642f27e2d15b4ccaa9ba7896c3e890372e52b41a276ac",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry17_c",
+      "traitKind": "method",
+      "methodIndex": 8932,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "5ed8aa64cb8baf8d9d511ede367e967dfab30da1502812eceec18ade9e27566f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry18_c",
+      "traitKind": "method",
+      "methodIndex": 8935,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "45a9fd2f0742d222083dd8ede4cffda1f6215ccaeb6141f3d7be3c0878fdd054",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry19_c",
+      "traitKind": "method",
+      "methodIndex": 8936,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "ff1a4b8c2a2aefe8f3220a83bd26ba3d755049d1643d56afa46495656ca2e911",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry2_i",
+      "traitKind": "method",
+      "methodIndex": 8907,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "1b003e99a2ae489dbcf9af9aeb6e8f5bfdaa4de6a8988a33d48416be07c23531",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry20_i",
+      "traitKind": "method",
+      "methodIndex": 8939,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "d74259814e321a23ea8eed566667c328670647e5f24316edac711d206185150d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry21_i",
+      "traitKind": "method",
+      "methodIndex": 8940,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "3cc1d457f568bc55b0f591584c20680dadb0f730ba4b6b09b30be8dda73c7660",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry3_i",
+      "traitKind": "method",
+      "methodIndex": 8910,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "79c38366c1d6168ea59cdd0ab7776d8a017f5d5b0d9cee8b64b50c564bcf24ef",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry4_i",
+      "traitKind": "method",
+      "methodIndex": 8911,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "fcf3adea690784b17420d82028bb8125e4f3938315d9898c66a045fad5eba9ee",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry5_c",
+      "traitKind": "method",
+      "methodIndex": 8914,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "2f08cfbd0bda122c896eae0f420fa637aa36c55321d55454982f506cda6e37e7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry6_c",
+      "traitKind": "method",
+      "methodIndex": 8915,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "12414024267ddad6a120c793d7da2a941575056d667762df6bc711356343858f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry7_c",
+      "traitKind": "method",
+      "methodIndex": 8916,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "72b9ab4079771ecd2e3aaca37fe12200347ae290bbb96d253aa12932822b38a1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry8_i",
+      "traitKind": "method",
+      "methodIndex": 8919,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "8c92dbb061d1cae6c99cc502bc0b88f771fdc86dd648a32d405139d434bef0de",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_GradientEntry9_i",
+      "traitKind": "method",
+      "methodIndex": 8920,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "90c830e543ff6dde7641949ae7a9c8e738c4a19ebedb0789afd5687a2af1fac9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_LinearGradient1_c",
+      "traitKind": "method",
+      "methodIndex": 8905,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "205ed46ee1e11b413eb735cf9c6777008786ed4e457cb3b6680df070141f0277",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_LinearGradient2_c",
+      "traitKind": "method",
+      "methodIndex": 8909,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "4592d5d6a02b1253a50b7d0f8d9d0cf6de37c96c45e571248a2bf7147bca710b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_LinearGradient3_c",
+      "traitKind": "method",
+      "methodIndex": 8913,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "c37552d8042bce356990a5124ea4ff7ce7fd0057307100c1d5350a256620c6eb",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_LinearGradient4_c",
+      "traitKind": "method",
+      "methodIndex": 8918,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "da85ec6e67f0b75d031380ee4d65e6a3e12cb20a968dc420e0402936aaeee527",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_LinearGradientStroke1_c",
+      "traitKind": "method",
+      "methodIndex": 8923,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "c0707595da831e675b3930ddb4ae3bc419205be21d2fd7912d8a0b5e555a4e88",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_LinearGradientStroke2_c",
+      "traitKind": "method",
+      "methodIndex": 8927,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "f8a3f23253954c17f32a1d2ea215b32d6eefcdd4f3fab16116c9051676a26050",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_LinearGradientStroke3_c",
+      "traitKind": "method",
+      "methodIndex": 8934,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "b7265fe301ab3ffbb524cce51d178a37e8e14914e93931e4984296cc0cefeb39",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_LinearGradientStroke4_c",
+      "traitKind": "method",
+      "methodIndex": 8938,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "bfd8fd6993875effe65f237de57109e3f5526cca0d708cce89541053422e149c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_Rect1_i",
+      "traitKind": "method",
+      "methodIndex": 8904,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "c49fc32a821630a008435f33fcecc9d68e570b3dfa240df902c4e1b400537880",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_Rect2_i",
+      "traitKind": "method",
+      "methodIndex": 8908,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "2d4459ed08cdff60783b15132229c0ae1e1ea7c5e925a17a119851193e9018d4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_Rect3_i",
+      "traitKind": "method",
+      "methodIndex": 8912,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "9613683812e95717b26b048de7f4aeb6ec897a3b0a8a047fa8154a7d7daf3fd6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_Rect4_i",
+      "traitKind": "method",
+      "methodIndex": 8917,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "11613a2c430cb144f801f777452c0ab8e212f0bcf08e32885f7895eb51d83968",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_Rect5_i",
+      "traitKind": "method",
+      "methodIndex": 8922,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "90c9d23a69ddd63a5a9fc3eb9934dafd97f12d231a7ae0cd8faf212f9118a467",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_Rect6_i",
+      "traitKind": "method",
+      "methodIndex": 8926,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "bdcefd2d98dc16a2c9b70a12ffab826d219088f9ef487761c4a9abeb17aae6b8",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_Rect7_i",
+      "traitKind": "method",
+      "methodIndex": 8933,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "56f8715ee43f5cc468327a16caab1513775c26ef6d56cd427d446742596b63e2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DefaultButtonSkin_Rect8_i",
+      "traitKind": "method",
+      "methodIndex": 8937,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "df7e913e760a1d79977c94ad4685210ef411678fd5d51c44d87acb9235877cd4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "shadow",
+      "traitKind": "getter",
+      "methodIndex": 8975,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f8f99a3067d79c08e4f405f462a5f8fb60dfa475e77314cba21ec05e6b24f537",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "shadow",
+      "traitKind": "setter",
+      "methodIndex": 8976,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Rect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "7daf78e1a003e4814ef1cbf27b5668f56611558952c349d30beb552704b490a0",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

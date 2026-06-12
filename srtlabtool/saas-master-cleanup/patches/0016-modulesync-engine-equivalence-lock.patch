@@ -1,0 +1,89 @@
+From cfd05736f8acfd604cee2bdd8c8f3093779fb7a1 Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 16:17:56 +0000
+Subject: [PATCH] =?UTF-8?q?Lock=20marryModule=20=E2=89=A1=20ModuleSync=20w?=
+ =?UTF-8?q?riter=20sequence=20in=20CI=20(single-write-path)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+ModuleSync's sec16-only/sync-all/rekey-virgin actions already call the same
+canonical securityBytes writers the marryModule engine wraps (writeBcmSec16Gen2
++ writeBcmFlatSec16 canonical, writePcmSec6, rekeyVirginBcmFromRfhub), and the
+BCM/RFH resolution is now reconciled. Proven byte-identical: marryModule(RFH→
+BCM/virgin-BCM/PCM) == ModuleSync's writer output across all three cases.
+
+Rather than wrap those calls in marryModule() — a cosmetic, browser-unverifiable
+React change with identical output — lock the equivalence as a CI test so the
+engine and ModuleSync can never silently diverge. This delivers the actual
+single-write-path guarantee the delegation was for.
+---
+ .../marryModule.moduleSyncEquivalence.test.js | 56 +++++++++++++++++++
+ 1 file changed, 56 insertions(+)
+ create mode 100644 artifacts/srt-lab/src/lib/__tests__/marryModule.moduleSyncEquivalence.test.js
+
+diff --git a/artifacts/srt-lab/src/lib/__tests__/marryModule.moduleSyncEquivalence.test.js b/artifacts/srt-lab/src/lib/__tests__/marryModule.moduleSyncEquivalence.test.js
+new file mode 100644
+index 0000000..a7ef339
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/__tests__/marryModule.moduleSyncEquivalence.test.js
+@@ -0,0 +1,56 @@
++import { describe, it, expect } from 'vitest';
++import { marryModule } from '../marryModule.js';
++import { resolveBcmSec16 } from '../parseModule.js';
++import { writeBcmSec16Gen2, writeBcmFlatSec16, writePcmSec6, writeRfhSec16FromBcm } from '../securityBytes.js';
++import { rekeyVirginBcmFromRfhub } from '../mpc5606bBcm.js';
++import { reverse16 } from '../immoSecret.js';
++
++/* marryModule must produce BYTE-IDENTICAL output to ModuleSync's secret-write
++ * sequence (the canonical securityBytes writers ModuleSync's sec16-only /
++ * sync-all / rekey-virgin actions call directly). This locks the engine and
++ * ModuleSync to the same bytes so they can never silently diverge — the
++ * single-write-path guarantee, enforced. If a future change makes marryModule
++ * and ModuleSync's writers disagree, this fails. */
++
++const ROOT = Uint8Array.from({ length: 16 }, (_, i) => (i * 31 + 7) & 0xff);
++const OTHER = Uint8Array.from({ length: 16 }, (_, i) => (i * 7 + 200) & 0xff);
++const BCMROOT = reverse16(ROOT);
++const arr = (b) => Array.from(b);
++
++const rfhGen2 = () => { const b = new Uint8Array(4096); b[0x500] = 0xAA; b[0x501] = 0x55; b[0x502] = 0x31; b[0x503] = 0x01; return b; };
++const rfhSrc = () => writeRfhSec16FromBcm(rfhGen2(), BCMROOT).bytes;
++const gpec2a = () => { const b = new Uint8Array(4096); const v = '2C3CDXBG1KH100001'; for (let i = 0; i < 17; i++) b[i] = v.charCodeAt(i); return b; };
++
++// ModuleSync sec16-only BCM sequence: writeBcmSec16Gen2 then the canonical flat
++// repair (chainBcmFlatRepairIfStale === writeBcmFlatSec16 canonical on the
++// resolved secret).
++function moduleSyncBcmWrite(bcmBytes, rfhSec16) {
++  const r1 = writeBcmSec16Gen2(bcmBytes, rfhSec16);
++  const resolved = resolveBcmSec16(r1.bytes);
++  if (!resolved || !resolved.bytes || resolved.blank) return r1.bytes;
++  return writeBcmFlatSec16(r1.bytes, resolved.bytes, { mode: 'canonical' }).bytes;
++}
++
++describe('marryModule ≡ ModuleSync writer sequence (single-write-path lock)', () => {
++  it('RFH→BCM (split-record BCM) matches writeBcmSec16Gen2 + flat', () => {
++    const bcm = rekeyVirginBcmFromRfhub(new Uint8Array(65536).fill(0xFF), OTHER).bytes;
++    const ms = moduleSyncBcmWrite(bcm, ROOT);
++    const mm = marryModule({ source: { bytes: rfhSrc() }, target: { bytes: bcm } });
++    expect(mm.ok).toBe(true);
++    expect(arr(mm.bytes)).toEqual(arr(ms));
++  });
++
++  it('RFH→virgin BCM matches rekeyVirginBcmFromRfhub', () => {
++    const bcm = new Uint8Array(65536).fill(0xFF);
++    const ms = rekeyVirginBcmFromRfhub(bcm, ROOT).bytes;
++    const mm = marryModule({ source: { bytes: rfhSrc() }, target: { bytes: bcm } });
++    expect(arr(mm.bytes)).toEqual(arr(ms));
++  });
++
++  it('RFH→PCM matches writePcmSec6', () => {
++    const pcm = gpec2a();
++    const ms = writePcmSec6(pcm, ROOT).bytes;
++    const mm = marryModule({ source: { bytes: rfhSrc() }, target: { bytes: pcm } });
++    expect(arr(mm.bytes)).toEqual(arr(ms));
++  });
++});
+-- 
+2.43.0
+

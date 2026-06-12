@@ -1,0 +1,1000 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2711,
+  "className": "spark.components.gridClasses.GridColumn",
+  "classNameNormalized": "spark.components.gridClasses.GridColumn",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 45521,
+  "cinitMethod": 45518,
+  "iinitBytecode": {
+    "codeLength": 34,
+    "codeSha256": "4884778ee07856e0a702e6e1f731787c8a6d00646ba5bafd8fc8f2c765901491",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 31,
+    "codeSha256": "5809dd4efcf646ca955b760ae57dd3298c0c6735a461b63f35a6969eeb92d9e5",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "columnIndex",
+      "traitKind": "getter",
+      "methodIndex": 45525,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6b5018b6a97006483e218b1a233df299607cc5c0ae9d3fbcf4dd87a0884423ab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataField",
+      "traitKind": "getter",
+      "methodIndex": 45526,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1f6b552b3741a2c9dc2eb7ddcbf1e5bd8a11e577486eff2578d2a3612a95f391",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataField",
+      "traitKind": "setter",
+      "methodIndex": 45527,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "294f3daf9e31539aa0b3c662a80f2ae3d1b696b9179e0ba792a4e9f8fbd3184b",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "dataTipField",
+      "traitKind": "getter",
+      "methodIndex": 45528,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "056bd0d0c0efcb31bb2e00092a2d6aa86df44bc34c8ab07211e059241b7ca2f8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataTipField",
+      "traitKind": "setter",
+      "methodIndex": 45529,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "d4c08b0db248ccec48efb32b79c19184ef1763797f0173ddef201906a289b33c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "dataTipFormatter",
+      "traitKind": "getter",
+      "methodIndex": 45530,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.formatters.IFormatter",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "7173b5a075d3b7b566822dfabc4569f89572ee89fc0c2305a37119d95f311e20",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "dataTipFormatter",
+      "traitKind": "setter",
+      "methodIndex": 45531,
+      "methodName": "",
+      "paramTypes": [
+        "mx.formatters.IFormatter"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "f3332708b480930ec461f0b71092aaf42339d3dcd51c2f1226572323de4d07a5",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "dataTipFunction",
+      "traitKind": "getter",
+      "methodIndex": 45532,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "438f4dba3916dee604d7fc5d85716ef4d40ded0c638f6e1940c6d72d9ee2a66e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataTipFunction",
+      "traitKind": "setter",
+      "methodIndex": 45533,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "132f137f1a1276a0b780843b5fb5b9d70e472dfd1254f05b838b2c2b5726de1d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "editable",
+      "traitKind": "getter",
+      "methodIndex": 45534,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9b132b4a82d360fe1f55af1ca912aa241c9a14ffcbf845f1258a5f135bbb3bbd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "editable",
+      "traitKind": "setter",
+      "methodIndex": 45535,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "83a5fd3e669e6274aada3a0bde76987b3d22225f2a1c5a7423e793f4b98882e3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "formatter",
+      "traitKind": "getter",
+      "methodIndex": 45536,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.formatters.IFormatter",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "d858d81a174c337ed9089b5f520da216e05facf7c03bf8273dec6f53028f245d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "formatter",
+      "traitKind": "setter",
+      "methodIndex": 45537,
+      "methodName": "",
+      "paramTypes": [
+        "mx.formatters.IFormatter"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "8f870ad8f8a8e8db63c923aaba1730e3633f96066218782b989cfa76da8553c9",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "grid",
+      "traitKind": "getter",
+      "methodIndex": 45523,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Grid",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3d146bd733709ae874d63f6db80811f01c06e437083bdc994b7e31682cb6f42a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "headerRenderer",
+      "traitKind": "getter",
+      "methodIndex": 45538,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d7b72a7012856a4dba544e7f85555ea2d2267ebbeb0ae313094c5c767f1ab350",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "headerRenderer",
+      "traitKind": "setter",
+      "methodIndex": 45539,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "4851a6879bd618d152618d4f1921ba1cd46317dc57a4a69167ba57f5f15daa5d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "headerText",
+      "traitKind": "getter",
+      "methodIndex": 45540,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "66541333c1320cdb0e7b3f36c5a6a13d3a3a453fb0b878bfed7a6cc13ec95b24",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "headerText",
+      "traitKind": "setter",
+      "methodIndex": 45541,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "3647d664791d40048159bd11a407d06dc26d2147cfa2a43b369f3d526fd53b36",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getShowDataTips",
+      "traitKind": "method",
+      "methodIndex": 45564,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "d90873217acd58d6d62b064aeb0cfb20864bc8fc12291800d38e59628a78444d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setColumnIndex",
+      "traitKind": "method",
+      "methodIndex": 45524,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "790ca8eea3a58b726da5092ace1c3f5c339c84759404cc12ed4dff767f32535e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setGrid",
+      "traitKind": "method",
+      "methodIndex": 45522,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Grid"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "d2814255f12f3566377ac83ea70106eae0da42f604c77148f4af427a94c33762",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "imeMode",
+      "traitKind": "getter",
+      "methodIndex": 45542,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0f1052a981a344ad8207cb057844bdbcb45d36c7b8163671d5e1e66902bf7a46",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "imeMode",
+      "traitKind": "setter",
+      "methodIndex": 45543,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "db493f70aa4de6a053c146b34d3c14c7c6409c91404214a5717c915fa48ebb9f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "itemEditor",
+      "traitKind": "getter",
+      "methodIndex": 45544,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d06fdf1b89d44d819f8dc857b14096e4b966b3a701d2ea669ff879d6b48f2ff6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "itemEditor",
+      "traitKind": "setter",
+      "methodIndex": 45545,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "ef8436b04f7111deaeba46ec60411cd250549c433ae87321c70cbaa118b0f2d9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "itemRenderer",
+      "traitKind": "getter",
+      "methodIndex": 45546,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "8699dee0f4940f3a7389b92e8cfb3b2e1e016d775739259a8db6555c0bd11570",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "itemRenderer",
+      "traitKind": "setter",
+      "methodIndex": 45547,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "bc245be0c080ed94bb106d361e16a876559d8b4ee0885cf987952ff3a6b3bd49",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "itemRendererFunction",
+      "traitKind": "getter",
+      "methodIndex": 45548,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cc2e69b7a366bb18605c3660e9c7cd8525fe97c1a0b0e18c20d2ed0d78a3a307",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "itemRendererFunction",
+      "traitKind": "setter",
+      "methodIndex": 45549,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "88feeea0d31c4b88dda46b50f0665118de29f95e9aec61ece3a72272a32750b1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "itemToDataTip",
+      "traitKind": "method",
+      "methodIndex": 45579,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "8c8e39643a383737dacd52cd8e992caf7a795506d4b8794b94fd2ce228ba88e9",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "itemToLabel",
+      "traitKind": "method",
+      "methodIndex": 45578,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "eb414f20029ae18a7834f795fc4c2980067379dd620b2677d4cda8e0ffa32bb3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "itemToRenderer",
+      "traitKind": "method",
+      "methodIndex": 45580,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "3ae19774ed55a7235262ac6f26e0d95435609455d9886c97e362ab1bb6c3fda8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "labelFunction",
+      "traitKind": "getter",
+      "methodIndex": 45550,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0d28de4a6c0f41c8d29db35442b253826fee264cc785b2bdb52ff89563607e85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "labelFunction",
+      "traitKind": "setter",
+      "methodIndex": 45551,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "4b04ac0f6d268f28d691accd4e824b840288ff096175740f955e2b242fcf33b1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "maxWidth",
+      "traitKind": "getter",
+      "methodIndex": 45556,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d41515cd820116894acf2073bc3eea7a8d21ad9918aacd48e0b30e415da885cc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "maxWidth",
+      "traitKind": "setter",
+      "methodIndex": 45557,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "96ff8c13f477492ec9434b6bc43177009e90623a2941bde6358fb7f8009986e3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "minWidth",
+      "traitKind": "getter",
+      "methodIndex": 45554,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "95bcbdeeb011181712f9fbc20df1f3444360b03264d1621f5ca8dc2323f76a78",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "minWidth",
+      "traitKind": "setter",
+      "methodIndex": 45555,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "46c1f1bcc40834f80cf27a09bb5f4f6b05778dd661fb33c9b5beb98110b9aac9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchChangeEvent",
+      "traitKind": "method",
+      "methodIndex": 45581,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "cb99e433e437689787ea96423537eef21b6a019536a70f4b7d479416030a8e7d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.invalidateGrid",
+      "traitKind": "method",
+      "methodIndex": 45582,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "0f7beb4c805b959c150ba2ed6fa39fcaa870cb6b33dc9028072ae3f837681305",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.itemToString",
+      "traitKind": "method",
+      "methodIndex": 45577,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Array",
+        "Function",
+        "mx.formatters.IFormatter"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 178,
+      "bytecode": {
+        "codeLength": 178,
+        "codeSha256": "c5e55d15c4969b9e10ed0fe478ce92faa9779bb2bf6e3b17ef7c86ed923bcc24",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "rendererIsEditable",
+      "traitKind": "getter",
+      "methodIndex": 45558,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "36de6f5417f202458f59aab467c9a355d1497608b05cc9b9e4c76e074f036721",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "rendererIsEditable",
+      "traitKind": "setter",
+      "methodIndex": 45559,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "a0b9a0c92c2aa9fe066d3462a005fae4703cd9532c20793cfeec3508786ba57a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "resizable",
+      "traitKind": "getter",
+      "methodIndex": 45560,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f23340edb0900eba4838e2d4daf3f9c3962eec5b3084d62a63eaee8666c9104d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resizable",
+      "traitKind": "setter",
+      "methodIndex": 45561,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "7cecfa579e9ea0f9efb1b4c719d0cd5e17c9814f24c5dbe751300f2023624b40",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "showDataTips",
+      "traitKind": "getter",
+      "methodIndex": 45562,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ac12c6aa1a0de26e6a58fd7c88da5e8688166b26811ca56d28c77d17c69d9a8e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showDataTips",
+      "traitKind": "setter",
+      "methodIndex": 45563,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "0553e08d655aec5e2d78704155e3d1ee3859d93eb3620d01dcd47c047982e378",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "sortable",
+      "traitKind": "getter",
+      "methodIndex": 45565,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0f864ec8763fdc745523837ec11cac551fc349cac0fc253fed7aaf033b6b456d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sortable",
+      "traitKind": "setter",
+      "methodIndex": 45566,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "1434f84ffd8fa78ffb8dba71e6094ea06a3f6f11b522a20d23e22fcc5ff1e990",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "sortCompareFunction",
+      "traitKind": "getter",
+      "methodIndex": 45567,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cc43f967c9d944cc8b46303e517e8b68ceda771f2dfed24b8e473271354fde43",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sortCompareFunction",
+      "traitKind": "setter",
+      "methodIndex": 45568,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "3123e8bc7d3e0116ee494e68c11775db03f2f0aabd88ad502bb5dcf027fc7da6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "sortDescending",
+      "traitKind": "getter",
+      "methodIndex": 45569,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "652534498500f41e2513a8437a9df8b9f720f2636d8a9e09f7a0341a2fdf02b4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sortDescending",
+      "traitKind": "setter",
+      "methodIndex": 45570,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "915b9e4f4e0694cd8b62d0dcc650b12428e6ea5a9bd862dbb4656dfb9663f179",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "sortField",
+      "traitKind": "getter",
+      "methodIndex": 45574,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.collections.SortField",
+      "hasBody": true,
+      "codeLength": 235,
+      "bytecode": {
+        "codeLength": 235,
+        "codeSha256": "9e9810641fb927fd3979ba21d60c0ab777806a22baeb7b56286e1f98588d5700",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "visible",
+      "traitKind": "getter",
+      "methodIndex": 45575,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "31c9ce7cb8bb70e6b75950d0b86913ab57c84aaae00e20c2c0500e2f83179982",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "visible",
+      "traitKind": "setter",
+      "methodIndex": 45576,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "b297d2db7bef3f962246cebdcc7647a6f8290bc7ae8ebb09b6d9933cd4741eea",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "width",
+      "traitKind": "getter",
+      "methodIndex": 45552,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ca5a6df713fde24d5e3f33a61bde38cbd28d05364301aa0080946cfe5c3ac1da",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "width",
+      "traitKind": "setter",
+      "methodIndex": 45553,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "ff0c9290e051365c881e0591d49f82cf1a24385f339cb531c1a7c3a613930883",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.defaultItemEditorFactory",
+      "traitKind": "getter",
+      "methodIndex": 45519,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "9b15d830df46721e29e10f6dc7cb4ae37f536b1b77ddc66ad58b195671f1fe67",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.dataFieldPathSortCompare",
+      "traitKind": "method",
+      "methodIndex": 45520,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "spark.components.gridClasses.GridColumn"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 128,
+      "bytecode": {
+        "codeLength": 128,
+        "codeSha256": "319f236f16329796fbd7a9a2f8ebdf2c0db0d096835bdfa0446a5baa94bc3049",
+        "bytecodeLineCount": 8
+      }
+    }
+  ]
+}

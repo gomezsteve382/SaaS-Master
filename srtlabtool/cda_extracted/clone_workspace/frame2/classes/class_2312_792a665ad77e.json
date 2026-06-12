@@ -1,0 +1,62 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2312,
+  "className": "com.chrysler.cda.event.message.report.GetDtcEnvironmentalDataForScanReportMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.report.GetDtcEnvironmentalDataForScanReportMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "dtc",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 40857,
+  "cinitMethod": 40854,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "fcbfe0e4036575f4de20f02d77693219d89c6cc6018ca0b0e5e162c674f9f9a1",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "asyncToken",
+      "traitKind": "getter",
+      "methodIndex": 40856,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bf2835c7321acb5342a43ef4092e5efb1c8935dcbae86607cc6ee2395330307a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "originMessage",
+      "traitKind": "getter",
+      "methodIndex": 40855,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.report.RequestDTCEnvironmentalDataForReportMessage",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e871767aede5c0255799d0a1d5cf243d3fd33a55fac34a537f66f1735a22ad22",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

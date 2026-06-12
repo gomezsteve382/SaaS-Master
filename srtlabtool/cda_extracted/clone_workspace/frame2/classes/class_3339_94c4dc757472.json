@@ -1,0 +1,126 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3339,
+  "className": "com.diagnosticProcedures.node.FlexUserStopProcedureNode",
+  "classNameNormalized": "com.diagnosticProcedures.node.FlexUserStopProcedureNode",
+  "superName": "com.diagnosticProcedures.node.ProcedureNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.ProcedureNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51539,
+  "cinitMethod": 51538,
+  "iinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "f14602ddc1b77fd6167254af7287b86aca4a050803405b215d7c6e9f1c8e676e",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.node:FlexUserStopProcedureNode.loadStrings",
+      "traitKind": "method",
+      "methodIndex": 51542,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "588233f33c24ce4d957ec7fa703f810b6fbb178e83ea851071667e1e3c3edb0d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.node:FlexUserStopProcedureNode.showUserView",
+      "traitKind": "method",
+      "methodIndex": 51543,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 634,
+      "bytecode": {
+        "codeLength": 634,
+        "codeSha256": "1fd923b1e343779b434a160cf5304f080157990b3561e7cd8800291f1223be76",
+        "bytecodeLineCount": 40
+      }
+    },
+    {
+      "traitName": "createXMLCopy",
+      "traitKind": "method",
+      "methodIndex": 51541,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "a8e09c97abc73d5ce52bd42072fcc437ac80fe1c34b5723717e5d1a4a556c292",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.onStop",
+      "traitKind": "method",
+      "methodIndex": 51545,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.view.event.ScreenEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "f169a90a584cdacc36e244229674e4d4735a3f4ebe1e4d3527d43599d4cde1af",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.resolveTextKeys",
+      "traitKind": "method",
+      "methodIndex": 51544,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 466,
+      "bytecode": {
+        "codeLength": 466,
+        "codeSha256": "b11c82e16320d328f93f59aed5bc65525d5bea54d7449828106a03b1f92dbcfb",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51540,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "1f79733bf81b1135be7cda5a9d7c1289f77b31766bb54192edb09eebb6dddede",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

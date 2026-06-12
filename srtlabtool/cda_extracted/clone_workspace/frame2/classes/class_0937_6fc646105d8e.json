@@ -1,0 +1,355 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 937,
+  "className": "com.chrysler.cda.presentation.component.proxi.components.tabs.DDEDetailsNavigatorContent",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.tabs.DDEDetailsNavigatorContent",
+  "superName": "spark.components.NavigatorContent",
+  "superNameNormalized": "spark.components.NavigatorContent",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.proxi.components.tabs.IMXMLSupportContent"
+  ],
+  "iinitMethod": 18946,
+  "cinitMethod": 18940,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "8447bcb54894d2d8bbe347e74b972dd43f62d46a325e7f20cb8a84387c15823d",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "a70b227e56b5428f84c2e8633721b34a01017eeadd99e47faeadaefcef245ff6",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.tabs:DDEDetailsNavigatorContent.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 18962,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d3c4e1f36634c82bbcdf5f68afdd2abdabf6e30e53b6741e3769028a87051cd7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "detailsHeight",
+      "traitKind": "getter",
+      "methodIndex": 18958,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "8ba6492ec479a0cd6867c6710e8b11a785aa45c1bd7aa858064b674568389b4a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "detailsHeight",
+      "traitKind": "setter",
+      "methodIndex": 18959,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0efbe24a0479e13f91116ce8422ad617366b79340e7d49645ae4a973021c3f00",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "globalPreparing",
+      "traitKind": "method",
+      "methodIndex": 18952,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.ProxiGlobalStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "126697232690e60e29e1feec18cece82400ee1b282b95929e28ed97440e592a1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 18954,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "6de978e1d6dcfb9e8682c553547de7ac901058815bda66d75387e44693d95648",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 18955,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4e8e023e86c4fe5bfda3fc27210ef200bfb6212b07fd33a71ebafd9680760255",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mxmlSupportContent",
+      "traitKind": "getter",
+      "methodIndex": 18960,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "48c7624ff7113bd7dcea8aa70113d657dfd2c9b386ec96901f7521d022f04673",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mxmlSupportContent",
+      "traitKind": "setter",
+      "methodIndex": 18961,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "279344aba761579e4881bb2730df95f29878aaf94815ecf058c12bd3dd338121",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mxmlSupportWidth",
+      "traitKind": "getter",
+      "methodIndex": 18944,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "a31f387e1a2ed213f2d9bb21014ca24add2f63cb2e24e9456a76c7d2719ed45c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onInit",
+      "traitKind": "method",
+      "methodIndex": 18945,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "b170da35c098d8f807d0b4c26150e34266058d9aae50d0962eb52565a50d964f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 18956,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.proxi.components.tabs.DDEDetailsNavigatorContentPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "64003379376d05d56f15c4eb20ff06d2b712017e75496410d0b8580d8e974254",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 18957,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.components.tabs.DDEDetailsNavigatorContentPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a08592556bc8cbc06fed124f2be689d48ebcb042f38b2d780623449a00f6e1a2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setIdenticalMode",
+      "traitKind": "method",
+      "methodIndex": 18948,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.SetConvertedViewModeMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "0a12bdb9b28e5e1074f063d611edf09bd63b075d89279eb9966ef2ca5492c6ea",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setLinearMode",
+      "traitKind": "method",
+      "methodIndex": 18947,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.SetConvertedViewModeMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "a3469937c74ea7571627c3459bf4646e66658472da4e52d765c7266170fe8b7e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setTabularMode",
+      "traitKind": "method",
+      "methodIndex": 18949,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.SetConvertedViewModeMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "ed70ec5302bfaeda3350fc1691d56794b368cdee24747a52116770151fe8ed51",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toggleRawEvent",
+      "traitKind": "method",
+      "methodIndex": 18953,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "986a935f1c6b1152df121ab492bc32521660ab730c48f475db56ff6ad0a81ca8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "updateRowCount",
+      "traitKind": "method",
+      "methodIndex": 18951,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 181,
+      "bytecode": {
+        "codeLength": 181,
+        "codeSha256": "f892f1a2b9f2db7d55a48ed045e32edcd7113d825ba40423d1f89f92b46fe267",
+        "bytecodeLineCount": 12
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "identicalMode",
+      "traitKind": "getter",
+      "methodIndex": 18942,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0511925a000bb3cd4db3e5e3e6e7a1f647e09223f5483359da852a5796f94029",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "linearMode",
+      "traitKind": "getter",
+      "methodIndex": 18941,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "24a275b6118c7f9a0beb737243bff7fdafc57e8dcfbe8d922ed6ba70e7d45477",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "tabularMode",
+      "traitKind": "getter",
+      "methodIndex": 18943,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1bd0c0ad30bed05fc1ca13ad89681366b0b33c6e2d9b1cd3a066b7dda4892b89",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2732,
+  "className": "mx.controls.advancedDataGridClasses.AdvancedDataGridGroupItemRenderer",
+  "classNameNormalized": "mx.controls.advancedDataGridClasses.AdvancedDataGridGroupItemRenderer",
+  "superName": "mx.core.UIComponent",
+  "superNameNormalized": "mx.core.UIComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IDataRenderer",
+    "mx.controls.listClasses.IDropInListItemRenderer",
+    "mx.controls.listClasses.IListItemRenderer",
+    "mx.core.IFontContextComponent"
+  ],
+  "iinitMethod": 45916,
+  "cinitMethod": 45915,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "28ee3644f26cccb48961fc8bd8c32699856117279bbc336dd7ed19e996a1e2ec",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "data",
+      "traitKind": "getter",
+      "methodIndex": 45917,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6528898cb16f3662420b393db7bf2fca1bfe803468377034803120a5b1239729",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "setter",
+      "methodIndex": 45918,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "eda0b2536654486f389be815f7d2ffd7dcb2ac0eb9f13e105fe59b9069f3bdec",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "fontContext",
+      "traitKind": "getter",
+      "methodIndex": 45919,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFlexModuleFactory",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "19a96601b1ecda348a9f945180a519e8253538a768a36217a8ee3d36506da843",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fontContext",
+      "traitKind": "setter",
+      "methodIndex": 45920,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c92d172ec9c23cf6daa730a6b23242463df62241a422fb0db347a9de166a2fdc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getDisclosureIcon",
+      "traitKind": "method",
+      "methodIndex": 45932,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFlexDisplayObject",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f69277b0eb4c67071646070fd573c841b35c276d8c41e1f4014a07b970e1ac96",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getLabel",
+      "traitKind": "method",
+      "methodIndex": 45931,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IUITextField",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6eecd921355ba17d8fb3b74cd6468529080768781de74f74b78dcfcbab5834f5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "getter",
+      "methodIndex": 45921,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.listClasses.BaseListData",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "211ef1e881dd9cf4587e9a7ebf344fdd3fca2b345a17e1f134ee3cc415db16bb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "setter",
+      "methodIndex": 45922,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.listClasses.BaseListData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "f5c44afab75268b9ff72ebc10680a568b427cc3227204e7e8772eb27bcdaa003",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:AdvancedDataGridGroupItemRenderer.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 45924,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 761,
+      "bytecode": {
+        "codeLength": 761,
+        "codeSha256": "c1690a1575d7a3f06d0c1c96f9ddc38226b3d972b3619e944c59e95d07500784",
+        "bytecodeLineCount": 48
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:AdvancedDataGridGroupItemRenderer.createChildren",
+      "traitKind": "method",
+      "methodIndex": 45923,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "982e073b2ff80be5b64684424f56d7a90477f7620d60cb58b0aaf561cb4b274b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:AdvancedDataGridGroupItemRenderer.createLabel",
+      "traitKind": "method",
+      "methodIndex": 45927,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "88dc503273bde94c30dd2feefd55d83b309509fe44475fe5a8add2b7ee0b7607",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:AdvancedDataGridGroupItemRenderer.measure",
+      "traitKind": "method",
+      "methodIndex": 45925,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 261,
+      "bytecode": {
+        "codeLength": 261,
+        "codeSha256": "744680a992771798fd7159566b00f5b9543c4656e2d9ca3ea7a8932bb0f0bdd8",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:AdvancedDataGridGroupItemRenderer.removeLabel",
+      "traitKind": "method",
+      "methodIndex": 45928,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "0500a892c5ca0ee7f912bf9071b77ef1e26d598f4fe7721aed4ba7c6e6529ce1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:AdvancedDataGridGroupItemRenderer.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 45926,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 725,
+      "bytecode": {
+        "codeLength": 725,
+        "codeSha256": "01e9e2ae2e36a0fc654822dede2f2b8faf370831d6925d3bd23b08874a0159b0",
+        "bytecodeLineCount": 46
+      }
+    },
+    {
+      "traitName": "PrivateNs.disclosureMouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 45930,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "d1a14547a37bea3fa7f8823cc9c0a48393b875943c59ef867f995660edcd9f03",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.toolTipShowHandler",
+      "traitKind": "method",
+      "methodIndex": 45929,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.ToolTipEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 182,
+      "bytecode": {
+        "codeLength": 182,
+        "codeSha256": "9d588c9a2f48e92607cb5e0f4ddac4f68b7228126baed55fc6554aac8db8efaa",
+        "bytecodeLineCount": 12
+      }
+    }
+  ],
+  "staticMembers": []
+}

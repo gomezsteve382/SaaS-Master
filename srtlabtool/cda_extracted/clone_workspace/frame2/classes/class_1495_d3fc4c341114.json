@@ -1,0 +1,160 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1495,
+  "className": "spark.core.ContentRequest",
+  "classNameNormalized": "spark.core.ContentRequest",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 32425,
+  "cinitMethod": 32424,
+  "iinitBytecode": {
+    "codeLength": 43,
+    "codeSha256": "0c7b3e19c586e5c3279174b6a8f011a9a6fa2460fadd64caa8ee01d94c102928",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "complete",
+      "traitKind": "getter",
+      "methodIndex": 32428,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "1bd0b832ef0176483d259511bc166a7529ebb17ae203c35591b74d99a5c1e763",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "content",
+      "traitKind": "getter",
+      "methodIndex": 32426,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5c87589505ebad38e821ca17db5b627f58ba7e234ed47f264acf290830bf3b85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "content",
+      "traitKind": "setter",
+      "methodIndex": 32427,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "8a84f6927cf9c8a88819bc45b9fe8015fd3549a3655bfb7ca9a7db68c86d7329",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.content_completeHandler",
+      "traitKind": "method",
+      "methodIndex": 32431,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "3d681c3d3308a93e3350f1d55e37032e4cc044b33f7c1b808716dd83530c07ee",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.content_ioErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 32432,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "1541e0212309b1973ef2b4b0379c7f14887b752427fcc0c2aff6371de0b3034b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.contentLoader_invalidateLoaderHandler",
+      "traitKind": "method",
+      "methodIndex": 32433,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.LoaderInvalidationEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "8e98798365738be49f9d49883725c2f626003ac1d3b52c25f628e1819f9e4cb3",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.addLoaderListeners",
+      "traitKind": "method",
+      "methodIndex": 32429,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "04701e3cd35659bb09da1f8921420a4ddbd8675d37a5d9b514b2c8cc61f28e68",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeLoaderListeners",
+      "traitKind": "method",
+      "methodIndex": 32430,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 127,
+      "bytecode": {
+        "codeLength": 127,
+        "codeSha256": "30f92fe78c68dd7ddfae2042995dce630b766da97ca8810578e50b1566b05f6d",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,70 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2508,
+  "className": "com.chrysler.cda.application.tools.CustomDisplayLiveDDELookupStatusMessage",
+  "classNameNormalized": "com.chrysler.cda.application.tools.CustomDisplayLiveDDELookupStatusMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 43107,
+  "cinitMethod": 43104,
+  "iinitBytecode": {
+    "codeLength": 28,
+    "codeSha256": "b9328f955d430f14d5205db41a5a2aee7d052a82ec0b9a49048c40db71d7ed2f",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "843fd48d2a4da48768324df88b5cca8f28ee19f3d3d5a58eb86a63d05c10489a",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "OnFailure",
+      "traitKind": "method",
+      "methodIndex": 43106,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.application.tools.CustomDisplayLiveDDELookupStatusMessage",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "7b6c0675419371cfb1019dc258c6bf1e20c2ffc7b85d5f3bef8bea18c79f3d9d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "OnSuccess",
+      "traitKind": "method",
+      "methodIndex": 43105,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.application.tools.CustomDisplayLiveDDELookupStatusMessage",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "a45488ec10a6c4e44bf713989d1264c43c105dbafba108e3f7a98cb5c79fb09a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

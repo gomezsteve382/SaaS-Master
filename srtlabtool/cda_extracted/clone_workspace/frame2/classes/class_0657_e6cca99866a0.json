@@ -1,0 +1,158 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 657,
+  "className": "flashx.textLayout.operations.DeleteTextOperation",
+  "classNameNormalized": "flashx.textLayout.operations.DeleteTextOperation",
+  "superName": "flashx.textLayout.operations.FlowTextOperation",
+  "superNameNormalized": "flashx.textLayout.operations.FlowTextOperation",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 12362,
+  "cinitMethod": 12361,
+  "iinitBytecode": {
+    "codeLength": 43,
+    "codeSha256": "2f0947e3d9aa474aeb88a40d3d44c0ad748447cb281815481fbdfabb33703a54",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "allowMerge",
+      "traitKind": "getter",
+      "methodIndex": 12363,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1ba03abc625f1452e2cbe231f681a9424d5a92b867d3033ea825526a918c9a48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "allowMerge",
+      "traitKind": "setter",
+      "methodIndex": 12364,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b3d2b0908a5e91ff90efaaea5f16a19676e38953e7576ea308e68496518fb87d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "deleteSelectionState",
+      "traitKind": "getter",
+      "methodIndex": 12365,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "72bcf1686ad33f21475bbb631a4e1283335bf986b6e0a16a2449e727a4fe94bd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "deleteSelectionState",
+      "traitKind": "setter",
+      "methodIndex": 12366,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.SelectionState"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4fa60f7ed09ca882753ef2d15acda2c91a6443e2ba2853c7065976cc0718b321",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "doOperation",
+      "traitKind": "method",
+      "methodIndex": 12367,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 183,
+      "bytecode": {
+        "codeLength": 183,
+        "codeSha256": "80c534ec49fd3e10778e0c6de2fb91358da90716fb0cd1cb751c70bf2b6ee993",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.merge",
+      "traitKind": "method",
+      "methodIndex": 12370,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.operations.FlowOperation"
+      ],
+      "returnType": "flashx.textLayout.operations.FlowOperation",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "7635d04d448a9c2b3125a8337a7e809eddef2ed74a715ed3ecb0882d4f879754",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 12369,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "131efffb06cab8a95776162fbae8c88e65b111f26d1f29f2e87695f70a38e194",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 12368,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.SelectionState",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "edd28bc2da1183492d972a5f4ef56c4ee45509b98566b2ff092a6002b7d077c3",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

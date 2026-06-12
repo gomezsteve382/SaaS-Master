@@ -1,0 +1,349 @@
+{
+  "frame": "frame1",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 37,
+  "className": "mx.resources.IResourceManager",
+  "classNameNormalized": "mx.resources.IResourceManager",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 591,
+  "cinitMethod": 567,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.resources:IResourceManager.addResourceBundle",
+      "traitKind": "method",
+      "methodIndex": 572,
+      "methodName": "",
+      "paramTypes": [
+        "mx.resources.IResourceBundle",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.findResourceBundleWithResource",
+      "traitKind": "method",
+      "methodIndex": 580,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "mx.resources.IResourceBundle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getBoolean",
+      "traitKind": "method",
+      "methodIndex": 587,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getBundleNamesForLocale",
+      "traitKind": "method",
+      "methodIndex": 578,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getClass",
+      "traitKind": "method",
+      "methodIndex": 588,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Class",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getInt",
+      "traitKind": "method",
+      "methodIndex": 585,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getLocales",
+      "traitKind": "method",
+      "methodIndex": 576,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getNumber",
+      "traitKind": "method",
+      "methodIndex": 584,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getObject",
+      "traitKind": "method",
+      "methodIndex": 581,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "*",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getPreferredLocaleChain",
+      "traitKind": "method",
+      "methodIndex": 577,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getResourceBundle",
+      "traitKind": "method",
+      "methodIndex": 579,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "mx.resources.IResourceBundle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getString",
+      "traitKind": "method",
+      "methodIndex": 582,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Array",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getStringArray",
+      "traitKind": "method",
+      "methodIndex": 583,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.getUint",
+      "traitKind": "method",
+      "methodIndex": 586,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "uint",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.initializeLocaleChain",
+      "traitKind": "method",
+      "methodIndex": 590,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.installCompiledResourceBundles",
+      "traitKind": "method",
+      "methodIndex": 589,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain",
+        "Array",
+        "Array",
+        "Boolean"
+      ],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.loadResourceModule",
+      "traitKind": "method",
+      "methodIndex": 570,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean",
+        "flash.system.ApplicationDomain",
+        "flash.system.SecurityDomain"
+      ],
+      "returnType": "flash.events.IEventDispatcher",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.localeChain",
+      "traitKind": "getter",
+      "methodIndex": 568,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.localeChain",
+      "traitKind": "setter",
+      "methodIndex": 569,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.removeResourceBundle",
+      "traitKind": "method",
+      "methodIndex": 573,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.removeResourceBundlesForLocale",
+      "traitKind": "method",
+      "methodIndex": 574,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.unloadResourceModule",
+      "traitKind": "method",
+      "methodIndex": 571,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.resources:IResourceManager.update",
+      "traitKind": "method",
+      "methodIndex": 575,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

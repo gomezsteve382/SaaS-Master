@@ -1,0 +1,174 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1235,
+  "className": "org.spicefactory.parsley.asconfig.processor.ActionScriptConfigurationProcessor",
+  "classNameNormalized": "org.spicefactory.parsley.asconfig.processor.ActionScriptConfigurationProcessor",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.builder.ConfigurationProcessor"
+  ],
+  "iinitMethod": 27811,
+  "cinitMethod": 27810,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "dd01f41acc90f444309331fdfa459af5990b94273ca5787a781ed0fd3f4a99ac",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "955c8e4a3445101cd0127425385a44ff8ee70b1977bc973612101e3896425218",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "org.spicefactory.parsley.asconfig.processor:ActionScriptConfigurationProcessor.processClass",
+      "traitKind": "method",
+      "methodIndex": 27813,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "org.spicefactory.parsley.config.Configuration"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 262,
+      "bytecode": {
+        "codeLength": 262,
+        "codeSha256": "0e621a561f2a557377df2805fcd3bcb28af4c9f79e0d92016548817ab0e453e5",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.createDefinition",
+      "traitKind": "method",
+      "methodIndex": 27815,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Property",
+        "Object",
+        "org.spicefactory.parsley.config.Configuration"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 266,
+      "bytecode": {
+        "codeLength": 266,
+        "codeSha256": "60cffb8fec785367b0ecc6f469604fb8446c28a0620dad5b72af28701fd3f9df",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMetadata",
+      "traitKind": "method",
+      "methodIndex": 27818,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Property"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 99,
+      "bytecode": {
+        "codeLength": 99,
+        "codeSha256": "483403c4e720574f5085828be6b02605e5e743f796e0a0074368f112f4fea200",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleLegacyFactory",
+      "traitKind": "method",
+      "methodIndex": 27816,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinitionFactory",
+        "org.spicefactory.parsley.core.registry.ObjectDefinitionRegistry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "cff2421ebdf001ca55cb6d0365e99a87a13c0e89cdc069904acdd00fe39a4be9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.isValidRootConfig",
+      "traitKind": "method",
+      "methodIndex": 27817,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Property"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "a8b40415788ec6634bba7f1cc0f9479db7bda9b078e2c489e05cae008ba7e009",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.processProperty",
+      "traitKind": "method",
+      "methodIndex": 27814,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Property",
+        "Object",
+        "org.spicefactory.parsley.config.Configuration"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 260,
+      "bytecode": {
+        "codeLength": 260,
+        "codeSha256": "d99ac0776897e902b9c68d68c9400ce73478544ab929b6d2b15998fb3542901d",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "processConfiguration",
+      "traitKind": "method",
+      "methodIndex": 27812,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinitionRegistry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 190,
+      "bytecode": {
+        "codeLength": 190,
+        "codeSha256": "52e1de93329366fc934c01d3957c1d481a7b99c8ecc226e4b38c02f1782783bf",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 27819,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "683fcab492069469bddb85f0cb996ab9a4dae5fcbb83c5f326b6a49598a5c813",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": []
+}

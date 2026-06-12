@@ -1,0 +1,260 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 221,
+  "className": "com.chrysler.cda.infrastructure.Toolbox",
+  "classNameNormalized": "com.chrysler.cda.infrastructure.Toolbox",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 4484,
+  "cinitMethod": 4468,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "closingMessages",
+      "traitKind": "method",
+      "methodIndex": 4483,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "538fe9fba84a3efcfb3f42e282f3b3a71afd14f4dfe9ef83776d6309710ac8d4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "disableApp",
+      "traitKind": "method",
+      "methodIndex": 4476,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 146,
+      "bytecode": {
+        "codeLength": 146,
+        "codeSha256": "4282fdba3e6a0eb84ffa762f4c292351b468ee1589b3f7ce56edeebffcfd25df",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "disabledState",
+      "traitKind": "method",
+      "methodIndex": 4475,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "aee49b4c2a1d4e1faef39bf063d62db7977ccf1f1138e1f961a7094067412cf8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "disableMenu",
+      "traitKind": "method",
+      "methodIndex": 4479,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "ab3fdf973ad29cbf3d76674b6e41fe6b0505b4716f7d10101658ba2521548a6a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "disableQuickBarMenu",
+      "traitKind": "method",
+      "methodIndex": 4481,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "f4a8e4582aadee81911e08b6202bf5b50c516dbbc32f4259893f8820946dd246",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "doDeferal",
+      "traitKind": "method",
+      "methodIndex": 4474,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.DeferrableMessage",
+        "org.spicefactory.lib.logging.Logger",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "f5cc1fc7db8194faee37b63fada6f3f81f389b1f7bda5ce97cd19d944e9060ff",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "enableApp",
+      "traitKind": "method",
+      "methodIndex": 4478,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "6816ce6b83e59dfb8ad750a55c7527214c73271ea7ddd9332e0965c038f77651",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "enableMenu",
+      "traitKind": "method",
+      "methodIndex": 4480,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "33eced4dd3946fb8efcea0770abe90904f1a804bf8ab5ddcf5e14b58851a6ce8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "enableQuickBarMenu",
+      "traitKind": "method",
+      "methodIndex": 4482,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "a3d96182df6a909e22fa3102152502c9cc98156e755b70247ddfd4189884abcf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mediateAppView",
+      "traitKind": "method",
+      "methodIndex": 4472,
+      "methodName": "",
+      "paramTypes": [
+        "CDA"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "77498df0c75ac2953ade01557fbdf2c2ac4a599d6d3681411a33cc2e949abc56",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.busloggerDisableCheck",
+      "traitKind": "method",
+      "methodIndex": 4477,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.window.AbstractWindow",
+        "com.chrysler.core.window.AbstractWindow"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "2487e2e2a922718c9ca058956618ca9616d6d3a5f74a5aa21d59eb1428c09672",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "base10ToBase16",
+      "traitKind": "method",
+      "methodIndex": 4471,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "884cf5d55a2ed840e8f9e5d7eef78f8547092eb4e68d7d712d61097b72f3a789",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getDate",
+      "traitKind": "method",
+      "methodIndex": 4469,
+      "methodName": "",
+      "paramTypes": [
+        "mx.formatters.DateFormatter"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "8b5b0f24e81cb75c7105cdfdadffd8fc519d887dbcef7331b82a77ae824e4dba",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getShortDate",
+      "traitKind": "method",
+      "methodIndex": 4470,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 187,
+      "bytecode": {
+        "codeLength": 187,
+        "codeSha256": "9cd2bdebea408dc588a8143bd329cf06ac71aca2b2167e00a5c06779ce61d8f8",
+        "bytecodeLineCount": 12
+      }
+    }
+  ]
+}

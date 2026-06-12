@@ -1,0 +1,72 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3888,
+  "className": "org.spicefactory.parsley.processor.messaging.receiver.DefaultMessageInterceptor",
+  "classNameNormalized": "org.spicefactory.parsley.processor.messaging.receiver.DefaultMessageInterceptor",
+  "superName": "org.spicefactory.parsley.processor.messaging.receiver.AbstractMethodReceiver",
+  "superNameNormalized": "org.spicefactory.parsley.processor.messaging.receiver.AbstractMethodReceiver",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.messaging.receiver.MessageTarget"
+  ],
+  "iinitMethod": 56881,
+  "cinitMethod": 56879,
+  "iinitBytecode": {
+    "codeLength": 95,
+    "codeSha256": "2942f91726df8539cee7bb4851b7b69a6d17a1a8fba754158572f5baec266018",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "handleMessage",
+      "traitKind": "method",
+      "methodIndex": 56882,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.MessageProcessor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "45b7bc00b4f92b1e14733ea5eec68baac0edb5d1a2518b85660697102db0b0d5",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "newFactory",
+      "traitKind": "method",
+      "methodIndex": 56880,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Class",
+        "*",
+        "int"
+      ],
+      "returnType": "org.spicefactory.parsley.processor.messaging.MessageReceiverFactory",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "0281ed49636316206a7956785e3ab5dfa2655b42fa81a0d46c8b6576dc97c657",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

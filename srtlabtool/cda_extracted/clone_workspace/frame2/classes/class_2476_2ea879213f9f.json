@@ -1,0 +1,241 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2476,
+  "className": "mx.messaging.MessageResponder",
+  "classNameNormalized": "mx.messaging.MessageResponder",
+  "superName": "flash.net.Responder",
+  "superNameNormalized": "flash.net.Responder",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42736,
+  "cinitMethod": 42735,
+  "iinitBytecode": {
+    "codeLength": 50,
+    "codeSha256": "cf62bafe7ca5d025c34f9c96a917ddd86b1cae1f92f1f771f097f9a003555495",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "agent",
+      "traitKind": "getter",
+      "methodIndex": 42737,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.MessageAgent",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "931860d2d60695ab61015ba27ef33a808a576ad16905958ea10637778908c6d5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "channel",
+      "traitKind": "getter",
+      "methodIndex": 42738,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.Channel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "47db7d0e00c59b32c83ee99ca7fe7c1b3333df08abb8dd5a03f66f3c73eb3957",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "message",
+      "traitKind": "getter",
+      "methodIndex": 42739,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.messages.IMessage",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "62ebc48386e25833f1f4c7742203e7fe0c4c0d4ce3b28de127bd08b5e8d36765",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "message",
+      "traitKind": "setter",
+      "methodIndex": 42740,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "c164d6f760b38b82e3f7e0fce4c8a755e21d87a116cfd089f147f52debf576c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging:MessageResponder.createRequestTimeoutErrorMessage",
+      "traitKind": "method",
+      "methodIndex": 42744,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.messages.ErrorMessage",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "a58ad9e06a7d0934c030403df761553fa22901b76a777fa3600c8831370e3582",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.messaging:MessageResponder.requestTimedOut",
+      "traitKind": "method",
+      "methodIndex": 42746,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging:MessageResponder.resultHandler",
+      "traitKind": "method",
+      "methodIndex": 42745,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging:MessageResponder.statusHandler",
+      "traitKind": "method",
+      "methodIndex": 42747,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.releaseTimer",
+      "traitKind": "method",
+      "methodIndex": 42749,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "7419666d2e01d16133aa490df8cbcc5c898553b0d3dabc1caeeaae7644d176d6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.timeoutRequest",
+      "traitKind": "method",
+      "methodIndex": 42748,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "0a94495bf9f82b74d10df316bb75c7a48bc6c7f7dbdfeac11cda5c2edda425b6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "result",
+      "traitKind": "method",
+      "methodIndex": 42742,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "5a4f0b3dae7c6143745e62497519bc0e4898226e750cbbc6ef2835864900f61d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "startRequestTimeout",
+      "traitKind": "method",
+      "methodIndex": 42741,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "14e7892a33ef59e2ecfc94d2869cf9fcda2c02fd52aee2bcca559ca6bb5d7c50",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "status",
+      "traitKind": "method",
+      "methodIndex": 42743,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "0807679828abf4eeed27cf1b115940981c9e5a665cbd2bc73f631a1aa3a68fc0",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

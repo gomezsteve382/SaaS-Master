@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 926,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs.ClearDTCsCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.dtcs.ClearDTCsCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 18741,
+  "cinitMethod": 18737,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "5c0caaf10fd793f8cdd0fba83fde67c0214107d9ab11fd195deb151b952fbbe5",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application.diagnostic.ecu.dtcs.worker",
+      "traitKind": "method",
+      "methodIndex": 18740,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "a77d77bb26ec26ec66d596a2eb809237cc50f1470342472a632d94e7aed9ec3c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onClearDTCs",
+      "traitKind": "method",
+      "methodIndex": 18738,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.ClearDTCsMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4387faa04be27655113ca7b5f0c77594ccba4dcfcfaf4bd62544419385f6ff1d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onClearVehicleWideDTCs",
+      "traitKind": "method",
+      "methodIndex": 18739,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.vehicleWideDTCs.ClearVehicleWideDTCs"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4387faa04be27655113ca7b5f0c77594ccba4dcfcfaf4bd62544419385f6ff1d",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

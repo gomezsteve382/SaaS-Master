@@ -1,0 +1,152 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3279,
+  "className": "org.spicefactory.parsley.core.context.impl.DefaultDynamicContext",
+  "classNameNormalized": "org.spicefactory.parsley.core.context.impl.DefaultDynamicContext",
+  "superName": "org.spicefactory.parsley.core.context.impl.DefaultContext",
+  "superNameNormalized": "org.spicefactory.parsley.core.context.impl.DefaultContext",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.context.DynamicContext"
+  ],
+  "iinitMethod": 50843,
+  "cinitMethod": 50835,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "55ec509a66eef22241d4b527463ac391418f0106e2f8347a9b8a443ee358f035",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addDefinition",
+      "traitKind": "method",
+      "methodIndex": 50837,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "org.spicefactory.parsley.core.context.DynamicObject",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "82185f341885a986340470640205fe8e66531e89f19409780f027fe8ed115d29",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "addObject",
+      "traitKind": "method",
+      "methodIndex": 50838,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "org.spicefactory.parsley.core.context.DynamicObject",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "531ceb673a6bce715544d7e13d22e9c6039f7c9f780e30ce85154f722308bb90",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 50836,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.bootstrap.BootstrapInfo"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "fa37261dfab0ef2ab2090bde6b723683fa23543c918cf1c5941b40b3b6a6208f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkDefinition",
+      "traitKind": "method",
+      "methodIndex": 50839,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinition"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "4a069cba2038c6b9b29fa1eb3047f394095bf6844152d52110c7ea0283bff7d8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkState",
+      "traitKind": "method",
+      "methodIndex": 50842,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "3b2830c6c15d7fe69aa946161f2059634efb69b28f06009732a92cdbda8fb6ae",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.contextDestroyed",
+      "traitKind": "method",
+      "methodIndex": 50841,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "2d787d613ccff5c203a6c9807149f1898d994cf5bbc043144892f4c30b7d768f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeObject",
+      "traitKind": "method",
+      "methodIndex": 50840,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "d3bed95637351783b13929f3e799f00372b47791a20dee703984c9e3ae177d98",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

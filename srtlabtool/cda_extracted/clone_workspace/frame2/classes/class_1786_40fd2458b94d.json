@@ -1,0 +1,650 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1786,
+  "className": "flashx.textLayout.utils.NavigationUtil",
+  "classNameNormalized": "flashx.textLayout.utils.NavigationUtil",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 34463,
+  "cinitMethod": 34428,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "endOfDocument",
+      "traitKind": "method",
+      "methodIndex": 34452,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 124,
+      "bytecode": {
+        "codeLength": 124,
+        "codeSha256": "35145461be42dcb07d89395fe16f7ee0caedd5563f6f04b75b34f6cbdf0b75e4",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "endOfLine",
+      "traitKind": "method",
+      "methodIndex": 34450,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 249,
+      "bytecode": {
+        "codeLength": 249,
+        "codeSha256": "3ab057628051cdf4f00302f70cd7db8efbd2facb179bde379382fd42b80ff967",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "endOfParagraph",
+      "traitKind": "method",
+      "methodIndex": 34455,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 152,
+      "bytecode": {
+        "codeLength": 152,
+        "codeSha256": "d6a56633aa632bc9cb8dbcc57e896de1728e94b083cff4398fcc626fd0da211e",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.computeEndIdx",
+      "traitKind": "method",
+      "methodIndex": 34445,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.TextFlowLine",
+        "flashx.textLayout.compose.TextFlowLine",
+        "String",
+        "Boolean",
+        "flash.geom.Point"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 809,
+      "bytecode": {
+        "codeLength": 809,
+        "codeSha256": "16fe42527d36081718fb88f088af6dc134a262b2a3a738fb4dd7fe702a6b7afd",
+        "bytecodeLineCount": 51
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.updateEndIfInReadOnlyElement",
+      "traitKind": "method",
+      "methodIndex": 34438,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "7c87179180b1af9f9d53fb3416f3bd8a6c123415f2185af78698204be3832c16",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.updateStartIfInReadOnlyElement",
+      "traitKind": "method",
+      "methodIndex": 34437,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "7c87179180b1af9f9d53fb3416f3bd8a6c123415f2185af78698204be3832c16",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "nextAtomPosition",
+      "traitKind": "method",
+      "methodIndex": 34434,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "88aa7256b3e56476641776696577c081f0e05abff03dc71a21fe858106b71f53",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "nextCharacter",
+      "traitKind": "method",
+      "methodIndex": 34441,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "f509fd6a059130469ac4467c7e34e19fd54d8951641ea4ba383a4e302d2e0f3a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "nextLine",
+      "traitKind": "method",
+      "methodIndex": 34446,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 876,
+      "bytecode": {
+        "codeLength": 876,
+        "codeSha256": "53e7db5d27a49d68f6250137fa179d4477e893e0a5a596857f51eaa235376d02",
+        "bytecodeLineCount": 55
+      }
+    },
+    {
+      "traitName": "nextPage",
+      "traitKind": "method",
+      "methodIndex": 34448,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 826,
+      "bytecode": {
+        "codeLength": 826,
+        "codeSha256": "856f564694900628467e9ec4bc0fd3b2ce47518620bf357e3df583d1ac014c19",
+        "bytecodeLineCount": 52
+      }
+    },
+    {
+      "traitName": "nextWord",
+      "traitKind": "method",
+      "methodIndex": 34443,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "b43755dca8066170a0d070996b02b214d58e91eebeccd99182c063b165660d00",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "nextWordPosition",
+      "traitKind": "method",
+      "methodIndex": 34436,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 113,
+      "bytecode": {
+        "codeLength": 113,
+        "codeSha256": "d7711cebc71735fc1cdb629562c1e171103f326f3d9b7a7b4a887e0d73e46185",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "previousAtomPosition",
+      "traitKind": "method",
+      "methodIndex": 34432,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "a18c25f0258fb9845970d0bbc90191c015a0234cc2c6b7e685e680a5dea1765c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "previousCharacter",
+      "traitKind": "method",
+      "methodIndex": 34442,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "d6221cfeb5c00b9a7f3d295c9ffbe4a2176fcda41325b5ca4eb69a7fc10d9a14",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "previousLine",
+      "traitKind": "method",
+      "methodIndex": 34447,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 709,
+      "bytecode": {
+        "codeLength": 709,
+        "codeSha256": "31aaa33abaa2c4648c1fcb5a3ac61ef96573fd647ea959eb6d7c03cdaebdee85",
+        "bytecodeLineCount": 45
+      }
+    },
+    {
+      "traitName": "previousPage",
+      "traitKind": "method",
+      "methodIndex": 34449,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 935,
+      "bytecode": {
+        "codeLength": 935,
+        "codeSha256": "088cb0c6888ce02716f5d74f57186c5a9f97432e85364be8a3f605a5b52d4a19",
+        "bytecodeLineCount": 59
+      }
+    },
+    {
+      "traitName": "previousWord",
+      "traitKind": "method",
+      "methodIndex": 34444,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "fe7957ab14cb1a4be62656906ec133433db8b6c3649dae25269dc22c0ba03436",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "previousWordPosition",
+      "traitKind": "method",
+      "methodIndex": 34435,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 167,
+      "bytecode": {
+        "codeLength": 167,
+        "codeSha256": "da89d2322160d889aad1bcc9a440e6b2b48f657bbfe87a44361f42b382883e74",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.adjustForOversetBack",
+      "traitKind": "method",
+      "methodIndex": 34458,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "b69535f8a05233b8e9c20e85ed0c011ed4fdc8b7ab568d21cc9dc9d4597371d0",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.adjustForOversetForward",
+      "traitKind": "method",
+      "methodIndex": 34456,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 199,
+      "bytecode": {
+        "codeLength": 199,
+        "codeSha256": "057aa94f54627dd1d70803e973b159407b75b67530b67b9490893ac30a23303f",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkCompose",
+      "traitKind": "method",
+      "methodIndex": 34459,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.IFlowComposer",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "d76a539151bf6d718dab4f3af132b4a349f27b35c13d46ec7eeb6df11399f2c2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.clampToFit",
+      "traitKind": "method",
+      "methodIndex": 34457,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "280ed931e2f73604481c2263c9ee239a36f94279613730923da4c6b8a39af5f5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.doIncrement",
+      "traitKind": "method",
+      "methodIndex": 34430,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int",
+        "Function"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "dc7909d753523633e6643da4ec851468ac90073bf6c3b80127e69df006c458b7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.endOfLastController",
+      "traitKind": "method",
+      "methodIndex": 34460,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "d95b8b63dec3e2571bcc036f6fe696b90c1420d3892845bb9ec4a78c0c75728a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.isOverset",
+      "traitKind": "method",
+      "methodIndex": 34461,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "fe5aad0ab5cf5f30a48fee3dee00924ef941710516f60fb9be625c10d8686c29",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.isScrollable",
+      "traitKind": "method",
+      "methodIndex": 34462,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "2bd2dcfb6d42b5b3e699c22446d13b909ce2e6af7295f4d40eb05279f7b4d5f0",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.moveBackwardHelper",
+      "traitKind": "method",
+      "methodIndex": 34440,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean",
+        "Function"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 248,
+      "bytecode": {
+        "codeLength": 248,
+        "codeSha256": "b4f5b8d867264e71f27890f9443a623f50a342f209297b4b43d28fba07dc0c96",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.moveForwardHelper",
+      "traitKind": "method",
+      "methodIndex": 34439,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean",
+        "Function"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 260,
+      "bytecode": {
+        "codeLength": 260,
+        "codeSha256": "f8f4617280261be3bc7d0fdfbba4c7b433d286f7e7b3afb678213a501bdf9a21",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.nextAtomHelper",
+      "traitKind": "method",
+      "methodIndex": 34433,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.elements.ParagraphElement",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "d5f36e02c42a202471cd7a6a8c2c94ee77e8bbcab9166488131c46d716a7bbc3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.previousAtomHelper",
+      "traitKind": "method",
+      "methodIndex": 34431,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.elements.ParagraphElement",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "22a4456ca8afae43fd859639a9be55e580c7cb6ea8fbd36fe8ff558e6d139b80",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.validateTextRange",
+      "traitKind": "method",
+      "methodIndex": 34429,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "60f22239d3e97bd9f1ac6bef84c2226afcef95cd1b5aeea9ef6bc10528f7d4ee",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "startOfDocument",
+      "traitKind": "method",
+      "methodIndex": 34453,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "7da218232e80a566105f3d402896a6859619763a82e393a974a3f9106d47cad2",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "startOfLine",
+      "traitKind": "method",
+      "methodIndex": 34451,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 167,
+      "bytecode": {
+        "codeLength": 167,
+        "codeSha256": "204bfadb51ea92b2a4e56305cedf74a5c8554ddb96ffbfdc0676a3d698b31951",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "startOfParagraph",
+      "traitKind": "method",
+      "methodIndex": 34454,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextRange",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 129,
+      "bytecode": {
+        "codeLength": 129,
+        "codeSha256": "c7dbc956ad82f23905f05cec4cf1f5da6074b4d08c59c5a435dc1b918610ba25",
+        "bytecodeLineCount": 9
+      }
+    }
+  ]
+}

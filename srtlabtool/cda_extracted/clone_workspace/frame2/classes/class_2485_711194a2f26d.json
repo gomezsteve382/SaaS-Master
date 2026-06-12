@@ -1,0 +1,1005 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2485,
+  "className": "mx.messaging.Channel",
+  "classNameNormalized": "mx.messaging.Channel",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IMXMLObject"
+  ],
+  "iinitMethod": 42846,
+  "cinitMethod": 42845,
+  "iinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "ea60399871850e2897298b3e1796c842f40a4744db2e966bf28df6582d09dd59",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 130,
+    "codeSha256": "9e73928ce9586fd9cf581ad65b883f3450b848ccc4e07ed3a202fe579b9de9c1",
+    "bytecodeLineCount": 9
+  },
+  "instanceMembers": [
+    {
+      "traitName": "applySettings",
+      "traitKind": "method",
+      "methodIndex": 42875,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 296,
+      "bytecode": {
+        "codeLength": 296,
+        "codeSha256": "aeac28cb4b2225fc915b4944d4a4ca5189505bbcea185bed34d03345be62e95a",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "authenticated",
+      "traitKind": "getter",
+      "methodIndex": 42862,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0fe33554f210c68b402e8d3944ade987530939711b95f9ec29382ee897bf2090",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "channelSets",
+      "traitKind": "getter",
+      "methodIndex": 42848,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fbf8badfdaa69e235b3aa8d18415ea2280c9e165ee5a6219a08bc759108651dc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "connect",
+      "traitKind": "method",
+      "methodIndex": 42877,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.ChannelSet"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 352,
+      "bytecode": {
+        "codeLength": 352,
+        "codeSha256": "8a38245d133ed8ab41b902b8b32cc8faad9bc55f54c806906eb947e85de7b228",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "connected",
+      "traitKind": "getter",
+      "methodIndex": 42849,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8c0404be4dd095a5f550276c3e206ceee184056bd716ebe1e7fec1912d0f47df",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "connectTimeout",
+      "traitKind": "getter",
+      "methodIndex": 42851,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d55f4acc3bebc40019c5049ce4c32f96df8946bc506eace6d1a0e54ed2aea469",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "connectTimeout",
+      "traitKind": "setter",
+      "methodIndex": 42852,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b0010fff9bb1aa4b4d69bec33ca2d6ae236639ba2599970e53ef9f05e2195ad9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disconnect",
+      "traitKind": "method",
+      "methodIndex": 42878,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.ChannelSet"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 203,
+      "bytecode": {
+        "codeLength": 203,
+        "codeSha256": "fb6f4d954a7eb96737ae0e2271c531671d777b4489316ecfe20717f3d04d898e",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "endpoint",
+      "traitKind": "getter",
+      "methodIndex": 42853,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "e42189bfc720ab41ca8d3e5f8a22635d73f9e9462c9d4a16b460531597d78a67",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "failoverURIs",
+      "traitKind": "getter",
+      "methodIndex": 42858,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "97a623b32648f4ab2f445795f591847008f28500ea794e2f9dca3911085187e3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "failoverURIs",
+      "traitKind": "setter",
+      "methodIndex": 42859,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "c7aef774767acee88ea19c1585c353aa6eaada04ec9d26340e16957d6ee03cc7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.internalSetCredentials",
+      "traitKind": "method",
+      "methodIndex": 42883,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "7d4a842fff866aaecbbf3d4b6fc9f6e0eb26b663a1782bf5f1f819ca621bbe51",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.realtime",
+      "traitKind": "getter",
+      "methodIndex": 42865,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "8bd91b4d6662c2af4743360fdfdadd0ffd59568f99d5771831541eb0e40a633f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.sendInternalMessage",
+      "traitKind": "method",
+      "methodIndex": 42884,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageResponder"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "1e37d874d0aba5f44f7034b31b31b40914b49475f7d0a4714b566b1f1e14a35d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setAuthenticated",
+      "traitKind": "method",
+      "methodIndex": 42863,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 124,
+      "bytecode": {
+        "codeLength": 124,
+        "codeSha256": "fc012881e256ab3056a096dbde1e5036189693e21e4df5e0609aea203ccac7d5",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "id",
+      "traitKind": "getter",
+      "methodIndex": 42860,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "30ebf029b5177e0e6c885f627040bb2edb7bd92dfe7218c10a73483351e41bd1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "id",
+      "traitKind": "setter",
+      "methodIndex": 42861,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "575e8cc74c59a970fa00716e1ed8bd481fc91ad60446911a71dcf96289c7015b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "initialized",
+      "traitKind": "method",
+      "methodIndex": 42847,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fd8d18c820f2cf6c7ee421bcd849de6f4788422e86ecea447d91daceb403d262",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "logout",
+      "traitKind": "method",
+      "methodIndex": 42879,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageAgent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "c8e19c48f8851c046b0777b557ac71aa27c9b88ffbcf9c32a6e16db84ceb5bbc",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "mpiEnabled",
+      "traitKind": "getter",
+      "methodIndex": 42882,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "6ae730738ea29c21b7dd74323576d804b41f1d5b45a5a6507af42be23b352944",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.applyClientLoadBalancingSettings",
+      "traitKind": "method",
+      "methodIndex": 42876,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 204,
+      "bytecode": {
+        "codeLength": 204,
+        "codeSha256": "ef28f9bc5985e2cd2fe4119dd0a1580aad6c2c524439801f28b2a5bdc7231319",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.connectFailed",
+      "traitKind": "method",
+      "methodIndex": 42885,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.events.ChannelFaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 113,
+      "bytecode": {
+        "codeLength": 113,
+        "codeSha256": "12090ab6e75084c82c90c3153b73b09376e1b6ee3f315cd0771b5695f5ceb017",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.connectSuccess",
+      "traitKind": "method",
+      "methodIndex": 42886,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 192,
+      "bytecode": {
+        "codeLength": 192,
+        "codeSha256": "7d72a127ff2b530cc2bdddcd48612048e269c31150f11a93cb0916fa39a4b5e5",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.connectTimeoutHandler",
+      "traitKind": "method",
+      "methodIndex": 42887,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "68c7610245f54b1d6b16705a12bc1d4d9b89d03bef93e4aff41e033225ce0e89",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.disconnectFailed",
+      "traitKind": "method",
+      "methodIndex": 42889,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.events.ChannelFaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "89dc76ae83cbfbd2de0683b56d70f04779a2b9c08cbffcf88d642348fadffdf2",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.disconnectSuccess",
+      "traitKind": "method",
+      "methodIndex": 42888,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "e6e8ddd5b8c4019231ea10d5dfb394958d595e91cccdec8fb46cc55b1972017a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.flexClientWaitHandler",
+      "traitKind": "method",
+      "methodIndex": 42890,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "9542ec6306296269100812a6f66dd54a7421958fadea2f66aeaf3d80c207532c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.getMessageResponder",
+      "traitKind": "method",
+      "methodIndex": 42891,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageAgent",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "mx.messaging.MessageResponder",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "f750cb491fcd244670fdc57ed6c8a119a4e4237ca5bc0735f0b548d63b7b2e81",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.handleServerMessagingVersion",
+      "traitKind": "method",
+      "methodIndex": 42895,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "1a6d2c1a892a6e8b20c6df2d8e18a119716d09f9a79fd8440a1b9ecdec26f43b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.internalConnect",
+      "traitKind": "method",
+      "methodIndex": 42892,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.internalDisconnect",
+      "traitKind": "method",
+      "methodIndex": 42893,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.internalSend",
+      "traitKind": "method",
+      "methodIndex": 42894,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageResponder"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.setConnected",
+      "traitKind": "method",
+      "methodIndex": 42850,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "f6099de48e9087beb9e581d3bd40b0f2f7b59a5edccd2e8949d9580f87dd1c2c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.setFlexClientIdOnMessage",
+      "traitKind": "method",
+      "methodIndex": 42896,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "5aaaf64055ac70d4d3ac4735b65c6e639ad1b9cf7ab96e513dce08b2d54f3aa1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.messaging:Channel.shouldBeConnected",
+      "traitKind": "getter",
+      "methodIndex": 42868,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "37c4f2d9308b35b343621a4ba562459b0f426c9a6fb7b12accd6a1d847d5b901",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.calculateEndpoint",
+      "traitKind": "method",
+      "methodIndex": 42897,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 247,
+      "bytecode": {
+        "codeLength": 247,
+        "codeSha256": "84506387df08b029c67332bd3bd22215d9680174c791eb3775ec4ea79f089345",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.connectCleanup",
+      "traitKind": "method",
+      "methodIndex": 42901,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "c1de6bf14eea6dcb0c5b08bec3c31785cfd39a847295634d7f5aabc89a2d2ff7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.failover",
+      "traitKind": "method",
+      "methodIndex": 42900,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 498,
+      "bytecode": {
+        "codeLength": 498,
+        "codeSha256": "ea6c0d841e02b9cf2277511e3acc26c158d4332ee77b01a9d824c3b985fdd44c",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "PrivateNs.initializeRequestTimeout",
+      "traitKind": "method",
+      "methodIndex": 42898,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageResponder"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "a1d8459ee41ebd58d7324acce162adb86dc1903968823ddaabe8e26b8fbe1d0a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.reconnect",
+      "traitKind": "method",
+      "methodIndex": 42902,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a7e5fc69239176cf70f7f6b8031cc5d38d3141e3c5e6f59d2edf7b2b29dc8e9a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.reliableReconnectCleanup",
+      "traitKind": "method",
+      "methodIndex": 42903,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "50c565335c0385fd4e70351cdedddbc265e4a1ba2007b46fd6b494a7a30e6db2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.resetToPrimaryURI",
+      "traitKind": "method",
+      "methodIndex": 42904,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "3571a64007a69c1758fede3b3e6f1edd3d0bc7f9a8699171cdb932a51d264f52",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.setReconnecting",
+      "traitKind": "method",
+      "methodIndex": 42857,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "399cdb7cc0fab1bdb8cce9b96f2abcc71c1eea1025334dd4367df4187e778229",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.shouldAttemptFailover",
+      "traitKind": "method",
+      "methodIndex": 42899,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "57aa4000bc7795ac1a33141b970e629b02df3a8a5f3f0019bcb8eb57963749fb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.shuffle",
+      "traitKind": "method",
+      "methodIndex": 42905,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "db863e50b6fc3ef0b8b4f6a0b2346146b9f0ebff5f37b3f2503054fbf0a07ff8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.shutdownConnectTimer",
+      "traitKind": "method",
+      "methodIndex": 42906,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "cf7622b02d0790a3edc019e4158e92d34b1390d281cebc55ee45dcc4aad1e5ba",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "protocol",
+      "traitKind": "getter",
+      "methodIndex": 42864,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "90509fc4337726ff1b8802f8456786a8e9e7e92722a0ce53948149e671145a8c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "reconnecting",
+      "traitKind": "getter",
+      "methodIndex": 42856,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8cb10380b14ecfde1699dccbd1b6d83c75e3625e7508cf0cf97dbd51c7160532",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "recordMessageSizes",
+      "traitKind": "getter",
+      "methodIndex": 42855,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d83f140c0cbf87bfe1d1da91ea16361a0e0fcf0aebda5a9d4b903be695216978",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "recordMessageTimes",
+      "traitKind": "getter",
+      "methodIndex": 42854,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c36ad8cc17d0ccaa754b44be5bc55914c39ac49674c95ffb0b0c5ca143c12a86",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "requestTimeout",
+      "traitKind": "getter",
+      "methodIndex": 42866,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "eb57dbbbd2add1c5799dd63ebdb7cd589dd1ea782067021090168db3a67c6a7d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "requestTimeout",
+      "traitKind": "setter",
+      "methodIndex": 42867,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "815dea0f8b1f27292039ef77665fd1fc77f6f3e2b15c950dd4eec028f8d74ba7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 42880,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageAgent",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 154,
+      "bytecode": {
+        "codeLength": 154,
+        "codeSha256": "3dbaab6ea88770ee6dcdaaea4b6ee64fb1350d7a489599553315af6dfe5f5185",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "setCredentials",
+      "traitKind": "method",
+      "methodIndex": 42881,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.messaging.MessageAgent",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 202,
+      "bytecode": {
+        "codeLength": 202,
+        "codeSha256": "b54c74e8215c60a2c368b5199f1bf5013e42847957bff734486caa660ee040fb",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "uri",
+      "traitKind": "getter",
+      "methodIndex": 42869,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c7c390969400f189d06abcd5c3beef2cd21aa969a9aab81153488dc455f7b7bf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "uri",
+      "traitKind": "setter",
+      "methodIndex": 42870,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "b1e3a9a685785cf2aa9d3589e2eecb6fe87826356a7e510f14259abd2417b72e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "url",
+      "traitKind": "getter",
+      "methodIndex": 42871,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1234c7c31f82357dc835fcb7ed50091a72febfc9e1aca961c78750600868438f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "url",
+      "traitKind": "setter",
+      "methodIndex": 42872,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "32b024c2175f25a3b1d03714d2a33ac39d4e5c8a259df3d627c57224cb7e7cce",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useSmallMessages",
+      "traitKind": "getter",
+      "methodIndex": 42873,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "e9bcdb04647e22c245cae83c0855362b2189ea15e0f177b7c46a45f62df173e6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "useSmallMessages",
+      "traitKind": "setter",
+      "methodIndex": 42874,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "3671919045967991c6dfec1de30911de759ce9812b6f259df9c69b807cea1970",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

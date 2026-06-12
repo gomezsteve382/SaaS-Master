@@ -1,0 +1,978 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 525,
+  "className": "mx.controls.Button",
+  "classNameNormalized": "mx.controls.Button",
+  "superName": "mx.core.UIComponent",
+  "superNameNormalized": "mx.core.UIComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IDataRenderer",
+    "mx.controls.listClasses.IDropInListItemRenderer",
+    "mx.managers.IFocusManagerComponent",
+    "mx.controls.listClasses.IListItemRenderer",
+    "mx.core.IFontContextComponent",
+    "mx.core.IButton"
+  ],
+  "iinitMethod": 10205,
+  "cinitMethod": 10204,
+  "iinitBytecode": {
+    "codeLength": 110,
+    "codeSha256": "3b0faf8f52c974f6a6f3d3239c0969221afde2d6f84dc5ae9fe168b7c162a5c8",
+    "bytecodeLineCount": 7
+  },
+  "cinitBytecode": {
+    "codeLength": 33,
+    "codeSha256": "d75d080ac95c5022b002ae53f7a114c7c4f165e6c42e19cd1b92ddf0429275bd",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "autoRepeat",
+      "traitKind": "getter",
+      "methodIndex": 10209,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f966ce73e71687ed74208aa610697aa5dd844adee7cc3a764d08f09955904a54",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "autoRepeat",
+      "traitKind": "setter",
+      "methodIndex": 10210,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "9bb81d0ef87dcc7065a87a7c4cf800ebe1252749a053c1c97a766a5b6806a046",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "baselinePosition",
+      "traitKind": "getter",
+      "methodIndex": 10206,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "9f36233cd92491e12110e50dc388e3122d932131c080e15ef5eaf9098d6eeb40",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "getter",
+      "methodIndex": 10211,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "33d9065e6cd14421a7defdd3581491398ed318a92438ee8ab4706f8b77d8a695",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "data",
+      "traitKind": "setter",
+      "methodIndex": 10212,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 231,
+      "bytecode": {
+        "codeLength": 231,
+        "codeSha256": "88514ff6d94180147d73caf4da28ec7530855920bafae79b539716156609caed",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "emphasized",
+      "traitKind": "getter",
+      "methodIndex": 10213,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "76e4c21a4c3aed0a080405c2d4367055a1921d7c34764ebc1934d7afd6faf2bf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "emphasized",
+      "traitKind": "setter",
+      "methodIndex": 10214,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "8b4182647e34e043c4053c50538bd87c39d1fcf0957404a17e2c707ec035b8b8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "enabled",
+      "traitKind": "setter",
+      "methodIndex": 10207,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "673efe475c0df968337b6c9eb0e461479bd1792a5a6145639f71b12fb3270b75",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "fontContext",
+      "traitKind": "getter",
+      "methodIndex": 10215,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFlexModuleFactory",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "19a96601b1ecda348a9f945180a519e8253538a768a36217a8ee3d36506da843",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fontContext",
+      "traitKind": "setter",
+      "methodIndex": 10216,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c92d172ec9c23cf6daa730a6b23242463df62241a422fb0db347a9de166a2fdc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.buttonPressed",
+      "traitKind": "method",
+      "methodIndex": 10249,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "031d3918b44e5a4b2a0873d471dbdd52a7e1536756021e5b4e74d2d4808f684f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.buttonReleased",
+      "traitKind": "method",
+      "methodIndex": 10250,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 104,
+      "bytecode": {
+        "codeLength": 104,
+        "codeSha256": "68b59c998600fc51fc96e63a5443e62d66d52e1b240778f4e21b54d59ffa18b6",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.changeIcons",
+      "traitKind": "method",
+      "methodIndex": 10248,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "051d234b86d26a1421f494630a3ae624090f6f27847bf750a3bdf041096956a5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.changeSkins",
+      "traitKind": "method",
+      "methodIndex": 10247,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "849f4fe96b0e78ba2397121699cbd3362619ad7504b08faa1b1b089a9e16a2db",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getCurrentButtonState",
+      "traitKind": "method",
+      "methodIndex": 10245,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 174,
+      "bytecode": {
+        "codeLength": 174,
+        "codeSha256": "f05e3eb0c350ec6656954e5f4f03470a573f9aa17b93b15beb6266321b866152",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getCurrentIcon",
+      "traitKind": "method",
+      "methodIndex": 10242,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFlexDisplayObject",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "b5f547a7455fe426101112cceb6ee4fafecf0f90815f19774827f8a1ce6bbe2a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getCurrentIconName",
+      "traitKind": "method",
+      "methodIndex": 10241,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 170,
+      "bytecode": {
+        "codeLength": 170,
+        "codeSha256": "6df85d9552a9404f81e16847548f0d8c2536f6b25cdff56b0e01d108583a11c0",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getTextField",
+      "traitKind": "method",
+      "methodIndex": 10251,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IUITextField",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "371918f4a704b8c057e8dc65f86adfa4610369b023fb96ad9b16e1bf4a2fa25d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.layoutContents",
+      "traitKind": "method",
+      "methodIndex": 10246,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1476,
+      "bytecode": {
+        "codeLength": 1476,
+        "codeSha256": "b749d6a1ece94331c08eb94f0a2085edb4dd7e85e9a6aed8a5e1a459ed2aeeea",
+        "bytecodeLineCount": 93
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.phase",
+      "traitKind": "getter",
+      "methodIndex": 10223,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4e1ea4a21af51a9c23f6ef3e22f694abd5a29230f2c012160c56cacde3005352",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.phase",
+      "traitKind": "setter",
+      "methodIndex": 10224,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "312552ddde243f9b81b5636ae42ebc8316c9bd55303cf198314257e50be97f60",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setSelected",
+      "traitKind": "method",
+      "methodIndex": 10227,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "d01db1260be7bed884e3952b894c74eeaa56c031ea6aa3209d114b62d191630b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.skinLayoutDirection",
+      "traitKind": "setter",
+      "methodIndex": 10228,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "eac649cb6fa0f7240fa01a8b95f30addda87a10cec0e7b61d05198e754d4b4c3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewIcon",
+      "traitKind": "method",
+      "methodIndex": 10243,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "787d878a0fc5eb93b80da5addd2b0d7c5b2ecd75a93798a652230057e076708e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewIconForPhase",
+      "traitKind": "method",
+      "methodIndex": 10244,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.core.IFlexDisplayObject",
+      "hasBody": true,
+      "codeLength": 442,
+      "bytecode": {
+        "codeLength": 442,
+        "codeSha256": "b96be81210707ae3de44c7ba8f519e947c4c5ff5b3372f3eec031f885a17099a",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewSkin",
+      "traitKind": "method",
+      "methodIndex": 10239,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 180,
+      "bytecode": {
+        "codeLength": 180,
+        "codeSha256": "e6bda1a540368d0f52648ab3d60cb45361a0c5a60abb0bb9b754d9625650683c",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.viewSkinForPhase",
+      "traitKind": "method",
+      "methodIndex": 10240,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 678,
+      "bytecode": {
+        "codeLength": 678,
+        "codeSha256": "38139b689c6f9ba2c61036e80df751e63a84dfb35c7066f6016a9decb588c8aa",
+        "bytecodeLineCount": 43
+      }
+    },
+    {
+      "traitName": "label",
+      "traitKind": "getter",
+      "methodIndex": 10217,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "af19d0cb227fdcee81b35c0a58e4dc43853121aac21637ca7d5c6c04af059fc9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "label",
+      "traitKind": "setter",
+      "methodIndex": 10218,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "863e3e8f08ba181fda0827f9fcfc66d1ddb61163037abfb7f57a3d3e8bf7988e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "labelPlacement",
+      "traitKind": "getter",
+      "methodIndex": 10219,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d446e267f0b48a9c6fcd1422f3ad8eadb4b74ebe824467a4ccd5874232377773",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "labelPlacement",
+      "traitKind": "setter",
+      "methodIndex": 10220,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "279d7b39c51933c8d6e6b9c46adc294177d880f09abc221fa45f7dd5a45c33bd",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "getter",
+      "methodIndex": 10221,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.listClasses.BaseListData",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "2f934a5764540e647c3be4f2559e8aeba86974cf11ade899e971bee0ecb57cd3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "setter",
+      "methodIndex": 10222,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.listClasses.BaseListData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "23e6bb1d33462a553909a29039f76e59422ac604506ea99730123816f4c948dd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.adjustFocusRect",
+      "traitKind": "method",
+      "methodIndex": 10237,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "cdecce37317fc685bc37c316c75861088f0e67dc315743e1a1fceec01d49f9f5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.clickHandler",
+      "traitKind": "method",
+      "methodIndex": 10259,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "00ea356d3e567cd78c01b7e315b92c2918147bc1767f4f1d4fb0b470ce20dfc0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 10233,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 267,
+      "bytecode": {
+        "codeLength": 267,
+        "codeSha256": "356f9752c1f3d600120b9dbb50ab2c69165f55efeeb2dbb7d348dbde4c318469",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.createChildren",
+      "traitKind": "method",
+      "methodIndex": 10232,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "544dc152e33ff97a86911cca08cdc5dd108b648f860c63847a356cac37fde2c8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.currentCSSState",
+      "traitKind": "getter",
+      "methodIndex": 10238,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "542d8b609f7cd724a2d18c1defb704f8dc74888abf9f85d9c6c30a7eae512d6f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.focusOutHandler",
+      "traitKind": "method",
+      "methodIndex": 10252,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "da8ac44fb3a90fbf7cc317af6ed2fca52c692f71a4f6551bfc941bd00fd31550",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.initializeAccessibility",
+      "traitKind": "method",
+      "methodIndex": 10231,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "44fd1536796ab581a93b6c549e56c1637eaf6e64a16565182fcf9f08e69217eb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.keyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 10253,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "fccc4a1df31538713d278971a53521a5b5e9282225d0e1e59efde6d5a93e485b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.keyUpHandler",
+      "traitKind": "method",
+      "methodIndex": 10254,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "78f478defd9935e457d2365b074e4fc8eb2700b03ee7a5289371eaf88a1ed26b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.measure",
+      "traitKind": "method",
+      "methodIndex": 10234,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 635,
+      "bytecode": {
+        "codeLength": 635,
+        "codeSha256": "ae69266fbfcc360d66e183ff53ce287e2972d829e971745ab255c83aaabf7e5e",
+        "bytecodeLineCount": 40
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 10257,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "e1783e6d0412bd76feef997061548e6f384ab5bcc792e6d31ae5d81ddac322a8",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 10258,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "9f597ad6a9c5b50d1fb7e9dc26487c923b7e9c4d63af1ddcdc245193d37e6e64",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.rollOutHandler",
+      "traitKind": "method",
+      "methodIndex": 10256,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 101,
+      "bytecode": {
+        "codeLength": 101,
+        "codeSha256": "b1d1b720efc1b6f0070e6e1c4ce674b4113845762b83f83b57d5993ebbb53455",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.rollOverHandler",
+      "traitKind": "method",
+      "methodIndex": 10255,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 99,
+      "bytecode": {
+        "codeLength": 99,
+        "codeSha256": "5dee6e78953a864f5df2567fa34dadcf0d01d34bd9b3e6195c69f89792235e05",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "mx.controls:Button.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 10235,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "6ca52f5cd2154df977d698a70fd361c2a32fcd51eaa7f7955149095ae2643e55",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.autoRepeatTimer_timerDelayHandler",
+      "traitKind": "method",
+      "methodIndex": 10262,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "49b7f8cd24d4e92a17c96696bc7267060e6d789b0d6ee4e6654af80901699a83",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.autoRepeatTimer_timerHandler",
+      "traitKind": "method",
+      "methodIndex": 10263,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "23fdfacb4ff08eaff5b2f7eaab994f8cb307975c8f0b2701fc103889224ccb3c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.stage_mouseLeaveHandler",
+      "traitKind": "method",
+      "methodIndex": 10261,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "31a1a5176d400d0207e30ae8c16fdf2e5b6e0e7a178c940e404bd7b2e18f31b0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.systemManager_mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 10260,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "bac49b7a636aff7081d25e89a927a11935f0eaf19e38a7a80292eb3fc60c5037",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "selected",
+      "traitKind": "getter",
+      "methodIndex": 10225,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b6e212ed23d32e3ec6a4f9823dca45c97ab765b23721f5509d086da432cb19de",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "selected",
+      "traitKind": "setter",
+      "methodIndex": 10226,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "8c040c61b9d0538eb248b448c3412a9355dde61664528d89bd645c0209e10a80",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 10236,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 123,
+      "bytecode": {
+        "codeLength": 123,
+        "codeSha256": "a216ecc74bd093842e1f6624b1093cfcb3811addeb715b555bf32371622c8522",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "toggle",
+      "traitKind": "getter",
+      "methodIndex": 10229,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "97912504e61dc5610569cc3a770fafd93549cedc7b093cdb61e999ab8f43e8c0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toggle",
+      "traitKind": "setter",
+      "methodIndex": 10230,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "664b86bbadd1c1a04a16614e71fb38deaf6f2e6ef5022a2c0617742ae4d223cb",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "toolTip",
+      "traitKind": "setter",
+      "methodIndex": 10208,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "56565c9f52e8414f14716cfb91a91e61e8b53437b42a475e8af34ba172906951",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

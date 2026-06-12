@@ -1,0 +1,77 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1955,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDtcCompontentQualificationDataMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDtcCompontentQualificationDataMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 36538,
+  "cinitMethod": 36534,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "bba17aa14621146833e890909100f07e8e91c27141526fa8e10e5d5863900e96",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dtcComponentDatas",
+      "traitKind": "getter",
+      "methodIndex": 36537,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7ea06d8f665281b5722dabb3ffabdfbe7c46c0b2a91cc2829ab50f72930f802c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 36535,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "01b38fc095473814927d04225821ac56a2e0c3b739d2135b7a9c0ebac9cbee9c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "qualSetIds",
+      "traitKind": "getter",
+      "methodIndex": 36536,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "972670387e5328cf32555bb534443a0cc5fec8690543366d660e9f9b35181e43",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

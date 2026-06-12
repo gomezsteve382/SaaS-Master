@@ -1,0 +1,419 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3146,
+  "className": "mx.messaging.channels.PollingChannel",
+  "classNameNormalized": "mx.messaging.channels.PollingChannel",
+  "superName": "mx.messaging.Channel",
+  "superNameNormalized": "mx.messaging.Channel",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49808,
+  "cinitMethod": 49807,
+  "iinitBytecode": {
+    "codeLength": 91,
+    "codeSha256": "3f8ec0c572b51869175891383a245221ffda3b8348e6f7f3c5fc7ad0ea7b30c6",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 74,
+    "codeSha256": "4f15f9fb884bacd87f22b5690b0eb4d6576366e8ec1330b25adfcf10d4072e30",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "disablePolling",
+      "traitKind": "method",
+      "methodIndex": 49824,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "850510d77f79911c1fec0b7e5e7a51b31692742a9b76ea5d89d7ed0dcc622eb1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "enablePolling",
+      "traitKind": "method",
+      "methodIndex": 49823,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "dc435d462086710f9b640303267037075f5976543a550fd654ff635078ea2f0a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.internalPollingInterval",
+      "traitKind": "getter",
+      "methodIndex": 49815,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "ffb8909c7b68b772e22863efc948658e9f8957521214fe0ce5211515f55b12ab",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.internalPollingInterval",
+      "traitKind": "setter",
+      "methodIndex": 49816,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 157,
+      "bytecode": {
+        "codeLength": 157,
+        "codeSha256": "42201b7ec3c0ec9f82da6a2f6e9c9632718733237a9a8e092394565cdcaa0fa0",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.loginAfterDisconnect",
+      "traitKind": "getter",
+      "methodIndex": 49810,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4e8215ef2c1d39b1f7358276e0fcb152b1bbfccb2a30735eb3f6c7004acf3c44",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.pollFailed",
+      "traitKind": "method",
+      "methodIndex": 49826,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "127102f48e060973da2a9acd90b683506ca3c9808882971619f358989d969f20",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.realtime",
+      "traitKind": "getter",
+      "methodIndex": 49817,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a3bef7ab2ef6d2e55d9ef54f17e2fd3b3e56c4d1803529814117ee98f6cb5e17",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.stopPolling",
+      "traitKind": "method",
+      "methodIndex": 49827,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "0d47a5c7b3e31c4932981bc0d600d41d271442e4220d6e8e87830440ed7327dd",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.timerRunning",
+      "traitKind": "getter",
+      "methodIndex": 49818,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "64ccc845fa0f5533ba16165205f7307e022ed122783550b06feb533111290ab6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.applyPollingSettings",
+      "traitKind": "method",
+      "methodIndex": 49828,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 271,
+      "bytecode": {
+        "codeLength": 271,
+        "codeSha256": "c679f79e4623f57e440d39f0faba63c60e132de1ec7a15c8a4bb36e6080e042d",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.connectFailed",
+      "traitKind": "method",
+      "methodIndex": 49820,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.events.ChannelFaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "9dbe11a8ab5d36b4851bfda7d8bf87b62b18c8b57c1c94500509ed83aa2654dc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.getDefaultMessageResponder",
+      "traitKind": "method",
+      "methodIndex": 49829,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageAgent",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "mx.messaging.MessageResponder",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "50b4e40cbd47115c4c7bb5d732687da12cd949c2db651143ff3dac31e58283c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.getMessageResponder",
+      "traitKind": "method",
+      "methodIndex": 49821,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageAgent",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "mx.messaging.MessageResponder",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "6ab127846eb45a4aca3890ed37637420af8648498a8602b176415221b01e1b37",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.internalDisconnect",
+      "traitKind": "method",
+      "methodIndex": 49822,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "e0d879d86be568de5cc62a858c690367bb0cc6d118eb2921c9ed8e384375e070",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.internalPiggybackingEnabled",
+      "traitKind": "getter",
+      "methodIndex": 49811,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "22afc2abba25663dbaa40f9879dadfa8e9157b733c856ff8ca85ea8bdadc93c3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.internalPiggybackingEnabled",
+      "traitKind": "setter",
+      "methodIndex": 49812,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "4940c016ba63b026f69f58fb07ccf9042123d8df6790717b4e0f5f073cfc33f7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.internalPoll",
+      "traitKind": "method",
+      "methodIndex": 49830,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "b7433b5a34f794cb07aaa0b930fde31e6129c95e9e8227ae18d2b93ba758e16d",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.internalPollingEnabled",
+      "traitKind": "getter",
+      "methodIndex": 49813,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a3bef7ab2ef6d2e55d9ef54f17e2fd3b3e56c4d1803529814117ee98f6cb5e17",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.internalPollingEnabled",
+      "traitKind": "setter",
+      "methodIndex": 49814,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 99,
+      "bytecode": {
+        "codeLength": 99,
+        "codeSha256": "c6da3b8aaffa1e739031ae15395dec70b62d69027145a1eeb3e784e7a5e38272",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.setConnected",
+      "traitKind": "method",
+      "methodIndex": 49809,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 140,
+      "bytecode": {
+        "codeLength": 140,
+        "codeSha256": "857079b0f2b9b3a707805bb3cc358b7afedece0e15149449aa34171619de9a98",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.startPolling",
+      "traitKind": "method",
+      "methodIndex": 49831,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "eaa8ad51b061b2865d3a65495a688ed400774c21be942b34affa359e5c3aa088",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:PollingChannel.timerRequired",
+      "traitKind": "method",
+      "methodIndex": 49832,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "d585616625656f7803c9407d288dca461830151e2b66e2009440e239c604ef48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "poll",
+      "traitKind": "method",
+      "methodIndex": 49825,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "0a8742ae53195d9474fd2ea0830720e2b16b9a4cf9ee5274a69b17cc8795cbbd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 49819,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageAgent",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 288,
+      "bytecode": {
+        "codeLength": 288,
+        "codeSha256": "ea2011fbc74bf4dd3c66797c70d3c68e0f012a9191cac9e97a5f3f6a76caa8b6",
+        "bytecodeLineCount": 18
+      }
+    }
+  ],
+  "staticMembers": []
+}

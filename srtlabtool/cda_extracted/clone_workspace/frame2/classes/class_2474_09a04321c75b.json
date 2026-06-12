@@ -1,0 +1,537 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2474,
+  "className": "mx.rpc.AbstractService",
+  "classNameNormalized": "mx.rpc.AbstractService",
+  "superName": "flash.utils.Proxy",
+  "superNameNormalized": "flash.utils.Proxy",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": false,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 42697,
+  "cinitMethod": 42696,
+  "iinitBytecode": {
+    "codeLength": 69,
+    "codeSha256": "95c20a53bef03c0d70376089a682a3ad2ab59fb13ac7cdaa5266ff9716a2f2dd",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 42708,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "03e2698a9105bd84f52e13989599e5b04f6d0dcd68c1d992e28863721458b991",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "channelSet",
+      "traitKind": "getter",
+      "methodIndex": 42698,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.ChannelSet",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "7d74eab7bb1918c2220ab51194e302f902e8f3de0d4dde2e371778e9078a4e6d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "channelSet",
+      "traitKind": "setter",
+      "methodIndex": 42699,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.ChannelSet"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "8b893b4e320e1979c201e6968395ad6ea58a064520d0a03d0722879f4bc7e393",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "destination",
+      "traitKind": "getter",
+      "methodIndex": 42700,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "ce2c57d7f242863e78bbbf1e769d0a80e5eb86aea8e324ebddc07f0ddff61919",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "destination",
+      "traitKind": "setter",
+      "methodIndex": 42701,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "30b9b49c91b31677e7ecc0f90c16af5c6ec3b336b3b38c9be9fe0dd69f1efcc7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disconnect",
+      "traitKind": "method",
+      "methodIndex": 42722,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "646e1a7a467128b58b6228793829bd1a9f837bec9018c3ca6a21254cd38933e5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 42709,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "24a0b8d9e22d8eff164095e117dc0b1542e8a69de8ac42146bd2d9ea955c5abb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getOperation",
+      "traitKind": "method",
+      "methodIndex": 42721,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.rpc.AbstractOperation",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "dea73484a4ea801241d455d4ac47a1fdab61c50fe58d8539dc3dbd512181f561",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 42711,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "c28af5db3ea40214b07cca07be7a4f577d937bc2aba26d21f3316b839d764441",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/actionscript/flash/proxy.callProperty",
+      "traitKind": "method",
+      "methodIndex": 42716,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "725ab3ce1480dd1b7c7b8df7faa28e88a28ce553668ee2373b2167cd71b7875c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/actionscript/flash/proxy.getProperty",
+      "traitKind": "method",
+      "methodIndex": 42714,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "98dbafd39bcb2f99659046e43fd6dba164cef65dd8a9623aa25f77d0d69a21c8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/actionscript/flash/proxy.nextName",
+      "traitKind": "method",
+      "methodIndex": 42718,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "39d4bbfa9a2df4cab452d2fa4271756d9b7147506b30da7fcd932647bd03b367",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/actionscript/flash/proxy.nextNameIndex",
+      "traitKind": "method",
+      "methodIndex": 42717,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "f5c047d501f7476e3ad3c971842793a0c0c6555147cb9dbf2471cadcefca4b69",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/actionscript/flash/proxy.nextValue",
+      "traitKind": "method",
+      "methodIndex": 42719,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "20e7c2ecffc17c90f59e3f9aa408ced4b7b5539da754f53f20fe0768559d5dbe",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/actionscript/flash/proxy.setProperty",
+      "traitKind": "method",
+      "methodIndex": 42715,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "cec662b9487e32812b999d5b3afb2ae82352168d42d2326f120a67da6f3eab35",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getLocalName",
+      "traitKind": "method",
+      "methodIndex": 42720,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "a9cc2e4ad1053ea7973b1c98fedea57b29253e1eb1fb22310eee9f22cd6b264e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.hasTokenResponders",
+      "traitKind": "method",
+      "methodIndex": 42727,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "0405845a9747253dec3b9a3f9d2e1058b7c6fc838ad69880c146a87d11734bcb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 42713,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "712b3683f1a5012ee81b11683037d0e8bbbba7345005b84e0c7dd7f17dedd9c6",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "logout",
+      "traitKind": "method",
+      "methodIndex": 42724,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ccc43d2042841c013c92f08a6e5de1e096c04b6886b1693ab042440181fe936a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "managers",
+      "traitKind": "getter",
+      "methodIndex": 42702,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bed91695eee4c8be193b486bda44bd867d4575ae2d9efdf6476cf5093d228e89",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "managers",
+      "traitKind": "setter",
+      "methodIndex": 42703,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 164,
+      "bytecode": {
+        "codeLength": 164,
+        "codeSha256": "ce42b44960e0de062abaaa4309429809aec96a263ed7a74a26df0442d6e32999",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "operations",
+      "traitKind": "getter",
+      "methodIndex": 42704,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6a68f96ed37a3aa2c0837b3f06e4c4f6d86eff42a9c7995315d21b06df1b3bcd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "operations",
+      "traitKind": "setter",
+      "methodIndex": 42705,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "0f7f4d2b8d490d30155c87104ee14d53fbf38912e043b1c351ff6d4c0581cf55",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 42710,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "571793b2adde2de950a7a265cd4ccad728be95403ed2612d99e6d0a44679488f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "requestTimeout",
+      "traitKind": "getter",
+      "methodIndex": 42706,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "8c07d6f003032fb83a09b95043fc8d3697e72038c4199ceb82523886601b528f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "requestTimeout",
+      "traitKind": "setter",
+      "methodIndex": 42707,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "ce68994bf8c23f4850b62bf41ba6d8acf584a05b935cdb62ac72b17ae70a3dd6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setCredentials",
+      "traitKind": "method",
+      "methodIndex": 42723,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "12bca23b4c462da01d460a1fabfa5d250690eeeb5e78eb7ead6541eccf78a5ce",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setRemoteCredentials",
+      "traitKind": "method",
+      "methodIndex": 42725,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "31e4f23790e69b334c7176dae8a47b109e847e903705b4486f6bedae5da87225",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "valueOf",
+      "traitKind": "method",
+      "methodIndex": 42726,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "61e509349138751b48510491b69e62eb575a9aa951863e80c6a0eb419b9554ae",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 42712,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "091cca6a6a3f5e95dbc9a19edbaff963f703385d05936a4600a99b4c86c8babe",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

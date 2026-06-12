@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3700,
+  "className": "com.diagnosticProcedures.image.DPImageLoader",
+  "classNameNormalized": "com.diagnosticProcedures.image.DPImageLoader",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55349,
+  "cinitMethod": 55347,
+  "iinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "517f613163aa415c576f7fac220d289976dc11d0baa727a4ba45a6c65dfb3fb6",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "36a13e497e3e24bc758c3f6c2ebee33defa1ce16a201a92512dcbc446b067003",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "loadImageResources",
+      "traitKind": "method",
+      "methodIndex": 55350,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.bundle.IBundleAssetHandler"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 607,
+      "bytecode": {
+        "codeLength": 607,
+        "codeSha256": "85932b1cdd74e456fe0af3b20ad4f5e3d78a7b8eba106d45a97abd52426f6c66",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "logger",
+      "traitKind": "getter",
+      "methodIndex": 55351,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "1751c7f7fa1f0aaa44295b94aa72e50f5ee46f7bcc1ecd8154f763995a0f0402",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getImageBytes",
+      "traitKind": "method",
+      "methodIndex": 55348,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "faea21a34f0017afda2cb7d3808d2db27d4c7fc4520506f6eb1e61849424ba01",
+        "bytecodeLineCount": 5
+      }
+    }
+  ]
+}

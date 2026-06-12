@@ -1,0 +1,501 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2314,
+  "className": "com.chrysler.cda.presentation.component.edit.CANFDSettingsComponent",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.edit.CANFDSettingsComponent",
+  "superName": "spark.components.NavigatorContent",
+  "superNameNormalized": "spark.components.NavigatorContent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 40908,
+  "cinitMethod": 40904,
+  "iinitBytecode": {
+    "codeLength": 352,
+    "codeSha256": "1e5173b270d9452fa59839205cba9485ebe7bcd2c76d5e30f24e3bfc5ebdf944",
+    "bytecodeLineCount": 22
+  },
+  "cinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "60af498df4bbdf1c31a2b78253bedc16a5302f4da96c3c45e66f2e2708a7a6fc",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "canFDCheckBox",
+      "traitKind": "getter",
+      "methodIndex": 40937,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.CheckBox",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fc1e16bcce64d848554ad2b1ba5981c59fa4c9e7168716ef83713bb0af44f829",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "canFDCheckBox",
+      "traitKind": "setter",
+      "methodIndex": 40938,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.CheckBox"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "1e2cf81ef314a8a6d18f26d4b52148cbe41c9287f80f0bd27cb26afcb1981add",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.edit:CANFDSettingsComponent.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 40936,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "20eb08ecb6164b2cb47a49515e507ddcc1a32eb6a09c708e0feb3ea369e8a7e8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "getter",
+      "methodIndex": 40943,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.CANFDSettingsController",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6688f62cb94bbae08faeed14a91cf45adb9b9fd9ab906091d64293dc7c907f62",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "setter",
+      "methodIndex": 40944,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.CANFDSettingsController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "434a336df2da88b15e7548115fd7139d659223c71887c6867500d02b5877c63e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "disableBRSCheckbox",
+      "traitKind": "getter",
+      "methodIndex": 40939,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.CheckBox",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5fd8a310d2f5ca60e353758d310f7a2f8150d550e7f2040a316f65cc92e10684",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disableBRSCheckbox",
+      "traitKind": "setter",
+      "methodIndex": 40940,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.CheckBox"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "84dab3120f758e42d02395ece88d1055d55e5d6331832f9a6e51cdea128c4efe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 40941,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5426de7b6c48e17d88885ec332201581f787e4c19dccf818683ce40af44b3abf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 40942,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "fe069c7d3733ff9df918e2fd7494b2c758770b915f0b3e7149a9fbd6a3f18802",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 40910,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "getter",
+      "methodIndex": 40947,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.CANFDSettingsModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e9608a034d68e3d29702e3ac019ce3b9d6349cf09274685382183f254da55c03",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "setter",
+      "methodIndex": 40948,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.CANFDSettingsModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "f1e75ddf3ed6fcfce887e96965f0e0118e1700257112711dee16547f4b749bf0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 40909,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "ad2db5b8bdab396c45dae3b6d5cf79cf9c592cd208aa7af437365f4dface9adc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 40911,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "d3e2864cb15a429366dc3c5b12c45dde51fe086f6b60deab02fa9abd610da5b8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_Array2_c",
+      "traitKind": "method",
+      "methodIndex": 40914,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "2e977336aa7dd338a1d3edd684b61dc51d9fd9ee73256919df7597870ee25ecd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_Array4_c",
+      "traitKind": "method",
+      "methodIndex": 40917,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "c9520dcce9b5ced17cff0d89cdfe428d3822b7c101d0f9556207378dd4db10f8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_Array6_c",
+      "traitKind": "method",
+      "methodIndex": 40921,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "bbe1e1e291acf8364f9e4a83a2877509b31f9cf89d7cee2ce9b95f9ef43e0ea6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_bindingExprs",
+      "traitKind": "method",
+      "methodIndex": 40935,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "df28981e9e916e9f26351645d9343c813300803e535c56b7286de099b37e101d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 40934,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 376,
+      "bytecode": {
+        "codeLength": 376,
+        "codeSha256": "02a3f7c2b29ef69c1a671ba65190d3f115386ba24120f1aa261d25d678214836",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_CheckBox1_i",
+      "traitKind": "method",
+      "methodIndex": 40918,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.CheckBox",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "c39fedc6a09eab30cdbf91c1ed74c02ae8dc15938be7177caeb9d959af804c62",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_CheckBox2_i",
+      "traitKind": "method",
+      "methodIndex": 40922,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.CheckBox",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "62d57b77239cfc6aa9e61ec4f27992467efda76bcedf1c97df0f5bc79894579e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_Form1_c",
+      "traitKind": "method",
+      "methodIndex": 40912,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Form",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "8fa8452a3ca22a1ab4b99abca83b2a4c1fdd421e7dbb64c2913f3aba37bb1444",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_FormItem1_i",
+      "traitKind": "method",
+      "methodIndex": 40915,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.FormItem",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "571e147163a171d5de92ba2d3d25a1459236100218b8ff350df3f22d845600d2",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_FormItem2_i",
+      "traitKind": "method",
+      "methodIndex": 40919,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.FormItem",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "b4cbc13006ab6a5601cf910e95dcf10f5947d018751ea364a5c262633acfaa99",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_FormLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 40913,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.FormLayout",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "eed558aeb909af4fa69c1d36ee014685573ed5d881a546425c4ea8079e50b964",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_RichEditableText1_i",
+      "traitKind": "method",
+      "methodIndex": 40916,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "cc35bb2f5e93d1d345e49e070902b9401860346b67b0a714cad233457ef9a9ec",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CANFDSettingsComponent_RichEditableText2_i",
+      "traitKind": "method",
+      "methodIndex": 40920,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "d847fc96f4af6958b793e02aacb30e5558c51e2aca8572c8d07827279e0a38da",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "transportLayerModel",
+      "traitKind": "getter",
+      "methodIndex": 40945,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.TransportLayerModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "99d5ed90d11999cf15571f8547f09c4261582b6afa2c1aec7e1b1f42b09d5c19",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transportLayerModel",
+      "traitKind": "setter",
+      "methodIndex": 40946,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.TransportLayerModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "bfceaa796491ac8cb8226075633cfcc1a39292b6ed1fa9f741ca3bf9265747c1",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 40905,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "a21f22f1f331b9de3aea917504c1208a04838806ccc0ffe0afcf0d2e4e26a319",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

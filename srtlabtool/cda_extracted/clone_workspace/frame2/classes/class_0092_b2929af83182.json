@@ -1,0 +1,296 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 92,
+  "className": "mx.styles.StyleProtoChain",
+  "classNameNormalized": "mx.styles.StyleProtoChain",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 2051,
+  "cinitMethod": 2035,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "1b05c5b7f2da3d83070cf21b14560cee0a71f3eed722259fdb57e6506b639251",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "getClassStyleDeclarations",
+      "traitKind": "method",
+      "methodIndex": 2036,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.IStyleClient"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 340,
+      "bytecode": {
+        "codeLength": 340,
+        "codeSha256": "a2ba69c29efc605d1c20ba25419aafbccdd5611c4e00ed96757a74cbc2fbed55",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "getMatchingStyleDeclarations",
+      "traitKind": "method",
+      "methodIndex": 2044,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.IAdvancedStyleClient",
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "3b64bbcb764bfcf559a3f0c38ca5105b34d55015d1ca1d0e58e7834db5cc47c8",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "initProtoChain",
+      "traitKind": "method",
+      "methodIndex": 2037,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.IStyleClient"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 933,
+      "bytecode": {
+        "codeLength": 933,
+        "codeSha256": "60a76efee1b49a856cd90a1e10497a06f51cce41faafd4ce02a1e36bd3809e98",
+        "bytecodeLineCount": 59
+      }
+    },
+    {
+      "traitName": "initProtoChainForUIComponentStyleName",
+      "traitKind": "method",
+      "methodIndex": 2038,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.IStyleClient"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 387,
+      "bytecode": {
+        "codeLength": 387,
+        "codeSha256": "d89384e5e275c83d5566f0bcf95271e594856751d206bf60850d82966f1035c9",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "initTextField",
+      "traitKind": "method",
+      "methodIndex": 2040,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUITextField"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 380,
+      "bytecode": {
+        "codeLength": 380,
+        "codeSha256": "103d01ae83618394b0e4e2e3ee0132fa054d8d0ff5aea6cc0e1aabfc7c9bf612",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "matchesCSSType",
+      "traitKind": "method",
+      "methodIndex": 2043,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.IAdvancedStyleClient",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "18e5097d496572edc5cc105d52971919ec324afd8b8d7e2ec1a2eb463fd877c4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.addProperties",
+      "traitKind": "method",
+      "methodIndex": 2039,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.styles.IStyleClient",
+        "Boolean"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 654,
+      "bytecode": {
+        "codeLength": 654,
+        "codeSha256": "cdadd06e591dac66aa9b97178fabbfccdb6a1a9f8d360c53f1f1c75a81723984",
+        "bytecodeLineCount": 41
+      }
+    },
+    {
+      "traitName": "PrivateNs.getStyleManager",
+      "traitKind": "method",
+      "methodIndex": 2049,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.styles.IStyleManager2",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "deede63517e3b6a43b6497960d4dbafe55990a88f40989fd63743e9a82f83683",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getStyleManagerFromStyleProxy",
+      "traitKind": "method",
+      "methodIndex": 2050,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.StyleProxy"
+      ],
+      "returnType": "mx.styles.IStyleManager2",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "44dc245479b57f0073c48cc412ac3a968d0e1c8f428f24ed2d4106043597c065",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getTypeHierarchy",
+      "traitKind": "method",
+      "methodIndex": 2045,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.IStyleClient",
+        "Boolean"
+      ],
+      "returnType": "mx.utils.OrderedObject",
+      "hasBody": true,
+      "codeLength": 400,
+      "bytecode": {
+        "codeLength": 400,
+        "codeSha256": "128964ec479d71c5ddc1e241c3ca23b613b7fe6c9582b6975e413cef16ac183f",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "PrivateNs.isStopClass",
+      "traitKind": "method",
+      "methodIndex": 2046,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "e825409db1a979a2612c258cf3a0c1d9a253e3a19e0be0f3db07037c48a00e85",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.matchStyleDeclarations",
+      "traitKind": "method",
+      "methodIndex": 2047,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "mx.styles.IAdvancedStyleClient"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "b4e70eb7004a2f03c2ed1e1b2aa34cbad320415f7ec63a1288b344a7218ccdcf",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.sortOnSpecificity",
+      "traitKind": "method",
+      "methodIndex": 2048,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 137,
+      "bytecode": {
+        "codeLength": 137,
+        "codeSha256": "3d5813f8be944e407b8d828010a3622935c2df9ed4fe494873cc12e2d044ee17",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "setStyle",
+      "traitKind": "method",
+      "methodIndex": 2041,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.IStyleClient",
+        "String",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 179,
+      "bytecode": {
+        "codeLength": 179,
+        "codeSha256": "5d7a4a712e60720e0636c9040258ad5ab9c1a3568ab1d4ec856eb272953e9497",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 2042,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IInvalidating",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 293,
+      "bytecode": {
+        "codeLength": 293,
+        "codeSha256": "bbcb62f85ecf51254429f7079b2c42a5461d9609290758c119d23b618e8b6927",
+        "bytecodeLineCount": 19
+      }
+    }
+  ]
+}

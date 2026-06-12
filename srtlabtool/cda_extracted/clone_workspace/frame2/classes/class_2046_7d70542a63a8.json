@@ -1,0 +1,210 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2046,
+  "className": "mx.controls.advancedDataGridClasses.MXAdvancedDataGridItemRenderer",
+  "classNameNormalized": "mx.controls.advancedDataGridClasses.MXAdvancedDataGridItemRenderer",
+  "superName": "spark.components.supportClasses.ItemRenderer",
+  "superNameNormalized": "spark.components.supportClasses.ItemRenderer",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.controls.listClasses.IListItemRenderer",
+    "mx.controls.listClasses.IDropInListItemRenderer"
+  ],
+  "iinitMethod": 37792,
+  "cinitMethod": 37791,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "1f507c76fda0c52e79a1f1a95b1c668e8bc450035534595412925172d8cecfaf",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "advancedDataGridListData",
+      "traitKind": "getter",
+      "methodIndex": 37798,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.advancedDataGridClasses.AdvancedDataGridListData",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "702b390e8690303fca7a5a9b31f39a8927c51641488ca0dc9a5827f86723e062",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disclosureGroup",
+      "traitKind": "getter",
+      "methodIndex": 37796,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d28ffe8944c055dc7c5214a0b3bbc5162d7b266201aa31f88c2233df1da52e2e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disclosureGroup",
+      "traitKind": "setter",
+      "methodIndex": 37797,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "58d2db65d34576d1f25e207ea8633f7b414fe20b80067fb2d25725817f3d6ba9",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "invalidateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 37801,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "540e40cda16d5bf629b7746c269d6a00f3d503712759c2174103868cefae52e9",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "getter",
+      "methodIndex": 37793,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.listClasses.BaseListData",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "edbc1d9a70855e04c602f60347f0bcc61094388613f8c95ba4860af9427c8029",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listData",
+      "traitKind": "setter",
+      "methodIndex": 37794,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.listClasses.BaseListData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "8e32388b030db64fb97ca5b2351c6390c8ec355d47c3a65298203c0f6fdd4855",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:MXAdvancedDataGridItemRenderer.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 37803,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "5b112b1e688b495efec86be00cfba06fb8d21d37091fc9c668359b612c03891b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:MXAdvancedDataGridItemRenderer.disclosureGroup_clickHandler",
+      "traitKind": "method",
+      "methodIndex": 37800,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ab734ccd2736d1e82776aa02c28cce143483e238a06c1e380095f5881219b49a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:MXAdvancedDataGridItemRenderer.disclosureGroup_mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 37799,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "fe3f0c2d37955d4b676f82da5097248d639883ea702b6c54ff8838467ca79aaf",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "mx.controls.advancedDataGridClasses:MXAdvancedDataGridItemRenderer.hovered",
+      "traitKind": "setter",
+      "methodIndex": 37802,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "946be54d6a8bf20ccee4c063816c51ea286656d0b0406c975ec1b55e4ca6a994",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "text",
+      "traitKind": "getter",
+      "methodIndex": 37795,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "832570193f67b9267ff9fa844b9550f66925ec476c422f91cfe2ecbb1dc59468",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

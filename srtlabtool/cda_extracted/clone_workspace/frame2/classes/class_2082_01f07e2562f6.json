@@ -1,0 +1,233 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2082,
+  "className": "com.diagnosticProcedures.BundleLoader",
+  "classNameNormalized": "com.diagnosticProcedures.BundleLoader",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 38218,
+  "cinitMethod": 38205,
+  "iinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "41ecb56fe7ba4b4a748df95eb3131686d57462cca453a043fee4adf198d0ce2b",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures:BundleLoader.complete",
+      "traitKind": "method",
+      "methodIndex": 38215,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "846074c68afd24c923e41f09a4874cc325cfd1455ee182c0fafd5ee73f2535c6",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BundleLoader.host",
+      "traitKind": "getter",
+      "methodIndex": 38216,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "9950ab9d92c8176440535b3db34cf5b9495bd63e51737439dfa6532074dab6ae",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BundleLoader.isPending",
+      "traitKind": "method",
+      "methodIndex": 38213,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "00fff4f0dfcf309db258bbe982ad4f2ec0cf0d8f2709d02a02a3b33e5f72603b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BundleLoader.onLoadComplete",
+      "traitKind": "method",
+      "methodIndex": 38211,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.event.BundleLoadedEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "02620967a55e80c4f4949b05efe3da63c456039a6e1ae06fa96f223e1357300b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BundleLoader.onLoadError",
+      "traitKind": "method",
+      "methodIndex": 38212,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.event.BundleLoadedEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "47e00ff6aa2b72fa8820262f500a5d26800f7fd6ab5ef317c00948e2e747323f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BundleLoader.port",
+      "traitKind": "getter",
+      "methodIndex": 38217,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "2f0be5ffe8232a5489e255e74194d673c2bc1606da6c1f6261f77a783f5c1dc2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BundleLoader.removePending",
+      "traitKind": "method",
+      "methodIndex": 38214,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "a0150aba5e2fead954ae6bc387fb556082549d367452ad61591de76fb8c22e91",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getBundle",
+      "traitKind": "method",
+      "methodIndex": 38207,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "com.diagnosticProcedures.IDiagnosticProcedureBundle",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "c16dc2f2753fdc21bd0bf18da9e1f7d36a19f4a0c40b07af2c6e6773805d64ac",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getError",
+      "traitKind": "method",
+      "methodIndex": 38208,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "0d7d8904796b9cb84935df6eae275ba82eb08e30c344466f8d9932f15bcaa139",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isLoaded",
+      "traitKind": "method",
+      "methodIndex": 38206,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "9a63bb10132081ef651a2aa219c8e5ce27d8c23e699fd314296977175c828f9a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "load",
+      "traitKind": "method",
+      "methodIndex": 38209,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "23c8e39803cb8f0bcc600ededed292393a98dfea0dbc60afbd8a67806805ec8f",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeEvents",
+      "traitKind": "method",
+      "methodIndex": 38210,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "16bcfbf6450c758561c1f5a9a20b90452e19a5c219fecf384910c05661813970",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

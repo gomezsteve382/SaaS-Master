@@ -1,0 +1,412 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2499,
+  "className": "com.chrysler.cda.presentation.discover.components.DeviceContainer",
+  "classNameNormalized": "com.chrysler.cda.presentation.discover.components.DeviceContainer",
+  "superName": "spark.components.SkinnableContainer",
+  "superNameNormalized": "spark.components.SkinnableContainer",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 43012,
+  "cinitMethod": 43008,
+  "iinitBytecode": {
+    "codeLength": 36,
+    "codeSha256": "58f0d16ae1861df061374103c552fe5b5ed5e92cee3bd446b73f0539005ad6ce",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 67,
+    "codeSha256": "4a09f5f00b039400df571fde1c04565d0aba1c1636154a6d041942525cc6a581",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "benchtopModeButtonText",
+      "traitKind": "getter",
+      "methodIndex": 43030,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2ec0d86cde3767ee55455d06dc99d12fad8a8dd7e847dac79fa0df2585c4718b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "benchtopModeButtonText",
+      "traitKind": "setter",
+      "methodIndex": 43031,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "4b7bc93b2f8cef9f1bbd1ff940823700b62964201ba9489b75958ec1934f89d3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.discover.components:DeviceContainer.partAdded",
+      "traitKind": "method",
+      "methodIndex": 43013,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 277,
+      "bytecode": {
+        "codeLength": 277,
+        "codeSha256": "f11efec5c05793632ec37b2c91c87e2f84f0456b295157db80187b2e34543e77",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.discover.components:DeviceContainer.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 43032,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7c74dc8aa0315bd9391a12ac9dde89af16e10fcf21e27e37cd62aa17082b29d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataProvider",
+      "traitKind": "getter",
+      "methodIndex": 43009,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.discovery.device.DiscoveredDevice",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cc6ea3ff24aa1fb691b688bd88d9683ab3dff21110d62ae373cd9a61832a916f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataProvider",
+      "traitKind": "setter",
+      "methodIndex": 43010,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.discovery.device.DiscoveredDevice"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 168,
+      "bytecode": {
+        "codeLength": 168,
+        "codeSha256": "6f3cd86f8a03c356d78b564f256b89ecb2bf07db3ca00e24371ba8e7f5d2be43",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "dataProviderCollection",
+      "traitKind": "getter",
+      "methodIndex": 43024,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "84652a3e752ecfd5691277e289bfc93dd1ca3c9d674535d7c450d3c59c680f55",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataProviderCollection",
+      "traitKind": "setter",
+      "methodIndex": 43025,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "b2fde1d8c57c029cd72c9590613c375d059e3e3486bc4698b780b51c555c0a43",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "enableTarget",
+      "traitKind": "method",
+      "methodIndex": 43015,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "e1e47e3ed6960e036a5e520b97b783290ae9fb16474c21f0bc257e95493b2cca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "handleConnectivityChange",
+      "traitKind": "method",
+      "methodIndex": 43017,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "b7f805c70cf9bc98c8b8ae96e4eda3cb263d029b0f82bee0888e8ab489a9d0ed",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "handleResponsivenessSKinPartAdded",
+      "traitKind": "method",
+      "methodIndex": 43016,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "e7eb26a42ff12ddaf967a1d3a2c336948e8fff8545a893d352042d3df4e018a7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 43022,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "497cb38981c3f097280c7996547b99f8a0c8ddd233883f63c5ae61187fadf0da",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 43023,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "ef622160e773af0db7f60dad62054435008c17e002e2ecd0557766f091413630",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onBenchtopModeButtonClick",
+      "traitKind": "method",
+      "methodIndex": 43020,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "eab94704d4c9928ac426fde06161b0a7d2f759be31baa26ad762cf092315ef68",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onDeviceMarkedForDelete",
+      "traitKind": "method",
+      "methodIndex": 43011,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.discovery.device.event.DiscoveredDeviceEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onPrototypeModeButtonClick",
+      "traitKind": "method",
+      "methodIndex": 43019,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "20b571fd65a09f6acbcee286a7c27561f49cbd8a75be8f344289d38f3400f095",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onRemoveButtonClick",
+      "traitKind": "method",
+      "methodIndex": 43021,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "370ee4d3b3bb4c886ba43c3580145f2b9e86c2cd020e4a9c451d6e5c6111b27a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onVehicleModeButtonClick",
+      "traitKind": "method",
+      "methodIndex": 43018,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "41e2ab58111e1af3b1069c0d6ed566474c28ac207915e369a8dffa2bbe269fce",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "prototypeModeButtonText",
+      "traitKind": "getter",
+      "methodIndex": 43028,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6607d5cb6fedb7725eecf999125a07db0d3b4a9b9d892c343327eb86194b4cdd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "prototypeModeButtonText",
+      "traitKind": "setter",
+      "methodIndex": 43029,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "5226bf3abcb027145003d60711193bfc72feaa44007c1864be22c194e71804a1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "showTarget",
+      "traitKind": "method",
+      "methodIndex": 43014,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Image",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "ca9f3682c881fbee9a28b202b382e3b6e5d6125fc2e65c5a7d8b633d3eddef10",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "vehicleModeButtonText",
+      "traitKind": "getter",
+      "methodIndex": 43026,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "086b3cac29b9db44968507ff62064276b89690f73b9132a215d1ee0fcdfa0ae5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "vehicleModeButtonText",
+      "traitKind": "setter",
+      "methodIndex": 43027,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "f95e61d983053cdc284f25b734170549ccc5f8419c85f058476924c5d81b5caa",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

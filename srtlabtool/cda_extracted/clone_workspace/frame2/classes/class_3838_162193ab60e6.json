@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3838,
+  "className": "com.hurlant.crypto.cert.X509CertificateCollection",
+  "classNameNormalized": "com.hurlant.crypto.cert.X509CertificateCollection",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56534,
+  "cinitMethod": 56533,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "6075396dfbaf9beef1945551625a121bf6788b9c2e931b19998bf91700fd4c91",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addCertificate",
+      "traitKind": "method",
+      "methodIndex": 56536,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.cert.X509Certificate"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "16f7b87373dd725090cebf857f56c5a921508a7a51315fe73165531faf9a8abe",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "addPEMCertificate",
+      "traitKind": "method",
+      "methodIndex": 56535,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "e3a7f5abd3ac5f36d691af72b4acc18806d03cc454815475ca2b5c6b5855217d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getCertificate",
+      "traitKind": "method",
+      "methodIndex": 56537,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.hurlant.crypto.cert.X509Certificate",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4e722a943fde71e3460c0f950d6ce87e88d3b72b3c4aa06a8124b9f29038b338",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,29 @@
+name: Verify CDA Suite
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  verify-cda-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run verifier suite
+        run: node ./run-cda-verifier-suite.mjs --root ./cda_extracted --json > ./verify-cda-suite-report.json
+
+      - name: Upload suite report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-cda-suite-report
+          path: ./verify-cda-suite-report.json

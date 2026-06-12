@@ -1,0 +1,68 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3219,
+  "className": "org.spicefactory.parsley.config.impl.DefaultConfigurationFactory",
+  "classNameNormalized": "org.spicefactory.parsley.config.impl.DefaultConfigurationFactory",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.config.ConfigurationFactory"
+  ],
+  "iinitMethod": 50347,
+  "cinitMethod": 50344,
+  "iinitBytecode": {
+    "codeLength": 16,
+    "codeSha256": "db387323609e4439c556ebfcc94cdf505ee2ca3e6e37b6e9cac338b6f8dedc20",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addDecoratorAssembler",
+      "traitKind": "method",
+      "methodIndex": 50345,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.config.DecoratorAssembler"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "8b2b59df0645d7e411a23553f879f72112db15f13a0652615f93a887e6a9beac",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "createConfiguration",
+      "traitKind": "method",
+      "methodIndex": 50346,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.registry.ObjectDefinitionRegistry"
+      ],
+      "returnType": "org.spicefactory.parsley.config.Configuration",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "babd44e477d853ed805e1194d7c32e5d4be2350545377d0873e300c21fcacd6b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

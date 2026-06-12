@@ -1,0 +1,161 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3172,
+  "className": "com.hurlant.crypto.prng.ARC4",
+  "classNameNormalized": "com.hurlant.crypto.prng.ARC4",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.prng.IPRNG",
+    "com.hurlant.crypto.symmetric.IStreamCipher"
+  ],
+  "iinitMethod": 50018,
+  "cinitMethod": 50017,
+  "iinitBytecode": {
+    "codeLength": 29,
+    "codeSha256": "40d9c8c44b00a57eb3ca0f42d8f9a2d43e8f4520c07ffd023263364e0c2612bb",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decrypt",
+      "traitKind": "method",
+      "methodIndex": 50024,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "23642a4e49240b669cbe8a30dbc097433692b1d37acea0f93ddff184cf873ad0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 50025,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "8df73a4f5edbf34f4e65ba4a423f0c73d7d5bdd50b4d181cba1033b6c2cccdec",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "encrypt",
+      "traitKind": "method",
+      "methodIndex": 50023,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "25a166041796dcd6a3f2b47d8152e303280ca1ce41db0033a9e21ad73b76c31f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getBlockSize",
+      "traitKind": "method",
+      "methodIndex": 50022,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 5,
+      "bytecode": {
+        "codeLength": 5,
+        "codeSha256": "1123cafc17feb2e93f97e67198722be0030bc551c773e464eedbddc8c1b5a60e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getPoolSize",
+      "traitKind": "method",
+      "methodIndex": 50019,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "04f996115b36f9d2ff70df6924d028273461c0b1ab47f431b0816dabf08739b1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 50020,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "554ed257b063491d09e2398d9828b3e080db359502d4c9c11475a02c2589e5ec",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "next",
+      "traitKind": "method",
+      "methodIndex": 50021,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 140,
+      "bytecode": {
+        "codeLength": 140,
+        "codeSha256": "4ede9610868d3a81dd834c0d649acbcf2ef202033e8e11b8c47981ab3d9fbea6",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 50026,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "30bd14642fa53123787d47a9fbac71d552f1a70ef44b923685c8402393027f05",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

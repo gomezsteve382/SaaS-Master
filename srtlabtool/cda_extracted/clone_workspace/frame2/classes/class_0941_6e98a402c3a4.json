@@ -1,0 +1,66 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 941,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.FindDataDisplayDDEDataCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.FindDataDisplayDDEDataCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 19051,
+  "cinitMethod": 19048,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "cf81532aa997a493ebdb1a82bbeb8d052fffa4649d9d22e502488ff22ed273b3",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onFindECUServiceValues",
+      "traitKind": "method",
+      "methodIndex": 19049,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.datadisplay.IDataDisplayDDEMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 142,
+      "bytecode": {
+        "codeLength": 142,
+        "codeSha256": "2aa6748f49bac15d12e06f179e9b0033350d78022dd05e8cf23a079ab25f5133",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onFindECUServiceValuesCustomDisplay",
+      "traitKind": "method",
+      "methodIndex": 19050,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.tools.FindECUServiceValuesCustomDisplayMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 149,
+      "bytecode": {
+        "codeLength": 149,
+        "codeSha256": "fb871826a416b5c369ca234bb88c25c8dde90caf0deb6a057865a079646a3370",
+        "bytecodeLineCount": 10
+      }
+    }
+  ],
+  "staticMembers": []
+}

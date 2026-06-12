@@ -1,0 +1,67 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3392,
+  "className": "com.diagnosticProcedures.bundle.BundleAssetHandlerFactory",
+  "classNameNormalized": "com.diagnosticProcedures.bundle.BundleAssetHandlerFactory",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51901,
+  "cinitMethod": 51900,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "df9dd6630a2fada0c5b10cdb7be4e90bc6750042c8bd372546e3dff2640ef0d9",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createBundleAssetHandler",
+      "traitKind": "method",
+      "methodIndex": 51902,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.bundle.ZipWrapper",
+        "String"
+      ],
+      "returnType": "com.diagnosticProcedures.bundle.IBundleAssetHandler",
+      "hasBody": true,
+      "codeLength": 155,
+      "bytecode": {
+        "codeLength": 155,
+        "codeSha256": "62d0fb61725477d0542bdf2bd73433f02060e838b17d81d5196970daeeda42d0",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.isDpb",
+      "traitKind": "method",
+      "methodIndex": 51903,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.bundle.ZipWrapper"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "dec8c6c6959c7d4825a06ca384d1210e787187158badc5c2d916cdc9edcd212f",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

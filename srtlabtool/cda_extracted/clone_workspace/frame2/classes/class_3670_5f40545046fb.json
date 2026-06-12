@@ -1,0 +1,51 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3670,
+  "className": "PrivateNs.SimpleMessageReceiverFactory",
+  "classNameNormalized": "PrivateNs.SimpleMessageReceiverFactory",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.processor.messaging.MessageReceiverFactory"
+  ],
+  "iinitMethod": 55078,
+  "cinitMethod": 55077,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "217ac468cf9773f9c3a9c0b6dd4895f3caded034be6e26c84c8300d49fec36e9",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createReceiver",
+      "traitKind": "method",
+      "methodIndex": 55079,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.provider.ObjectProvider"
+      ],
+      "returnType": "org.spicefactory.parsley.core.messaging.receiver.MessageReceiver",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "14e4f1321d9c06bb6d25155185ed0af3fb0c187f0f72d3f5d9295fd84e30350c",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

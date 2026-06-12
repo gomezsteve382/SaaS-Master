@@ -1,0 +1,1334 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 90,
+  "className": "mx.core.IUITextField",
+  "classNameNormalized": "mx.core.IUITextField",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "mx.core.IIMESupport",
+    "mx.core.IFlexModule",
+    "mx.core.IInvalidating",
+    "mx.styles.ISimpleStyleClient",
+    "mx.managers.IToolTipManagerClient",
+    "mx.core.IUIComponent"
+  ],
+  "iinitMethod": 2006,
+  "cinitMethod": 1898,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.core:IUITextField.alwaysShowSelection",
+      "traitKind": "getter",
+      "methodIndex": 1899,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.alwaysShowSelection",
+      "traitKind": "setter",
+      "methodIndex": 1900,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.antiAliasType",
+      "traitKind": "getter",
+      "methodIndex": 1901,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.antiAliasType",
+      "traitKind": "setter",
+      "methodIndex": 1902,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.appendText",
+      "traitKind": "method",
+      "methodIndex": 1963,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.autoSize",
+      "traitKind": "getter",
+      "methodIndex": 1903,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.autoSize",
+      "traitKind": "setter",
+      "methodIndex": 1904,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.background",
+      "traitKind": "getter",
+      "methodIndex": 1905,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.background",
+      "traitKind": "setter",
+      "methodIndex": 1906,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.backgroundColor",
+      "traitKind": "getter",
+      "methodIndex": 1907,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.backgroundColor",
+      "traitKind": "setter",
+      "methodIndex": 1908,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.border",
+      "traitKind": "getter",
+      "methodIndex": 1909,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.border",
+      "traitKind": "setter",
+      "methodIndex": 1910,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.borderColor",
+      "traitKind": "getter",
+      "methodIndex": 1911,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.borderColor",
+      "traitKind": "setter",
+      "methodIndex": 1912,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.bottomScrollV",
+      "traitKind": "getter",
+      "methodIndex": 1913,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.caretIndex",
+      "traitKind": "getter",
+      "methodIndex": 1914,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.condenseWhite",
+      "traitKind": "getter",
+      "methodIndex": 1915,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.condenseWhite",
+      "traitKind": "setter",
+      "methodIndex": 1916,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.defaultTextFormat",
+      "traitKind": "getter",
+      "methodIndex": 1917,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.text.TextFormat",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.defaultTextFormat",
+      "traitKind": "setter",
+      "methodIndex": 1918,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.TextFormat"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.displayAsPassword",
+      "traitKind": "getter",
+      "methodIndex": 1935,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.displayAsPassword",
+      "traitKind": "setter",
+      "methodIndex": 1936,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.doubleClickEnabled",
+      "traitKind": "getter",
+      "methodIndex": 1990,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.doubleClickEnabled",
+      "traitKind": "setter",
+      "methodIndex": 1991,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.embedFonts",
+      "traitKind": "getter",
+      "methodIndex": 1919,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.embedFonts",
+      "traitKind": "setter",
+      "methodIndex": 1920,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.focusRect",
+      "traitKind": "getter",
+      "methodIndex": 1986,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.focusRect",
+      "traitKind": "setter",
+      "methodIndex": 1987,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getCharBoundaries",
+      "traitKind": "method",
+      "methodIndex": 1964,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getCharIndexAtPoint",
+      "traitKind": "method",
+      "methodIndex": 1965,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getFirstCharInParagraph",
+      "traitKind": "method",
+      "methodIndex": 1966,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getImageReference",
+      "traitKind": "method",
+      "methodIndex": 1979,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getLineIndexAtPoint",
+      "traitKind": "method",
+      "methodIndex": 1967,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getLineIndexOfChar",
+      "traitKind": "method",
+      "methodIndex": 1968,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getLineLength",
+      "traitKind": "method",
+      "methodIndex": 1969,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getLineMetrics",
+      "traitKind": "method",
+      "methodIndex": 1970,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flash.text.TextLineMetrics",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getLineOffset",
+      "traitKind": "method",
+      "methodIndex": 1971,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getLineText",
+      "traitKind": "method",
+      "methodIndex": 1972,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getParagraphLength",
+      "traitKind": "method",
+      "methodIndex": 1973,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getStyle",
+      "traitKind": "method",
+      "methodIndex": 2001,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "*",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getTextFormat",
+      "traitKind": "method",
+      "methodIndex": 1974,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "flash.text.TextFormat",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.getUITextFormat",
+      "traitKind": "method",
+      "methodIndex": 2002,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.UITextFormat",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.gridFitType",
+      "traitKind": "getter",
+      "methodIndex": 1921,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.gridFitType",
+      "traitKind": "setter",
+      "methodIndex": 1922,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.htmlText",
+      "traitKind": "getter",
+      "methodIndex": 1923,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.htmlText",
+      "traitKind": "setter",
+      "methodIndex": 1924,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.ignorePadding",
+      "traitKind": "getter",
+      "methodIndex": 1992,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.ignorePadding",
+      "traitKind": "setter",
+      "methodIndex": 1993,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.inheritingStyles",
+      "traitKind": "getter",
+      "methodIndex": 1994,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.inheritingStyles",
+      "traitKind": "setter",
+      "methodIndex": 1995,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.length",
+      "traitKind": "getter",
+      "methodIndex": 1925,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.maxChars",
+      "traitKind": "getter",
+      "methodIndex": 1926,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.maxChars",
+      "traitKind": "setter",
+      "methodIndex": 1927,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.maxScrollH",
+      "traitKind": "getter",
+      "methodIndex": 1928,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.maxScrollV",
+      "traitKind": "getter",
+      "methodIndex": 1929,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.mouseEnabled",
+      "traitKind": "getter",
+      "methodIndex": 1988,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.mouseEnabled",
+      "traitKind": "setter",
+      "methodIndex": 1989,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.mouseWheelEnabled",
+      "traitKind": "getter",
+      "methodIndex": 1930,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.mouseWheelEnabled",
+      "traitKind": "setter",
+      "methodIndex": 1931,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.multiline",
+      "traitKind": "getter",
+      "methodIndex": 1932,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.multiline",
+      "traitKind": "setter",
+      "methodIndex": 1933,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.nestLevel",
+      "traitKind": "getter",
+      "methodIndex": 1996,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.nestLevel",
+      "traitKind": "setter",
+      "methodIndex": 1997,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.nonInheritingStyles",
+      "traitKind": "getter",
+      "methodIndex": 1998,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.nonInheritingStyles",
+      "traitKind": "setter",
+      "methodIndex": 1999,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.nonZeroTextHeight",
+      "traitKind": "getter",
+      "methodIndex": 2000,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.numLines",
+      "traitKind": "getter",
+      "methodIndex": 1934,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.replaceSelectedText",
+      "traitKind": "method",
+      "methodIndex": 1975,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.replaceText",
+      "traitKind": "method",
+      "methodIndex": 1976,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.restrict",
+      "traitKind": "getter",
+      "methodIndex": 1937,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.restrict",
+      "traitKind": "setter",
+      "methodIndex": 1938,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.scrollH",
+      "traitKind": "getter",
+      "methodIndex": 1939,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.scrollH",
+      "traitKind": "setter",
+      "methodIndex": 1940,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.scrollV",
+      "traitKind": "getter",
+      "methodIndex": 1941,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.scrollV",
+      "traitKind": "setter",
+      "methodIndex": 1942,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.selectable",
+      "traitKind": "getter",
+      "methodIndex": 1943,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.selectable",
+      "traitKind": "setter",
+      "methodIndex": 1944,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.selectionBeginIndex",
+      "traitKind": "getter",
+      "methodIndex": 1945,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.selectionEndIndex",
+      "traitKind": "getter",
+      "methodIndex": 1946,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.setColor",
+      "traitKind": "method",
+      "methodIndex": 2003,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.setFocus",
+      "traitKind": "method",
+      "methodIndex": 2004,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.setSelection",
+      "traitKind": "method",
+      "methodIndex": 1977,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.setTextFormat",
+      "traitKind": "method",
+      "methodIndex": 1978,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.TextFormat",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.sharpness",
+      "traitKind": "getter",
+      "methodIndex": 1947,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.sharpness",
+      "traitKind": "setter",
+      "methodIndex": 1948,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.styleSheet",
+      "traitKind": "getter",
+      "methodIndex": 1949,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.text.StyleSheet",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.styleSheet",
+      "traitKind": "setter",
+      "methodIndex": 1950,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.StyleSheet"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.tabEnabled",
+      "traitKind": "getter",
+      "methodIndex": 1982,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.tabEnabled",
+      "traitKind": "setter",
+      "methodIndex": 1983,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.tabIndex",
+      "traitKind": "getter",
+      "methodIndex": 1984,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.tabIndex",
+      "traitKind": "setter",
+      "methodIndex": 1985,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.text",
+      "traitKind": "getter",
+      "methodIndex": 1951,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.text",
+      "traitKind": "setter",
+      "methodIndex": 1952,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.textColor",
+      "traitKind": "getter",
+      "methodIndex": 1953,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.textColor",
+      "traitKind": "setter",
+      "methodIndex": 1954,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.textHeight",
+      "traitKind": "getter",
+      "methodIndex": 1955,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.textWidth",
+      "traitKind": "getter",
+      "methodIndex": 1956,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.thickness",
+      "traitKind": "getter",
+      "methodIndex": 1957,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.thickness",
+      "traitKind": "setter",
+      "methodIndex": 1958,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.truncateToFit",
+      "traitKind": "method",
+      "methodIndex": 2005,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.type",
+      "traitKind": "getter",
+      "methodIndex": 1959,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.type",
+      "traitKind": "setter",
+      "methodIndex": 1960,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.useRichTextClipboard",
+      "traitKind": "getter",
+      "methodIndex": 1980,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.useRichTextClipboard",
+      "traitKind": "setter",
+      "methodIndex": 1981,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.wordWrap",
+      "traitKind": "getter",
+      "methodIndex": 1961,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IUITextField.wordWrap",
+      "traitKind": "setter",
+      "methodIndex": 1962,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

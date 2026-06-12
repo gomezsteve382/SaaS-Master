@@ -1,0 +1,1424 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 863,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.DDEDetailsPopup",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.DDEDetailsPopup",
+  "superName": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "superNameNormalized": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 17134,
+  "cinitMethod": 17130,
+  "iinitBytecode": {
+    "codeLength": 613,
+    "codeSha256": "417ae1eeeb264a19e98c95b3dfa0b4765bcda6627ae2401b84c24900ef3cb3e5",
+    "bytecodeLineCount": 39
+  },
+  "cinitBytecode": {
+    "codeLength": 75,
+    "codeSha256": "fc97a2ac655d6e5d87bb345443a5254183304268e365cd2f93807b949bf1a093",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___DDEDetailsPopup_PopupAbstractWindow1_addedToStage",
+      "traitKind": "method",
+      "methodIndex": 17205,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "e1df3630bdb7307cb5a11c1527d549b6c188bd7f5fc60ec85cf649174438d946",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___DDEDetailsPopup_PopupAbstractWindow1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 17203,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "62e028b24590a7b783ecd836019c3f08d5aff3bf4aaa64954a05d57d9a61b9fe",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___DDEDetailsPopup_PopupAbstractWindow1_show",
+      "traitKind": "method",
+      "methodIndex": 17204,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "5c8ef406b1ce63020df5272c1f57b80079d6ba7d8b65d7d922ff29938c6985af",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup:DDEDetailsPopup.addedToStageHandler",
+      "traitKind": "method",
+      "methodIndex": 17139,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 212,
+      "bytecode": {
+        "codeLength": 212,
+        "codeSha256": "cad3da2ec7c800d78f0572283832aa76952fc5877c78e53fe11900a54438a38b",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup:DDEDetailsPopup.closeButton_clickHandler",
+      "traitKind": "method",
+      "methodIndex": 17138,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0184d8b4dfc3875bafaf423475abb61e342cd0618be3f5fd395752e302854aa5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup:DDEDetailsPopup.creationCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 17141,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "2b90919a50262d4a4539d72768d7a74c3baceba2e2412536adb8828017747879",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup:DDEDetailsPopup.showHandler",
+      "traitKind": "method",
+      "methodIndex": 17142,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "4dcf979a515cf1a7aa75205ee8ce99503775b37672947d6e5b8622170208bec7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup:DDEDetailsPopup.showRawHex",
+      "traitKind": "method",
+      "methodIndex": 17140,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 194,
+      "bytecode": {
+        "codeLength": 194,
+        "codeSha256": "ad8a950439f7296f1ad5a319f09a09345c7470d3b45b8b588e6cb7f3771fadce",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup:DDEDetailsPopup.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 17251,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f3a7ebcdbaa525d1dd5a3cbcf25e7aeba9228c855206a45aae3a65be0cfe2228",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "contents",
+      "traitKind": "getter",
+      "methodIndex": 17252,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9b004727715d3542c74a3c2e1c143dc0427876c17325e7fe1605c54f91ecd32d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "contents",
+      "traitKind": "setter",
+      "methodIndex": 17253,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.VGroup"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "01535aac4881116e22320ec8e709fb26e9d115820cd95da71f28e1ac0d124988",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dataGridRowCount",
+      "traitKind": "getter",
+      "methodIndex": 17264,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3c46e77d15f7214dc8b6d7f4ac6bc377542159779ccac2907cfcc930f50a863c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataGridRowCount",
+      "traitKind": "setter",
+      "methodIndex": 17265,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "c8f8d7b07c0bf85e0ad48df2ede98aaf630805fe5c4302a1b209d83ae76bc578",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "details",
+      "traitKind": "getter",
+      "methodIndex": 17262,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ab9c063069c467a141b77216e0c9e05dbe8ba2fa7b8f0ae9b7a80073790316c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "details",
+      "traitKind": "setter",
+      "methodIndex": 17263,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "896018f627c75870405d82d39a681473ace211792c92fa0b48a1b29e55ae20ea",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 17260,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9a63691bf23c39447f695d36427395985be07f0974a8c136e5a4f4a49f445d90",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 17261,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f780c8da199595ea93fa2029d1bbf5907e0ea37dd6608ab64d6e60aedf05b5c5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 17136,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "getter",
+      "methodIndex": 17258,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.DDEDetailsPopupPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5e84576d5339e822419a6734c34ee19d2d3a4df49cb1a5d399646fff82ccd0af",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "setter",
+      "methodIndex": 17259,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.DDEDetailsPopupPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "8b641f6bcc5d3f40738b088af6ec8481e2e20173280b4c64c9cfdb02b7052e7c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 17135,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "36618d1039bdbb7480e62bc312f3b17229b4b0e4553bf0c1454991ba11e77dad",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Array2_c",
+      "traitKind": "method",
+      "methodIndex": 17145,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "c1296a701d1755595472eaa7a5d84e4c85e84ead6229441b0b15bf68b86ead34",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Array6_c",
+      "traitKind": "method",
+      "methodIndex": 17152,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "b496409bb295b2627200b59c5423689049ae12c50cb0f156458e07285de6a04f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 17250,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 1144,
+      "bytecode": {
+        "codeLength": 1144,
+        "codeSha256": "82650861ab5dd7397998528b1417f72437aee85dd2952c05b2ce0a4f80c01028",
+        "bytecodeLineCount": 72
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_BorderContainer1_c",
+      "traitKind": "method",
+      "methodIndex": 17151,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.BorderContainer",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "73986b16070e424c4eac2be3f7ac207e325fc6131aa2c013227c5e684f01cf27",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_ConfigureTag1_i",
+      "traitKind": "method",
+      "methodIndex": 17143,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.flex.tag.view.ConfigureTag",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "8811e66bfb0199fcd971b43e540647225607181ce9350c32ee09d64a18b1d012",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_DataGrid1_i",
+      "traitKind": "method",
+      "methodIndex": 17198,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.DataGrid",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "ef5230d61a94d521757f2800477d669a67b62a04e06feafadec2bd153459b8e0",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_DataGridColumn1_i",
+      "traitKind": "method",
+      "methodIndex": 17199,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "3575d33208f4c84ca2ec08c3693e87769265c4e44c2a74514e410c6e5ef3d05f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_DataGridColumn2_i",
+      "traitKind": "method",
+      "methodIndex": 17200,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "fbc74879e8cbfd617826ed6ae1967b9c58282db056e8a62ab85b5b35eb8f0f28",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_DataGridColumn3_i",
+      "traitKind": "method",
+      "methodIndex": 17201,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "a8084b61960a531c421b8d7f4f8596d2ffe8fb0995461c3d7f9fe303edc9f4ad",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_DataGridColumn4_i",
+      "traitKind": "method",
+      "methodIndex": 17202,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "966d012b642176e1a8b4cd0e56f998900db2d127e76689cde171c6c789e2606b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_HGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 17147,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "ce26e8bb0fa9b9d5a11bda8caa9ab030053b98d1377aa4000769d71f777c25cc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_HGroup2_i",
+      "traitKind": "method",
+      "methodIndex": 17156,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "b19a14a053b9c0f746e57adb24a911fe68d0b58c3e3668e2b15d113047d952f4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_HGroup3_i",
+      "traitKind": "method",
+      "methodIndex": 17197,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "762941fd3c618ba1aca5f26d7c9bf247cf6ca074c6406d757f1d1209a19aa2b4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 17150,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "d2d6ad1026473cf65219f541d75692bd5c59be5310b4b6974eb6f0b9a7d39d6d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label10_i",
+      "traitKind": "method",
+      "methodIndex": 17167,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "4809754e377ee0d9dd278a7af00d95ca82f3ff31c2511a6771d6306c6ef48ece",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label11_i",
+      "traitKind": "method",
+      "methodIndex": 17168,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "25c4b3e71e86f8a5f1f3c82c0e82c098c52a0c8ebc7a4748b68dc2be305c9748",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label12_i",
+      "traitKind": "method",
+      "methodIndex": 17169,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "a0a60946986806832a4de0380977f6759b396993d5e831264481907ce5988313",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label13_i",
+      "traitKind": "method",
+      "methodIndex": 17170,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "180b1485faf6af2d87f8ef3c876751eaaccca11446ced8d84bdd364b6db3f44f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label14_i",
+      "traitKind": "method",
+      "methodIndex": 17171,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "9df939f3558c1f6b433af392b569c5674181048b631b5df358dc6bff9b17f7d3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label15_i",
+      "traitKind": "method",
+      "methodIndex": 17172,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "eeca25640f62d90b45c5649ff24b6570e7302a9f127c8daa9c59d05e3a430975",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label16_i",
+      "traitKind": "method",
+      "methodIndex": 17173,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "e77b5e2d67aadb39d1625f59bef6fad140a4df5e003a53138159ac3beb3c38c5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label17_i",
+      "traitKind": "method",
+      "methodIndex": 17174,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "6d027136c394ba82e0b23d254701c9292e4728359ddeafe8b801ccea76d24a2f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label18_i",
+      "traitKind": "method",
+      "methodIndex": 17175,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "bd756c3c43b45507a366322f2d384b4424cc496c68414549efbecabc93a1f0d0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label19_i",
+      "traitKind": "method",
+      "methodIndex": 17177,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "1e89199ea14a5b27c47e8e9533d144f1ae1e447ada48c9c72d02a8abc291e818",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label2_i",
+      "traitKind": "method",
+      "methodIndex": 17159,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "d4d2a9fbedd7979f29216d575ad7bc98fb60a2c7ca68b224f998503899b28712",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label20_i",
+      "traitKind": "method",
+      "methodIndex": 17178,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "cfcde5f8055ff9a460bf04ec2bbfad85612a3bcf7acd7fb5fe016b980451b9bd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label21_i",
+      "traitKind": "method",
+      "methodIndex": 17179,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "745efd65c3c8cec732bdb4721aae0ad41eacf5e3aec73f4d58c6fb9bc19ee93d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label22_i",
+      "traitKind": "method",
+      "methodIndex": 17180,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "233bb0d4f9b1548282285b1f21c42a7b94a8b0c0e5a51cbd0acedbe5f38140e5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label23_i",
+      "traitKind": "method",
+      "methodIndex": 17181,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "4e9c298b30873d3066550d9054a3fdb83509ac80ad936a0855a8ad3236808e64",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label24_i",
+      "traitKind": "method",
+      "methodIndex": 17182,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "f69becc4f9bc934513392f81d1c0907fa1af29d2ca6fd774a6bebd2653dc3b40",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label25_i",
+      "traitKind": "method",
+      "methodIndex": 17183,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "f9e8427a3c731d7a0b422550aea3bbdbe3d02df8a03cc55b4fad46dce9d6343e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label26_i",
+      "traitKind": "method",
+      "methodIndex": 17184,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "19bb619d69b22014d8bcca1b2885a2492e14b56edd023ee63756079bf31c3b48",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label27_i",
+      "traitKind": "method",
+      "methodIndex": 17185,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "dbf0910cf33e6b11a9eab86d49085d9f2f658fd51eaac0829bf095f85b94e292",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label28_i",
+      "traitKind": "method",
+      "methodIndex": 17186,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "2ba1be5811f94bc148541d25672746e015d537a982650f36704aababb6b88f09",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label29_i",
+      "traitKind": "method",
+      "methodIndex": 17187,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "e9a6f98f05d647bd6c7bc4a841a4f9915676ac2e163a7b0ee091ffabc3cb782c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label3_i",
+      "traitKind": "method",
+      "methodIndex": 17160,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "3684db40d695d4577dc8fc5093f2171bd1f9fdc61a7a93b4448377debe45c83d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label30_i",
+      "traitKind": "method",
+      "methodIndex": 17188,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "171261ba29b8be264625495a90992a7a31177af54b95a0eb017a18f9ff9139a0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label31_i",
+      "traitKind": "method",
+      "methodIndex": 17189,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "e488039a465669e77998decd72de59c9d34fbe78e1f171886de351080bbd3de2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label32_i",
+      "traitKind": "method",
+      "methodIndex": 17190,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "d0e609ca1bf5d9c7d964b3af39a097e43e05c7e8e6813b9f5bba3dc17d156948",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label33_i",
+      "traitKind": "method",
+      "methodIndex": 17191,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "636aaf4aa95ff3982f791f620e0771a58227444c49072be9f0d9ad61d69e3401",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label34_i",
+      "traitKind": "method",
+      "methodIndex": 17192,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "67e442361a756181d2679084775d821088e83e221321496748fc0095c57ee724",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label4_i",
+      "traitKind": "method",
+      "methodIndex": 17161,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "87f9a1e73e6076dd3de2b766e51cf34f0bf99d8dbc3de266d320f70a240920fb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label5_i",
+      "traitKind": "method",
+      "methodIndex": 17162,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "2a80a4f2b099b69498c48c961c63ac8dac97be00b2f477b8d36acd3d51728df2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label6_i",
+      "traitKind": "method",
+      "methodIndex": 17163,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "4ffae84effe10694b55d087c6bdcf210d98d326734db3d86e8b3c6db4b42fd5f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label7_i",
+      "traitKind": "method",
+      "methodIndex": 17164,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "ebc08707c1ea3d0fe86d53aa933ceb5676ba66a19b9964292fac67f81c95519f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label8_i",
+      "traitKind": "method",
+      "methodIndex": 17165,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "f304550ca98c07fee508066c5b7dee2342c4afa1551b66ec750c9144a455f666",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Label9_i",
+      "traitKind": "method",
+      "methodIndex": 17166,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "f5b9e6eb3d0e576385e6f55df767c39deafc05503358fab35ba51a176de7fd21",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_LinearTable1_i",
+      "traitKind": "method",
+      "methodIndex": 17196,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.diagnostic.ecu.popup.LinearTable",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "a7c646b64907f1f6e035ffbc8644deb9c3bbf181fbd699ea75df2ed05c4f4636",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_RichEditableText1_i",
+      "traitKind": "method",
+      "methodIndex": 17154,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "7aadb60a8d7f24de9222dd0c3da2ba8777f22b17712042cdaa446f353ae71402",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_RichEditableText2_i",
+      "traitKind": "method",
+      "methodIndex": 17194,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "e6759fe8c206b9af6f5853b3cd44fef8695bfc07927b2d69eaef3db351c148a6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Scroller1_c",
+      "traitKind": "method",
+      "methodIndex": 17153,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "bc4156a67f97ab4759a7c0b52495e37ce718fe775ff59a81b7d0fc30cc8e0643",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Scroller2_c",
+      "traitKind": "method",
+      "methodIndex": 17193,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "cff04194535c128be0f95e9b1622c3d3fab7d725c90243f934db5cebabcf9d04",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Spacer1_c",
+      "traitKind": "method",
+      "methodIndex": 17148,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "d189e400ca22c60c05ee5326af50d2ec91a95103db722f432807b64665813edc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Spacer2_c",
+      "traitKind": "method",
+      "methodIndex": 17155,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "d189e400ca22c60c05ee5326af50d2ec91a95103db722f432807b64665813edc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Spacer3_c",
+      "traitKind": "method",
+      "methodIndex": 17157,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "d189e400ca22c60c05ee5326af50d2ec91a95103db722f432807b64665813edc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_Spacer4_c",
+      "traitKind": "method",
+      "methodIndex": 17195,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "d189e400ca22c60c05ee5326af50d2ec91a95103db722f432807b64665813edc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 17144,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "77768197b34676c159fb7fd388756d485d170886f1c82743afc6934749938681",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_VGroup1_i",
+      "traitKind": "method",
+      "methodIndex": 17146,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "c2866bc0e67600ae95ca31eeb0f9af32ec0b8f1d0d2b3f0d2dbe5c0d344dfb22",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_VGroup2_c",
+      "traitKind": "method",
+      "methodIndex": 17149,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "eea34ef75a14d01e55a67335a9996a9a326cebbc0b2130ffe7cd6f1f4a221c3e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_VGroup3_c",
+      "traitKind": "method",
+      "methodIndex": 17158,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "bf829d6e9b08d01455c787a80eb086a2aa870a3cf6ce67e1633ae2c30a3852e4",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._DDEDetailsPopup_VGroup4_c",
+      "traitKind": "method",
+      "methodIndex": 17176,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "3c14257a7125da34991ff543fcaf8057956363bafd05c8a1926bafae4ed118e8",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "rawTextRichText",
+      "traitKind": "getter",
+      "methodIndex": 17254,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e96455315f79963813c10bb3d307d99aec76400b00e667bd111ed8e01248b005",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "rawTextRichText",
+      "traitKind": "setter",
+      "methodIndex": 17255,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RichEditableText"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "b4cfd49d4d68c3172ccf5e467ab1b069132d64d4ed771993f147304accbf07a4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removePopup",
+      "traitKind": "method",
+      "methodIndex": 17137,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "3f73c34a59a69bf3ec3a348fc22673fa31f44f5e9ad914397996ab24de06b935",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "richTextHeightInLines",
+      "traitKind": "getter",
+      "methodIndex": 17266,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f01aa6103ef1516a1e73a61eb16981fd5d204096a50fa885d50f21f571af357d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "richTextHeightInLines",
+      "traitKind": "setter",
+      "methodIndex": 17267,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e986595767c0ec8ca14294494f64266d1fee927c88534de8f4151bf29ff7b7f6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "stateFunctionDG",
+      "traitKind": "getter",
+      "methodIndex": 17256,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.DataGrid",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "47d0b5ca43132b2a1253d52ba99aac089b648db4034cc874e7b315e9299f47e2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stateFunctionDG",
+      "traitKind": "setter",
+      "methodIndex": 17257,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.DataGrid"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "ac4cbed865ad2cd962d15ae1ff41490133dff781fe8e40c3a26373921c23e971",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 17131,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "5a2e7bac5adbdcb85ef0c54067826d15d00f4718f189fe69990e3d604aad4c27",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3352,
+  "className": "com.diagnosticProcedures.node.DecisionProcedureNode",
+  "classNameNormalized": "com.diagnosticProcedures.node.DecisionProcedureNode",
+  "superName": "com.diagnosticProcedures.node.ProcedureNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.ProcedureNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51633,
+  "cinitMethod": 51632,
+  "iinitBytecode": {
+    "codeLength": 51,
+    "codeSha256": "d1d272773a3184fcd8a2a1f1019fc74ae3705bfd0f45f804a15179a4692559d1",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.node:DecisionProcedureNode.timeout",
+      "traitKind": "method",
+      "methodIndex": 51636,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "e053ee22f4cbaeef613504e38a092d756af9ec6afbee882a8b4869ee60c6dd0d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "notify",
+      "traitKind": "method",
+      "methodIndex": 51635,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.model.DataStore"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "031fe77b5bca6a2d1bc5d8e511c91179a25142ede9c047ca85c80c892c1e5aee",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51634,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 232,
+      "bytecode": {
+        "codeLength": 232,
+        "codeSha256": "12a205091d0dd226fabedf1fc16dc82eb65213a7eb31c58828b480fd98dc1660",
+        "bytecodeLineCount": 15
+      }
+    }
+  ],
+  "staticMembers": []
+}

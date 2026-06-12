@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1032,
+  "className": "com.chrysler.cda.application.state.vehicle.VehicleStateCommand",
+  "classNameNormalized": "com.chrysler.cda.application.state.vehicle.VehicleStateCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 22021,
+  "cinitMethod": 22017,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "eecdb2d4e4253381fcbb6913356c0e5ab5617bccb22d4f1828d65cad23c0dcbb",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "setState",
+      "traitKind": "method",
+      "methodIndex": 22018,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.vehicle.CommandVehicleStateMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "234c48290652197ba4af6c86a18ce6d6498dab74fc5d96da34bf1370c97ee96c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setStateKO",
+      "traitKind": "method",
+      "methodIndex": 22020,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.vehicle.CommandVehicleStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "cf9f47942a3bd4b4813c7cf0681fa47fe61d453314bde98e0d657706df73c7d0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "setStateOK",
+      "traitKind": "method",
+      "methodIndex": 22019,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.vehicle.CommandVehicleStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "3db33c2f87678886d0530c6efd74a988b86529889b622394a1160a71948581da",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

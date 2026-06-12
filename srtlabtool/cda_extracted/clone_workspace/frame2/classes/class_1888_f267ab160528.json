@@ -1,0 +1,305 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1888,
+  "className": "mx.formatters.DateBase",
+  "classNameNormalized": "mx.formatters.DateBase",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 35534,
+  "cinitMethod": 35516,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "f9f2087635105072bcdaede316ea4eb35dda2846903da959fe14e9ce530af77c",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "dayNamesLong",
+      "traitKind": "getter",
+      "methodIndex": 35518,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "f48671e8832131ab5c8c2a74788f7b488ddf05f55c753a2550c76a34eff1e21a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dayNamesLong",
+      "traitKind": "setter",
+      "methodIndex": 35519,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "cb28b359b444062faf6fe58bed4391ad60b97199bda4356babb540d36e72451d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dayNamesShort",
+      "traitKind": "getter",
+      "methodIndex": 35520,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "7ba82c3d7473c6b780f2b7ceaa0a560519e047f81e01583fdce58b0fa2d5af0d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dayNamesShort",
+      "traitKind": "setter",
+      "methodIndex": 35521,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "0043943ef79bbbdfd2f021e1d9bca267aba01689a2db11de84a83eb5a0c0118d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.defaultStringKey",
+      "traitKind": "getter",
+      "methodIndex": 35522,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "a3975987dc169fc48ce02fb7b7d83f8d19b16a9634e0a9c46a8cff4e238bd507",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.extractTokenDate",
+      "traitKind": "method",
+      "methodIndex": 35531,
+      "methodName": "",
+      "paramTypes": [
+        "Date",
+        "Object"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 916,
+      "bytecode": {
+        "codeLength": 916,
+        "codeSha256": "e8bcdcbf3eb5eca04ffa110882acb9eeebe2175d34c95dcf24f25f9d2c919fe3",
+        "bytecodeLineCount": 58
+      }
+    },
+    {
+      "traitName": "monthNamesLong",
+      "traitKind": "getter",
+      "methodIndex": 35523,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "49a71e910a81982a48cf3871783107be31dfcd7534c5b9e52e192e2969354700",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "monthNamesLong",
+      "traitKind": "setter",
+      "methodIndex": 35524,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 159,
+      "bytecode": {
+        "codeLength": 159,
+        "codeSha256": "0d1649fc49867b2e1ac9904e2107bb8468400ce6602d20da53f7394772070e36",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "monthNamesShort",
+      "traitKind": "getter",
+      "methodIndex": 35525,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "f9d48707085ae1f500efceea78bc1102b56e3cf903240f404831b09f3516122a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "monthNamesShort",
+      "traitKind": "setter",
+      "methodIndex": 35526,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 159,
+      "bytecode": {
+        "codeLength": 159,
+        "codeSha256": "6f529eac534e6419c5dde60738dfafa37fc8235937ee5dcfa1cfbf668255a88e",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.initialize",
+      "traitKind": "method",
+      "methodIndex": 35529,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "80ee6a8912afb4e77930caaf8d16388c4cc6076e60077fa49d1d7a5264fe2c4e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.resourceManager",
+      "traitKind": "getter",
+      "methodIndex": 35517,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.resources.IResourceManager",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "be932bbe798c826b766c931665adafd12a3dff222e526b9762d673a1f7237f06",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.setValue",
+      "traitKind": "method",
+      "methodIndex": 35532,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "e555005c17dfcaff3b329ccaa2b6615c5a5dfcb72a9a8478aac216b22cebbcd1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.static_resourceManager_changeHandler",
+      "traitKind": "method",
+      "methodIndex": 35533,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "420ce29811c30fbf5a5ea01e618ad806b762fc5f720aae59ecbcd9a20ba72f07",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.static_resourcesChanged",
+      "traitKind": "method",
+      "methodIndex": 35530,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "05017c822a88756b7ed1343a4e89d8530032d20b6afbf35f6ced8130019da012",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "timeOfDay",
+      "traitKind": "getter",
+      "methodIndex": 35527,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "992a166f0c91da23623211ef38187eba3078188054341b7417481477535d197d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "timeOfDay",
+      "traitKind": "setter",
+      "methodIndex": 35528,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "29a93b38cf92caf50a246a3e402cd8615cbb90c55962ba601ea5c242f22e0c78",
+        "bytecodeLineCount": 5
+      }
+    }
+  ]
+}

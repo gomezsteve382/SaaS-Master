@@ -1,0 +1,395 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 248,
+  "className": "spark.components.Label",
+  "classNameNormalized": "spark.components.Label",
+  "superName": "spark.components.supportClasses.TextBase",
+  "superNameNormalized": "spark.components.supportClasses.TextBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 5819,
+  "cinitMethod": 5815,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "da43eae940ae83f5bf7b5dbf2081a76950ddd59b0ce9f2699e5df965e613280f",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.composeTextLines",
+      "traitKind": "method",
+      "methodIndex": 5822,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 197,
+      "bytecode": {
+        "codeLength": 197,
+        "codeSha256": "97b7a5de1715a61cfd8125b08e03d32bd44f48c831807acb0631b19f72ea0a7d",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createEmptyTextLine",
+      "traitKind": "method",
+      "methodIndex": 5830,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "be4a7bc3a9146d1da735aa35a0921b272b4b15879bc6c1ba74c46de319adb861",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.computeLastAllowedLineIndex",
+      "traitKind": "method",
+      "methodIndex": 5834,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "4c48aa04955a361e3ed9527cd8b68e8a94af93924264a1d3d977258267bd3a23",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.createElementFormat",
+      "traitKind": "method",
+      "methodIndex": 5823,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.text.engine.ElementFormat",
+      "hasBody": true,
+      "codeLength": 573,
+      "bytecode": {
+        "codeLength": 573,
+        "codeSha256": "aae7f319db17aae53d42809c2589a910bcfceee29ee2692b46f059e730a273e9",
+        "bytecodeLineCount": 36
+      }
+    },
+    {
+      "traitName": "PrivateNs.createTextLines",
+      "traitKind": "method",
+      "methodIndex": 5828,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.ElementFormat"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 435,
+      "bytecode": {
+        "codeLength": 435,
+        "codeSha256": "52c2c3599d31da5a310cad69d1c8b6aeecb66f1f6bfd88874b13d705028d14c3",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "PrivateNs.createTextLinesFromTextBlock",
+      "traitKind": "method",
+      "methodIndex": 5829,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextBlock",
+        "__AS3__.vec.Vector<flash.display.DisplayObject>",
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 1992,
+      "bytecode": {
+        "codeLength": 1992,
+        "codeSha256": "f159c1279e670c54e40ab7149d502f631193a40c6f3bfb7dc682fb39cbf45538",
+        "bytecodeLineCount": 125
+      }
+    },
+    {
+      "traitName": "PrivateNs.doesComposedTextFit",
+      "traitKind": "method",
+      "methodIndex": 5831,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean",
+        "int",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 135,
+      "bytecode": {
+        "codeLength": 135,
+        "codeSha256": "cec4413afb28aef339e85ef5f04ff14538373cea1ff92de2c436c6cd37c490e8",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.getNextTruncationPosition",
+      "traitKind": "method",
+      "methodIndex": 5836,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 150,
+      "bytecode": {
+        "codeLength": 150,
+        "codeSha256": "0ee03a3a517e2496231c9da5f0fb9f408f378d880d6a369b8ae5bcffc0cce167",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.getTruncationPosition",
+      "traitKind": "method",
+      "methodIndex": 5835,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextLine",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "7fb6c791715da0a53accdb8472fd0799faf7ac120591e7b2f91ff509101d6c43",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.releaseLinesFromTextBlock",
+      "traitKind": "method",
+      "methodIndex": 5837,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "2ef2475660c3ac4972b10e20d179c569ce59ab8d14b16dc0118bb8b268ef29be",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.setBaselineShift",
+      "traitKind": "method",
+      "methodIndex": 5824,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.ElementFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 203,
+      "bytecode": {
+        "codeLength": 203,
+        "codeSha256": "b214fdd0fe1f3d5aae01eaac0ea48efc69ccb2526c3ab9c3dd66b088c7a3a0ee",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.setKerning",
+      "traitKind": "method",
+      "methodIndex": 5825,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.ElementFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "82972138d012a63e1045af07486a5e5f1422e2c7941ed0894d5e7ec8cbfe9299",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.setTracking",
+      "traitKind": "method",
+      "methodIndex": 5826,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.ElementFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "30fdc3e16a542ac0b354a7b117372088fbce77d3265efc56c5eb8e6cd00d21bd",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.setTypographicCase",
+      "traitKind": "method",
+      "methodIndex": 5827,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.ElementFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 141,
+      "bytecode": {
+        "codeLength": 141,
+        "codeSha256": "f1389c81d40cc6e35d8059c650bd64438cbab23fbae61eb4a34db4b1ce016788",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.truncateExplicitLineBreakText",
+      "traitKind": "method",
+      "methodIndex": 5833,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 336,
+      "bytecode": {
+        "codeLength": 336,
+        "codeSha256": "7d45c255073196f91e225e24531cce3270c7c7a53d56e9bdd49d13006704300f",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "PrivateNs.truncateText",
+      "traitKind": "method",
+      "methodIndex": 5832,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 560,
+      "bytecode": {
+        "codeLength": 560,
+        "codeSha256": "cdfd70ea953f9985aa531d6a3ef282083c183bc9ef5e706db315f668bc38177b",
+        "bytecodeLineCount": 35
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 5821,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "c37b0b1c3f88cdae950463bb6d3a3791f7ebcb51b285578e7d21c2f7740999b7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stylesInitialized",
+      "traitKind": "method",
+      "methodIndex": 5820,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "adbfe3c29252237293072043221129cfc2290f19f88cbc268de1233cc28cd860",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.embeddedFontRegistry",
+      "traitKind": "getter",
+      "methodIndex": 5817,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IEmbeddedFontRegistry",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "fe44f543ced8b19fbb64b9147dd5951992f4655e577cf56289ba1f636d767a01",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.getNumberOrPercentOf",
+      "traitKind": "method",
+      "methodIndex": 5818,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 99,
+      "bytecode": {
+        "codeLength": 99,
+        "codeSha256": "bf1b6a800ae434d7671ff73b5840bee66b79849da0f7c00073c39e350fcc73da",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.initClass",
+      "traitKind": "method",
+      "methodIndex": 5816,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "76889b2979463961cf3f5d4f2262da11e638944ca559d60eb1d0463e6883d139",
+        "bytecodeLineCount": 7
+      }
+    }
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1781,
+  "className": "flashx.textLayout.edit.TextClipboard",
+  "classNameNormalized": "flashx.textLayout.edit.TextClipboard",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 34407,
+  "cinitMethod": 34395,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "9a62bb2a7cefcf249123357c5bb3f11969062962d5a4d05097ddd2bb047a1350",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "getContents",
+      "traitKind": "method",
+      "methodIndex": 34397,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.edit.TextScrap",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "8fd904bf48ca8dec115984101b6ed9a3c92fbeb0cacd24bb91e639f96ca00d09",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.exportForClipboard",
+      "traitKind": "method",
+      "methodIndex": 34404,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.TextScrap",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "0b0a1b247efbe9d792906d749071fb3c6759620e02f200a8089d3b31d5d15c94",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.exportScrap",
+      "traitKind": "method",
+      "methodIndex": 34401,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.TextScrap",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 141,
+      "bytecode": {
+        "codeLength": 141,
+        "codeSha256": "f951bb11966fc964c19ddacd0c3fd88767b90c88732e1e4c4bb3bc808e49a2e4",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.importOldTextLayoutFormatToScrap",
+      "traitKind": "method",
+      "methodIndex": 34403,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flashx.textLayout.edit.TextScrap",
+      "hasBody": true,
+      "codeLength": 449,
+      "bytecode": {
+        "codeLength": 449,
+        "codeSha256": "609b17f6250d8802485f3d1440790be0dd7a159f68760f44a8f5845839bf2113",
+        "bytecodeLineCount": 29
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.importScrap",
+      "traitKind": "method",
+      "methodIndex": 34398,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "flashx.textLayout.edit.TextScrap",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "51ed7c49b38290db8da51b8e42a9483d8c4b0cc4033bb0e1d9ba4bb855a7c37b",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.importToScrap",
+      "traitKind": "method",
+      "methodIndex": 34402,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "flashx.textLayout.edit.TextScrap",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "4468f90d1a35a0de7896f66595f0ec15df4a4dda251945f9eb77f2bfd7ea185a",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.getBeginArray",
+      "traitKind": "method",
+      "methodIndex": 34405,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "flashx.textLayout.elements.TextFlow"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "9ab3a149d9e3e732ac095555ff4203a91a38cfdb345c7c5d10080a245912d1de",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.getEndArray",
+      "traitKind": "method",
+      "methodIndex": 34406,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "flashx.textLayout.elements.TextFlow"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 239,
+      "bytecode": {
+        "codeLength": 239,
+        "codeSha256": "9ab3a149d9e3e732ac095555ff4203a91a38cfdb345c7c5d10080a245912d1de",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "setContents",
+      "traitKind": "method",
+      "methodIndex": 34400,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.edit.TextScrap"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "462d2ebf24d4e67c2445fdcb8cdc8bd224eaf00d7b5a70a44d4859f9f1460c8d",
+        "bytecodeLineCount": 6
+      }
+    }
+  ]
+}

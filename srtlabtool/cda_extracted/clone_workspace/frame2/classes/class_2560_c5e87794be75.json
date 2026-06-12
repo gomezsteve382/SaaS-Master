@@ -1,0 +1,573 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2560,
+  "className": "com.chrysler.cda.domain.witech.common.AsdpWebServiceRequest",
+  "classNameNormalized": "com.chrysler.cda.domain.witech.common.AsdpWebServiceRequest",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "wde.common.services.IService",
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 43817,
+  "cinitMethod": 43814,
+  "iinitBytecode": {
+    "codeLength": 36,
+    "codeSha256": "47dc2253bade2c0ec21d70cc9c87e07b50f0d64a5e03eae091c3cf4a6a14bf0c",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addArgument",
+      "traitKind": "method",
+      "methodIndex": 43818,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IServiceArgument"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "8705cb631718137df3b4870a1e52983e1e57d63770bb37e0e4e9af14d92e59fc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 43844,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "99beed29e963c2ffd8d6d092b026481027aa0befddfd0b7a08681ba6eaec3f66",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "close",
+      "traitKind": "method",
+      "methodIndex": 43829,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.error.ServiceFault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataType",
+      "traitKind": "getter",
+      "methodIndex": 43842,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2669bd6334a1be0f6c92c7a855b6b4842744894d197bf1e4669f5e68f1e26e78",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataType",
+      "traitKind": "setter",
+      "methodIndex": 43843,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "541cd69c450445fe2015a6612570371412f5a67bc4fd9658c4fb7751ff9e99e4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 43845,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "36a29b3ddccf7d5cfd1de5a38bd4777e0e3b426825a7258d9e0cce9f98cbb8bd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getArguments",
+      "traitKind": "method",
+      "methodIndex": 43822,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.Dictionary",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "a98a9fe15c69558f2654ac9446f3f7968412bb6ce7bec64a487683ddf2d14bfe",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "getArgumentValue",
+      "traitKind": "method",
+      "methodIndex": 43821,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "4128d19c513be59a02eeebc61f86537c83ba4966bf99699babadef38719eecba",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getEncodedSisalObjectString",
+      "traitKind": "method",
+      "methodIndex": 43824,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "b75a70c382286e12da878bf76dace6257b65194fd4745154224a6e7868434228",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getSisalObject",
+      "traitKind": "method",
+      "methodIndex": 43823,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "b40fc8141ddeb09df199e6cde0b49ddee3814ab8e7075b533635e84ee4211ac2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasArgument",
+      "traitKind": "method",
+      "methodIndex": 43825,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "c403b67d29177504fd4ffca17586495effdc10a160bc910ffc70f2f0c808e1a1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 43846,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "94a8dc8fb213a448ffaad96f81e7cfc650b3cc29d248a72716124c5cb397475e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "host",
+      "traitKind": "getter",
+      "methodIndex": 43832,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9b2439b5a48bdd4324fa65a7f6321e44ddd98777f94f5619647326674f93e903",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "host",
+      "traitKind": "setter",
+      "methodIndex": 43833,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "a37f5a2ddf68058d939beb19378e09d6240b47394728ebb01c901ffddfbc7b53",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "name",
+      "traitKind": "getter",
+      "methodIndex": 43836,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "00ff92850a043172ea16f965284e702c6422f7e8d49e53ea7905ad43b2ab8d4d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "name",
+      "traitKind": "setter",
+      "methodIndex": 43837,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "c3bd070fbe6fff03380197b77647fde894d88854339159d5c4f362c04bcf20aa",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "open",
+      "traitKind": "method",
+      "methodIndex": 43828,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "parsleyAdapter",
+      "traitKind": "getter",
+      "methodIndex": 43816,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.witech.interfaces.IParsleyAdapter",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b3a372a235c0889e02b43bf11322730820a51ee917c5a645b1408a369dab8b1e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "port",
+      "traitKind": "getter",
+      "methodIndex": 43834,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5bac10ea154482c75d613dc7ce37f40b2d5225cd19b3ef152e6bb13aaf11f8ac",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "port",
+      "traitKind": "setter",
+      "methodIndex": 43835,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "85aa04e8efb5db996f5e887a53233a64f321b4a0170e02cf6d867ac63eee6477",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "protocol",
+      "traitKind": "getter",
+      "methodIndex": 43830,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7db26ef26c341acfcfa2974641da782f1f0a7908e9ace996998c7eff0165c001",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "protocol",
+      "traitKind": "setter",
+      "methodIndex": 43831,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "d9f1c86c7c2ed6162a7006bf0ea7bfefd131c8c15d007ecbd6c6f2c36a26bc1a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeArgument",
+      "traitKind": "method",
+      "methodIndex": 43819,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "d4a65d7aaed3fb8011b7f485e31684ef4906d3c5a272ae06014a16d944a01662",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 43847,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "c76bc5a31406a98e68f790fe169791ae09246a122e6257bafcadcf5ff5eaa738",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resolveURL",
+      "traitKind": "method",
+      "methodIndex": 43826,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 5,
+      "bytecode": {
+        "codeLength": 5,
+        "codeSha256": "b336028f0195ca131e21badb3ed923bf473828444f706adaade6693a9eb2d73e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resultContentType",
+      "traitKind": "getter",
+      "methodIndex": 43840,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "479f6bb9088c796188ccdc63cf59d7867afe8b02e5bf18c814746ce5217f476e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resultContentType",
+      "traitKind": "setter",
+      "methodIndex": 43841,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "1d2be433e5f25250b8834e38e02a471efb27f7c1ac76213f3e3c737aced37667",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 43827,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "ec043b53416159244c4a8cab965fac898e4bf0f62d43ae559818a88a13cc69d8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "serviceURI",
+      "traitKind": "getter",
+      "methodIndex": 43838,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "14567d79f0d8753b76f23cc6041952c7c8592f475bd37e1cb8b9a74d3fd0ab97",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serviceURI",
+      "traitKind": "setter",
+      "methodIndex": 43839,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "25c002d9370c09be4bcf8018502bda776e6fb16b369aa58c42355a186b10d858",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setArgumentValue",
+      "traitKind": "method",
+      "methodIndex": 43820,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "f139800bcd0020b8ca19aad28936113ed5790a7a88de35906c2564af724f6b7a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "sisalService",
+      "traitKind": "getter",
+      "methodIndex": 43815,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.witech.interfaces.ISisalService",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "06c95549c90b36b9fcf9b6d4ad55b151ca793eeb87c328ab1bd1e2448a77a7ab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 43848,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "58ab3fd607b47901d6823d25415654e6c152ae13cd63c1ede9b583d2c9eac2eb",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

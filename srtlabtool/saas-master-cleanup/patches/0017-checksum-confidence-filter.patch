@@ -1,0 +1,157 @@
+From 5f9153aa979720aafcf5c25ce409f0dd4d0a3885 Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 20:20:44 +0000
+Subject: [PATCH] checksumScanner: tag confidence to filter coincidental false
+ positives
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The scanner is heuristic — with a few hundred probes it throws off ~probes/256
+coincidental sum8 'valid' hits (1/256 per probe) that aren't real ECU checksums
+and relocate when unrelated bytes change. Demonstrated on a real GPEC2A: three
+sum8 'valid' hits that moved to a different offset after an unrelated SEC6
+write. A user 'fixing' one would diverge the file from the real tool's output
+(a GPEC2A immo sync provably needs NO checksum).
+
+Add a principled confidence tag based on coincidence probability ~1/2^(8*width):
+width>=2 (crc16/crc32/sum16/sum32/xor32) -> 'high' (statistically real); a lone
+sum8 at a non-structural offset -> 'low'/coincidental; sum8 at a structural
+boundary -> 'medium'. Block-scan crc entries default 'high'. The UI/export flow
+can now suppress 'low' hits instead of prompting a brick-risk repair. New CI
+test locks: real crc16 high, planted sum8 coincidence low, width invariant.
+---
+ .../lib/__tests__/checksumConfidence.test.js  | 54 +++++++++++++++++++
+ artifacts/srt-lab/src/lib/checksumScanner.js  | 27 ++++++++++
+ 2 files changed, 81 insertions(+)
+ create mode 100644 artifacts/srt-lab/src/lib/__tests__/checksumConfidence.test.js
+
+diff --git a/artifacts/srt-lab/src/lib/__tests__/checksumConfidence.test.js b/artifacts/srt-lab/src/lib/__tests__/checksumConfidence.test.js
+new file mode 100644
+index 0000000..32678d4
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/__tests__/checksumConfidence.test.js
+@@ -0,0 +1,54 @@
++import { describe, it, expect } from 'vitest';
++import { scanChecksums, fixChecksum } from '../checksumScanner.js';
++
++/* The scanner is heuristic: on any file with enough probes it will throw off a
++ * few COINCIDENTAL sum8 "valid" hits (1/256 per probe) that aren't real ECU
++ * checksums and relocate when unrelated bytes change. These must be tagged
++ * confidence:"low" so the UI / export flow never prompts a user to "repair" a
++ * coincidence (which would diverge a file from the real tool's output — e.g. a
++ * GPEC2A immo sync, which provably needs NO checksum). Width-2/4 matches
++ * (crc16/crc32/sum16/sum32) are statistically real → "high". */
++
++describe('scanChecksums — confidence tagging filters coincidental hits', () => {
++  it('every entry carries a confidence + coincidental field', () => {
++    const buf = new Uint8Array(2048);
++    for (let i = 0; i < 2048; i++) buf[i] = (i * 11 + 5) & 0xff;
++    for (const e of scanChecksums(buf)) {
++      expect(['high', 'medium', 'low']).toContain(e.confidence);
++      expect(typeof e.coincidental).toBe('boolean');
++      expect(e.coincidental).toBe(e.confidence === 'low');
++    }
++  });
++
++  it('a REAL crc16 checksum is detected as confidence:"high"', () => {
++    let buf = new Uint8Array(512);
++    for (let i = 0; i < 510; i++) buf[i] = (i * 7 + 3) & 0xff;
++    buf = fixChecksum(buf, 0x1FE, 'crc16', 0); // genuine crc16 over [0,0x1FE)
++    const hit = scanChecksums(buf).find((e) => e.algorithm === 'crc16' && e.status === 'valid');
++    expect(hit).toBeTruthy();
++    expect(hit.confidence).toBe('high');
++    expect(hit.coincidental).toBe(false);
++  });
++
++  it('a coincidental sum8 match at a non-structural offset is "low"/coincidental', () => {
++    const n = 4096;                       // step = max(2, floor(4096/400)) = 10 → probes at 4,14,24,…
++    const buf = new Uint8Array(n);
++    for (let i = 0; i < n; i++) buf[i] = (i * 13 + 7) & 0xff;
++    const P = 504;                        // a probed, non-structural offset (4 + 10*50)
++    let s = 0; for (let i = 0; i < P; i++) s = (s + buf[i]) & 0xff;
++    buf[P] = s;                           // sum8([0,P)) === buf[P] → coincidental valid sum8
++    const hit = scanChecksums(buf).find((e) => e.algorithm === 'sum8' && e.offset === '0x' + P.toString(16));
++    expect(hit, 'expected the planted sum8 coincidence to be surfaced').toBeTruthy();
++    expect(hit.confidence).toBe('low');
++    expect(hit.coincidental).toBe(true);
++  });
++
++  it('invariant: every width≥2 valid hit is high, no width-1 valid hit is high', () => {
++    const buf = new Uint8Array(4096);
++    for (let i = 0; i < 4096; i++) buf[i] = (i * 29 + 1) & 0xff;
++    for (const e of scanChecksums(buf)) {
++      if (e.width >= 2 && e.status === 'valid') expect(e.confidence).toBe('high');
++      if (e.width === 1 && e.status === 'valid') expect(e.confidence).not.toBe('high');
++    }
++  });
++});
+diff --git a/artifacts/srt-lab/src/lib/checksumScanner.js b/artifacts/srt-lab/src/lib/checksumScanner.js
+index 7dac3a2..b69fc85 100644
+--- a/artifacts/srt-lab/src/lib/checksumScanner.js
++++ b/artifacts/srt-lab/src/lib/checksumScanner.js
+@@ -320,6 +320,23 @@ function blockScan(data, fileHasContent, seen) {
+ // Results: valid entries sorted ASC by offset; then broken entries sorted DESC
+ // by offset (highest = end-of-file first). Total capped at 30.
+ // ---------------------------------------------------------------------------
++
++// checksumConfidence(width, isStructural) → "high" | "medium" | "low"
++//
++// A stored value matching a computed checksum BY CHANCE has probability
++// ~1/2^(8*width): width-4 (crc32/sum32/xor32) ≈ 1/2^32 (negligible), width-2
++// (crc16/sum16) ≈ 1/65536 (essentially real), width-1 (sum8) ≈ 1/256. With a
++// few hundred probes a 4 KB file throws off ~probes/256 coincidental sum8
++// "valid" hits — exactly the noise that relocates when unrelated bytes change.
++// So: width >= 2 is "high"; a lone sum8 at a non-structural offset is "low"
++// (coincidental); a sum8 at a structural boundary is "medium" (could be a real
++// section checksum). Callers/UI must NOT treat a "low" hit as a real ECU
++// checksum to repair.
++function checksumConfidence(width, isStructural) {
++  if (width >= 2) return "high";
++  return isStructural ? "medium" : "low";
++}
++
+ export function scanChecksums(data) {
+   const n = data.length;
+   const step = Math.max(2, Math.floor(n / 400));
+@@ -362,6 +379,7 @@ export function scanChecksums(data) {
+       // valid path still fires whenever computed === stored (e.g. sum8 = 0xFF).
+       const storedIsAllFF = Array.from(stored).every(b => b === 0xFF);
+ 
++      const confidence = checksumConfidence(width, isStructural);
+       if (storedMatchesComputed && storedNonTrivial) {
+         // Valid: stored checksum matches computed prefix — overwrite any prior broken entry
+         seen.set(key, {
+@@ -373,6 +391,8 @@ export function scanChecksums(data) {
+           status:      "valid",
+           covers:      covers(0, pos),
+           coversStart: "0x0",
++          confidence,
++          coincidental: confidence === "low",
+         });
+       } else if (isStructural && fileHasContent && computedNonTrivial && !storedIsAllFF && !seen.has(key)) {
+         // Broken candidate: structural position, file has data, stored slot looks
+@@ -386,13 +406,20 @@ export function scanChecksums(data) {
+           status:      "broken",
+           covers:      covers(0, pos),
+           coversStart: "0x0",
++          confidence,
++          coincidental: confidence === "low",
+         });
+       }
+     }
+   }
+ 
+   // Partial-range / per-block checksums (e.g. ZF-8HP TCU per-block CRC32).
++  // These are crc32/crc16 (width >= 2) confirmed across >=2 blocks → high
++  // confidence; default-fill the field for any entry blockScan added.
+   blockScan(data, fileHasContent, seen);
++  for (const e of seen.values()) {
++    if (e.confidence === undefined) { e.confidence = "high"; e.coincidental = false; }
++  }
+ 
+   const validEntries  = [...seen.values()].filter(e => e.status === "valid")
+     .sort((a, b) => parseInt(a.offset, 16) - parseInt(b.offset, 16));
+-- 
+2.43.0
+

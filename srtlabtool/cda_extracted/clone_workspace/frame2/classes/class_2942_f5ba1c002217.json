@@ -1,0 +1,275 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2942,
+  "className": "spark.globalization.supportClasses.GlobalizationBase",
+  "classNameNormalized": "spark.globalization.supportClasses.GlobalizationBase",
+  "superName": "mx.styles.AdvancedStyleClient",
+  "superNameNormalized": "mx.styles.AdvancedStyleClient",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 47475,
+  "cinitMethod": 47474,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "actualLocaleIDName",
+      "traitKind": "getter",
+      "methodIndex": 47476,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "34ed8b9ca330267c2107647391d5535773183cc6016e4578861113b3e678a7bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getStyle",
+      "traitKind": "method",
+      "methodIndex": 47481,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "1828b9989d6d7ad48c494364c0f69b9039c32aaff81f17044bfc69678349e9b8",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createWorkingInstance",
+      "traitKind": "method",
+      "methodIndex": 47484,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "34ed8b9ca330267c2107647391d5535773183cc6016e4578861113b3e678a7bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.enforceFallback",
+      "traitKind": "getter",
+      "methodIndex": 47477,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fa2ec8bc41e654b0e5ca857c6716806b49a6c1ebd8edab1b79fbd636ead56f87",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.enforceFallback",
+      "traitKind": "setter",
+      "methodIndex": 47478,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "06d529e498ae29c6cdb628ad621973c074d2472d78a1541d5ba32b0aace0bddc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.ensureStyleSource",
+      "traitKind": "method",
+      "methodIndex": 47485,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "6132e09709a33c0450ea5e38cc45f05d2854c0053d2f82b2ba3743ed78b6cedc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getBasicProperty",
+      "traitKind": "method",
+      "methodIndex": 47487,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "874f7922463d0878bdae1c97d71c0a5b1d893744e11d0941e479bd821a2a9a5b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.propagateBasicProperties",
+      "traitKind": "method",
+      "methodIndex": 47486,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "4a8405f62fbd1d860a6bcbb291f10bffc38cbd1bdee468ae5c1ec05306a9ff2f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setBasicProperty",
+      "traitKind": "method",
+      "methodIndex": 47488,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "5bfe5c7e8a108d970f1374181e056b94e749469fc2c398edc334a8c2f46d2c0f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.update",
+      "traitKind": "method",
+      "methodIndex": 47489,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "15d79e3fe0b723c531527850793b784ce1184ebd36281af18809fca4c19f7e61",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.useFallback",
+      "traitKind": "getter",
+      "methodIndex": 47480,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "34ed8b9ca330267c2107647391d5535773183cc6016e4578861113b3e678a7bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "lastOperationStatus",
+      "traitKind": "getter",
+      "methodIndex": 47479,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "34ed8b9ca330267c2107647391d5535773183cc6016e4578861113b3e678a7bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.localeChanged",
+      "traitKind": "method",
+      "methodIndex": 47490,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "404a56cb7970d0244d11f3314669a49078fbe5a4a8d58bbca93f78af01099312",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "setStyle",
+      "traitKind": "method",
+      "methodIndex": 47482,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "c5187baba2c129d91895458357349425e9273b4d10f81acc3891bc9077b579eb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 47483,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "e37023481bbc4dc2874432c37b9075ab393b1b2b39a08f1969e96381c4e61e1c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

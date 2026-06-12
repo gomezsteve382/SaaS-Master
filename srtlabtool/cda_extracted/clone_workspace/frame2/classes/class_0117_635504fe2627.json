@@ -1,0 +1,304 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 117,
+  "className": "mx.managers.CursorManager",
+  "classNameNormalized": "mx.managers.CursorManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 2346,
+  "cinitMethod": 2328,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "fff695cc210bb5b260255bc4ed913afaef9e0fb457c667c72b343e9d82dd0001",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "currentCursorID",
+      "traitKind": "getter",
+      "methodIndex": 2331,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "df7430062bb98f5d6d417b00e4526def8cb9fbbe9f83970d7c96c04275eb7049",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentCursorID",
+      "traitKind": "setter",
+      "methodIndex": 2332,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "6bb9bca7fec49db7a3a82cd98da0c4f4ecc6691241e2bcdbce6249e16068d490",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentCursorXOffset",
+      "traitKind": "getter",
+      "methodIndex": 2333,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "84392f4fc57dd76f24ce359443b78572fb43569e0fbc31992cc8fd2b60381c16",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentCursorXOffset",
+      "traitKind": "setter",
+      "methodIndex": 2334,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "d6caada6ebf719b214cfe99209c4c2379e957faf69e8e039769336f696b8d1f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentCursorYOffset",
+      "traitKind": "getter",
+      "methodIndex": 2335,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "1ee8af0073fef29c34376d91bc19d6b8c9c9099f63a9efdb7414980fda63c353",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "currentCursorYOffset",
+      "traitKind": "setter",
+      "methodIndex": 2336,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "a2f3b5a8b71ef59111ed5c729aa4c4ece438ee6e39945ac21e35556e077b5dcf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 2330,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.ICursorManager",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "55c4d10970635a1e56b1a60f5b9872520b663b25a1567bf007ac477a8682031c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hideCursor",
+      "traitKind": "method",
+      "methodIndex": 2338,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "94c63d1846eca99e20dd94a68165b187bcb34706b6146b826528cb2445730690",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.registerToUseBusyCursor",
+      "traitKind": "method",
+      "methodIndex": 2344,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "3a7568a4dba0723ebb2fefe519030e8266659ed50fb6596055d3eb4ad2fe5f38",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.unRegisterToUseBusyCursor",
+      "traitKind": "method",
+      "methodIndex": 2345,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "9734ef3c37754b74965c49abfb07e9ec992bf4f275d5cbfa135359b2ec35a7a6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.impl",
+      "traitKind": "getter",
+      "methodIndex": 2329,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.ICursorManager",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "24e48fe2a78238c08c1ecb22cceb9c74f250b4e68a79335944acfa6a3bb87364",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeAllCursors",
+      "traitKind": "method",
+      "methodIndex": 2341,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "cb54e7fac6d061ecdf15dccef2f09e83cf67926deb20b2e3523c4cad69201626",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeBusyCursor",
+      "traitKind": "method",
+      "methodIndex": 2343,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "54d21b51da9c2a3611c4d38c0cb3c2e1ce972e097d69912f79776d3650c571c1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeCursor",
+      "traitKind": "method",
+      "methodIndex": 2340,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "bb8166c2e55f9b00cdf81a9e760c5c081dc17472577cc47a64393d95c84cc370",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setBusyCursor",
+      "traitKind": "method",
+      "methodIndex": 2342,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "e801b8b15587b353a6e23bcc4fced25ce5bed41840e64a435bfd3365d443660c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setCursor",
+      "traitKind": "method",
+      "methodIndex": 2339,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "int",
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "5c76bd8b075b8f6830b778e9cf680ffb7b8db0fe2f64760cb480e6f081681fef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showCursor",
+      "traitKind": "method",
+      "methodIndex": 2337,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "16e455ab77fe33a91318d6271687c1e86e05e4f8666a2374d3fd4f54f300ffc3",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

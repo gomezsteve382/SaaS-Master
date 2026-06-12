@@ -1,0 +1,117 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1987,
+  "className": "com.chrysler.cda.domain.diagnostics.ecu.iocontrol.IoControlComServiceSet",
+  "classNameNormalized": "com.chrysler.cda.domain.diagnostics.ecu.iocontrol.IoControlComServiceSet",
+  "superName": "com.chrysler.cda.domain.diagnostics.ecu.SlotBasedComServiceSet",
+  "superNameNormalized": "com.chrysler.cda.domain.diagnostics.ecu.SlotBasedComServiceSet",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 36929,
+  "cinitMethod": 36923,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "isPeriodic",
+      "traitKind": "method",
+      "methodIndex": 36928,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "d064c2999099e19818589db7226f07155dcfb0a2fdea5a9de748472f584448e9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isResetToDefault",
+      "traitKind": "method",
+      "methodIndex": 36927,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "1e0753624e4e3c7e193aa01174a3bc5f2d5d53bdd3a27f149dd9e220aa265eec",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isResult",
+      "traitKind": "method",
+      "methodIndex": 36926,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "c5c74709dd7aa8b34950be294344e35d2e25a99318d2c4cd8e81ca1707199f3a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isStart",
+      "traitKind": "method",
+      "methodIndex": 36924,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "5f00dfb5c12b57fece88da3e400872eb78a6fe0b760d9fd748573f4d4a575512",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "isStop",
+      "traitKind": "method",
+      "methodIndex": 36925,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "336c19d9ffd17e8d1b0cd04a792e1931dfa75f57dc11b053de0f608dc558a28f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

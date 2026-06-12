@@ -1,0 +1,64 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1170,
+  "className": "com.chrysler.core.infrastructure.EncrpytedSerializationFilter",
+  "classNameNormalized": "com.chrysler.core.infrastructure.EncrpytedSerializationFilter",
+  "superName": "mx.rpc.http.SerializationFilter",
+  "superNameNormalized": "mx.rpc.http.SerializationFilter",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 26123,
+  "cinitMethod": 26122,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "89f32835240f331e0d189bc3af5c03e290ee34265a3f807888139097c8f070ae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.core.infrastructure:EncrpytedSerializationFilter.decrypt",
+      "traitKind": "method",
+      "methodIndex": 26126,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 128,
+      "bytecode": {
+        "codeLength": 128,
+        "codeSha256": "d487a6d2950251dfba84ff9319d965006cf145c1bfc1b01b7da24ea0c397b323",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "isEncrypted",
+      "traitKind": "getter",
+      "methodIndex": 26124,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "89a33d386e7198e0862a2fb185917a1d1cd3f8ab6792c7a11d81edc63ec3abb4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

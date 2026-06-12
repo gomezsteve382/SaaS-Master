@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 854,
+  "className": "com.chrysler.cda.application.state.ECUInstanceIDStateCommand",
+  "classNameNormalized": "com.chrysler.cda.application.state.ECUInstanceIDStateCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 16886,
+  "cinitMethod": 16882,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "0d881208cc33595dd7e2a80158555f9451b9978251920e468d96ea22e7de9cc0",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "SetECUInstanceIds",
+      "traitKind": "method",
+      "methodIndex": 16883,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.CommandECUInstanceIDStateMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 215,
+      "bytecode": {
+        "codeLength": 215,
+        "codeSha256": "e5ec36cbc6f98766aef0c4bd78eae931bab39603244dfdf01551e66ed62a79d8",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "SetECUInstanceIdsKO",
+      "traitKind": "method",
+      "methodIndex": 16885,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.CommandECUInstanceIDStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "1f1fd913b1f49fe7f7d918fae3dd86e8050d415a4d8fa7d59d11019469a8f988",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "SetECUInstanceIdsOK",
+      "traitKind": "method",
+      "methodIndex": 16884,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.CommandECUInstanceIDStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "de77775df5384e07cd4f133bc9c954a0addadf76d5c3bba004c0202874395fcb",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

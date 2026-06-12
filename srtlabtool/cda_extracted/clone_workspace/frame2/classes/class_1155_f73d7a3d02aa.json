@@ -1,0 +1,209 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1155,
+  "className": "com.chrysler.cda.application.views.ECUInstanceIdCommand",
+  "classNameNormalized": "com.chrysler.cda.application.views.ECUInstanceIdCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 25620,
+  "cinitMethod": 25609,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "97731a2fbcd65d567c2716cd643a32a1c198de61b5efcc9325e0056cf123769a",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 25615,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "f4cd15e48dc0454465002916b281a5ae4dfd9626be7eed0173e8f316baaedce1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 25613,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f3a6ea315648764c6d2a0e1889f750b3ad94863207de1f7860975e3f890ce7d2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 25614,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "d84024260059946bc9ae5971140e7c8200352614ea330d349fb8413653290040",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.application.views.worker",
+      "traitKind": "method",
+      "methodIndex": 25612,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "4282f2305dc14c703a8e5f7cc3fae049813882205fd997bae1cc9d17f6cf5861",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 25616,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "ac5a5879bae8a62133060e3c31f020264ed3316d9040df17200a9e6414984ffe",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 25617,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "6362103fd66b2f9ac32449aa0b5bee8f2ff4e760de655c6eef7add26591c1f4c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onGetECUInstanceIdForMasterListVehicle",
+      "traitKind": "method",
+      "methodIndex": 25611,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.view.RequestECUInstanceIdForMasterListMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "672e545ee6c1d9a878548592cc763b67da22bf6779634afe33f3f34ff1ca7952",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onGetUpdateECUInContext",
+      "traitKind": "method",
+      "methodIndex": 25610,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.view.IUpdateEcuInContextMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "d055bdb7f2654f9df1c4d32ab68ee9863df2877200fd7ec278d02be5d99f5605",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 25618,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "0eb3392d7db78107c34b9e0d55e9688d89e04d380fd846670057a5820bd76c62",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 25619,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "75ee31cdcf3f62d1d6f154e360e46fdf70f0e9817c7fdabd65db0a226182f4f0",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

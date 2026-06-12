@@ -1,0 +1,149 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 947,
+  "className": "com.chrysler.cda.domain.state.WdeStateController",
+  "classNameNormalized": "com.chrysler.cda.domain.state.WdeStateController",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 19202,
+  "cinitMethod": 19194,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onCredentialsStateMessage",
+      "traitKind": "method",
+      "methodIndex": 19198,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.CredentialsStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "50077213a58aa5f9ac3a45b22f564d0fe5e377831b573d7f8af9a3456b5d5397",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onECUInstanceIdStateMessage",
+      "traitKind": "method",
+      "methodIndex": 19199,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.ECUInstanceIDStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "be9bdd9c953f93f08e19c5eed4e6b1c9f6c0d39f9648a712dc3d0fa481202569",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onForceStateReportMessage",
+      "traitKind": "method",
+      "methodIndex": 19201,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.ForceStateReportForSGWMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "a8902f9459ed0b091e380b37c60a2ebe828907a2f6337ae908b3ad7dacf87108",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onInit",
+      "traitKind": "method",
+      "methodIndex": 19195,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "89a6ff44bb333ff10da56c22e3179f909599fbcfad001c853daa7c44035dbc1b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onReset",
+      "traitKind": "method",
+      "methodIndex": 19196,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.EndOfSessionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "2d7369618211b8e3345ced248a002f06d7869b66c4c60df32e16d59192a3c3e8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onStateReportMessage",
+      "traitKind": "method",
+      "methodIndex": 19200,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.StateReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "2954c6811c4a2e28f8098c72d32dcbdfe3907e008680a2fbe64ae27cd3f4089c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onVehicleStateMessage",
+      "traitKind": "method",
+      "methodIndex": 19197,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.vehicle.VehicleStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "b5223432f2fe72755d662fff042f2006a3570715d7c5d7f24b4ce91dba3ab391",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

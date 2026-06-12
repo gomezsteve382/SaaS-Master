@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3369,
+  "className": "com.diagnosticProcedures.logging.LoggingStoredDataNode",
+  "classNameNormalized": "com.diagnosticProcedures.logging.LoggingStoredDataNode",
+  "superName": "com.diagnosticProcedures.node.StoredDataNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.StoredDataNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.logging.LoggingNode"
+  ],
+  "iinitMethod": 51781,
+  "cinitMethod": 51780,
+  "iinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "e2b8f0915dd95e42b98e2a72fa64bb16406e730a026caedd66410f8a6f1b6fa3",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "performStores",
+      "traitKind": "method",
+      "methodIndex": 51783,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "ad4cdfdc5d9b549f874ac75bbfa648619824e55acf814e2a8422a455135e3b7b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51784,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "bb26c7bde264b3032b1af1cb007e0f0c4f262b8b1e4257ee59a5281f816d4e7c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "processResult",
+      "traitKind": "method",
+      "methodIndex": 51782,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "e8fe8fd9fdf94958bc13b10a7906c9dbbbbe6afd54916bd7367acb4b93d3d62e",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

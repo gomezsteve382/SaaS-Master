@@ -1,0 +1,154 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3668,
+  "className": "org.spicefactory.parsley.core.messaging.impl.MessageReceiverCollection",
+  "classNameNormalized": "org.spicefactory.parsley.core.messaging.impl.MessageReceiverCollection",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55065,
+  "cinitMethod": 55064,
+  "iinitBytecode": {
+    "codeLength": 48,
+    "codeSha256": "805b7c0299f06a1992ec45055019f9b4834db0bdd12fe0446164f66f84d466b5",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addReceiver",
+      "traitKind": "method",
+      "methodIndex": 55070,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind",
+        "org.spicefactory.parsley.core.messaging.receiver.MessageReceiver"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "9bb9c5f93275a90e0b583fea68ec313efc10d534322e4f9cfb644087c69d1d54",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getReceiversBySelectorType",
+      "traitKind": "method",
+      "methodIndex": 55068,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind",
+        "*"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 166,
+      "bytecode": {
+        "codeLength": 166,
+        "codeSha256": "77a1575cb1730e084845c82d5200cf7b608e3ff436f984a521ccf89b76948f16",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "getReceiversBySelectorValue",
+      "traitKind": "method",
+      "methodIndex": 55067,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind",
+        "*"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 180,
+      "bytecode": {
+        "codeLength": 180,
+        "codeSha256": "0e673995420e5b3606d53f8348d50e46874948ed6fd6fdec193f747d319aca16",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "messageType",
+      "traitKind": "getter",
+      "methodIndex": 55066,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3396a1e43dda5d06f8abc09627f2b7d88d392076bff96387aceeed5ec3af9d71",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.addReceiversMatchingAnySelector",
+      "traitKind": "method",
+      "methodIndex": 55069,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind",
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "bffea7856be0639b4111636f212e2241bbea0ead2edb13e93d7914a79500717e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getReceiverMap",
+      "traitKind": "method",
+      "methodIndex": 55072,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.receiver.MessageReceiver"
+      ],
+      "returnType": "flash.utils.Dictionary",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "1048e00337c602f8637c56426e9d09b215ad73bb0e0d70bd675199ce2e18c30c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeReceiver",
+      "traitKind": "method",
+      "methodIndex": 55071,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.impl.MessageReceiverKind",
+        "org.spicefactory.parsley.core.messaging.receiver.MessageReceiver"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "e2d28e7b76397e093202ffa4e26a4f285b0fcc001124b994afc8badcee1b7baf",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

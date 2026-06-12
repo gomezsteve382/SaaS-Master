@@ -1,0 +1,357 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2141,
+  "className": "com.adobe.utils.DateUtil",
+  "classNameNormalized": "com.adobe.utils.DateUtil",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 38913,
+  "cinitMethod": 38893,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "compareDates",
+      "traitKind": "method",
+      "methodIndex": 38903,
+      "methodName": "",
+      "paramTypes": [
+        "Date",
+        "Date"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "86a71a7ab08e3ba3f3f0801d40cf38d005572daf7c04df8d566a434a1d9945dc",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getAMPM",
+      "traitKind": "method",
+      "methodIndex": 38905,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "e8723899d66ef58876c234f36222ef3b2eccff9ef92375291598613e63d32941",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getFullDayIndex",
+      "traitKind": "method",
+      "methodIndex": 38901,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "7dab542726bd6815d89296e376eb9fa2e16cc502c30020a9416811a19d9eda51",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getFullDayName",
+      "traitKind": "method",
+      "methodIndex": 38900,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "bf171a42f1528822b2f8eea91e43c5b947318d30812bbdc6727ac9bdbbb3f4cb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getFullMonthIndex",
+      "traitKind": "method",
+      "methodIndex": 38897,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "55a23c514196494f418b2a6eab5d1bac3045819dcdee91fdb20d710bfa7f5952",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getFullMonthName",
+      "traitKind": "method",
+      "methodIndex": 38896,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "44d26023cdb7e6258e03e402fb37bc345f2c9bd34caa77fccf4ee34a79a54c47",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getShortDayIndex",
+      "traitKind": "method",
+      "methodIndex": 38899,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "e567f552a046abd3e73aff88c4fb5b1f0ae94789379530946313d83cd61bcb23",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getShortDayName",
+      "traitKind": "method",
+      "methodIndex": 38898,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "3ae221969b4aa489c432ca564595193bc7e75e9cbc1117fc4d5863df919d0ac8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getShortHour",
+      "traitKind": "method",
+      "methodIndex": 38904,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "6a83fe24b3306ca2f50958fd44dc6352368951103c1c49cfad178a40df830e39",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getShortMonthIndex",
+      "traitKind": "method",
+      "methodIndex": 38895,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "3013dd8c3f109a778160aea7dce68dc78ef74ca722c1c9ea597669e2b0d24843",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getShortMonthName",
+      "traitKind": "method",
+      "methodIndex": 38894,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "5f01f7adb4da426585835fadd3adfdd3b8249d8a1e0dd47933fa6a31a5f04f2a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getShortYear",
+      "traitKind": "method",
+      "methodIndex": 38902,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "6f235026b4de7d1d3765caf2e6b9a57fb36cc56e343a37d32711caa02837cf14",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getUTCDate",
+      "traitKind": "method",
+      "methodIndex": 38912,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "Date",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "e4c9ff4f6f7ca60b90a970278ef2f3fe6fc78c38aebf2bda70d586b42405ff0a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "makeMorning",
+      "traitKind": "method",
+      "methodIndex": 38910,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "Date",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "119d7a32caf8d97f37b74bc72962bbe3a4ae33660314c1f02fa0d170c38fb4df",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "makeNight",
+      "traitKind": "method",
+      "methodIndex": 38911,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "Date",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "5f4e9e5e7be4f038c4fae10b204ea83c56a04efaf0481c7a0d6f3a12c81de464",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "parseRFC822",
+      "traitKind": "method",
+      "methodIndex": 38906,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Date",
+      "hasBody": true,
+      "codeLength": 1295,
+      "bytecode": {
+        "codeLength": 1295,
+        "codeSha256": "4aa9ec136e577166aa650245f9551957a0b188f12e94ae4db32f61bde36689c2",
+        "bytecodeLineCount": 81
+      }
+    },
+    {
+      "traitName": "parseW3CDTF",
+      "traitKind": "method",
+      "methodIndex": 38908,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Date",
+      "hasBody": true,
+      "codeLength": 1075,
+      "bytecode": {
+        "codeLength": 1075,
+        "codeSha256": "4cf398a462ca5b3e836e5951b49e38114b3b1c8106be68f9924d7f8d7f9a968e",
+        "bytecodeLineCount": 68
+      }
+    },
+    {
+      "traitName": "toRFC822",
+      "traitKind": "method",
+      "methodIndex": 38907,
+      "methodName": "",
+      "paramTypes": [
+        "Date"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 251,
+      "bytecode": {
+        "codeLength": 251,
+        "codeSha256": "70bfc311c83bda128f2464c1e1f2b28bb8e48c830556bfb50f89087194544063",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "toW3CDTF",
+      "traitKind": "method",
+      "methodIndex": 38909,
+      "methodName": "",
+      "paramTypes": [
+        "Date",
+        "Boolean"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 284,
+      "bytecode": {
+        "codeLength": 284,
+        "codeSha256": "e6bec60f777c471acecc04084d589deb7c412870bbae26b90feaeff511092f59",
+        "bytecodeLineCount": 18
+      }
+    }
+  ]
+}

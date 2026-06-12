@@ -1,0 +1,223 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2558,
+  "className": "com.chrysler.cda.domain.witech.components.SisalServiceImpl",
+  "classNameNormalized": "com.chrysler.cda.domain.witech.components.SisalServiceImpl",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.domain.witech.interfaces.ISisalService"
+  ],
+  "iinitMethod": 43804,
+  "cinitMethod": 43791,
+  "iinitBytecode": {
+    "codeLength": 45,
+    "codeSha256": "e8317321f1069c5ffce335cb3ea72f4f833c9663885c7070ecdc021ff74e0b79",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dealerCode",
+      "traitKind": "getter",
+      "methodIndex": 43793,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b95c908394671614145a5c2ac4866601313f9dbf18457908805d7d792211cbe8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "deleteArgument",
+      "traitKind": "method",
+      "methodIndex": 43801,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "wde.common.services.IServiceArgument",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "d219c2ede67b5c361eba3b0c2e5a1dfdd98055ca4361f94b55caa33048d9ec79",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "deviceSerialNumber",
+      "traitKind": "getter",
+      "methodIndex": 43795,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c0cf31e6dfb28487ecdeeb874c9301786703e52d51fe6d9c411524d2a54105b2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getArgument",
+      "traitKind": "method",
+      "methodIndex": 43799,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "wde.common.services.IServiceArgument",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "15059a3a720c3275264f19d5bb665ab3ae3cd0a3a171fe1cbc91aa55a552d200",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getArguments",
+      "traitKind": "method",
+      "methodIndex": 43800,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "9cec981f3a8a363ef6100f76fbb0bc9325041706453927499991dd29c66fc255",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getEncodedSisalObjectString",
+      "traitKind": "method",
+      "methodIndex": 43803,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "9646e955792788fa953555e661dfe058aa460df650243bc5b27956448465098f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getSisalObject",
+      "traitKind": "method",
+      "methodIndex": 43802,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 154,
+      "bytecode": {
+        "codeLength": 154,
+        "codeSha256": "6ca9a787874a333b200284c74f1dfc6392e4044b10ccfaf06408e63e5437bbfa",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "hasArgument",
+      "traitKind": "method",
+      "methodIndex": 43797,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "bb3baccba75a569d139dc8327b434bfaae8e7379adc9de7b11d0d8adb8302984",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "market",
+      "traitKind": "getter",
+      "methodIndex": 43796,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e62f88e56d92b3c1374180a625a98d394186e3ca45081482342fd5442563ce26",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serviceName",
+      "traitKind": "getter",
+      "methodIndex": 43792,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "963536144b043de72ed02a25c72e14a82baa267c0ceaab6a319b794c3f9b8af4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setArgument",
+      "traitKind": "method",
+      "methodIndex": 43798,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "wde.common.services.IServiceArgument"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "b25d7ee3c1f0fe7209f406ec5c0f09a0aaf2ddd3a3086c1ccd71f975f06f54b8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "userId",
+      "traitKind": "getter",
+      "methodIndex": 43794,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "413e27a8c11d27732bf43ba71640939696e003b80aadc14a1244341ceff7496c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

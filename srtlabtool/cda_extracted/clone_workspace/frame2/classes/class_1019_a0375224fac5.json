@@ -1,0 +1,167 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1019,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.ComServiceMetaDataModel",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.ComServiceMetaDataModel",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 21776,
+  "cinitMethod": 21768,
+  "iinitBytecode": {
+    "codeLength": 30,
+    "codeSha256": "f02372613f0b0d893d6466dfbb06e03d3986846a6f6750ca422f2da76adc517a",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addComServiceMetaObject",
+      "traitKind": "method",
+      "methodIndex": 21771,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "String",
+        "String",
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "0c4e31d75927bfac997ce7159a54e861dd501b772ca572ca0a307bcb3e2a0a03",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "endOfSession",
+      "traitKind": "method",
+      "methodIndex": 21775,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.EndOfSessionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "2a3e3b85b6a92d301ce40f65befe492ce62486e8ebc7b78ca985c95498b93e0b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getEntry",
+      "traitKind": "method",
+      "methodIndex": 21774,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "255bcdf1787d49f2d335c505746c1a45fa19b2dba8d944daca22e822b48c6e78",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hasEntry",
+      "traitKind": "method",
+      "methodIndex": 21773,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "61ac40ce96d0603feca71f7d0e6edff0d4d70710923332507e826f3b36e45648",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hasXmitDDEs",
+      "traitKind": "method",
+      "methodIndex": 21772,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "d58048eb1315398e6c2eda07da34d7ef51b303e4b1659b653b0b0b234c270eb0",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "generateKey",
+      "traitKind": "method",
+      "methodIndex": 21770,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "e8f17545f29751b82ce0fae48e8d15b777f70c89ebca3ae5247fd4cec4129789",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "generateMacroscopicKey",
+      "traitKind": "method",
+      "methodIndex": 21769,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecuList.ECU",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "66b7e9930d8f285b1c7e61a0f0eb89891ef1c79ac7c171095219f9aea44a287e",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

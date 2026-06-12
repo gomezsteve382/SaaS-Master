@@ -1,0 +1,66 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1042,
+  "className": "com.chrysler.cda.domain.witech.WDEServicesDescriptor",
+  "classNameNormalized": "com.chrysler.cda.domain.witech.WDEServicesDescriptor",
+  "superName": "wde.common.services.impl.ServicesDescriptor",
+  "superNameNormalized": "wde.common.services.impl.ServicesDescriptor",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 22509,
+  "cinitMethod": 22506,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.domain.witech:WDEServicesDescriptor.ioErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 22507,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "e64067d619e1c4451b1252e5db5e0406f99b510215c33ef4e15402d336ed9258",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.domain.witech:WDEServicesDescriptor.securityErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 22508,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SecurityErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "29da32830c17f999cd7660b80a7ddc445fdb5016eecd39a6ed51586a0b299951",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

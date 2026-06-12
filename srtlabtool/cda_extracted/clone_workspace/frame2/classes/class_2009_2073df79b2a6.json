@@ -1,0 +1,68 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2009,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.SendExtendedSessionMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.SendExtendedSessionMessage",
+  "superName": "com.chrysler.cda.event.message.diagnostic.ecu.PIDEditorWriteMessage",
+  "superNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.PIDEditorWriteMessage",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 37152,
+  "cinitMethod": 37149,
+  "iinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "9ef5834d0401aa75b3a4a9b473f60cabb95f2f20f6ee62aef85d10c87c997b0d",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "d5dcabbe35acb88f57cc767ec23f5f8607eca9e34c135c7df91fb1914d3b7ae0",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "ExtendedSessionForProxiViewDataDisplay",
+      "traitKind": "method",
+      "methodIndex": 37151,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.SendExtendedSessionMessage",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "307346bcb1e12409184b68e349d9b28a979817c4425796ac3bf1dfe5644629b4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ExtendedSessionForProxiViewPidEditor",
+      "traitKind": "method",
+      "methodIndex": 37150,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.SendExtendedSessionMessage",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "4e5b2779f97a0d7483aab81756cb999bc1f8dc1751154b4f9abe75e659e2eb40",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

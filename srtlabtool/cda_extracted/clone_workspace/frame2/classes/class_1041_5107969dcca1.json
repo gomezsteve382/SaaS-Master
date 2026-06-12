@@ -1,0 +1,491 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1041,
+  "className": "wde.common.services.impl.ServicesDescriptor",
+  "classNameNormalized": "wde.common.services.impl.ServicesDescriptor",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "wde.common.services.IServicesDescriptor",
+    "wde.common.logging.ILoggable",
+    "wde.common.framework.IDisposable"
+  ],
+  "iinitMethod": 22504,
+  "cinitMethod": 22476,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "fcd8298cf0d1ba5d5f68b3a5d6a5daaa870ebf5782337c819a21fbbdee3eea39",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "7a2f080e68c687d1cf88c3eb351452157fa4d6c7837890ae586879ea87f3b9c9",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createAllServices",
+      "traitKind": "method",
+      "methodIndex": 22496,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.IList",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "603567c1281c19a4e5a3f02d32707018cb45353486ce81865587dfa62594469d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "createService",
+      "traitKind": "method",
+      "methodIndex": 22487,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "wde.common.services.IService",
+      "hasBody": true,
+      "codeLength": 298,
+      "bytecode": {
+        "codeLength": 298,
+        "codeSha256": "cbcc703b1ce48c80d26627fb009402a69f53ec1efae01f03179ad3b96b2956d4",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 22503,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "a587425bbbaa1ba80d40f3aafa3c0469ed32a3f23efff5e3bf08e244805cc6f8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getArgumentList",
+      "traitKind": "method",
+      "methodIndex": 22497,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.collections.XMLListCollection",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "ce5a492ce74b10af851cd5ece9fdf721946e813295f45eb87143c36c6648b109",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getGlobalProperty",
+      "traitKind": "method",
+      "methodIndex": 22498,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "126efa2f0d35de39157471d112966808b27ea5c4d61bece5b4ea994f28dddaa7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getServiceProperty",
+      "traitKind": "method",
+      "methodIndex": 22501,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "c9c64116cf15c2b8a0a4fb11bcfab48402ae3f8b102c379f75204b70a0a4ae44",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "isLoaded",
+      "traitKind": "getter",
+      "methodIndex": 22480,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "985b6b32a8e19135020aff9ea4a216cfb60925fc23cf21660439eaa5e6065d57",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "loadDescriptor",
+      "traitKind": "method",
+      "methodIndex": 22482,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 127,
+      "bytecode": {
+        "codeLength": 127,
+        "codeSha256": "bcdab6ffdef58cf7db15c7804bef97f20c940080d0cf2b694a592f67757cdc02",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "logger",
+      "traitKind": "getter",
+      "methodIndex": 22477,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "f18cd636d39f2e0b136850918c457d553eb5c2a63a160b5c5b39d6d43af27ca5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "path",
+      "traitKind": "getter",
+      "methodIndex": 22478,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "13dfba15252ba571a7a80925b20835f905e71a2363b1e2c2bf0d00c77afffcef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "path",
+      "traitKind": "setter",
+      "methodIndex": 22479,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "8d3998f28b6d6a6a78f4b6c57e2bc88e57f9e927f8069be4fbaee51c6450b846",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.createServiceArguments",
+      "traitKind": "method",
+      "methodIndex": 22492,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.XMLListCollection",
+        "wde.common.services.IService",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 226,
+      "bytecode": {
+        "codeLength": 226,
+        "codeSha256": "666af89f6b357bcd7fbd6be2fa9d59ff31248de9b5a0ae78d26fd4cd4898a160",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "PrivateNs.getGlobalOrCustomProperty",
+      "traitKind": "method",
+      "methodIndex": 22495,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "739a2bb79a56aaf1363c857d1b5be2f321a6278fc60b87c908d5660d94c623b1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getServiceDefinition",
+      "traitKind": "method",
+      "methodIndex": 22491,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "6b950207e3870004b755cb9a1649403f8e5489f3ac8ca65237e521a4786f97c6",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.getServiceImplementation",
+      "traitKind": "method",
+      "methodIndex": 22490,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 218,
+      "bytecode": {
+        "codeLength": 218,
+        "codeSha256": "bce64f9ad37a990a344d82e7c672c2951ff7c435168b91f8d0f7c825545782b4",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "PrivateNs.getServiceXML",
+      "traitKind": "method",
+      "methodIndex": 22489,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 101,
+      "bytecode": {
+        "codeLength": 101,
+        "codeSha256": "235c7e0d4f56ae775617d9fd7d77eb0294f9a23c5aa190cd7a2f300e339bb415",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.invalidateXMLProperty",
+      "traitKind": "method",
+      "methodIndex": 22493,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "XML",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "8c9e5e17528aa361a74ed6aa9888594ba69a7cbd73ec7405fe1be79c347f19de",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.onComplete",
+      "traitKind": "method",
+      "methodIndex": 22485,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "0325c04794abac3780357c2e2e2f18d7278d4d4a039b1ea1e824998457e4bd29",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeLoaderEventListeners",
+      "traitKind": "method",
+      "methodIndex": 22486,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "e33929e8d5f83f6718d8d352b3ca9b1e6efd47609dec19fa47ff73d1848ef05f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.setServiceProperties",
+      "traitKind": "method",
+      "methodIndex": 22488,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IService",
+        "XMLList"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "1a011925f15d0cfc5b0c23b3ac663882ba78211d705f9125628e0b0518201dbc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.throwAndLogError",
+      "traitKind": "method",
+      "methodIndex": 22502,
+      "methodName": "",
+      "paramTypes": [
+        "Error"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "9823c4884f172bccda5c5e0ea12c8e03398576dc714c37ee37d355c6d977cae0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.throwInvalidArgumentError",
+      "traitKind": "method",
+      "methodIndex": 22494,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "78af8cce3af206ce237166620b1d09ea3768ee29fb4bc97ab853d249c48fce41",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setGlobalProperty",
+      "traitKind": "method",
+      "methodIndex": 22499,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "5abe6d81ae0356b03af9856bc3b51be902f215b0adcd6efaf3b98f288539a78b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setServiceProperty",
+      "traitKind": "method",
+      "methodIndex": 22500,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "d0065c313cf4c0230717a4704b8b5190004d5de46bbaaec0d697dc2da3034ed4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:ServicesDescriptor.globals",
+      "traitKind": "getter",
+      "methodIndex": 22481,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "1d8f18d05b9c2558643c7512d20e5f5569f4655b3e7ca735cd2ac80e4ce2a8de",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:ServicesDescriptor.ioErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 22483,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IOErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "f7a853003143cea541b65d972e6a2c7c11c8c2d51391295622760ada36267619",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:ServicesDescriptor.securityErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 22484,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.SecurityErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "0edf3230cbb0d6a774afe71f2486eb686c6930d8b528e5ed2a32080c0c4b480c",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": []
+}

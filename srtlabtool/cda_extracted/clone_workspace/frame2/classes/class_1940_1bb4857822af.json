@@ -1,0 +1,767 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1940,
+  "className": "org.spicefactory.lib.reflect.ClassInfo",
+  "classNameNormalized": "org.spicefactory.lib.reflect.ClassInfo",
+  "superName": "org.spicefactory.lib.reflect.MetadataAware",
+  "superNameNormalized": "org.spicefactory.lib.reflect.MetadataAware",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 36282,
+  "cinitMethod": 36271,
+  "iinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "3690ab7b019dd9de285a9d41d8da84f70124f7625d0e70f1881d4679fb6b2dd8",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 51,
+    "codeSha256": "bc04b87550aaca9f5c404ee806993ba8b369c028de53032530ae4710e8c5bcec",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [
+    {
+      "traitName": "applicationDomain",
+      "traitKind": "getter",
+      "methodIndex": 36288,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.system.ApplicationDomain",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "272c7d30e5cd3cb365a7f150f100486ea1d715f585cdc68db9ebdcac0d400e57",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getAllMetadata",
+      "traitKind": "method",
+      "methodIndex": 36315,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "968e63c5806d3daf19f0c1907503b085f915732d928017c4bcbe635c2d97b074",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getClass",
+      "traitKind": "method",
+      "methodIndex": 36287,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e83aa53484dd92625c6337a5136dc1e53c2d4ea4651bc04b82cfc631a41e60fe",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getConstructor",
+      "traitKind": "method",
+      "methodIndex": 36290,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.lib.reflect.Constructor",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "0e02edbc345bd43a9857ef8761697a4bbfbade49acb4182ef247d4f20ffbc221",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getInterfaces",
+      "traitKind": "method",
+      "methodIndex": 36311,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "9111c5e0671e11db450d9a176de972e05135fee0fbcb15e7365a456c3a56d1e5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getMetadata",
+      "traitKind": "method",
+      "methodIndex": 36314,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "932e2a83afe352185735962f2e88489c5bc8af42594b2d049d108453b1571f35",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getMethod",
+      "traitKind": "method",
+      "methodIndex": 36300,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.Method",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "093583a9a1c1c6234d4bfd1b6dcc24212737a905412c48276fedbb78de8d9c0b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getMethods",
+      "traitKind": "method",
+      "methodIndex": 36301,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "89999aecb695f177d4116f3a8e39488e6665ae0159aa7ad7f89bc19ce5e8926a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getProperties",
+      "traitKind": "method",
+      "methodIndex": 36293,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "aeab61f0d78aa6509fe176a222c422ec52569833005d141edd92ddb179faefaf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getProperty",
+      "traitKind": "method",
+      "methodIndex": 36292,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.Property",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "0b82dfb7dad01eb80681083a65f257a73b3980d07f84e76c75ab9ba609ee88b3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getStaticMethod",
+      "traitKind": "method",
+      "methodIndex": 36304,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.Method",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "c21101b38e0916c8f9b9071fb95dac89ea6f1cff7cd979fa0e8b333fc64a1d5b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getStaticMethods",
+      "traitKind": "method",
+      "methodIndex": 36305,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "ee11773ec14a926d35db7467a202ff3086e594179397db61b4548b2bbac4d4b3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getStaticProperties",
+      "traitKind": "method",
+      "methodIndex": 36298,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "5af233e32b10b28f2865441b3f324d6a0097ba36e49ad66f5060ec6cdba433e6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getStaticProperty",
+      "traitKind": "method",
+      "methodIndex": 36297,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.Property",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "a1576b766abf3efcc8a7da0edfe16c2875b20c7b96a8e34f1a33a0c1ea80383d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getSuperClass",
+      "traitKind": "method",
+      "methodIndex": 36307,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "26b217915287a21deae896abca473a21a85a7a302a19eba2ac4633eab7094b87",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getSuperClasses",
+      "traitKind": "method",
+      "methodIndex": 36308,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "b2cea7396e3e8065496335e403e30e5953956a7fd5d191376b3140353b82c239",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hasMetadata",
+      "traitKind": "method",
+      "methodIndex": 36313,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "1b72109290be7ccd808b3e42f8895450fafec39fedfeed923fd2c3cad621526f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "isInterface",
+      "traitKind": "method",
+      "methodIndex": 36289,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "44d1165a71fd29bdbca157bc5604736fb04c14082af77a337e5e30bbbdb4ed5b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isType",
+      "traitKind": "method",
+      "methodIndex": 36312,
+      "methodName": "",
+      "paramTypes": [
+        "Class"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "d2eecbaa318f7791b365d65cf8178d64c0688fba5d76c35c2873051ceec1f8de",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "name",
+      "traitKind": "getter",
+      "methodIndex": 36284,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0e5d6a85b1abfa68a031ddd6dea1fa6100c7dcc14e5c0370b7cd35e6782fe871",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "newInstance",
+      "traitKind": "method",
+      "methodIndex": 36286,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "c32f9f299432cfcb198b8e17dababdead29a477c5a90d16564fb01cce4d12a49",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.createMethodMap",
+      "traitKind": "method",
+      "methodIndex": 36303,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "org.spicefactory.lib.util.collection.SimpleMap",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "03c743b519b76d46db536d3c1fef7de5e692d44508ace8d796b9a938a448a3f9",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.createPropertyMap",
+      "traitKind": "method",
+      "methodIndex": 36295,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "org.spicefactory.lib.util.collection.SimpleMap",
+      "hasBody": true,
+      "codeLength": 184,
+      "bytecode": {
+        "codeLength": 184,
+        "codeSha256": "d5599c719cdb2338afac7923d0ddde53ee2c820e8647b0bd781732941738a72d",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDefinition",
+      "traitKind": "method",
+      "methodIndex": 36283,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "b47ee5a5cb117b52e8616ef6835bb52002718480053c9579f3ef27c341b6fb0b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMapKey",
+      "traitKind": "method",
+      "methodIndex": 36296,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.Member"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "d049e1c58afcfa17d0c0d2deabde38d984ec65e519cdbe8b95d669adb9430938",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.initBases",
+      "traitKind": "method",
+      "methodIndex": 36309,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "a487cd9f0b701aa2f5b11f01c92f993ecbebc4b057e8774c7f7e0bba745d2080",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.initConstructor",
+      "traitKind": "method",
+      "methodIndex": 36291,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "323b8ad1c751d04daf57d183e5cea8d35f6ac7a82072d9dbec60f098296a2c28",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.initInterfaces",
+      "traitKind": "method",
+      "methodIndex": 36310,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "cc9ae99af78a30fb4c7c80eecbc894059879a6aef6e20a1cbafcd22718d18be8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.initMethods",
+      "traitKind": "method",
+      "methodIndex": 36302,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "86cd1bc7d5d45733341b7faefad33486feb19478e003fe2f1415814b2d6ef41a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.initProperties",
+      "traitKind": "method",
+      "methodIndex": 36294,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "9d9ae755b6308bfeaae09ca97d4af5cd20a74014cd1b16ae92e7d8c046574c69",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.initStaticMethods",
+      "traitKind": "method",
+      "methodIndex": 36306,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "fa94802dedaf0eeaa2f268dde6f71beed62f9a779ead37f1891d5fa9ee8fed74",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.initStaticProperties",
+      "traitKind": "method",
+      "methodIndex": 36299,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "19a725fcac409ebcea2895f51246722a6fb1099448a9e58dc94e33768ac30474",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.initTraits",
+      "traitKind": "method",
+      "methodIndex": 36316,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "71ce0526bc39163870b1c7bfae9a1496233d8beed2b4490b88afff2346fb70d1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "simpleName",
+      "traitKind": "getter",
+      "methodIndex": 36285,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "a05cbe014b9720ed5451f80f317ec21eb0ce6c1bdd06e0e390cb224ec03c7198",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 36317,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "6a050ee15d6b9d737b76d5f85f15561099f98f00cfee32dfcf851b1c653d20d1",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "cache",
+      "traitKind": "getter",
+      "methodIndex": 36272,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.lib.reflect.cache.ReflectionCache",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bfc46a4fbe5252034b74e932529ece2e58ceb31258bde5943d1c0aeec88a7021",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cache",
+      "traitKind": "setter",
+      "methodIndex": 36273,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.lib.reflect.cache.ReflectionCache"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "9d25af9ba02ae429cd963f1f35a6291086ccfce4a24a72c83409464c69166613",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "forClass",
+      "traitKind": "method",
+      "methodIndex": 36275,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.ClassInfo",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "ab77c00f4911873e169bbdf17083ea7204b8eea2017273110921330f136c8d8d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "forInstance",
+      "traitKind": "method",
+      "methodIndex": 36276,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.ClassInfo",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "2c728e58d8d1eee67163384247aca86d32a580545099cd1abbb47791234cff9c",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "forName",
+      "traitKind": "method",
+      "methodIndex": 36274,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.ClassInfo",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "25b4965ccea4f9f5ac61cf8aaabb761717cc0243d61d86c744b38012b0d31a18",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "org.spicefactory.lib.reflect.resolve",
+      "traitKind": "method",
+      "methodIndex": 36278,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.ClassInfo",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "957964c4f7a0067ba2cab04ef2d20a13d2c35c3208835b76f2def9250c934399",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getClassDefinitionByName",
+      "traitKind": "method",
+      "methodIndex": 36279,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "flash.system.ApplicationDomain",
+        "Class"
+      ],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 191,
+      "bytecode": {
+        "codeLength": 191,
+        "codeSha256": "1e4dd0e98e408bb8210d328362304f629e5a437aafab7f1e3a4b722fabbbb71b",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.getClassInfo",
+      "traitKind": "method",
+      "methodIndex": 36280,
+      "methodName": "",
+      "paramTypes": [
+        "Class",
+        "flash.system.ApplicationDomain",
+        "String"
+      ],
+      "returnType": "org.spicefactory.lib.reflect.ClassInfo",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "edb1324078706f94e078182f561bbf2e68e81b3ab3ec8662f4b734bacc9e9f12",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDomain",
+      "traitKind": "method",
+      "methodIndex": 36277,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "flash.system.ApplicationDomain",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "0975f53e86a2bbe6501c4d825527c68a70dd10b5d5f41b837925839894cf9e9a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "purgeCache",
+      "traitKind": "method",
+      "methodIndex": 36281,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "d0452cdc60dc79752327fce6d9bbefbd41668748dfb27cfc9307e7406ac44c0d",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

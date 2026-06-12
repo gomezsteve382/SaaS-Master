@@ -1,0 +1,117 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1365,
+  "className": "spark.components.ButtonBar",
+  "classNameNormalized": "spark.components.ButtonBar",
+  "superName": "spark.components.supportClasses.ButtonBarBase",
+  "superNameNormalized": "spark.components.supportClasses.ButtonBarBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IFocusManagerComponent"
+  ],
+  "iinitMethod": 29930,
+  "cinitMethod": 29929,
+  "iinitBytecode": {
+    "codeLength": 19,
+    "codeSha256": "3b80f5663c6e12fe3500370575f31ac7b6898d69ed64140297fb94bd09d9b706",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 41,
+    "codeSha256": "8ce78ded4d7225d4c18c4e4eea2d2dbfacd221e0fd19c1729d550c88e5a9cd19",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dataProvider",
+      "traitKind": "setter",
+      "methodIndex": 29931,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.IList"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "239a13b691827fb3f838820d5fbf2a1b3556759aa2bda422da7b605757f89f56",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setCurrentCaretIndex",
+      "traitKind": "method",
+      "methodIndex": 29933,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "0400aaf0eb861d04fd139a4b232f69091579bb00b78dd54d4fb065187502101d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.defaultButtonBarItemRendererFunction",
+      "traitKind": "method",
+      "methodIndex": 29934,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "ba0e4e930480fe9fa3d857f71b97f2cd14e324da0d9b7ea5826259270893e16d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.resetCollectionChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 29932,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "054811919420b84ef63c875852ec4849fbf4e4000dc8f624224daae8a5a17d6b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "spark.components:ButtonBar.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 29935,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "506cf1f2fe1c932a56618990f26d6a049c70d2b30c99731f98765dc9b5ae04a7",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

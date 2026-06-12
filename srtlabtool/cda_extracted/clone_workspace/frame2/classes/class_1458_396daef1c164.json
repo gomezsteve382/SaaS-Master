@@ -1,0 +1,179 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1458,
+  "className": "mx.effects.effectClasses.ZoomInstance",
+  "classNameNormalized": "mx.effects.effectClasses.ZoomInstance",
+  "superName": "mx.effects.effectClasses.TweenEffectInstance",
+  "superNameNormalized": "mx.effects.effectClasses.TweenEffectInstance",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 32121,
+  "cinitMethod": 32120,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "finishEffect",
+      "traitKind": "method",
+      "methodIndex": 32126,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "c26683e6df76a7bc0082702145396e6744b087ad6cd6f6e44a55237ecab362a6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "initEffect",
+      "traitKind": "method",
+      "methodIndex": 32122,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "7c8821f5b2b593939a0a6a8e0b436c62f021df686ca55273a55e9d9dea0e8499",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onTweenEnd",
+      "traitKind": "method",
+      "methodIndex": 32125,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 235,
+      "bytecode": {
+        "codeLength": 235,
+        "codeSha256": "3b44358c705717bccbbb36cb79c8aba543c47d15b319c878a65d5af33e0cc3e8",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "onTweenUpdate",
+      "traitKind": "method",
+      "methodIndex": 32124,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 355,
+      "bytecode": {
+        "codeLength": 355,
+        "codeSha256": "96bd19e1bea6e2d25b8acc97de21bd61c4b8f129f32e038635a9af6bc08a8d5d",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "play",
+      "traitKind": "method",
+      "methodIndex": 32123,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 924,
+      "bytecode": {
+        "codeLength": 924,
+        "codeSha256": "a7e9f009ee67404754a69be4e43cfc7a8609375915ae36b8a002ee8c9b61df4b",
+        "bytecodeLineCount": 58
+      }
+    },
+    {
+      "traitName": "PrivateNs.applyPropertyChanges",
+      "traitKind": "method",
+      "methodIndex": 32127,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 497,
+      "bytecode": {
+        "codeLength": 497,
+        "codeSha256": "f0ac2b9c2b26bc348cd4f33ed62428ec783ac82763c721b267b120ed00721261",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "PrivateNs.getScaleFromHeight",
+      "traitKind": "method",
+      "methodIndex": 32129,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "be155787e7515cfbebc028c5047882a2572b28e07897fd831b36465cf345d85d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.getScaleFromWidth",
+      "traitKind": "method",
+      "methodIndex": 32128,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "b8e596fc055345b8c80efd37b2a030a8b6251d8f0d9d4aeaa7c1b8f8c015b15a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseEventHandler",
+      "traitKind": "method",
+      "methodIndex": 32130,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "24c858add711e223fa40db85004dbb08efa9233e35c4080128f9e342609485bd",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

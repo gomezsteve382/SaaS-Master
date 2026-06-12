@@ -1,0 +1,469 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1398,
+  "className": "spark.components.GridColumnHeaderGroup",
+  "classNameNormalized": "spark.components.GridColumnHeaderGroup",
+  "superName": "spark.components.Group",
+  "superNameNormalized": "spark.components.Group",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "spark.components.gridClasses.IDataGridElement"
+  ],
+  "iinitMethod": 30520,
+  "cinitMethod": 30519,
+  "iinitBytecode": {
+    "codeLength": 139,
+    "codeSha256": "7ed6baea3e43c67b1ff999ff31714ea50a48f6444899a4c87080cc7a9df8972a",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "columnSeparator",
+      "traitKind": "getter",
+      "methodIndex": 30522,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7b483b94f09b68d6c8a109981c374af89c9af6b790faed88041c802026f444b0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "columnSeparator",
+      "traitKind": "setter",
+      "methodIndex": 30523,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "909a456ef4f9ce0fd806415fae88a7613f9d598b390c0f762be03b3cc83b52ce",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "dataGrid",
+      "traitKind": "getter",
+      "methodIndex": 30524,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.DataGrid",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "749b5a01b77cef56c44aef5f5e2de9cf5efda149c5f74bee101caa25f1b61d4a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dataGrid",
+      "traitKind": "setter",
+      "methodIndex": 30525,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.DataGrid"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 146,
+      "bytecode": {
+        "codeLength": 146,
+        "codeSha256": "2c1bd4dcf6d0727cc893ef932a00df900de997598fcc8f1aa92dd05a0895ff3c",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "downColumnIndex",
+      "traitKind": "getter",
+      "methodIndex": 30527,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d9bbae9acb6a03f59a4cb7d3846482052950fc2d24fc60012cd40ccf79a9ca94",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "downColumnIndex",
+      "traitKind": "setter",
+      "methodIndex": 30528,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "b73857c4b8fc905be476799482daa9867da0a18938e9059f773e26b43dcafb91",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getHeaderBounds",
+      "traitKind": "method",
+      "methodIndex": 30539,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "fe32855d970e7b0f207f26640b5e60f7914edf82f125bdde72c502ef6dfaf99e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getHeaderIndexAt",
+      "traitKind": "method",
+      "methodIndex": 30536,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "a5d02c0e6e83c029bb46d174b3833b49c5c3a2ca867f102e5c36e8960eee5efb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getHeaderRendererAt",
+      "traitKind": "method",
+      "methodIndex": 30538,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "spark.components.gridClasses.IGridItemRenderer",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "e6b98aa51ff826da54879766ebba70d1b3f36537544bd0f02da2b8735579b65d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getSeparatorIndexAt",
+      "traitKind": "method",
+      "methodIndex": 30537,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "4fbe0c3aa181c44bc2ee6c97558972bdcd947a5eb5ab2583b2db1fd1b7a50e70",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "headerRenderer",
+      "traitKind": "getter",
+      "methodIndex": 30529,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "253a5db964377abec1fa54d1c49e21dcb9c2766a1e926d3eb2facc6aa5e004cc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "headerRenderer",
+      "traitKind": "setter",
+      "methodIndex": 30530,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "172eff78ab1bc41310bd60f662573c3cb814c4c656965f516056448c2f35c650",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hoverColumnIndex",
+      "traitKind": "getter",
+      "methodIndex": 30531,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b5e0b746da3f24e93adc2f18018f5f2beedfd4879f238ec2d7444f7fab3c996e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hoverColumnIndex",
+      "traitKind": "setter",
+      "methodIndex": 30532,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "7ca209642ad201256078e7572b0c70ef30cdddb97526825cf27b4e0d273cdd21",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isSortIndicatorVisible",
+      "traitKind": "method",
+      "methodIndex": 30535,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "9f272557d7b233b9c6869e353b422010d47f7c81a1d66677c2af42bf31c8ca93",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchChangeEvent",
+      "traitKind": "method",
+      "methodIndex": 30521,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "cb99e433e437689787ea96423537eef21b6a019536a70f4b7d479416030a8e7d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchGridEvent",
+      "traitKind": "method",
+      "methodIndex": 30545,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent",
+        "String",
+        "flash.geom.Point",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 197,
+      "bytecode": {
+        "codeLength": 197,
+        "codeSha256": "caba270479c909c1452ba41680eafe9ec6b5cd642908419185d6dd25bb1ab8de",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.getColumnAt",
+      "traitKind": "method",
+      "methodIndex": 30546,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "spark.components.gridClasses.GridColumn",
+      "hasBody": true,
+      "codeLength": 101,
+      "bytecode": {
+        "codeLength": 101,
+        "codeSha256": "6225f8aeec77860b2c8b98f67e157a34a10668b0420e3efe009261722bc36d78",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.grid_changeEventHandler",
+      "traitKind": "method",
+      "methodIndex": 30526,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "3f520a16157e5d4e85b95425b33a2d9bb712873a95d5f1c5aa4f9b041c435d98",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components:GridColumnHeaderGroup.gchg_clickHandler",
+      "traitKind": "method",
+      "methodIndex": 30543,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 172,
+      "bytecode": {
+        "codeLength": 172,
+        "codeSha256": "5eac4ef4d37b1bb1476a085344493d3d3c1df15da92355015daff2936fa23a71",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "spark.components:GridColumnHeaderGroup.gchg_doubleClickHandler",
+      "traitKind": "method",
+      "methodIndex": 30544,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 172,
+      "bytecode": {
+        "codeLength": 172,
+        "codeSha256": "970b85f3da7c696f08030e695844c91c03a602c43150d91962537eb066d4e418",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "spark.components:GridColumnHeaderGroup.gchg_mouseDownDragUpHandler",
+      "traitKind": "method",
+      "methodIndex": 30540,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 387,
+      "bytecode": {
+        "codeLength": 387,
+        "codeSha256": "7183e1f6ce3074fbd70787247b395f2690ecb8f8b8636a589823c6d10b8a0c0d",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "spark.components:GridColumnHeaderGroup.gchg_mouseMoveHandler",
+      "traitKind": "method",
+      "methodIndex": 30541,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 241,
+      "bytecode": {
+        "codeLength": 241,
+        "codeSha256": "29322a0665a504793bca2f4e3fca6f635102682ced5157824c75d48af6a8650f",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "spark.components:GridColumnHeaderGroup.gchg_mouseRollOutHandler",
+      "traitKind": "method",
+      "methodIndex": 30542,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "fe9dfb76de4549268b25b70add37d38b2661af558c8b1a66b599b56850859996",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "visibleSortIndicatorIndices",
+      "traitKind": "getter",
+      "methodIndex": 30533,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "__AS3__.vec.Vector<int>",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "179e6d645e650438fe6247ca1cd4561c3ba4d43172e7933d2ae6638f2959876b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "visibleSortIndicatorIndices",
+      "traitKind": "setter",
+      "methodIndex": 30534,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<int>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "49b4dd19cde89d678d255241d8cea1de347bb573466759185d627097d581b376",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

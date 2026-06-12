@@ -1,0 +1,127 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2518,
+  "className": "com.dcctools.witech.diagnostic.engine.cryptography.CryptographyUtil2",
+  "classNameNormalized": "com.dcctools.witech.diagnostic.engine.cryptography.CryptographyUtil2",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 43196,
+  "cinitMethod": 43190,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "Decrypt",
+      "traitKind": "method",
+      "methodIndex": 43193,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "6dea0c86968e3e5e37f38b450a4b3ca3ccb374efd6ebf4ee3abd7590b35bf9a0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "Decrypt2",
+      "traitKind": "method",
+      "methodIndex": 43194,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "bcc0e0d6d525231f2b536b4ff1db4511df53e5fd88a388b57a88a34fca835ffb",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "Encrypt",
+      "traitKind": "method",
+      "methodIndex": 43191,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "bba24e3d5968e331dd383a711c26224b4815aba533630d5d2ce96c1ce2b208c6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "Encrypt2",
+      "traitKind": "method",
+      "methodIndex": 43192,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "21ffa1f31ae0324900e4dc4530a6c3467c2fbd6838ccd7d98737ad0334c68d9e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "MakeCipher",
+      "traitKind": "method",
+      "methodIndex": 43195,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "com.hurlant.crypto.symmetric.IPad"
+      ],
+      "returnType": "com.hurlant.crypto.symmetric.CBCMode",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "31f9f8fd73a7f8602a7598e135532cbb64e3c140d20ddf2b56c144f4288d3f8d",
+        "bytecodeLineCount": 4
+      }
+    }
+  ]
+}

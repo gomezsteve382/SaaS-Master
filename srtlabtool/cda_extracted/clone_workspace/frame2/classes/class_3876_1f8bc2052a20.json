@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3876,
+  "className": "org.spicefactory.parsley.processor.messaging.MessageReceiverProcessorFactory",
+  "classNameNormalized": "org.spicefactory.parsley.processor.messaging.MessageReceiverProcessorFactory",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.registry.ObjectProcessorFactory"
+  ],
+  "iinitMethod": 56796,
+  "cinitMethod": 56795,
+  "iinitBytecode": {
+    "codeLength": 74,
+    "codeSha256": "f70d729be7fb08939c7315d60bd499fcd80986ae497254055d199b3aa0ed06cc",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createInstance",
+      "traitKind": "method",
+      "methodIndex": 56799,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.lifecycle.ManagedObject"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectProcessor",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "33269fb3ea254ff242d4f57ebf51f4c65d0ba86cd624b568184deea95731d89e",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.contextConfigured",
+      "traitKind": "method",
+      "methodIndex": 56797,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "00f159c6fcb44b44b4d3a8ab0410e0675f982383660037643ff9040aa55ae584",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.contextDestroyed",
+      "traitKind": "method",
+      "methodIndex": 56798,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "d612db1877a388d297d65aaadb27f762493eb2d91a107c39d0ca7a252c326656",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

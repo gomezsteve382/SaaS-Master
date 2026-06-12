@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2701,
+  "className": "mx.utils.XMLNotifier",
+  "classNameNormalized": "mx.utils.XMLNotifier",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 45348,
+  "cinitMethod": 45344,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "unwatchXML",
+      "traitKind": "method",
+      "methodIndex": 45350,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.utils.IXMLNotifiable"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 164,
+      "bytecode": {
+        "codeLength": 164,
+        "codeSha256": "b74a4553ceb0ca83752712e0216951e4e227b69f7972e3e27ba444d1f509d3f4",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "watchXML",
+      "traitKind": "method",
+      "methodIndex": 45349,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "mx.utils.IXMLNotifiable",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 260,
+      "bytecode": {
+        "codeLength": 260,
+        "codeSha256": "f004484d9a9e08d46b4285eb34d1153f6732ef33f9e7650794775b2215ed12aa",
+        "bytecodeLineCount": 17
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 45345,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.utils.XMLNotifier",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "44478093e86bc5d244deeb04c8aa4df77680a4cbd9c984d2eba2ff6ef7b1b28b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.initializeXMLForNotification",
+      "traitKind": "method",
+      "methodIndex": 45347,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "eece793deb744c2c6df5fd16b3160090d110544fbcfa8283985c4e50d206e8c6",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

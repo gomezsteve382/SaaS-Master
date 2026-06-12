@@ -1,0 +1,796 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2575,
+  "className": "com.chrysler.cda.presentation.component.tracer.components.support.report.eshd.CdaReportViewImpl",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.tracer.components.support.report.eshd.CdaReportViewImpl",
+  "superName": "com.chrysler.cda.presentation.component.tracer.components.support.report.eshd.CdaReportView",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.tracer.components.support.report.eshd.CdaReportView",
+  "domainBucket": "tracer",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 44073,
+  "cinitMethod": 44069,
+  "iinitBytecode": {
+    "codeLength": 384,
+    "codeSha256": "7766bcf5ade0cc955a1b23649e6baf06f8fc8a470c96a5ea767694e1d31be131",
+    "bytecodeLineCount": 24
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___CdaReportViewImpl_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 44101,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "615d7872f819da5075067165a57e2cdc6f68e94b95654f14e28f312f4c219ea1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___CdaReportViewImpl_Button2_click",
+      "traitKind": "method",
+      "methodIndex": 44106,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "5a66e1a3b1f3511c93cb0902901d4faae86eaf959d20deee7e59a068a6209fb0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___CdaReportViewImpl_FormItem1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 44089,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "533a54c0a5dfe504ad6d3ed70d479779a57c6241fcea30284981b15a5ffaf0a5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___CdaReportViewImpl_FormItem2_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 44093,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "2498824145fae20aa20909af5e0bf598c427bf0b579e735b749125550d5cfbef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___CdaReportViewImpl_FormItem3_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 44097,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "d09cd3da274816c30d818929751f620bbc3e38deab819f68edc4da45c4a83c58",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "contactName",
+      "traitKind": "getter",
+      "methodIndex": 44152,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a3f446a258eadb020eab769214bda154cc25c468a23ea1841c717884154881d7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "contactName",
+      "traitKind": "setter",
+      "methodIndex": 44153,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.TextInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "42a555287f7e83187d5991f4a964bdcc8227817086d4a19e823542df1306e55f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "email",
+      "traitKind": "getter",
+      "methodIndex": 44154,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "66b8f4ece620c4fddc17c6cfb15fcefe32809172ded1ecbd9e8bb56951405710",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "email",
+      "traitKind": "setter",
+      "methodIndex": 44155,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.TextInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "dff190d50a24f9fe50ecf708bd443254a0eb768d6a63affff2b0b422da11d695",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 44075,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 44074,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "ae0057dc5807fbc1222b5e0cf7c42c5308e5ce3b98eeaf5b68aec6f53ff14768",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onContactNameCreationComplete",
+      "traitKind": "method",
+      "methodIndex": 44076,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "28b1a36ba86f754d3ee80ed05a0abc1df56756994bc7f3ce13114205249dcb30",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onEmailCreationComplete",
+      "traitKind": "method",
+      "methodIndex": 44077,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "b71c7b8f3f8477425199d97f7c89c94394587ca3936097fcdd54045bb46fd1e1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onPhoneNumberCreationComplete",
+      "traitKind": "method",
+      "methodIndex": 44078,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "07d2968852da32e56d5eb93e436495529d7d5088e3798ff7cb6e771e18f7f6f1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "phoneNumber",
+      "traitKind": "getter",
+      "methodIndex": 44156,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c552bd5f4d97e6dbaf6d17a8c8558ffb44318eea646d370c2e4fd4d9dfa51b88",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "phoneNumber",
+      "traitKind": "setter",
+      "methodIndex": 44157,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.TextInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "b5ad304316ae137c221c031634d08b3caaae9bfb6023ef3c5b2c04570f3e2fa2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "preCreateCdaJira",
+      "traitKind": "method",
+      "methodIndex": 44081,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 173,
+      "bytecode": {
+        "codeLength": 173,
+        "codeSha256": "aeb33ae60edf0c71fc738a766aab1245ab0963240e2e53e32435b210fc92d698",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Array2_c",
+      "traitKind": "method",
+      "methodIndex": 44084,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "ed7ef15b9cd62824c715ed488c145c7ec628657dccae02d4354d8df3c33fb263",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Array3_c",
+      "traitKind": "method",
+      "methodIndex": 44087,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "b312e9bb6c49d078d9b04b8fee9fa1a16971284c333b963f91b48c7ca24dc02d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Array4_c",
+      "traitKind": "method",
+      "methodIndex": 44091,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "0ee8a7c72ace769024511059f47662675e70da68967e39bc974aa662e9880fff",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Array5_c",
+      "traitKind": "method",
+      "methodIndex": 44095,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "d421371eea98616e9e69bb0e5aa74335ffce622ce4f970a73b9d76845aa77ff0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Array9_c",
+      "traitKind": "method",
+      "methodIndex": 44111,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "c90c2a53faa8bc7a9fad25066efbcfd5d09df4b24e847c2ac943c966c2e038b1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 44151,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 825,
+      "bytecode": {
+        "codeLength": 825,
+        "codeSha256": "4d359a4bf083ea241fda4d248140ae478a0ada8d2f692914fe4368b97fe1bcc3",
+        "bytecodeLineCount": 52
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 44100,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "cfaa45c7e5ea832f68d2c173be450d3fe3a7619c67b261b3b9d4280d0e94029e",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 44105,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "b30c26b4ddd959fd5c94a30484494319f4b08c5a7a7760727a2963f106275396",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_CollapsableContainer1_i",
+      "traitKind": "method",
+      "methodIndex": 44110,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.tracer.components.CollapsableContainer",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "b9aa68876a27a437650b4c61cbd488ff3373cf29f6d65389f74e2fe96fdbbcbc",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_ErrorCollapsableContainerImpl1_i",
+      "traitKind": "method",
+      "methodIndex": 44116,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.tracer.components.ErrorCollapsableContainerImpl",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "ce50dbd2593acf7bbe8da4f3d2650e78c460ef4786005275dbbb475904ce6556",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Form1_c",
+      "traitKind": "method",
+      "methodIndex": 44082,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Form",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "bab56c08e5859e1cb1942f63a6189e311b7b5fd24398eca17145041bcaf9a477",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_FormHeading1_i",
+      "traitKind": "method",
+      "methodIndex": 44085,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.FormHeading",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "e67bfc26b875a624e3c06caff75cd28d7b6d5328eb9fde6256dd36d85ce624c3",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_FormItem1_i",
+      "traitKind": "method",
+      "methodIndex": 44086,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.FormItem",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "f139667bce30ff6a834151f6d29aaa5cc6ea14519f21a0a9193558771942ef59",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_FormItem2_i",
+      "traitKind": "method",
+      "methodIndex": 44090,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.FormItem",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "635e3e49c64018555bd55fdf8ad187bcca30bbe81973af1767c70dd27f7533ad",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_FormItem3_i",
+      "traitKind": "method",
+      "methodIndex": 44094,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.FormItem",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "908829e78dab077217be0b5ca1c5076959d04aed4905d3f7bd419ee43dbd65c5",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_FormLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 44083,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.FormLayout",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "a234b194690cd1dad9af6b9eda7a92f9954cb1c4a226a7f4ff1a9858994a195c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_HGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 44098,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "4a061030c2463064a00d410e665a21c24485ab5567e1ee571729af7a6ccb6371",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_HGroup2_i",
+      "traitKind": "method",
+      "methodIndex": 44102,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "e824b8fcec89ea644afc1ed635e00e103f1b406cc5323c7bde7e669ddc5db8db",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_HGroup3_i",
+      "traitKind": "method",
+      "methodIndex": 44107,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "3d895a8a4bf79e1790f79908cad6fa6466a411b89b0ed52062750cfd385b1038",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Image1_i",
+      "traitKind": "method",
+      "methodIndex": 44103,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "cccf2316a81bf7150a96b6ad4991b918634f3dddea74af97f4bd57ed57b4365b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Image2_i",
+      "traitKind": "method",
+      "methodIndex": 44108,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Image",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "08916706dc27fc69050ddd92105fc86a3fc28b789438d1f1b414ac1d9c07295b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 44099,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "f234f8f3c4725a418f5f502b01c47db7dada52f16601bdc12578e64f8ad42aec",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Label2_i",
+      "traitKind": "method",
+      "methodIndex": 44104,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "5fc30235d4449f0227b9e437ac911369200b2910aa9bcbe2cd4a82c9d4597a4d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Label3_i",
+      "traitKind": "method",
+      "methodIndex": 44109,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "1cd45dab08d7e8e91a0921b47465234b509582698f7594367f0df33f10f672a9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Label4_i",
+      "traitKind": "method",
+      "methodIndex": 44112,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "e58debaeadfc2b5d40ec3658605d67e36d37edd36281cd8d8f9074d13827b699",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_ProgressBar1_i",
+      "traitKind": "method",
+      "methodIndex": 44113,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.ProgressBar",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "48f4e298044a9810ca2a58fa0cb631a909e22d37577a3a96ae320b789c55efa1",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_Scroller1_c",
+      "traitKind": "method",
+      "methodIndex": 44114,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "9c08442bf26923ca7f0fc9d8e947a141e08b1b5260d9be383814fd0abb4549f9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_TextInput1_i",
+      "traitKind": "method",
+      "methodIndex": 44088,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "7c4e01cedf4096c5dfbae97484d6fa59742677a3b6c390b5956cc654736c20c7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_TextInput2_i",
+      "traitKind": "method",
+      "methodIndex": 44092,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "37720cb326a9d188cfcd0e01db11884e46001f201ba637a47ebcd4372526532e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_TextInput3_i",
+      "traitKind": "method",
+      "methodIndex": 44096,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "2929db32981db6528b2d107b249ba3e8de27f0bce1eb5f8021029c7a97019bf6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._CdaReportViewImpl_VGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 44115,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "011c22a6600cc51ccbfa16f27a76e9c2e0da52037cdc998499e50f967a691567",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 44070,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "962c3db53db87cf141778362c0baf13c64edec1554149764467dfb151b698ea7",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

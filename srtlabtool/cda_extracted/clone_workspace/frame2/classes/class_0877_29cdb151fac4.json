@@ -1,0 +1,164 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 877,
+  "className": "com.chrysler.cda.application.tools.CustomDisplayWriteBackCommand",
+  "classNameNormalized": "com.chrysler.cda.application.tools.CustomDisplayWriteBackCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 17399,
+  "cinitMethod": 17389,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getCustomDisplayWriteBackElements",
+      "traitKind": "method",
+      "methodIndex": 17392,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.WriteBackCustomDisplayDataMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "9f76a8d84f60eb66b5561f6ec6c478f23c8a0554e800a54e3fef3af6e611eddf",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onFailure",
+      "traitKind": "method",
+      "methodIndex": 17398,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.application.tools.CustomDisplayComServiceMetadataStatusMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 155,
+      "bytecode": {
+        "codeLength": 155,
+        "codeSha256": "f9eb2af014d4a66adaa42a3232c968f02e74c0f2b85d6ab2afa10b0d0d929ce6",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "onSuccess",
+      "traitKind": "method",
+      "methodIndex": 17397,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.application.tools.CustomDisplayComServiceMetadataStatusMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 630,
+      "bytecode": {
+        "codeLength": 630,
+        "codeSha256": "d1f3fd1f87e0f003d7a17a1eb0a8a28f546fca36b9bdd12f8fb48afef737fa2b",
+        "bytecodeLineCount": 40
+      }
+    },
+    {
+      "traitName": "onWritesComplete",
+      "traitKind": "method",
+      "methodIndex": 17391,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.tools.CustomDisplayWriteBackProgressMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "78651db1e6cbb02bea6e379500ac648b3cff2ab1fb312083bac6f66055a06921",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "popup",
+      "traitKind": "getter",
+      "methodIndex": 17390,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.tools.CustomDisplayWriteBackMissingDDEsPopupDisplay",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "38f541a8fba9105a97ad189d680fcb1e40b30662b0d12b6b12ec05a06bb474ee",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "processLoop",
+      "traitKind": "method",
+      "methodIndex": 17395,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 633,
+      "bytecode": {
+        "codeLength": 633,
+        "codeSha256": "3c20c244d51db0d7ebf3487f00f2207170e57910ad291a0ad76bbdd80a96918e",
+        "bytecodeLineCount": 40
+      }
+    },
+    {
+      "traitName": "terminate",
+      "traitKind": "method",
+      "methodIndex": 17394,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "2c028801a97e094a29a78dd37986b97a42c3559410f0a7125fa52a7f1e0de252",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeData",
+      "traitKind": "method",
+      "methodIndex": 17393,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 129,
+      "bytecode": {
+        "codeLength": 129,
+        "codeSha256": "881df47d08151543a98246ec348317565f94fdd95b16abc768840c8f04902caf",
+        "bytecodeLineCount": 9
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "local-filesystem",
+    "name": "Local Filesystem MCP",
+    "transport": "stdio",
+    "command": "node",
+    "args": ["./path-to-your-mcp-server.js"],
+    "cwd": ".",
+    "env": { "EXAMPLE_API_KEY": "${vault:EXAMPLE_API_KEY}" },
+    "enabled": false,
+    "riskLevel": "medium",
+    "requiresApproval": true
+  },
+  {
+    "id": "remote-tools",
+    "name": "Remote MCP Server",
+    "transport": "http",
+    "url": "http://localhost:3000/mcp",
+    "enabled": false,
+    "riskLevel": "medium",
+    "requiresApproval": true
+  }
+]

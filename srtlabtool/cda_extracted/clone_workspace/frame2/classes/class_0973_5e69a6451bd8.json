@@ -1,0 +1,49 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 973,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.unlock.DoECUUnlockCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.unlock.DoECUUnlockCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 20023,
+  "cinitMethod": 20021,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "c9479f393d0ade889b93b8b5d79ca21d81be16ce34ac8d012a849319b68caed1",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onDoEcuUnlock",
+      "traitKind": "method",
+      "methodIndex": 20022,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.unlock.DoEcuUnlockMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "8e55c0ce8a757837335cb9df8e8d2c5419f064bb8c7d8b7cfb8852195b685c20",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

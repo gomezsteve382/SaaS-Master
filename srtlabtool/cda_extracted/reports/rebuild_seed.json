@@ -1,0 +1,88 @@
+{
+  "input": {
+    "path": "C:\\Users\\gomez\\Desktop\\CDA.swf",
+    "sha256": "524b65c18c0f47be120fd1097da7bfe4848028d2cd33246d4c108b58c46b8c9b",
+    "signatureOriginal": "CWS",
+    "version": 11,
+    "declaredFileLength": 8716990,
+    "compressedFileLength": 4346734,
+    "decompressedBodyLength": 8716982
+  },
+  "workstreams": [
+    {
+      "name": "ABC Core Decompilation",
+      "priority": 1,
+      "rationale": "Largest logic surface resides in frame2 DoABC block.",
+      "inputs": [
+        "assets/doabc/tag_0006_frame1.abc",
+        "assets/doabc/tag_0367_frame2.abc"
+      ],
+      "successCriteria": [
+        "Extract package/class index from ABC",
+        "Map function symbols for Chrysler namespaces"
+      ]
+    },
+    {
+      "name": "Symbol Linking and Overrides",
+      "priority": 2,
+      "rationale": "Class and export maps drive runtime binding; duplicate character IDs need explicit handling.",
+      "inputs": [
+        "maps/class_bindings.json",
+        "maps/exported_symbols.json",
+        "maps/character_id_index.json"
+      ],
+      "successCriteria": [
+        "Build canonical characterId -> class/export map",
+        "Document override rules for duplicated character IDs"
+      ]
+    },
+    {
+      "name": "UI Asset Reconstruction",
+      "priority": 3,
+      "rationale": "High volume of DefineBitsLossless2 assets and named UI exports indicate heavy skinning surface.",
+      "inputs": [
+        "assets/definebitslossless2/",
+        "assets/definebitsjpeg2/",
+        "tags/typed/*definebits*.json"
+      ],
+      "successCriteria": [
+        "Create asset catalog with dimensions and usage hints",
+        "Map critical UI states for buslog/proxi/ecu flows"
+      ]
+    },
+    {
+      "name": "Domain Feature Surface Mapping",
+      "priority": 4,
+      "rationale": "Keyword density points to diagnostic modules (buslog, proxi, ecu, flash).",
+      "inputs": [
+        "reports/audit.json",
+        "maps/class_bindings.json",
+        "maps/exported_symbols.json"
+      ],
+      "successCriteria": [
+        "Produce module list grouped by feature family",
+        "Prioritize implementation order for reconstruction"
+      ]
+    },
+    {
+      "name": "Embedded Binary Payload Triage",
+      "priority": 5,
+      "rationale": "Nine DefineBinaryData blobs may contain shaders or auxiliary runtime payloads.",
+      "inputs": [
+        "assets/definebinarydata/tag_0041_char_00032.bin",
+        "assets/definebinarydata/tag_0042_char_00033.bin",
+        "assets/definebinarydata/tag_0043_char_00034.bin",
+        "assets/definebinarydata/tag_0044_char_00035.bin",
+        "assets/definebinarydata/tag_0045_char_00036.bin",
+        "assets/definebinarydata/tag_0046_char_00037.bin",
+        "assets/definebinarydata/tag_0047_char_00038.bin",
+        "assets/definebinarydata/tag_0048_char_00039.bin",
+        "assets/definebinarydata/tag_0052_char_00043.bin"
+      ],
+      "successCriteria": [
+        "Fingerprint each blob type and purpose",
+        "Link binary blob character IDs to consuming classes"
+      ]
+    }
+  ]
+}

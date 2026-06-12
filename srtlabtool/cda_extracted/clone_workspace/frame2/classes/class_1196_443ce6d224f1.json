@@ -1,0 +1,101 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1196,
+  "className": "com.chrysler.cda.application.ExitCommand",
+  "classNameNormalized": "com.chrysler.cda.application.ExitCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 26908,
+  "cinitMethod": 26901,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 29,
+    "codeSha256": "e836b4ac478b1a3fb5ff2586a791f3a4db401c7e5f3673ae337d9bb7a5a1acef",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "doExit",
+      "traitKind": "method",
+      "methodIndex": 26906,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.ApplicationExit"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "42e7ae2af7b49267453f2ab7acb61fb8844d6e5894e8385af9ea0e5a97409201",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onExit",
+      "traitKind": "method",
+      "methodIndex": 26904,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.ApplicationExit"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "39adf47de644cce531517c72c7baf0a0e1c66338872fe38373a555e0c8a03efd",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onExitFeedbackFileUploadComplete",
+      "traitKind": "method",
+      "methodIndex": 26907,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.feedback.FeedbackUploadLogFilesCompleteMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "7d1e08bc53b9f18aa69b01dc7d7f159dd877f8d0e8d9ac3f9086d58dfa3d279b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "SupportOperations",
+      "traitKind": "method",
+      "methodIndex": 26902,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "6e8b7772c048ed50f42382d5c5f0050dcb67d204bd37889b36b44e66cd3b1f94",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "frame": "frame1",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 19,
+  "className": "mx.core.RSLItem",
+  "classNameNormalized": "mx.core.RSLItem",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 403,
+  "cinitMethod": 402,
+  "iinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "de26ee16e21656ffa3222a1989c3a535ade65fad758491871923f0641cb2ba96",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "70f78b5b1e3d8d47ac8bc312a76a65f1b3622838e1814f40505a7b75801a3b35",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "itemCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 406,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "b7c32a4d484004a9fab1b7c6bb41535cf29cacf90a1e2ea2ba3d8724c19598b2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "itemErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 407,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ErrorEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 154,
+      "bytecode": {
+        "codeLength": 154,
+        "codeSha256": "844cf425691e2c6cfc915528d9410388d06ea7078f0a2b24cc3f632d8fb8c8cd",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "itemProgressHandler",
+      "traitKind": "method",
+      "methodIndex": 405,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.ProgressEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "52c15e743f0f60412b5d6a130cb143964249f106808d9401d121a6a1ea5eda29",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "load",
+      "traitKind": "method",
+      "methodIndex": 404,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "Function",
+        "Function",
+        "Function",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 204,
+      "bytecode": {
+        "codeLength": 204,
+        "codeSha256": "2dc3462b68fc5b4454c0e1879872d5a32b035ff5e69055270fae4c5fddeebfca",
+        "bytecodeLineCount": 13
+      }
+    }
+  ],
+  "staticMembers": []
+}

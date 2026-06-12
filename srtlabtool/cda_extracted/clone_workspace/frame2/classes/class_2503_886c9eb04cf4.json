@@ -1,0 +1,139 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2503,
+  "className": "com.chrysler.cda.event.message.diagnostic.flash.StartFlashWithDeviceConfigMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.flash.StartFlashWithDeviceConfigMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.event.message.diagnostic.flash.IStartFlashMessage"
+  ],
+  "iinitMethod": 43069,
+  "cinitMethod": 43061,
+  "iinitBytecode": {
+    "codeLength": 52,
+    "codeSha256": "073cb4b30bc67d7dc52feee4fdcc08f0f991132a354419f9f5b30febea882d29",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "enableSecondaryCommunication",
+      "traitKind": "getter",
+      "methodIndex": 43067,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "77c15773d7aa33c396314dae83a2d197b95fe1910d091e2e277be748f216362f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashKey",
+      "traitKind": "getter",
+      "methodIndex": 43064,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "59fccf2a04789a8554792bf2dd7eaf2d5b0b7b6dc235247ed0034efb6b4808fb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isEfd",
+      "traitKind": "getter",
+      "methodIndex": 43062,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9aff06f22729c2ba221c678b683f6097bd23fc3d061ef6c9a7ca8137cb749143",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "optimizedFrame",
+      "traitKind": "getter",
+      "methodIndex": 43063,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4ca98c262e966aa0820b7423e12d05f1fdcd01805098500546952a0964b9e6f1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "path",
+      "traitKind": "getter",
+      "methodIndex": 43065,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a1eaa3fd8b109271ba6b9eb6a335a3293be991b9a313e4949aabecaf4cd66536",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "secondaryCommunicationSeconds",
+      "traitKind": "getter",
+      "methodIndex": 43068,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4f77e445c913ac269f607824bf1f933c7a2657c76649e4481d6e0344091bbf40",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useIDXCheck",
+      "traitKind": "getter",
+      "methodIndex": 43066,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "737b62fc9696cacc3a891a3e3cbad00b4574a06ac3321baa8642091a757e1c56",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

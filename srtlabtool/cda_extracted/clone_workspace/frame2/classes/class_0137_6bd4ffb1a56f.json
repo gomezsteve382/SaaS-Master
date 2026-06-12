@@ -1,0 +1,1168 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 137,
+  "className": "mx.managers.FocusManager",
+  "classNameNormalized": "mx.managers.FocusManager",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IFocusManager"
+  ],
+  "iinitMethod": 2639,
+  "cinitMethod": 2638,
+  "iinitBytecode": {
+    "codeLength": 416,
+    "codeSha256": "377e99d47e8bac727c50396904d246a934a38dbd4332e227057bfdb576c27462",
+    "bytecodeLineCount": 26
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "cdf3ffe3d7b4cc24e242d52cc80bafff1d9413fb24e66a0bdc05ebea13436709",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "activate",
+      "traitKind": "method",
+      "methodIndex": 2664,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 441,
+      "bytecode": {
+        "codeLength": 441,
+        "codeSha256": "c1dab5bfdc3f0467f3dd8c14ed3684f4304f39d2a00e6021d196b31eb94497b3",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "deactivate",
+      "traitKind": "method",
+      "methodIndex": 2665,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 344,
+      "bytecode": {
+        "codeLength": 344,
+        "codeSha256": "9c8e6d0d3cdba873a26178fed3022b86e294ae035ba94b6be1702327345d545e",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "defaultButton",
+      "traitKind": "getter",
+      "methodIndex": 2642,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IButton",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d496ad06f86879cfda989eaa8647ee951c60530e8267ba96e27f0378c40da043",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "defaultButton",
+      "traitKind": "setter",
+      "methodIndex": 2643,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IButton"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "bb2db71b08ddb2587d295f4d7c8123950155e6a6767f5c53a9df543915caf105",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "defaultButtonEnabled",
+      "traitKind": "getter",
+      "methodIndex": 2644,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "8faa450ccfcf2664319430794fd113855603ddeb7fe84cc795ea2565cdb4d107",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "defaultButtonEnabled",
+      "traitKind": "setter",
+      "methodIndex": 2645,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "6e5bfbe2d46d25ff97727c6db8b4e9244c34bbca391ffa4928d56fa2ae9571f7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "findFocusManagerComponent",
+      "traitKind": "method",
+      "methodIndex": 2666,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.InteractiveObject"
+      ],
+      "returnType": "mx.managers.IFocusManagerComponent",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "c8b6e0ff2fc65906433581ee2e11c372afeeef6c17a0de27d58d58df228e61c5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focusPane",
+      "traitKind": "getter",
+      "methodIndex": 2646,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Sprite",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9615fdb82dd863826358d86917f9a4628377d656f60ace5fdc90080ef3f48f52",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focusPane",
+      "traitKind": "setter",
+      "methodIndex": 2647,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Sprite"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "35ca0faeb53b4f700dce9ec9de9d402e9dbcef7c8e87ab7d4f869232a301f82b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getFocus",
+      "traitKind": "method",
+      "methodIndex": 2654,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.IFocusManagerComponent",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "11b151d34f3f03a47f208a839ca1dd2fe3d39f0db1525a703fba3a2c86150dda",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getNextFocusManagerComponent",
+      "traitKind": "method",
+      "methodIndex": 2684,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "mx.managers.IFocusManagerComponent",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "1987d8e59b553c5293ce20d0e7399791aeccbd9fedce08d1f1c18c58aa10b849",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hideFocus",
+      "traitKind": "method",
+      "methodIndex": 2663,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "5bffd434a0333c625c764b3db366821aaf9cc0085c02dacb4b4343a59543cb8f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.addFocusables",
+      "traitKind": "method",
+      "methodIndex": 2676,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 383,
+      "bytecode": {
+        "codeLength": 383,
+        "codeSha256": "c14f86cf8d82554eec0eb1e4a5a3155efd9ffa25ae6d510851fa8729a32b88c8",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.form",
+      "traitKind": "getter",
+      "methodIndex": 2648,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.IFocusManagerContainer",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "25234ad87d0bc41b8b8f9a44ab950eda9acde217b9a3ff760c23177269471910",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.form",
+      "traitKind": "setter",
+      "methodIndex": 2649,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.IFocusManagerContainer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d34cf03f3ca22d91316ba378fc6fd9f2d89268ff4baeca38342d54556881f33a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.keyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 2703,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 417,
+      "bytecode": {
+        "codeLength": 417,
+        "codeSha256": "39abd6ecd5aa07d4648c7dbc212735f632d9ece0574beba4cd5877d98e4eed76",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.keyFocusChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 2702,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 226,
+      "bytecode": {
+        "codeLength": 226,
+        "codeSha256": "78b3e2378f74f1ec6579f7e2d514ac5e472ff1074716e4196f7c066a0913b899",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.lastFocus",
+      "traitKind": "getter",
+      "methodIndex": 2650,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.managers.IFocusManagerComponent",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "8d0f1069be3667898bafce99fa01ebf37edf3e2d78a5fd59f1acec99f30f7ad3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.lastFocus",
+      "traitKind": "setter",
+      "methodIndex": 2651,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.IFocusManagerComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7f601819ce99333fef4b2c5eaddaf143725a6166543b992b84684ac7289469d0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.sendDefaultButtonEvent",
+      "traitKind": "method",
+      "methodIndex": 2675,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "53b5910c07e1003a6fb159207ee6929865c1b9b53d0f39d3dab52199ffc19481",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setFocusToNextIndex",
+      "traitKind": "method",
+      "methodIndex": 2683,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "a1f68d702debb68393ea4af99b537e8e37f3b9ee363cb320dd7893ee4322f06d",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "nextTabIndex",
+      "traitKind": "getter",
+      "methodIndex": 2652,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "04e8e0eb6ce595f1c7ee7118f718df9e36c7a6d04b8336bfd3e0b33745c168d0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.activateHandler",
+      "traitKind": "method",
+      "methodIndex": 2658,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "d6d2f89be4cfc1c54fd99798faaf72506f2e226d5e257ba7cf1a2b84575ab351",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.activateWindowHandler",
+      "traitKind": "method",
+      "methodIndex": 2660,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "b4fb5209e6a0ed5a564e84e0de81aef5e01d598cd1887c6c278f0854f65646e7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.addedHandler",
+      "traitKind": "method",
+      "methodIndex": 2689,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "72ca364c17b6e2624e5e9cd4e1b38b1ef7f33a70c722234d6b40fac279485e10",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.childHideHandler",
+      "traitKind": "method",
+      "methodIndex": 2694,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "f54fc603e837261161fe3acf5ea10b4d1d3b4192b9eb51f61ebdb16cedddbe6f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.clearBrowserFocusComponent",
+      "traitKind": "method",
+      "methodIndex": 2688,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "1f331469d48bdb94020fc0326478a8785c59fbc2300098d2d8685469b7668aaf",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.creationCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 2696,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "4d779a716842ed3d03f76d790686a726cf0e0a3a3d6ba2c5ab78ee9296e8eddb",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.deactivateHandler",
+      "traitKind": "method",
+      "methodIndex": 2659,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "ef1d99cdd11c9334774d32452a3daa626a5c272ee291ede2bacc9e81d86fc729",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.deactivateWindowHandler",
+      "traitKind": "method",
+      "methodIndex": 2661,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "9e56d4a235b7d29d6618c98959ea5048f09768e263d256bb2d0d70f34f96b57d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.defaultButtonKeyHandler",
+      "traitKind": "method",
+      "methodIndex": 2704,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 111,
+      "bytecode": {
+        "codeLength": 111,
+        "codeSha256": "e3cd33e3fd69b2a0841aff61962d7494ddc94f4233dafd00f74c04ac5d605312",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.findFocusManagerComponent2",
+      "traitKind": "method",
+      "methodIndex": 2667,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.InteractiveObject"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "b1d52626f3ba161972218feca650263f457e23433f554d5332274172c3a36623",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.focusInHandler",
+      "traitKind": "method",
+      "methodIndex": 2656,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 309,
+      "bytecode": {
+        "codeLength": 309,
+        "codeSha256": "e9858b1f03d1bd546fc534d00bff391de2ba20ffcff841ddce7dc70a3a57aec8",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "PrivateNs.focusOutHandler",
+      "traitKind": "method",
+      "methodIndex": 2657,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "d239ba2f95f1a75d8b4623b90f7e163c863491c5902af1a0ccb6b28501a6eb1c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.getBrowserFocusComponent",
+      "traitKind": "method",
+      "methodIndex": 2707,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "flash.display.InteractiveObject",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "db44a86004d067f7166791fdd6b907bfe9f249865f5169ee6a376f3b9ac83c6b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getChildIndex",
+      "traitKind": "method",
+      "methodIndex": 2673,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObjectContainer",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "68e485757bb401b094d2bfcd8190b2ec4531fee80aa603b7dca851c286fa0e42",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.getIndexOfFocusedObject",
+      "traitKind": "method",
+      "methodIndex": 2679,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "3b73ecdecab31ac3e833e516c10b2e740cc1d6949bd17eb56d9e009763a4ca65",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.getIndexOfNextObject",
+      "traitKind": "method",
+      "methodIndex": 2680,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Boolean",
+        "Boolean",
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 374,
+      "bytecode": {
+        "codeLength": 374,
+        "codeSha256": "c5b1cb397c2ecaab85eecd46c50271a2d3ac04545c1c94b2486ecd323dd1d073",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMaxTabIndex",
+      "traitKind": "method",
+      "methodIndex": 2653,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "535723bdf61586485360ea18feeb83c139e3bc9a81101b14e58d4f131160fd3d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.getNextFocusManagerComponent2",
+      "traitKind": "method",
+      "methodIndex": 2685,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "flash.display.DisplayObject",
+        "int"
+      ],
+      "returnType": "PrivateNs.FocusInfo",
+      "hasBody": true,
+      "codeLength": 282,
+      "bytecode": {
+        "codeLength": 282,
+        "codeSha256": "fea2a3b7468db0b4288b81f16adae45dce6d0aa2d6b30a03bfe71482a923cd49",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "PrivateNs.getTopLevelFocusTarget",
+      "traitKind": "method",
+      "methodIndex": 2686,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.InteractiveObject"
+      ],
+      "returnType": "flash.display.InteractiveObject",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "a8415c8d7a94b214777a2d5aa6be5a7f7409b42b557d2fbd6615d59a49ba55ca",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.hasFocusableChildrenChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 2700,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "eabbd6ac26a59fc95a27011db1b26b6f3d400f024587218538bc984c5febb15a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.hideHandler",
+      "traitKind": "method",
+      "methodIndex": 2693,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "e184810309b35c21004400aa46fb4297ec858657fc56769b478cd9186e1159ef",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.isEnabledAndVisible",
+      "traitKind": "method",
+      "methodIndex": 2669,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 118,
+      "bytecode": {
+        "codeLength": 118,
+        "codeSha256": "2fdbb02c5368d0aedef0965550830950255e461814debbcd30d62a37ca072ec6",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.isParent",
+      "traitKind": "method",
+      "methodIndex": 2668,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObjectContainer",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "f4c1c7c759ed665d9fb51f7398c76775ecfac094494e7e5668be5f5f8693fc05",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.isTabVisible",
+      "traitKind": "method",
+      "methodIndex": 2677,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "d7e6eb7ba916b1631ae24521264dd9f09b7d2cdb6f256bdcf7673827ea5d82a4",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.isValidFocusCandidate",
+      "traitKind": "method",
+      "methodIndex": 2678,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "ec26baf8f22d666f646c4db1ffff2e536e115a249dfb87516e7d78348b821e74",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseDownCaptureHandler",
+      "traitKind": "method",
+      "methodIndex": 2705,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "107425db1d43cfaaf4d3c22c9d8b8b86a064b8ac6ea94b76a7d58acecb6129c7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseDownHandler",
+      "traitKind": "method",
+      "methodIndex": 2706,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "57ec0d1fad3b7a0ff9bcdc6b7179201fad26c0b1f351524f55ca9f7869bc3e79",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseFocusChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 2701,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "2e4d6ecccf329fcd9c37b64a1f15822383899d98b7a0a0f6267b567f7a069883",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.removedHandler",
+      "traitKind": "method",
+      "methodIndex": 2690,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 258,
+      "bytecode": {
+        "codeLength": 258,
+        "codeSha256": "a86f03a083b5d69eda695d048beb51091c02a074049ecf16dfa823aed7c7452b",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeFocusables",
+      "traitKind": "method",
+      "methodIndex": 2691,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 191,
+      "bytecode": {
+        "codeLength": 191,
+        "codeSha256": "f2116bb47c668cdcff0552a62ebbcb49e75583f8b72e1e320707eb4ea223d77f",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.setFocusToComponent",
+      "traitKind": "method",
+      "methodIndex": 2682,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "7190b487461028798ccf1b0e22686b03572d9c450041cc358f2d6a926937ae4a",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.setFocusToNextObject",
+      "traitKind": "method",
+      "methodIndex": 2681,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "df928fd5ef263d0fceb9d2b2afb69850f924fda23bb44f7e7d665ce12bc209fe",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.showHandler",
+      "traitKind": "method",
+      "methodIndex": 2692,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "41263133ec74c898a78ca521807720f665e4a61ad347d39b66fae31509c19b22",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.sortByDepth",
+      "traitKind": "method",
+      "methodIndex": 2672,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 299,
+      "bytecode": {
+        "codeLength": 299,
+        "codeSha256": "e4f10c3c700034a8022a00e08860498dcd65999e132384cd2e4c243466230daa",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "PrivateNs.sortByTabIndex",
+      "traitKind": "method",
+      "methodIndex": 2670,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.InteractiveObject",
+        "flash.display.InteractiveObject"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "20d29e68e250a4ede902384d490496bd5b6de1b913012b2649ca43aafe71eb75",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.sortFocusableObjects",
+      "traitKind": "method",
+      "methodIndex": 2674,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 129,
+      "bytecode": {
+        "codeLength": 129,
+        "codeSha256": "17f85bd9b6b16d24893f1cad0d80a2dfa6f6213323765f49ed90925a8340e845",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.sortFocusableObjectsTabIndex",
+      "traitKind": "method",
+      "methodIndex": 2671,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 149,
+      "bytecode": {
+        "codeLength": 149,
+        "codeSha256": "ff762ea925ba7058cab213ef51c0f01a07658236617e37abf4a282874df2ef10",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.tabChildrenChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 2699,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "bcf496aca5545e52e58aa7bea9ca99875dba034f241957967c1e678067123c85",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.tabFocusEnabledChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 2698,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 150,
+      "bytecode": {
+        "codeLength": 150,
+        "codeSha256": "d2468f94feee0fac1665109f43a9914c95e62c54f8448c062cc905829585c294",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.tabIndexChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 2697,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "733680f7a6e75d8a123fa3f2c44ca52231e6bce5ce26389b1708fd3dc040df98",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.viewHideHandler",
+      "traitKind": "method",
+      "methodIndex": 2695,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "6b43933babb74b3439c857d37901bdd6cc31a87814ad42aa328d99e3eb16db3d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setFocus",
+      "traitKind": "method",
+      "methodIndex": 2655,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.IFocusManagerComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "724bcd7ef9e5079201dbce1536469f4814dc55c8327bb524407fcce9dd69f69e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "showFocus",
+      "traitKind": "method",
+      "methodIndex": 2662,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "9cf6621c31e20795a66c7373a638200cae34ba53aa230331c2694ab3e018e73b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "showFocusIndicator",
+      "traitKind": "getter",
+      "methodIndex": 2640,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d864a44cd558a86a65bb153d5c70f98bcffe7120edc61a7306cb140518d529ab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showFocusIndicator",
+      "traitKind": "setter",
+      "methodIndex": 2641,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "db4f3f6c7924eee5ae7c8c44302c8b00cd9b5d12e46ca7254c82becde8eee95a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 2687,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "955737d36e1515d1f7b3e8297afc612d00bb4d08be3aff41354c83fb9c4951a7",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

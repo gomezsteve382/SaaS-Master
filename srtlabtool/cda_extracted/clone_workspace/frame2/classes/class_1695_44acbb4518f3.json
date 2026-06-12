@@ -1,0 +1,220 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1695,
+  "className": "mx.binding.utils.ChangeWatcher",
+  "classNameNormalized": "mx.binding.utils.ChangeWatcher",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 33364,
+  "cinitMethod": 33359,
+  "iinitBytecode": {
+    "codeLength": 105,
+    "codeSha256": "f7e4d41de2bf435574d52bdafd4260e18b0a64bcc8acdbbb692334bbb630d157",
+    "bytecodeLineCount": 7
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getValue",
+      "traitKind": "method",
+      "methodIndex": 33366,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "6a61f5c62114e8cc13a5e7d2d5124696e7501b1c3cbffc6ac0562d17ea138cae",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "isWatching",
+      "traitKind": "method",
+      "methodIndex": 33368,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "dfe7892f9008ace5a0a8530304b95732f0f45af6b6b5ec60096f8116c9b41e23",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.getHostPropertyValue",
+      "traitKind": "method",
+      "methodIndex": 33370,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "0940d8e281cf922cc958ab01d645e3b7b4116e8a16464103e55609e56a22d192",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.wrapHandler",
+      "traitKind": "method",
+      "methodIndex": 33371,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 179,
+      "bytecode": {
+        "codeLength": 179,
+        "codeSha256": "d562ede4085a134827276ed387977f22acf04a4b86f9cff9e8819eb7d9816e6f",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "reset",
+      "traitKind": "method",
+      "methodIndex": 33369,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 203,
+      "bytecode": {
+        "codeLength": 203,
+        "codeSha256": "a55debd1d97d3319c191242036886387d93effac943feb2b46f73836ed53e1ca",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "setHandler",
+      "traitKind": "method",
+      "methodIndex": 33367,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "e0b2bddc5923e79e3067217ea471970326517a365c179d78dbe70501e4b48d17",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "unwatch",
+      "traitKind": "method",
+      "methodIndex": 33365,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "9297eff3e8884357968404f4c28fe3a65882aa58285c98f40979930aa80a4f3b",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "canWatch",
+      "traitKind": "method",
+      "methodIndex": 33361,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "95c0b70d123bbb84709bd0b5a18ad64298f6e1d4d9d8f7e6bc45c9ad6291da53",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getEvents",
+      "traitKind": "method",
+      "methodIndex": 33362,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "b8380f290b4007d63bd34895aa416b45b28cbade8aa8e453d577f9b1c1a89d74",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.isEmpty",
+      "traitKind": "method",
+      "methodIndex": 33363,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "13dfa072ce00593691e81220682d6dd9d08670a2155c946238cb7c3c0634e8d2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "watch",
+      "traitKind": "method",
+      "methodIndex": 33360,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "Function",
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "mx.binding.utils.ChangeWatcher",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "df3405b5d282ec5dfb87679bfb7fcae4ef434c8d3093c53f988dd38a316b6f0f",
+        "bytecodeLineCount": 6
+      }
+    }
+  ]
+}

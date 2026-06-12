@@ -1,0 +1,370 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 561,
+  "className": "spark.primitives.RectangularDropShadow",
+  "classNameNormalized": "spark.primitives.RectangularDropShadow",
+  "superName": "mx.core.UIComponent",
+  "superNameNormalized": "mx.core.UIComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 10825,
+  "cinitMethod": 10824,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "d8c35021d8bc1e394bc6985da5d5af4f2b619448a828e1c88d17bae5c19a5faf",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "alpha",
+      "traitKind": "getter",
+      "methodIndex": 10826,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "94d24c526a4272f8b0c85dd2281e8b989b4c3c5bc1633970f4ef28b9b9fa08fa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "alpha",
+      "traitKind": "setter",
+      "methodIndex": 10827,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "5ad6c087233ce05be222c8c84741a4818b926a2b67e609cd1e5b4fe4a54bba1c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "angle",
+      "traitKind": "getter",
+      "methodIndex": 10828,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b5553e763b92f4cd91ca4b828ada0afe3e1b713d221b12ab675c243722b53a37",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "angle",
+      "traitKind": "setter",
+      "methodIndex": 10829,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "529f837f3f5d70ccee17966362b9561c9b93f4b03f24e70d0196d27c3d3a216b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "blRadius",
+      "traitKind": "getter",
+      "methodIndex": 10838,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1c3e82ffaee21048f7316c56f50e1e719b95e3822f044dfa690c762c9d0b8a19",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "blRadius",
+      "traitKind": "setter",
+      "methodIndex": 10839,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "941d49d801977edf879c1a6f961f81225d15fa44d5b751616a8e1eefc004876c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "blurX",
+      "traitKind": "getter",
+      "methodIndex": 10842,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a6e15a17898a69c060d35eee11f114ace1dda4853a61b133e79473326eeaf2a1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "blurX",
+      "traitKind": "setter",
+      "methodIndex": 10843,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "18ee9dd2471ebb318be65991e06d6993e3947644626ca9eb20354d07c2df056f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "blurY",
+      "traitKind": "getter",
+      "methodIndex": 10844,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "18ff0cb88fabc0fdc8a7312f3a7b714966d4424653bbe244de7fa65d6f12c669",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "blurY",
+      "traitKind": "setter",
+      "methodIndex": 10845,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "c968c8a76c13f1df301d747b3d7f72e5031a3b65076adbef0ece1c1ea24f72eb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "brRadius",
+      "traitKind": "getter",
+      "methodIndex": 10840,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5a7eb72111f48036d0a0a0b2ec25da99bbdd52354cc4def16475394be12b82f1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "brRadius",
+      "traitKind": "setter",
+      "methodIndex": 10841,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "0610961ff786ad82915a822d09db0297b948a522da71e0e8b59919fb25f90a67",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "color",
+      "traitKind": "getter",
+      "methodIndex": 10830,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "55fc7bbe14150a5c2c3e98978a84929441449757eb29feb5d1920cd95a9969f0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "color",
+      "traitKind": "setter",
+      "methodIndex": 10831,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "6093aef7e1f0b25500bd78fbe0d20af8b283c3c34a1fc73e11dbe1d6dc0a69a1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "distance",
+      "traitKind": "getter",
+      "methodIndex": 10832,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "321971fd4d582033dd97b4e32c57e1ea54d733fe5a4fdf48f0eb86ea45d49194",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "distance",
+      "traitKind": "setter",
+      "methodIndex": 10833,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "2634424f2963b4d2b64bfd20dbf877eb43bf023125eee5ee1a3115e0a9320ac4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.primitives:RectangularDropShadow.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 10846,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 265,
+      "bytecode": {
+        "codeLength": 265,
+        "codeSha256": "d776ef43afb33a99bd9b20d3ed12b4c30fb9f83f38ae6a0997eed80ec62afae5",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "tlRadius",
+      "traitKind": "getter",
+      "methodIndex": 10834,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d04913c999b6c4fc823dac885d323fd70967c1dab22b0d196b8d080e6cecc87f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "tlRadius",
+      "traitKind": "setter",
+      "methodIndex": 10835,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "fd14761891e7a74b1cca926ab846a95e2381c3462bf9a4b21f3f424bb50e9a9c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "trRadius",
+      "traitKind": "getter",
+      "methodIndex": 10836,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c32de8dc8b66b0dd8b1ac569648eaed7d64d97ee8c7fcdfd7f3806ff5e0cedce",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "trRadius",
+      "traitKind": "setter",
+      "methodIndex": 10837,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "7a8885fe811ba8f2ed438c9de34a0f7fd077e5f18064a2ef83acf105645a22b1",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,110 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3350,
+  "className": "com.diagnosticProcedures.node.CallProcedureNode",
+  "classNameNormalized": "com.diagnosticProcedures.node.CallProcedureNode",
+  "superName": "com.diagnosticProcedures.node.ProcedureNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.ProcedureNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51619,
+  "cinitMethod": 51617,
+  "iinitBytecode": {
+    "codeLength": 8,
+    "codeSha256": "759834360b3138b4f9f149bb91b34cde0e9d339d5cd03f58962655320a4089b4",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.node:CallProcedureNode.getRecorder",
+      "traitKind": "method",
+      "methodIndex": 51621,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.logging.Recorder",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.node:CallProcedureNode.getSimulation",
+      "traitKind": "method",
+      "methodIndex": 51622,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.test.ISimulation",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.node:CallProcedureNode.stateChanged",
+      "traitKind": "method",
+      "methodIndex": 51623,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.DynamicEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 306,
+      "bytecode": {
+        "codeLength": 306,
+        "codeSha256": "eb546353e09a7458db79edd2c78577d81badd1a87779fc97d544857d1f0101ba",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51620,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 350,
+      "bytecode": {
+        "codeLength": 350,
+        "codeSha256": "22d7f3ce786c10d7f14adc997e9e474ff4360507af47904dbb61d52dd1a892b2",
+        "bytecodeLineCount": 22
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.ACCESS_KEY",
+      "traitKind": "getter",
+      "methodIndex": 51618,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "f2bba1ad17dedeb02b4d46331cdfc5c042657e8fafec2404224f22bbee45fc20",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

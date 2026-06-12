@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3664,
+  "className": "org.spicefactory.parsley.core.state.manager.impl.DefaultGlobalScopeManager",
+  "classNameNormalized": "org.spicefactory.parsley.core.state.manager.impl.DefaultGlobalScopeManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.state.manager.GlobalScopeManager"
+  ],
+  "iinitMethod": 55039,
+  "cinitMethod": 55034,
+  "iinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "dc38a29811bda55a7ed5b140acb70874cddf8b6b0a75529b779e9e8a589bfa85",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addScope",
+      "traitKind": "method",
+      "methodIndex": 55036,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.scope.Scope"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 213,
+      "bytecode": {
+        "codeLength": 213,
+        "codeSha256": "2e415059f7406c11265cafbdd8a800fe266e434867ae014a55b02ecfa96fbade",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeScope",
+      "traitKind": "method",
+      "methodIndex": 55037,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.scope.Scope"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "4e1d96be8d90b7ff39761fe42112d1d9d5dd509bb277057cdbd0dfc132c8018c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "publicState",
+      "traitKind": "getter",
+      "methodIndex": 55038,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.state.GlobalScopeState",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "dff871a9d689ce34fccec337aba45290d2d777ff3586d77d11425223b4709126",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

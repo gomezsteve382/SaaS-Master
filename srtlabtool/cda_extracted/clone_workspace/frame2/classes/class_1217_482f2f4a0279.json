@@ -1,0 +1,240 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1217,
+  "className": "com.chrysler.cda.presentation.component.proxi.components.tabs.ConsoleNavigatorContent",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.tabs.ConsoleNavigatorContent",
+  "superName": "spark.components.NavigatorContent",
+  "superNameNormalized": "spark.components.NavigatorContent",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.proxi.components.tabs.IMXMLSupportContent"
+  ],
+  "iinitMethod": 27562,
+  "cinitMethod": 27561,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "c9a9e81c5875e5bb0e3145e201401b8072c63c287f37dbdb15c026c934d47d52",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 46,
+    "codeSha256": "b9ec602a38ec0ead9292193ca3f69c85b6e66fe53f677503d290c857e38ebc1e",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addLineHandler",
+      "traitKind": "method",
+      "methodIndex": 27563,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.WriteToConsoleMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 264,
+      "bytecode": {
+        "codeLength": 264,
+        "codeSha256": "de715067959b776842e715e84a7e7238f73b2a6e07993c52de1b9a12a8a82080",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "clear",
+      "traitKind": "method",
+      "methodIndex": 27564,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "f51403c4a8d9f5741e661834e9956cd132699f156e57124e492a38835dfd4fea",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.tabs:ConsoleNavigatorContent.partAdded",
+      "traitKind": "method",
+      "methodIndex": 27566,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "b8ae92ed07ce383abd99dd601657b7906c32eee696def5006b9f077ab5f46147",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.tabs:ConsoleNavigatorContent.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 27576,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1303af3bf07bad41cd05fa1106d68e553480582182da22005d1f9addd075a79a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.tabs:ConsoleNavigatorContent.updateScroller",
+      "traitKind": "method",
+      "methodIndex": 27570,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "8385ca9a0a6ec8be6ef63d69fc216e7a10f47e220931d5fc55519cb5212b4b4d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 27572,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ddaac65bf6a1c46b35dec2378a102560d4c976a99d96c8fee7952357bddb2233",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 27573,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "093a8ca1070c27ddab7d2e29bf2918a0d7320e0cb4f4e5a8f6a0a8b6556dcba9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mxmlSupportContent",
+      "traitKind": "getter",
+      "methodIndex": 27574,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "591b9a80e1919a9dcf5f48714de513311accdd3076e78c7595aa813660450331",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mxmlSupportContent",
+      "traitKind": "setter",
+      "methodIndex": 27575,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "2fbfbbdd62c297bbd42ac9dd617aac95ad23df2233420ea9d505126d5ffac994",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mxmlSupportWidth",
+      "traitKind": "getter",
+      "methodIndex": 27571,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "a31f387e1a2ed213f2d9bb21014ca24add2f63cb2e24e9456a76c7d2719ed45c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.setConsole",
+      "traitKind": "method",
+      "methodIndex": 27568,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "1419438cef34b77af7c0c46d4ec765e77fe75917697850c299b268301ccabce9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.setScroller",
+      "traitKind": "method",
+      "methodIndex": 27567,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "868d50c8e2434752342370a5fd5371c0c150349064a9247a8d399be926284098",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "scrollPositionChanged",
+      "traitKind": "method",
+      "methodIndex": 27565,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "fed5460c6157a91602bfd104bd58b63e8ac6dc4186036ec6b50b5eb08faf8c3f",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

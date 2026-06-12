@@ -1,0 +1,558 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1392,
+  "className": "spark.skins.spark.VScrollBarThumbSkin",
+  "classNameNormalized": "spark.skins.spark.VScrollBarThumbSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 30437,
+  "cinitMethod": 30436,
+  "iinitBytecode": {
+    "codeLength": 480,
+    "codeSha256": "f470c115323e311ea1ef4e24c1dcf17287b34ca00b0d66c95f2ca84fd5bc892b",
+    "bytecodeLineCount": 30
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_VScrollBarThumbSkin_GradientEntry1",
+      "traitKind": "getter",
+      "methodIndex": 30460,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0a9469d8425a4130db74a81534bafa1bb29b066790f129bbf5a28830b3e6bb18",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_VScrollBarThumbSkin_GradientEntry1",
+      "traitKind": "setter",
+      "methodIndex": 30461,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "4f5ddff319a51bc7d46dd5c03b349c6baa57bc68cbd2de75a2a6de082cdac49c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_VScrollBarThumbSkin_GradientEntry2",
+      "traitKind": "getter",
+      "methodIndex": 30462,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "00e199c6e833bb4ea1dd5f0e2411c751974161a6e398d233c2ada25e987c1e6f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_VScrollBarThumbSkin_GradientEntry2",
+      "traitKind": "setter",
+      "methodIndex": 30463,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "5dce5ae8365e189e31302b05583dd120454f1471dc85bc628cf8007746d311f7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_VScrollBarThumbSkin_GradientEntry3",
+      "traitKind": "getter",
+      "methodIndex": 30464,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f38738c2a187068f990c75b88b357d6ab626ab95f97d68f300728464232b9f5f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_VScrollBarThumbSkin_GradientEntry3",
+      "traitKind": "setter",
+      "methodIndex": 30465,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "82f75463213b2ee97c69d2fd31992e324633c35cd692ea3ab8c5f02dc2b2903a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_VScrollBarThumbSkin_GradientEntry4",
+      "traitKind": "getter",
+      "methodIndex": 30466,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "68f8908fa891875c4bf51b57d050cdaa4affc9e93fb1b53a537d2a17b6dc7081",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_VScrollBarThumbSkin_GradientEntry4",
+      "traitKind": "setter",
+      "methodIndex": 30467,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "dae9ec9fc054463ba32aecd148a9e8ee2dbfa22bd9deddd2b4f479af6dd34867",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_VScrollBarThumbSkin_SolidColor2",
+      "traitKind": "getter",
+      "methodIndex": 30468,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b3dd218a5a391901ee513370bc1354d8756d957b3e6caa0e29e7d958c9420c2d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_VScrollBarThumbSkin_SolidColor2",
+      "traitKind": "setter",
+      "methodIndex": 30469,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "cd75e89ccbf5068d7009d3268972b4d4ec2e562628e295aa54fc4ecefc93aaa7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 30470,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1b77de7b53887dc10c9f8b64e8bc176e6f646d496a69772a077920b990c808ef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 30471,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "33187dbc9e234b293b5aa77f907587e07fe21d700b7271df5762a091ef87f153",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 30439,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 30438,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "9cd74ea19a4518545394aebc4eec2e9cd48033dd0fec6ca3b94b937aa144743b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_GradientEntry1_i",
+      "traitKind": "method",
+      "methodIndex": 30446,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "2313b43a1061286fa20985341d2a4af29f28161531833a76765dfac5e01419ff",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_GradientEntry2_i",
+      "traitKind": "method",
+      "methodIndex": 30447,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "898d795a014c990af2df706b8c0df94ea9acb272ab0ef14b4873507c769b4aa8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_GradientEntry3_i",
+      "traitKind": "method",
+      "methodIndex": 30452,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "bc475a683ceecb398a2cbc548e570147833dd2e3e72bc09a81a12f4b2f311429",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_GradientEntry4_i",
+      "traitKind": "method",
+      "methodIndex": 30453,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "14f2e87b3db7e266812bfdfb084cd956d57f1443eef8420a7ca80d5e4b89f7c8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_LinearGradient1_c",
+      "traitKind": "method",
+      "methodIndex": 30445,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "0e077e8c103d2c3039106f40300d913ff1c2585cf4c7df2cdee0b3364473476c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_LinearGradientStroke1_c",
+      "traitKind": "method",
+      "methodIndex": 30451,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "029efc09193fadae4f013f02605eaf349568d7d505556911c763109ce7eca985",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_Rect1_c",
+      "traitKind": "method",
+      "methodIndex": 30441,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "4015fc54189167315da9e84f3a8ddaa00b53481f7ac36e6e11a844eb2b07935d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_Rect2_c",
+      "traitKind": "method",
+      "methodIndex": 30444,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "07614b0de053a3db71aa61ccffbf5dcf08d5cf1fd99d157d3a4258d202a9eb3e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_Rect3_c",
+      "traitKind": "method",
+      "methodIndex": 30448,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "7913bb067b3db30909fb115f29a917901f319f6093f0215d7ac51150b56f64c5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_Rect4_c",
+      "traitKind": "method",
+      "methodIndex": 30450,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "e6a61de62134218c17b1868844e52a88400dc48b92338dc760ded62292a26660",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_Rect5_c",
+      "traitKind": "method",
+      "methodIndex": 30454,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "31ec7ae5889bb1111147c32788a24d471909d785de4c241765d454aba253bec8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_Rect6_c",
+      "traitKind": "method",
+      "methodIndex": 30456,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "f65fc69cf04ed67c73eced474ff2b0d1d0e2a3bd7101d10e7b26bd15495a417d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_Rect7_c",
+      "traitKind": "method",
+      "methodIndex": 30458,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "74ce7802d616c606fb382e4bde36c49551a141e435ef9aa05488f28a8fec5764",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_SolidColor1_c",
+      "traitKind": "method",
+      "methodIndex": 30443,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "b587436872524703bbdc3c3c6914c24a86fbd808e2114fd4bdc30675df3a4363",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_SolidColor2_i",
+      "traitKind": "method",
+      "methodIndex": 30449,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "c826ad383a5640332875355f3eb445a866329bd5bf5e69306d7fd04495a7f63f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_SolidColor3_c",
+      "traitKind": "method",
+      "methodIndex": 30455,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "7382ba6c3af28d54f6f95d4e9a9b4e42172e2f683da8bf1603bb138448efdfc9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_SolidColor4_c",
+      "traitKind": "method",
+      "methodIndex": 30457,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "7382ba6c3af28d54f6f95d4e9a9b4e42172e2f683da8bf1603bb138448efdfc9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_SolidColor5_c",
+      "traitKind": "method",
+      "methodIndex": 30459,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "7382ba6c3af28d54f6f95d4e9a9b4e42172e2f683da8bf1603bb138448efdfc9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VScrollBarThumbSkin_SolidColorStroke1_c",
+      "traitKind": "method",
+      "methodIndex": 30442,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "02a37a5bcdb0df75cef1e8048db733e906a630e5f484d4b478add8c95aef39a6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:VScrollBarThumbSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 30440,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

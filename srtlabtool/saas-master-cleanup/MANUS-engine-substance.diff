@@ -1,0 +1,795 @@
+diff --git a/artifacts/srt-lab/src/lib/__tests__/bcmSec16Resolve.equivalence.test.js b/artifacts/srt-lab/src/lib/__tests__/bcmSec16Resolve.equivalence.test.js
+new file mode 100644
+index 0000000..b09d488
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/__tests__/bcmSec16Resolve.equivalence.test.js
+@@ -0,0 +1,59 @@
++import { describe, it, expect } from 'vitest';
++import { engResolveBcmSec16 } from '../engBcmParse.js';
++import { resolveBcmSec16 } from '../parseModule.js';
++import { rekeyVirginBcmFromRfhub } from '../mpc5606bBcm.js';
++import { crc16ccitt } from '../crc.js';
++
++/* The engine's resolveBcmSec16 must remain a byte-for-byte SUPERSET of the
++ * ModuleSync resolution (engResolveBcmSec16) so delegating the write path to
++ * marryModule can never change the secret a working BCM produces. This test
++ * locks that contract — including the legacy 2014 (0x00C8/0x00F0) mirror that
++ * the engine originally missed. */
++
++const hex = (b) => (b ? Array.from(b).map((x) => x.toString(16).padStart(2, '0')).join('') : null);
++const eng = (bytes) => { const r = engResolveBcmSec16(bytes, 'bcm.bin'); return r ? hex(Uint8Array.from(r)) : null; };
++const engine = (bytes) => { const r = resolveBcmSec16(bytes); return (r && r.bytes && !r.blank) ? hex(Uint8Array.from(r.bytes)) : null; };
++
++const ROOT = Uint8Array.from({ length: 16 }, (_, i) => (i * 31 + 7) & 0xff);
++
++function placeLegacy(buf, off, idx, sec16) {
++  buf[off] = idx;
++  for (let k = 0; k < 16; k++) buf[off + 1 + k] = sec16[k];
++  buf[off + 17] = 0x8F; buf[off + 18] = 0xFF; buf[off + 19] = 0xFF;
++  const cin = new Uint8Array(20); cin[0] = idx;
++  for (let k = 0; k < 16; k++) cin[1 + k] = sec16[k];
++  cin[17] = 0x8F; cin[18] = 0xFF; cin[19] = 0xFF;
++  const c = crc16ccitt(cin);
++  buf[off + 20] = (c >> 8) & 0xFF; buf[off + 21] = c & 0xFF;
++}
++
++describe('resolveBcmSec16 ≡ engResolveBcmSec16 (delegation safety)', () => {
++  it('agrees on a split-record BCM', () => {
++    const bcm = rekeyVirginBcmFromRfhub(new Uint8Array(65536).fill(0xFF), ROOT).bytes;
++    expect(engine(bcm)).toBe(eng(bcm));
++    expect(engine(bcm)).not.toBeNull();
++  });
++
++  it('agrees on a legacy 2014 mirror BCM (0x00C8 / 0x00F0)', () => {
++    const bcm = new Uint8Array(65536).fill(0xFF);
++    const sec = Uint8Array.from({ length: 16 }, (_, i) => (i * 17 + 3) & 0xff);
++    placeLegacy(bcm, 0x00C8, 0x01, sec);
++    placeLegacy(bcm, 0x00F0, 0x02, sec);
++    expect(eng(bcm)).not.toBeNull();        // ModuleSync always found it
++    expect(engine(bcm)).toBe(eng(bcm));     // engine now finds the SAME secret
++  });
++
++  it('agrees on a virgin BCM (both report nothing)', () => {
++    const bcm = new Uint8Array(65536).fill(0xFF);
++    expect(eng(bcm)).toBeNull();
++    expect(engine(bcm)).toBeNull();
++  });
++
++  it('the legacy candidate cannot false-positive without a valid CRC', () => {
++    const bcm = new Uint8Array(65536).fill(0xFF);
++    const sec = Uint8Array.from({ length: 16 }, (_, i) => (i + 1) & 0xff);
++    placeLegacy(bcm, 0x00C8, 0x01, sec);
++    bcm[0x00C8 + 21] ^= 0xFF; // corrupt the stored CRC
++    expect(engine(bcm)).toBeNull(); // rejected, not treated as a phantom secret
++  });
++});
+diff --git a/artifacts/srt-lab/src/lib/__tests__/marryAll.test.js b/artifacts/srt-lab/src/lib/__tests__/marryAll.test.js
+new file mode 100644
+index 0000000..ae23d10
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/__tests__/marryAll.test.js
+@@ -0,0 +1,40 @@
++import { describe, it, expect } from 'vitest';
++import { marryAll } from '../marryModule.js';
++import { parseModule } from '../parseModule.js';
++import { rekeyVirginBcmFromRfhub } from '../mpc5606bBcm.js';
++
++const ROOT = Uint8Array.from({ length: 16 }, (_, i) => (i * 31 + 7) & 0xff);
++const arr = (x) => (x ? Array.from(x) : x);
++const gpec2a = () => { const b = new Uint8Array(4096); const v = '2C3CDXBG1KH100001'; for (let i = 0; i < 17; i++) b[i] = v.charCodeAt(i); return b; };
++const rfhGen2 = () => { const b = new Uint8Array(4096); b[0x500] = 0xAA; b[0x501] = 0x55; b[0x502] = 0x31; b[0x503] = 0x01; return b; };
++const bcmSrc = () => rekeyVirginBcmFromRfhub(new Uint8Array(65536).fill(0xFF), ROOT).bytes;
++
++describe('marryAll — 3-module marry from a BCM source of truth', () => {
++  it('marries RFHUB + PCM from the BCM and confirms all 3 in sync', () => {
++    const r = marryAll({ bcm: { bytes: bcmSrc() }, rfhub: { bytes: rfhGen2() }, pcm: { bytes: gpec2a() }, vin: '2C3CDXBG1KH100001' });
++    expect(r.ok).toBe(true);
++    expect(r.crossSync).toBe(true);
++    expect(r.source).toBe('BCM');
++    expect(r.files.map((f) => f.name).sort()).toEqual(['PCM_MARRIED_2C3CDXBG1KH100001.bin', 'RFHUB_MARRIED_2C3CDXBG1KH100001.bin']);
++    // both married outputs derive from the same BCM root
++    const rfhSlot = parseModule(r.results.rfhub.bytes, 're').sec16s[0].raw;
++    const pcmSec6 = parseModule(r.results.pcm.bytes, 're').pcmSec6.raw;
++    expect(arr(rfhSlot).slice(0, 16)).toEqual(arr(ROOT));
++    expect(arr(pcmSec6).slice(0, 6)).toEqual(arr(ROOT).slice(0, 6));
++    expect(arr(rfhSlot).slice(0, 6)).toEqual(arr(pcmSec6).slice(0, 6)); // in sync
++    // the direct RFHUB <-> PCM verification pass ran and passed
++    expect(r.checks.some((c) => /Direct RFHUB/i.test(c.label) && c.pass)).toBe(true);
++  });
++
++  it('works with a single target (RFHUB only)', () => {
++    const r = marryAll({ bcm: { bytes: bcmSrc() }, rfhub: { bytes: rfhGen2() } });
++    expect(r.ok).toBe(true);
++    expect(r.files).toHaveLength(1);
++  });
++
++  it('refuses without a BCM, without targets, or from a virgin BCM', () => {
++    expect(marryAll({ rfhub: { bytes: rfhGen2() } }).ok).toBe(false);
++    expect(marryAll({ bcm: { bytes: bcmSrc() } }).ok).toBe(false);
++    expect(marryAll({ bcm: { bytes: new Uint8Array(65536).fill(0xFF) }, pcm: { bytes: gpec2a() } }).ok).toBe(false);
++  });
++});
+diff --git a/artifacts/srt-lab/src/lib/__tests__/rfhSec16Resolve.equivalence.test.js b/artifacts/srt-lab/src/lib/__tests__/rfhSec16Resolve.equivalence.test.js
+new file mode 100644
+index 0000000..ca36677
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/__tests__/rfhSec16Resolve.equivalence.test.js
+@@ -0,0 +1,46 @@
++import { describe, it, expect } from 'vitest';
++import { engParseRfh } from '../../tabs/ModuleSync.jsx';
++import { parseModule } from '../parseModule.js';
++
++/* ModuleSync's RFH master secret (engParseRfh.sec16.slot1) must match the
++ * engine's RFHUB resolution (parseModule sec16s[0].raw) so the RFH-source sync
++ * actions resolve the SAME secret the canonical writer (writeRfhSec16Gen1/Gen2)
++ * writes. Locks the fix for the Gen1 0x0226→0x00AE offset bug, where the master
++ * was read from the key-table region instead of the SEC16 slot. */
++
++const arr = (x) => (x ? Array.from(x) : x);
++const SECRET = Uint8Array.from({ length: 16 }, (_, i) => (i * 13 + 5) & 0xff);
++
++const engSlot1 = (b) => engParseRfh(b, 'rfh.bin')?.sec16?.slot1;
++const engineSlot1 = (b) => parseModule(b, 'rfh')?.sec16s?.[0]?.raw;
++
++describe('engParseRfh.sec16.slot1 ≡ parseModule RFHUB sec16s[0] (writer-aligned)', () => {
++  it('Gen2 (canonical banner, secret @0x050E)', () => {
++    const b = new Uint8Array(4096);
++    b[0x500] = 0xAA; b[0x501] = 0x55; b[0x502] = 0x31; b[0x503] = 0x01;
++    b.set(SECRET, 0x050E); b.set(SECRET, 0x0522);
++    expect(arr(engSlot1(b)).slice(0, 16)).toEqual(arr(engineSlot1(b)).slice(0, 16));
++    expect(arr(engSlot1(b)).slice(0, 16)).toEqual(arr(SECRET));
++  });
++
++  it('Gen2-EEE (non-canonical banner, secret @0x050E by SIZE)', () => {
++    const b = new Uint8Array(4096);
++    b[0x500] = 0xFF; b[0x501] = 0xFF; b[0x502] = 0x00; b[0x503] = 0x00;
++    b.set(SECRET, 0x050E); b.set(SECRET, 0x0522);
++    expect(arr(engSlot1(b)).slice(0, 16)).toEqual(arr(engineSlot1(b)).slice(0, 16));
++  });
++
++  it('Gen1 24C16 — reads SEC16 from 0x00AE (writer offset), not 0x0226', () => {
++    const b = new Uint8Array(2048);
++    b.set(SECRET, 0x00AE); b.set(SECRET, 0x00C0);
++    expect(arr(engSlot1(b)).slice(0, 16)).toEqual(arr(SECRET));          // reads the right place
++    expect(arr(engSlot1(b)).slice(0, 16)).toEqual(arr(engineSlot1(b)).slice(0, 16));
++  });
++
++  it('Gen1 — a secret at the OLD 0x0226 region is NOT mistaken for SEC16', () => {
++    const b = new Uint8Array(2048);
++    b.set(SECRET, 0x0226); // key-table region, not SEC16
++    const slot = engSlot1(b);
++    expect(slot.every((x) => x === 0x00)).toBe(true); // 0x00AE is blank → no phantom secret
++  });
++});
+diff --git a/artifacts/srt-lab/src/lib/engBcmParse.js b/artifacts/srt-lab/src/lib/engBcmParse.js
+new file mode 100644
+index 0000000..ede942b
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/engBcmParse.js
+@@ -0,0 +1,189 @@
++/* engBcmParse.js — pure, node-importable BCM (MPC5605B/06B DFLASH) parser,
++ * extracted verbatim from ModuleSync.jsx's engParseBcm so it can be unit-tested
++ * and reused without pulling the 4,800-line JSX tab into Node/vitest.
++ *
++ * This is the resolution model the ModuleSync write actions read from
++ * (sec16Records / sec16Mirrors). It is kept here so an equivalence test can
++ * prove, byte-for-byte, where it agrees with parseModule.resolveBcmSec16 (the
++ * engine's resolver) and where it diverges — notably the legacy 2014-era mirror
++ * format at 0x00C8/0x00F0 that the engine did not originally handle.
++ *
++ * engCrc16(data, 0xFFFF, 0x1021) === crc16ccitt(data) (crc.js), so we reuse it.
++ */
++import { bcmTooSmall } from './parseModule.js';
++import { crc16ccitt as engCrc16 } from './crc.js';
++
++const VIN_RE = /^[12345][A-HJ-NPR-Z0-9]{16}$/;
++const BCM_SLOT_TYPES = [0x46, 0x52, 0x53, 0x56, 0x57];
++const VIN_LEN = 17;
++
++export function engParseBcm(bytes, filename) {
++  const small = bcmTooSmall(bytes, filename);
++  if (small) {
++    return {
++      ok: false, kind: 'BCM', size: bytes.length,
++      tooSmall: true, minSize: small.min, fileExt: small.ext,
++      vinSlots: [], vin: null, vinConsistent: false,
++      partNumbers: [], supplierSerial: null,
++      sec16Records: [], sec16Mirrors: [], sec16Consistent: false, sec16Hex: null, sec16MirrorHex: null,
++      banks: null,
++    };
++  }
++  const r = {
++    ok: false, kind: 'BCM', size: bytes.length,
++    vinSlots: [], vin: null, vinConsistent: false,
++    partNumbers: [], supplierSerial: null,
++    sec16Records: [], sec16Mirrors: [], sec16Consistent: false, sec16Hex: null, sec16MirrorHex: null,
++    banks: null,
++  };
++
++  const text = new TextDecoder('latin1').decode(bytes);
++  r.partNumbers = [...new Set([...text.matchAll(/68\d{6}/g)].map(m => m[0]))];
++  const sup = text.match(/TY[A-Z]\d{5}/);
++  if (sup) r.supplierSerial = sup[0];
++
++  /* Full VIN slots (00 46 XX 00 + 17 VIN bytes + CRC-16) */
++  for (let i = 0; i < bytes.length - 21; i++) {
++    if (bytes[i] !== 0x00 || bytes[i+1] !== 0x46) continue;
++    if (!BCM_SLOT_TYPES.includes(bytes[i+2])) continue;
++    if (bytes[i+3] !== 0x00) continue;
++    const vs = i + 4;
++    if (vs + 19 > bytes.length) continue;
++    let vin = '', valid = true;
++    for (let k = 0; k < VIN_LEN; k++) {
++      const b = bytes[vs + k];
++      if (b < 0x20 || b > 0x7E) { valid = false; break; }
++      vin += String.fromCharCode(b);
++    }
++    if (!valid || !VIN_RE.test(vin)) continue;
++    const storedCrc  = (bytes[vs + 17] << 8) | bytes[vs + 18];
++    const computedCrc = engCrc16(bytes.slice(vs, vs + 17));
++    r.vinSlots.push({ offset: vs, slotType: bytes[i+2], vin, storedCrc, computedCrc, crcOk: storedCrc === computedCrc });
++  }
++
++  if (r.vinSlots.length > 0) {
++    const c = {}; for (const s of r.vinSlots) c[s.vin] = (c[s.vin] || 0) + 1;
++    r.vin = Object.entries(c).sort((a, b) => b[1] - a[1])[0][0];
++    r.vinConsistent = Object.keys(c).length === 1;
++  }
++
++  /* SEC16 split records (bank 2 at 0x81A0/C0/E0, 7+9 byte format) */
++  for (let i = 0; i < bytes.length - 32; i++) {
++    if (bytes[i] !== 0xFF || bytes[i+1] !== 0xFF) continue;
++    let hdrOk = true;
++    for (let j = 2; j < 8; j++) if (bytes[i+j] !== 0x00) { hdrOk = false; break; }
++    if (!hdrOk) continue;
++    const idx = bytes[i+8]; if (idx !== 0x01 && idx !== 0x02) continue;
++    if (bytes[i+16] !== 0x04 || bytes[i+17] !== 0x04 || bytes[i+18] !== 0x00 || bytes[i+19] !== 0x14) continue;
++    const prefix = bytes.slice(i+9,  i+16);
++    const suffix = bytes.slice(i+20, i+29);
++    const sec16  = new Uint8Array(16);
++    sec16.set(prefix, 0); sec16.set(suffix, 7);
++    r.sec16Records.push({ offset: i, format: 'split', idx, sec16, trailer: bytes[i+29] });
++  }
++
++  /* Mirror records (slot 0xEB size 0x18, slot 0xCA size 0x28) in either bank */
++  const findMirrorsInBank = (bankBase, slotType, sizeByte, kind) => {
++    const bankEnd = Math.min(bankBase + 0x4000, bytes.length);
++    for (let i = bankBase; i < bankEnd - 32; i++) {
++      if (bytes[i]   === 0x00 && bytes[i+1] === 0x00 && bytes[i+2] === 0x00 &&
++          bytes[i+3] === sizeByte && bytes[i+4] === 0x00 && bytes[i+5] === 0x46 &&
++          bytes[i+6] === slotType && bytes[i+7] === 0x00) {
++        const idx   = bytes[i+8];
++        const sec16 = bytes.slice(i+9, i+25);
++        const allZero = sec16.every(b => b === 0x00);
++        const allFf   = sec16.every(b => b === 0xFF);
++        const storedCrc = (bytes[i+28] << 8) | bytes[i+29];
++        const crcInput  = new Uint8Array(20);
++        crcInput[0] = idx;
++        for (let k = 0; k < 16; k++) crcInput[1+k] = sec16[k];
++        crcInput[17] = bytes[i+25]; crcInput[18] = bytes[i+26]; crcInput[19] = bytes[i+27];
++        const computedCrc = engCrc16(crcInput);
++        r.sec16Mirrors.push({
++          offset: i, kind, slotType, sizeByte, idx, sec16,
++          populated: !allZero && !allFf, allZero, allFf,
++          storedCrc, computedCrc, crcOk: computedCrc === storedCrc,
++          bank: bankBase === 0 ? 'bank0' : 'bank1',
++        });
++      }
++    }
++  };
++  if (bytes.length >= 0x8000) {
++    findMirrorsInBank(0x0000, 0xEB, 0x18, 'mirror1');
++    findMirrorsInBank(0x0000, 0xCA, 0x28, 'mirror2');
++    findMirrorsInBank(0x4000, 0xEB, 0x18, 'mirror1');
++    findMirrorsInBank(0x4000, 0xCA, 0x28, 'mirror2');
++  }
++
++  /* Legacy mirror format (older 2014-era BCM family — e.g. 68396563AC on a
++   * 2014 LX Charger). Two SEC16 mirror records at fixed early-flash offsets
++   * 0x00C8 and 0x00F0, BEFORE the bank header. 22-byte layout:
++   *   +0 idx · +1..+16 SEC16 · +17 tag 0x8F · +18..+19 FF FF · +20..+21 CRC16-BE */
++  const findLegacyMirror = (off) => {
++    if (off + 22 > bytes.length) return;
++    if (bytes[off + 17] !== 0x8F || bytes[off + 18] !== 0xFF || bytes[off + 19] !== 0xFF) return;
++    const idx = bytes[off];
++    const sec16 = bytes.slice(off + 1, off + 17);
++    const allZero = sec16.every(b => b === 0x00);
++    const allFf   = sec16.every(b => b === 0xFF);
++    const storedCrc = (bytes[off + 20] << 8) | bytes[off + 21];
++    const crcInput = new Uint8Array(20);
++    crcInput[0] = idx;
++    for (let k = 0; k < 16; k++) crcInput[1 + k] = sec16[k];
++    crcInput[17] = 0x8F; crcInput[18] = 0xFF; crcInput[19] = 0xFF;
++    const computedCrc = engCrc16(crcInput);
++    if (computedCrc !== storedCrc) return;
++    r.sec16Mirrors.push({
++      offset: off, kind: 'mirror_legacy', slotType: null, sizeByte: null, idx, sec16,
++      populated: !allZero && !allFf, allZero, allFf,
++      storedCrc, computedCrc, crcOk: true, bank: 'bank0',
++    });
++  };
++  findLegacyMirror(0x00C8);
++  findLegacyMirror(0x00F0);
++
++  /* Active / inactive banks */
++  if (bytes.length >= 0x8000) {
++    const bank0Seq = (bytes[0x0002] << 8) | bytes[0x0003];
++    const bank1Seq = (bytes[0x4002] << 8) | bytes[0x4003];
++    r.banks = {
++      bank0Seq, bank1Seq,
++      activeBank:    bank0Seq >= bank1Seq ? 0 : 1,
++      inactiveBase:  bank0Seq >= bank1Seq ? 0x4000 : 0x0000,
++    };
++  }
++
++  /* Summary */
++  if (r.sec16Records.length > 0) {
++    const hx = r.sec16Records.map(x => [...x.sec16].map(b => b.toString(16).padStart(2,'0')).join(''));
++    r.sec16Consistent = hx.every(h => h === hx[0]);
++    r.sec16Hex = hx[0];
++  }
++  const populated = r.sec16Mirrors.filter(m => m.populated && m.crcOk);
++  if (populated.length > 0) {
++    const mh = [...populated[0].sec16].map(b => b.toString(16).padStart(2,'0')).join('');
++    if (!r.sec16Hex) r.sec16Hex = mh;
++    r.sec16MirrorHex = mh;
++    r.mirrorsPopulated = populated.length;
++  }
++
++  /* sec16Absent: no real SEC16 found (mirrors the allBlank gate in
++   * parseModule.resolveBcmSec16 — absent only when every candidate, incl. the
++   * flat 0x40C9 slice, is structurally blank). */
++  const flatSlice = bytes.length >= 0x40D9 ? bytes.slice(0x40C9, 0x40D9) : null;
++  const flatBlank = !flatSlice || Array.from(flatSlice).every(b => b === 0xFF || b === 0x00);
++  r.sec16Absent = r.sec16Records.length === 0 && !r.mirrorsPopulated && flatBlank;
++
++  r.ok = r.vin !== null;
++  return r;
++}
++
++/* The SEC16 the ModuleSync write actions actually use: first split record,
++ * else the first populated+crcOk mirror. Exposed so the engine and the
++ * equivalence test resolve "the BCM secret" the same single way. */
++export function engResolveBcmSec16(parsedOrBytes, filename) {
++  const p = parsedOrBytes instanceof Uint8Array ? engParseBcm(parsedOrBytes, filename) : parsedOrBytes;
++  return p?.sec16Records?.[0]?.sec16
++      ?? p?.sec16Mirrors?.find((m) => m.populated && m.crcOk)?.sec16
++      ?? null;
++}
+diff --git a/artifacts/srt-lab/src/lib/marryModule.js b/artifacts/srt-lab/src/lib/marryModule.js
+index dd21d49..fadadb5 100644
+--- a/artifacts/srt-lab/src/lib/marryModule.js
++++ b/artifacts/srt-lab/src/lib/marryModule.js
+@@ -207,6 +207,81 @@ export function marryModule(cfg) {
+   };
+ }
+ 
++/**
++ * marryAll — bring an RFHUB and/or a PCM into a set with a married BCM as the
++ * single source of truth. BCM is authoritative: both targets are derived from
++ * the SAME BCM root (RFH SEC16 = reverse(BCM), PCM SEC6 = reverse(BCM)[0:6]),
++ * so they are guaranteed mutually in sync. Each target is married via
++ * marryModule (derive → write → re-parse-verify), then a cross-sync check
++ * re-reads both outputs and confirms they share the BCM root. All-or-nothing:
++ * ok only when every provided target married + verified AND cross-sync passes.
++ *
++ * @param {object} cfg
++ * @param {{bytes:Uint8Array, info?:object}} cfg.bcm   authoritative source (required)
++ * @param {{bytes:Uint8Array, info?:object}} [cfg.rfhub]  target (optional)
++ * @param {{bytes:Uint8Array, info?:object}} [cfg.pcm]    target (optional)
++ * @param {string}  [cfg.vin]
++ * @param {boolean} [cfg.allowUnverifiedTarget]          needed for Gen1/XC2268 RFHUB
++ * @returns {{ ok, source:'BCM', results:{rfhub?,pcm?}, crossSync, checks, files:[{name,bytes}] }}
++ */
++export function marryAll(cfg) {
++  const { bcm, rfhub, pcm, vin, allowUnverifiedTarget = false } = cfg || {};
++  const checks = [];
++  const note = (label, pass, detail) => { checks.push({ label, pass: !!pass, detail: detail || '' }); return !!pass; };
++  const bail = (label, detail) => ({ ok: false, source: 'BCM', results: {}, crossSync: false, checks: [{ label, pass: false, detail }], files: [] });
++
++  if (!bcm?.bytes?.length) return bail('BCM source provided', 'BCM is the source of truth and is required');
++  if (!rfhub && !pcm) return bail('At least one target provided', 'provide an RFHUB and/or a PCM to marry');
++
++  const bcmSrc = { bytes: bcm.bytes, info: bcm.info };
++  const results = {};
++  const files = [];
++  const vinTag = vin ? '_' + String(vin).trim() : '';
++
++  if (rfhub?.bytes?.length) {
++    const r = marryModule({ source: bcmSrc, target: { bytes: rfhub.bytes, info: rfhub.info }, vin, allowUnverifiedTarget });
++    results.rfhub = r;
++    note(`RFHUB married (${r.op || '—'})`, r.ok && r.verified, r.reason || (r.grounding && r.grounding.level) || '');
++    if (r.ok && r.bytes) files.push({ name: `RFHUB_MARRIED${vinTag}.bin`, bytes: r.bytes });
++  }
++  if (pcm?.bytes?.length) {
++    const r = marryModule({ source: bcmSrc, target: { bytes: pcm.bytes, info: pcm.info }, vin, allowUnverifiedTarget });
++    results.pcm = r;
++    note(`PCM married (${r.op || '—'})`, r.ok && r.verified, r.reason || (r.grounding && r.grounding.level) || '');
++    if (r.ok && r.bytes) files.push({ name: `PCM_MARRIED${vinTag}.bin`, bytes: r.bytes });
++  }
++
++  /* Cross-sync: independently re-derive the BCM root and confirm BOTH married
++   * outputs carry it (RFHUB slot1 == root, PCM SEC6 == root[0:6]). This is the
++   * "all 3 are in sync" guarantee, checked on the actual output bytes. */
++  let crossSync = true;
++  const root = resolveRootSecret(bcm.bytes, asInfo(bcm.bytes, bcm.info, 'bcm'));
++  if (!root.ok) crossSync = false;
++  if (root.ok && results.rfhub?.ok && results.rfhub.bytes) {
++    const slot = parseModule(results.rfhub.bytes, 'rfh')?.sec16s?.[0]?.raw;
++    crossSync = crossSync && !!slot && arrEq(Array.from(slot).slice(0, 16), Array.from(root.rfhSec16));
++  }
++  if (root.ok && results.pcm?.ok && results.pcm.bytes) {
++    const sec6 = parseModule(results.pcm.bytes, 'pcm')?.pcmSec6?.raw;
++    crossSync = crossSync && !!sec6 && arrEq(Array.from(sec6).slice(0, 6), Array.from(pcmSec6FromRfh(root.rfhSec16)));
++  }
++  note('Cross-sync: RFHUB SEC16 and PCM SEC6 both derive from the BCM root', crossSync,
++    root.ok ? '' : 'BCM root unresolved');
++
++  /* Direct RFHUB <-> PCM verification pass: when both targets married, confirm
++   * the two OUTPUTS agree with each other (PCM SEC6 == married RFHUB SEC16[0:6]),
++   * independent of the BCM. Belt-and-suspenders end-to-end on the real bytes. */
++  if (results.rfhub?.ok && results.rfhub.bytes && results.pcm?.ok && results.pcm.bytes) {
++    const rfhSlot = parseModule(results.rfhub.bytes, 'rfh')?.sec16s?.[0]?.raw;
++    const pcmSec6 = parseModule(results.pcm.bytes, 'pcm')?.pcmSec6?.raw;
++    const direct = !!rfhSlot && !!pcmSec6 && arrEq(Array.from(pcmSec6).slice(0, 6), Array.from(rfhSlot).slice(0, 6));
++    note('Direct RFHUB ↔ PCM cross-check (married outputs agree)', direct);
++    crossSync = crossSync && direct;
++  }
++
++  return { ok: checks.every((c) => c.pass) && files.length > 0, source: 'BCM', results, crossSync, checks, files };
++}
++
+ /* Re-parse `out` and assert the written secret reads back exactly as derived. */
+ function verifyMarriage(out, op, { rfhSec16, bcmSec16 }, ok) {
+   let re;
+diff --git a/artifacts/srt-lab/src/lib/parseModule.js b/artifacts/srt-lab/src/lib/parseModule.js
+index 09d33a2..e9a8fbb 100644
+--- a/artifacts/srt-lab/src/lib/parseModule.js
++++ b/artifacts/srt-lab/src/lib/parseModule.js
+@@ -1,4 +1,4 @@
+-import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs,RFH_GEN2_VIN_CS_KNOWN_MAGICS} from './crc.js';
++import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs,RFH_GEN2_VIN_CS_KNOWN_MAGICS,crc16ccitt} from './crc.js';
+ import {reverse16} from './immoSecret.js';
+ import {isXc2268Rfhub,parseXc2268Image} from './xc2268Rfhub.js';
+ import {isZf8hpImage,parseZf8hpImage} from './zf8hp.js';
+@@ -648,7 +648,7 @@ function detectBySignature(data){
+  * ---------------------------------------------------------------------------- */
+ function resolveBcmSec16(data){
+   const sz=data.length;
+-  const candidates={split:null,mirror1:null,mirror2:null,flat:null};
++  const candidates={split:null,mirror1:null,mirror2:null,legacyMirror:null,flat:null};
+   let inactiveBase=null;
+   /* -- split records (0x81A0/C0/E0) -- */
+   if(sz>=0x8200){
+@@ -701,6 +701,30 @@ function resolveBcmSec16(data){
+       candidates.mirror2={offset:m2,bytes:new Uint8Array(sec),blank,idx};
+     }
+   }
++  /* -- legacy 2014-era mirror records (0x00C8 / 0x00F0) — pre-gen2 BCM family
++   * (e.g. 68396563AC on a 2014 LX Charger). 22-byte record:
++   *   +0 idx · +1..+16 SEC16 · +17 tag 0x8F · +18..+19 FF FF · +20..+21 CRC16-BE
++   * Accept only when the 0x8F/FF/FF tag AND CRC-16/CCITT over the first 20 bytes
++   * validate, so blank early flash never yields a phantom. This mirrors
++   * engBcmParse/engParseBcm so the engine resolves the SAME secret ModuleSync
++   * does (proven by verify-bcm-resolve equivalence). -- */
++  if(sz>=0x00F0+22){
++    for(const off of [0x00C8,0x00F0]){
++      if(off+22>sz)continue;
++      if(data[off+17]!==0x8F||data[off+18]!==0xFF||data[off+19]!==0xFF)continue;
++      const idx=data[off];
++      const sec=data.slice(off+1,off+17);
++      const cin=new Uint8Array(20);cin[0]=idx;
++      for(let k=0;k<16;k++)cin[1+k]=sec[k];
++      cin[17]=0x8F;cin[18]=0xFF;cin[19]=0xFF;
++      const stored=(data[off+20]<<8)|data[off+21];
++      if(crc16ccitt(cin)!==stored)continue;
++      const blank=Array.from(sec).every(b=>b===0xFF||b===0x00);
++      if(!candidates.legacyMirror||candidates.legacyMirror.blank){
++        candidates.legacyMirror={offset:off,bytes:new Uint8Array(sec),blank,idx};
++      }
++    }
++  }
+   /* -- legacy flat slice at 0x40C9 -- */
+   if(sz>=0x40D9){
+     const sec=data.slice(0x40C9,0x40D9);
+@@ -715,7 +739,7 @@ function resolveBcmSec16(data){
+    * only 5 non-zero/non-FF bytes but IS the authoritative vehicle secret,
+    * confirmed by FCA SINCRO). */
+   let chosen=null,source=null;
+-  for(const key of ['split','mirror1','mirror2','flat']){
++  for(const key of ['split','mirror1','mirror2','legacyMirror','flat']){
+     const c=candidates[key];
+     if(c&&!c.blank){chosen=c;source=key;break;}
+   }
+@@ -725,6 +749,7 @@ function resolveBcmSec16(data){
+     (!candidates.split||candidates.split.blank)&&
+     (!candidates.mirror1||candidates.mirror1.blank)&&
+     (!candidates.mirror2||candidates.mirror2.blank)&&
++    (!candidates.legacyMirror||candidates.legacyMirror.blank)&&
+     (!candidates.flat||candidates.flat.blank);
+   /* sec16Absent: true only when every candidate is blank — i.e. the module
+    * is in a fully virgin / factory state with no real SEC16 anywhere.
+diff --git a/artifacts/srt-lab/src/tabs/ModuleSync.jsx b/artifacts/srt-lab/src/tabs/ModuleSync.jsx
+index c2bfd7d..211333f 100644
+--- a/artifacts/srt-lab/src/tabs/ModuleSync.jsx
++++ b/artifacts/srt-lab/src/tabs/ModuleSync.jsx
+@@ -7,9 +7,11 @@ import PcmRepairWizard from "../components/PcmRepairWizard.jsx";
+ import PairingRepairPanel from "../components/PairingRepairPanel.jsx";
+ import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
+ import { writeBcmSec16Gen2, writePcmSec6, writeRfhSec16FromBcm, writeBcmFlatSec16, writeXc2268Sec16 } from "../lib/securityBytes.js";
++import { writerGrounding, GROUNDING } from "../lib/algoProvenance.js";
+ import { isXc2268Rfhub } from "../lib/xc2268Rfhub.js";
+ import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
+ import { bcmTooSmall, moduleTooSmall, pcmChipFromSize, pcmChipFromKey, resolveBcmSec16, classifyPcmSec6, parseModule, corruptFillError, detectCorruptFill, PCM_VIN_OFFSETS_GPEC2A } from "../lib/parseModule.js";
++import { engParseBcm, engResolveBcmSec16 } from "../lib/engBcmParse.js";
+ import { crossValidate } from "../lib/crossValidate.js";
+ import { checkExportSafety, formatBlockingMessage } from "../lib/exportSafetyGate.js";
+ import { MODULE_CONNECTION_GUIDES, PROGRAMMERS } from "../lib/programmerData.js";
+@@ -316,191 +318,7 @@ function engCrc16(data, init = 0xFFFF, poly = 0x1021) {
+   return c & 0xFFFF;
+ }
+ 
+-export function engParseBcm(bytes, filename) {
+-  /* Reject files smaller than a real MPC5605B/06B DFLASH dump. Without this
+-   * short-circuit the inspector parses partial/EEPROM-slice files and shows
+-   * misleading "CS ERROR" VIN slots, empty SEC16, and a fake "does not match"
+-   * verdict — see Task #370. */
+-  const small = bcmTooSmall(bytes, filename);
+-  if (small) {
+-    return {
+-      ok: false, kind: 'BCM', size: bytes.length,
+-      tooSmall: true, minSize: small.min, fileExt: small.ext,
+-      vinSlots: [], vin: null, vinConsistent: false,
+-      partNumbers: [], supplierSerial: null,
+-      sec16Records: [], sec16Mirrors: [], sec16Consistent: false, sec16Hex: null, sec16MirrorHex: null,
+-      banks: null,
+-    };
+-  }
+-  const r = {
+-    ok: false, kind: 'BCM', size: bytes.length,
+-    vinSlots: [], vin: null, vinConsistent: false,
+-    partNumbers: [], supplierSerial: null,
+-    sec16Records: [], sec16Mirrors: [], sec16Consistent: false, sec16Hex: null, sec16MirrorHex: null,
+-    banks: null,
+-  };
+-
+-  const text = new TextDecoder('latin1').decode(bytes);
+-  r.partNumbers = [...new Set([...text.matchAll(/68\d{6}/g)].map(m => m[0]))];
+-  const sup = text.match(/TY[A-Z]\d{5}/);
+-  if (sup) r.supplierSerial = sup[0];
+-
+-  /* Full VIN slots (00 46 XX 00 + 17 VIN bytes + CRC-16) */
+-  for (let i = 0; i < bytes.length - 21; i++) {
+-    if (bytes[i] !== 0x00 || bytes[i+1] !== 0x46) continue;
+-    if (!BCM_SLOT_TYPES.includes(bytes[i+2])) continue;
+-    if (bytes[i+3] !== 0x00) continue;
+-    const vs = i + 4;
+-    if (vs + 19 > bytes.length) continue;
+-    let vin = '', valid = true;
+-    for (let k = 0; k < VIN_LEN; k++) {
+-      const b = bytes[vs + k];
+-      if (b < 0x20 || b > 0x7E) { valid = false; break; }
+-      vin += String.fromCharCode(b);
+-    }
+-    if (!valid || !VIN_RE.test(vin)) continue;
+-    const storedCrc  = (bytes[vs + 17] << 8) | bytes[vs + 18];
+-    const computedCrc = engCrc16(bytes.slice(vs, vs + 17));
+-    r.vinSlots.push({ offset: vs, slotType: bytes[i+2], vin, storedCrc, computedCrc, crcOk: storedCrc === computedCrc });
+-  }
+-
+-  if (r.vinSlots.length > 0) {
+-    const c = {}; for (const s of r.vinSlots) c[s.vin] = (c[s.vin] || 0) + 1;
+-    r.vin = Object.entries(c).sort((a, b) => b[1] - a[1])[0][0];
+-    r.vinConsistent = Object.keys(c).length === 1;
+-  }
+-
+-  /* SEC16 split records (bank 2 at 0x81A0/C0/E0, 7+9 byte format) */
+-  for (let i = 0; i < bytes.length - 32; i++) {
+-    if (bytes[i] !== 0xFF || bytes[i+1] !== 0xFF) continue;
+-    let hdrOk = true;
+-    for (let j = 2; j < 8; j++) if (bytes[i+j] !== 0x00) { hdrOk = false; break; }
+-    if (!hdrOk) continue;
+-    const idx = bytes[i+8]; if (idx !== 0x01 && idx !== 0x02) continue;
+-    if (bytes[i+16] !== 0x04 || bytes[i+17] !== 0x04 || bytes[i+18] !== 0x00 || bytes[i+19] !== 0x14) continue;
+-    const prefix = bytes.slice(i+9,  i+16);
+-    const suffix = bytes.slice(i+20, i+29);
+-    const sec16  = new Uint8Array(16);
+-    sec16.set(prefix, 0); sec16.set(suffix, 7);
+-    r.sec16Records.push({ offset: i, format: 'split', idx, sec16, trailer: bytes[i+29] });
+-  }
+-
+-  /* Mirror records (slot 0xEB size 0x18, slot 0xCA size 0x28) in either bank */
+-  const findMirrorsInBank = (bankBase, slotType, sizeByte, kind) => {
+-    const bankEnd = Math.min(bankBase + 0x4000, bytes.length);
+-    for (let i = bankBase; i < bankEnd - 32; i++) {
+-      if (bytes[i]   === 0x00 && bytes[i+1] === 0x00 && bytes[i+2] === 0x00 &&
+-          bytes[i+3] === sizeByte && bytes[i+4] === 0x00 && bytes[i+5] === 0x46 &&
+-          bytes[i+6] === slotType && bytes[i+7] === 0x00) {
+-        const idx   = bytes[i+8];
+-        const sec16 = bytes.slice(i+9, i+25);
+-        const allZero = sec16.every(b => b === 0x00);
+-        const allFf   = sec16.every(b => b === 0xFF);
+-        const storedCrc = (bytes[i+28] << 8) | bytes[i+29];
+-        const crcInput  = new Uint8Array(20);
+-        crcInput[0] = idx;
+-        for (let k = 0; k < 16; k++) crcInput[1+k] = sec16[k];
+-        crcInput[17] = bytes[i+25]; crcInput[18] = bytes[i+26]; crcInput[19] = bytes[i+27];
+-        const computedCrc = engCrc16(crcInput);
+-        r.sec16Mirrors.push({
+-          offset: i, kind, slotType, sizeByte, idx, sec16,
+-          populated: !allZero && !allFf, allZero, allFf,
+-          storedCrc, computedCrc, crcOk: computedCrc === storedCrc,
+-          bank: bankBase === 0 ? 'bank0' : 'bank1',
+-        });
+-      }
+-    }
+-  };
+-  if (bytes.length >= 0x8000) {
+-    findMirrorsInBank(0x0000, 0xEB, 0x18, 'mirror1');
+-    findMirrorsInBank(0x0000, 0xCA, 0x28, 'mirror2');
+-    findMirrorsInBank(0x4000, 0xEB, 0x18, 'mirror1');
+-    findMirrorsInBank(0x4000, 0xCA, 0x28, 'mirror2');
+-  }
+-
+-  /* Legacy mirror format (older 2014-era BCM family — e.g. 68396563AC on a
+-   * 2014 LX Charger). These BCMs predate the gen2-split layout and put two
+-   * SEC16 mirror records at fixed early-flash offsets 0x00C8 and 0x00F0,
+-   * BEFORE the bank header — none of the bank-scan signatures above will
+-   * find them. The wizard previously reported "Security token issues
+-   * detected" on this family because the gen2-split mirror scan came back
+-   * empty even though both mirrors validate cleanly.
+-   *
+-   * Per-record layout (22 bytes, with the next mirror 0x28 bytes later):
+-   *   +0       idx (1 byte)
+-   *   +1..+16  SEC16 (16 bytes)
+-   *   +17      tag 0x8F
+-   *   +18..+19 padding 0xFF 0xFF
+-   *   +20..+21 stored CRC-16/CCITT (big-endian) over the first 20 bytes
+-   *
+-   * We only push when the 0x8F/0xFF/0xFF tail matches AND the CRC validates,
+-   * so all-zero or all-0xFF early flash never produces spurious mirrors. */
+-  const findLegacyMirror = (off) => {
+-    if (off + 22 > bytes.length) return;
+-    if (bytes[off + 17] !== 0x8F || bytes[off + 18] !== 0xFF || bytes[off + 19] !== 0xFF) return;
+-    const idx = bytes[off];
+-    const sec16 = bytes.slice(off + 1, off + 17);
+-    const allZero = sec16.every(b => b === 0x00);
+-    const allFf   = sec16.every(b => b === 0xFF);
+-    const storedCrc = (bytes[off + 20] << 8) | bytes[off + 21];
+-    const crcInput = new Uint8Array(20);
+-    crcInput[0] = idx;
+-    for (let k = 0; k < 16; k++) crcInput[1 + k] = sec16[k];
+-    crcInput[17] = 0x8F; crcInput[18] = 0xFF; crcInput[19] = 0xFF;
+-    const computedCrc = engCrc16(crcInput);
+-    if (computedCrc !== storedCrc) return;
+-    r.sec16Mirrors.push({
+-      offset: off, kind: 'mirror_legacy', slotType: null, sizeByte: null, idx, sec16,
+-      populated: !allZero && !allFf, allZero, allFf,
+-      storedCrc, computedCrc, crcOk: true, bank: 'bank0',
+-    });
+-  };
+-  findLegacyMirror(0x00C8);
+-  findLegacyMirror(0x00F0);
+-
+-  /* Active / inactive banks */
+-  if (bytes.length >= 0x8000) {
+-    const bank0Seq = (bytes[0x0002] << 8) | bytes[0x0003];
+-    const bank1Seq = (bytes[0x4002] << 8) | bytes[0x4003];
+-    r.banks = {
+-      bank0Seq, bank1Seq,
+-      activeBank:    bank0Seq >= bank1Seq ? 0 : 1,
+-      inactiveBase:  bank0Seq >= bank1Seq ? 0x4000 : 0x0000,
+-    };
+-  }
+-
+-  /* Summary */
+-  if (r.sec16Records.length > 0) {
+-    const hx = r.sec16Records.map(x => [...x.sec16].map(b => b.toString(16).padStart(2,'0')).join(''));
+-    r.sec16Consistent = hx.every(h => h === hx[0]);
+-    r.sec16Hex = hx[0];
+-  }
+-  const populated = r.sec16Mirrors.filter(m => m.populated && m.crcOk);
+-  if (populated.length > 0) {
+-    const mh = [...populated[0].sec16].map(b => b.toString(16).padStart(2,'0')).join('');
+-    if (!r.sec16Hex) r.sec16Hex = mh;
+-    r.sec16MirrorHex = mh;
+-    r.mirrorsPopulated = populated.length;
+-  }
+-
+-  /* Task #815 — sec16Absent: no real SEC16 found.
+-   * Mirrors the allBlank gate in parseModule's resolveBcmSec16: absent only
+-   * when EVERY candidate (split records, mirrors, AND the flat 0x40C9 slice)
+-   * is structurally blank (all-FF / all-00).
+-   *
+-   * Low-entropy but non-blank flat slices (e.g. the 6.2 Charger bench set's
+-   * `00 00 00 00 00 00 00 31 3E 00 10 00 18 00 0A 00`) ARE authoritative and
+-   * must NOT set sec16Absent.
+-   *
+-   * Note: mirrorsPopulated is only assigned when > 0, so it may be undefined
+-   * on a virgin BCM — use !(...) instead of === 0 to handle both cases. */
+-  const flatSlice = bytes.length >= 0x40D9 ? bytes.slice(0x40C9, 0x40D9) : null;
+-  const flatBlank = !flatSlice || Array.from(flatSlice).every(b => b === 0xFF || b === 0x00);
+-  r.sec16Absent = r.sec16Records.length === 0 && !r.mirrorsPopulated && flatBlank;
+-
+-  r.ok = r.vin !== null;
+-  return r;
+-}
++export { engParseBcm, engResolveBcmSec16 };
+ 
+ export function engParseRfh(bytes, filename) {
+   /* Reject files smaller than a real Yazaki FCM EEPROM (Gen1 24C16, 2 KB).
+@@ -565,18 +383,24 @@ export function engParseRfh(bytes, filename) {
+     const g2Pop = !s1.every(b => b === 0xFF) && !s1.every(b => b === 0x00);
+     r.format = 'gen2';
+     r.sec16  = { slot1: s1, slot2: s2, match: aeq(s1, s2), virgin: s1.every(b => b === 0xFF), offsets: [0x050E, 0x0522] };
+-    if (!g2Pop && bytes.length >= 0x024C) {
++    if (!g2Pop && bytes.length >= 0x00D0) {
+       /* Gen2 header but Gen2 slots are empty — fall back to reading Gen1 area */
+-      const g1 = bytes.slice(0x0226, 0x0236);
++      const g1 = bytes.slice(0x00AE, 0x00BE);
+       if (!g1.every(b => b === 0xFF) && !g1.every(b => b === 0x00)) {
+         r.format = 'gen2-hybrid';
+       }
+     }
+-  } else if (bytes.length >= 0x024C) {
+-    const s1 = bytes.slice(0x0226, 0x0236);   /* 16 bytes (skip 2-byte trailer) */
+-    const s2 = bytes.slice(0x023A, 0x024A);
++  } else if (bytes.length >= 0x00D0) {
++    /* Gen1 24C16 SEC16 lives at 0x00AE / 0x00C0 — matching parseModule.js,
++     * securityBytes.writeRfhSec16Gen1 (the WRITER), pairingRepair.js and
++     * rfhPcmPair.js. The previous 0x0226 here was a latent bug: it read from
++     * the key-table region (CHAR_MASTER_OFFSET = 0x0226), so the master was
++     * read from a different offset than the writer writes to — Gen1 RFH sync
++     * was internally inconsistent. Aligned to the canonical 0x00AE. */
++    const s1 = bytes.slice(0x00AE, 0x00BE);   /* 16 bytes */
++    const s2 = bytes.slice(0x00C0, 0x00D0);
+     r.format = 'gen1';
+-    r.sec16  = { slot1: s1, slot2: s2, match: aeq(s1, s2), virgin: s1.every(b => b === 0xFF), offsets: [0x0226, 0x023A] };
++    r.sec16  = { slot1: s1, slot2: s2, match: aeq(s1, s2), virgin: s1.every(b => b === 0xFF), offsets: [0x00AE, 0x00C0] };
+   }
+ 
+   const text = new TextDecoder('ascii', { fatal: false }).decode(bytes);
+@@ -3797,17 +3621,41 @@ export default function ModuleSync({ vehicleId, files: dumpsFiles } = {}) {
+            BCM is master: reverse(BCM SEC16) is written to RFHUB slots.
+            Gen2 Yazaki: slots 0x050E + 0x0522 (crc8_65 checksum).
+            XC2268 (2019+ Ram 64 KB): slots 0x1100 + 0x1120 (CRC-16/CCITT + image CRC32). */
+-        const bcmSec16 = bcm.parsed?.sec16Records?.[0]?.sec16
+-                      ?? bcm.parsed?.sec16Mirrors?.find(m => m.populated && m.crcOk)?.sec16;
++        /* Delegated to the engine's resolver (parseModule.resolveBcmSec16),
++         * proven byte-equivalent to the old engParseBcm split/mirror/legacy
++         * resolution across all BCM families (verify-bcm-resolve: ALL AGREE,
++         * incl. the 2014 0x00C8/0x00F0 legacy mirror). One resolver, no drift. */
++        const _bcmRes = resolveBcmSec16(bcm.bytes);
++        const bcmSec16 = (_bcmRes && _bcmRes.bytes && !_bcmRes.blank) ? _bcmRes.bytes : null;
+         if (!bcmSec16) { log('✗ No BCM SEC16 found in split records or mirrors', 'err'); return; }
+         const snapR = new Uint8Array(rfh.bytes);
+         setOriginals(prev => ({ ...prev, rfh: { bytes: snapR, filename: rfh.file?.name || 'RFH' } }));
+         const rfhIsXc2268 = isXc2268Rfhub(rfh.bytes);
++        /* Ultimate-machine gate: the XC2268 SEC16 writer is UNVERIFIED (its
++         * offset map incl. the image checksum was reconstructed from a
++         * screenshot — see algoProvenance.js). Stamping an unverified secret
++         * into a real 2019+ Ram RFHUB can brick it, so require an explicit,
++         * informed acknowledgement before this write — same standard as the
++         * marryModule engine. (Gen2 Yazaki path is bench-verified, no gate.) */
++        if (rfhIsXc2268) {
++          const g = writerGrounding('writeXc2268Sec16');
++          if (g.level !== GROUNDING.BENCH && !(typeof window !== 'undefined' && window.confirm(
++            'XC2268 RFHUB SEC16 writer is UNVERIFIED — ' + g.caveat + '.\n\n'
++            + 'Writing an unverified secret to a real module can BRICK it. '
++            + 'Proceed only if you have confirmed this layout on THIS module.\n\nWrite XC2268 SEC16?'))) {
++            log('✗ XC2268 SEC16 write cancelled — unverified writer not acknowledged', 'err');
++            return;
++          }
++        }
+         const sr = rfhIsXc2268
+           ? writeXc2268Sec16(rfh.bytes, bcmSec16)
+           : engWriteRfhSec16FromBcm(rfh.bytes, bcmSec16);
+         log(`RFHUB SEC16 sync (BCM → RFH${rfhIsXc2268 ? ' XC2268' : ' Gen2'}): ${sr.patched} slot(s) written`, 'ok');
+         log(`  RFHUB new SEC16: ${sr.rfhSec16Hex.toUpperCase()}${rfhIsXc2268 ? '' : ` · slot chk: 0x${sr.chk.toString(16).padStart(2,'0').toUpperCase()}`}`, 'muted');
++        {
++          const wg = writerGrounding(rfhIsXc2268 ? 'writeXc2268Sec16' : 'writeRfhSec16FromBcm');
++          log(`  writer confidence: ${wg.level}${wg.caveat ? ' — ' + wg.caveat : ''}`, wg.level === GROUNDING.BENCH ? 'muted' : 'err');
++        }
+         const rfhFinal = sr.bytes;
+         const ts2 = timestamp();
+         /* Task #1023 — symmetric twin of the original brick scenario: a secret

@@ -1,0 +1,99 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3246,
+  "className": "org.spicefactory.parsley.core.messaging.command.impl.DefaultCommandObserverProcessor",
+  "classNameNormalized": "org.spicefactory.parsley.core.messaging.command.impl.DefaultCommandObserverProcessor",
+  "superName": "org.spicefactory.parsley.core.messaging.impl.DefaultMessageProcessor",
+  "superNameNormalized": "org.spicefactory.parsley.core.messaging.impl.DefaultMessageProcessor",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.messaging.command.CommandObserverProcessor"
+  ],
+  "iinitMethod": 50554,
+  "cinitMethod": 50553,
+  "iinitBytecode": {
+    "codeLength": 31,
+    "codeSha256": "131164c03bacd358f0f312236a18efbf3461350e2c704a1ec4b8d5b56676a035",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "command",
+      "traitKind": "getter",
+      "methodIndex": 50555,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.messaging.command.Command",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "16c9d46b98cb3f68a4ac96857ec3518c8d9a6b57e1cb92be5904099d6d103f0f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging.command.impl:DefaultCommandObserverProcessor.fetchReceivers",
+      "traitKind": "method",
+      "methodIndex": 50558,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "bc7ce0bbad49b430d5eba3832e57369bcfc16ad67e85106927fa0ba0f0b6bd9e",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "org.spicefactory.parsley.core.messaging.command.impl:DefaultCommandObserverProcessor.getLogString",
+      "traitKind": "method",
+      "methodIndex": 50556,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "64951f2463e4b0e15dd7a8bad5694ffb8d5a49ef9abec8419c83a052db23a379",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.invokeObserver",
+      "traitKind": "method",
+      "methodIndex": 50557,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.messaging.receiver.CommandObserver"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "c1f8bc1175fa96af8562b52153d95d45a819a0e96eedc58fce3d039e0a5a7aea",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

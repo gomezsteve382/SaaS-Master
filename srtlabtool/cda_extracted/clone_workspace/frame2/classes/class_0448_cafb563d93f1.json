@@ -1,0 +1,316 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 448,
+  "className": "spark.skins.spark.HScrollBarSkin",
+  "classNameNormalized": "spark.skins.spark.HScrollBarSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 9353,
+  "cinitMethod": 9352,
+  "iinitBytecode": {
+    "codeLength": 273,
+    "codeSha256": "d11cea86703c6d03e8e0ccc29d2412c0d0da534fa8f4cb660bf65c19fd1194cf",
+    "bytecodeLineCount": 18
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "7bda87380d1b94187dc2059ee5bc5fe1520a47f39a3fc829b6ed3514d9999f4e",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "colorizeExclusions",
+      "traitKind": "getter",
+      "methodIndex": 9356,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9c7238f4fc2b2c89b4b3ca0e8ed87e69314d0d8e3a681b18e8f698a592a4065c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "decrementButton",
+      "traitKind": "getter",
+      "methodIndex": 9362,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "15f999e8d8c92e6eb025c9a89146331fef81052759587d4e53335bd0a407a4d9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "decrementButton",
+      "traitKind": "setter",
+      "methodIndex": 9363,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "3c84036ac3076e24ac64c902592be224564b8a4871c9d8cea2a1c9b2bf6afac1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 9370,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HScrollBar",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "58cfe0d69d764c504b4e40c34f1c0f451063446f41e3fc9478b3816e7c6b2253",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 9371,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.HScrollBar"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "6fdff44d2263a7c599d1badde6b0e8f94ce1d9cb2ca5dea9288bf1f244aa9bc0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "incrementButton",
+      "traitKind": "getter",
+      "methodIndex": 9364,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4dec34931e4a722f8b85228c079786651a6aa20878d30f77ce0ca2389dc7aca8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "incrementButton",
+      "traitKind": "setter",
+      "methodIndex": 9365,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0e793efe782f61786c1b0151e204ce380db22fa9339fbc37cbbe2467e03dfbaf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 9355,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 9354,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "f5cf7638b8be0eaebde02202e47132e08ef2fd4cacad8e6685508e91ea6113c2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._HScrollBarSkin_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 9358,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "b6316a9f6a58bff8a3f1a3ec17731f8e6c6a347afa0b21b417819bfa50fde30a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._HScrollBarSkin_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 9359,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "a40b894fc8624d684f99ead67b26a3c6183056eaf44577ea40efec7c7b22b1ab",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._HScrollBarSkin_Button3_i",
+      "traitKind": "method",
+      "methodIndex": 9360,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "798f5155f3463d56363229ceb30385ab40d7d3fea374450f43508f40c52782e0",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._HScrollBarSkin_Button4_i",
+      "traitKind": "method",
+      "methodIndex": 9361,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "aed4c354b484f0c901682040389bccb485ebdfdd3aa32062ba0768e87b2d3566",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:HScrollBarSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 9357,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "thumb",
+      "traitKind": "getter",
+      "methodIndex": 9366,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "25c9f6434030932bf3f0fdd18b3afb1cc113d393849c22fdd9f920e05aa00247",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "thumb",
+      "traitKind": "setter",
+      "methodIndex": 9367,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "eb874f4227d2e6aa55ab96269c9ae9929a4f8335c069666900dd723dc693ebfe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "track",
+      "traitKind": "getter",
+      "methodIndex": 9368,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c59b4ff00d2f9703100e0ea459abea78a4f8935906fee669e541d8e59f96d720",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "track",
+      "traitKind": "setter",
+      "methodIndex": 9369,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "3d14e59ab24620382e6add6bf3a608030f3f7f5d3a50b40b800a80f3ded4b35f",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

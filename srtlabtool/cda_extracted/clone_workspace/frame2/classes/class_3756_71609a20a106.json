@@ -1,0 +1,144 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3756,
+  "className": "org.spicefactory.parsley.binding.impl.PersistentPublisher",
+  "classNameNormalized": "org.spicefactory.parsley.binding.impl.PersistentPublisher",
+  "superName": "org.spicefactory.parsley.binding.impl.AbstractPublisher",
+  "superNameNormalized": "org.spicefactory.parsley.binding.impl.AbstractPublisher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.binding.Publisher",
+    "org.spicefactory.parsley.binding.Subscriber"
+  ],
+  "iinitMethod": 55911,
+  "cinitMethod": 55910,
+  "iinitBytecode": {
+    "codeLength": 41,
+    "codeSha256": "69b0a93e0a814347cd18adb0624b2bdc0163f95e10e22ee2665743eb97f2e7f8",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "currentValue",
+      "traitKind": "getter",
+      "methodIndex": 55915,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "fc6f15bc766c2a5cef9b84c3b01e0f68d08c4bcd1b599738633dc90e7b172713",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "disableSubscriber",
+      "traitKind": "method",
+      "methodIndex": 55916,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "e644e2ed23bca2feaeebb96891542c213d41e898a9b50fddc0aa18ded74fcc1c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 55913,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "11f577f6e0f4a7d9f0ec90ede895ccfc447634082dd75e4239781c21039ccdc2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 55912,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "1e6ee26746e447f8768abf1b8a077cb4d45a455ecab5dfa1fd039737f740822c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.persistenceChange",
+      "traitKind": "method",
+      "methodIndex": 55914,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "15d79e3fe0b723c531527850793b784ce1184ebd36281af18809fca4c19f7e61",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 55918,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "1351d50b77a98616826e90b6171b042a8049fe7a82cce002a74db5c710456490",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "update",
+      "traitKind": "method",
+      "methodIndex": 55917,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "9429ed7c8ffd1328d7e24877f76e1a09a9aef7c5c3569bfe52c7b2505fdb1e9c",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

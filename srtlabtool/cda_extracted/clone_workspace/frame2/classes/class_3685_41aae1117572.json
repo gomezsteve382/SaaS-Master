@@ -1,0 +1,400 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3685,
+  "className": "memorphic.xpath.parser.XPathParser",
+  "classNameNormalized": "memorphic.xpath.parser.XPathParser",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55175,
+  "cinitMethod": 55174,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "memorphic.xpath.parser:XPathParser.condenseToken",
+      "traitKind": "method",
+      "methodIndex": 55197,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "7b362bbdf8f0c547e4ae92ed5f027e1993b4f6e92e43542c367f491d8f785028",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "memorphic.xpath.parser:XPathParser.getModel",
+      "traitKind": "method",
+      "methodIndex": 55198,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.Token"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "772aec21454c4402112f3f52b58782a71c1d8f9a2b4061377b8c2aff312dcf4e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "memorphic.xpath.parser:XPathParser.setModel",
+      "traitKind": "method",
+      "methodIndex": 55199,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "0b1aca2ed1f5fc96003e23bd1f7aeb025ef043b8ba3fb9c7970fca2544b27fc8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "parseXPath",
+      "traitKind": "method",
+      "methodIndex": 55176,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "memorphic.xpath.model.QueryRoot",
+      "hasBody": true,
+      "codeLength": 165,
+      "bytecode": {
+        "codeLength": 165,
+        "codeSha256": "47da5bc67e21cc0bdce66942b1475285992897c09f54e1965f42464289e9c09e",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.cleanUp",
+      "traitKind": "method",
+      "methodIndex": 55177,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "4ac3695ac0ab600f72d086fa10943239144c67b13c2cc6b3c9b879605a278b03",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.collectPredicates",
+      "traitKind": "method",
+      "methodIndex": 55185,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "memorphic.xpath.model.PredicateList",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "d76679c684c7c0c80077ce9ebfd213991a25c608187f50e4bf2118e1ba8ee1d7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.eachToken",
+      "traitKind": "method",
+      "methodIndex": 55178,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1390,
+      "bytecode": {
+        "codeLength": 1390,
+        "codeSha256": "2f9f66bbe5b0130d7269bec5a37a4b854164a71ae5a9d8458a97d39cec509f99",
+        "bytecodeLineCount": 87
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseAbbreviatedAbsoluteLocationPath",
+      "traitKind": "method",
+      "methodIndex": 55182,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "d3cdedde1cc7e5703990e5a0b0e389d1b02c0f274d5e7a4d1ec4b111c3097c0c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseAbbreviatedAxisSpecifier",
+      "traitKind": "method",
+      "methodIndex": 55195,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "a2b96e3e7a857749555b350ecb1a289d42eaf259d747ed6395bd7b9f88fbe59a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseAbbreviatedStep",
+      "traitKind": "method",
+      "methodIndex": 55186,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "a85547ab8c851ad951955315ddc9376c6956c476c2e6c106a55d07d62517b931",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseAbsoluteLocationPath",
+      "traitKind": "method",
+      "methodIndex": 55181,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "d908b6a63f43e7a1274cee6d4f9158e54e0a2140d2f536796ed3a5ff301b32df",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseBinaryOperation",
+      "traitKind": "method",
+      "methodIndex": 55193,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 173,
+      "bytecode": {
+        "codeLength": 173,
+        "codeSha256": "000983f62465a9c99d01c6856bd6e2694a8246342dde647d07f024f6e27ab1f9",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseFilterExpr",
+      "traitKind": "method",
+      "methodIndex": 55189,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 101,
+      "bytecode": {
+        "codeLength": 101,
+        "codeSha256": "f351bee8e8ccccb4f0acccc2a8ec875c471d85ee336c5385573f533d968f7418",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseFunctionArgument",
+      "traitKind": "method",
+      "methodIndex": 55190,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "939b56674cb47482185bbf6e495a98b1f76c4ad1e390893c966c65ff9d11db19",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseFunctionCall",
+      "traitKind": "method",
+      "methodIndex": 55191,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "6fe997b1cb91c12d329e90dc7e98ef052f36b9569e081bb401209aeef7bbc192",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseLocationPath",
+      "traitKind": "method",
+      "methodIndex": 55180,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "939b56674cb47482185bbf6e495a98b1f76c4ad1e390893c966c65ff9d11db19",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseNameTest",
+      "traitKind": "method",
+      "methodIndex": 55192,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "b3a64e72be716295a0adf90c9b98cecf4d5cc5015841e865796ed41f57f37455",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseOperator",
+      "traitKind": "method",
+      "methodIndex": 55196,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 128,
+      "bytecode": {
+        "codeLength": 128,
+        "codeSha256": "66e828844c516afb5526176cd435ec8e4be2fabbd4b2fb3beade3df31bd334ab",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.parsePathExpr",
+      "traitKind": "method",
+      "methodIndex": 55188,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 157,
+      "bytecode": {
+        "codeLength": 157,
+        "codeSha256": "b54cb073f95071ae099ab1b641cc94339fb459194cba3b987a459d8988ffbea9",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.parsePredicate",
+      "traitKind": "method",
+      "methodIndex": 55187,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "a2067926cc5134dfecac951fd4da93e1c6127360d8041df4117863301a9385fe",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseRelativeLocationPath",
+      "traitKind": "method",
+      "methodIndex": 55183,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "1ecfc504408185513b8cc6a3163f4479efcd1ecafc656999c88f9d74f457e086",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseStep",
+      "traitKind": "method",
+      "methodIndex": 55184,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 158,
+      "bytecode": {
+        "codeLength": 158,
+        "codeSha256": "b3a743e68a0582026aaa37132ec0e069943ef0e261ec820d2d4ce3dbfd5b124e",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseUnaryExpr",
+      "traitKind": "method",
+      "methodIndex": 55194,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "c3059ca30697ff7afefdddfeb378e7a695ccc2d8a08bbb20da1871749e965152",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.walkTree",
+      "traitKind": "method",
+      "methodIndex": 55179,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "b1a5946f03786314f3f1550c6044f96174342afc943578fa06350d2a70862f4a",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

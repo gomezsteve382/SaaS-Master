@@ -1,0 +1,160 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2911,
+  "className": "PrivateNs.RL_VJHelper",
+  "classNameNormalized": "PrivateNs.RL_VJHelper",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "PrivateNs.IVerticalAdjustmentHelper"
+  ],
+  "iinitMethod": 47232,
+  "cinitMethod": 47231,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "98a8c12eea42a9104eeae4840c1f0b0fe177fdf20414bf4e7ad0fca73b61ac02",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "applyAdjustment",
+      "traitKind": "method",
+      "methodIndex": 47236,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.IVerticalJustificationLine"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "b67d8e87156cf805b961db0e8d566c24b1a48d8e398cebd1bf68d74c0c12ef15",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "applyAdjustmentToFloat",
+      "traitKind": "method",
+      "methodIndex": 47237,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.FloatCompositionData"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "b1735ec6fa0a4f2b709fda378d2bc776e47a94e30813f34cb0789d61ab989f3d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "applyJustifyAdjustment",
+      "traitKind": "method",
+      "methodIndex": 47239,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 139,
+      "bytecode": {
+        "codeLength": 139,
+        "codeSha256": "adff807b67857453a79ab7e55ff79d0dc6a5a6490fd76f87a50ca58afdbabb1d",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "computeBottomAdjustment",
+      "traitKind": "method",
+      "methodIndex": 47235,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "939907c0bf2f82cd0ef05e880e1ae3e52614cd41a7102133f185acf00b3401dd",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "computeJustifyAdjustment",
+      "traitKind": "method",
+      "methodIndex": 47238,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "int",
+        "int"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 136,
+      "bytecode": {
+        "codeLength": 136,
+        "codeSha256": "ca803a683e8755ebe6f19285d4b937a9a0d81964198b9c0de26a1290a06c471f",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "computeMiddleAdjustment",
+      "traitKind": "method",
+      "methodIndex": 47234,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "fddc564537cb7c6e5dfaca18b9851bf43602184a4959cf052f709ae2481e1aac",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getBottom",
+      "traitKind": "method",
+      "methodIndex": 47233,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.IVerticalJustificationLine",
+        "flashx.textLayout.container.ContainerController",
+        "int",
+        "int"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 122,
+      "bytecode": {
+        "codeLength": 122,
+        "codeSha256": "c7d6438dcb57eb2615ad21d5de22bb9b8ceb9b752ce8bc2980c1459443ca5bff",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

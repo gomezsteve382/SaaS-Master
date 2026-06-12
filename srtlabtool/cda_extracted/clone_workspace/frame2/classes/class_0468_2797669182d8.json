@@ -1,0 +1,601 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 468,
+  "className": "mx.resources.ResourceManagerImpl",
+  "classNameNormalized": "mx.resources.ResourceManagerImpl",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.resources.IResourceManager"
+  ],
+  "iinitMethod": 9614,
+  "cinitMethod": 9612,
+  "iinitBytecode": {
+    "codeLength": 84,
+    "codeSha256": "9271189dfbbe380bbc35bf926ff7a7ef0519d83f3688053dcb6688cd5c8b85f6",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addResourceBundle",
+      "traitKind": "method",
+      "methodIndex": 9627,
+      "methodName": "",
+      "paramTypes": [
+        "mx.resources.IResourceBundle",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "d13df7b90d48a02e5517da3b830330ddd3292c90a11eae52ee6018de853330b6",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "findResourceBundleWithResource",
+      "traitKind": "method",
+      "methodIndex": 9636,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "mx.resources.IResourceBundle",
+      "hasBody": true,
+      "codeLength": 251,
+      "bytecode": {
+        "codeLength": 251,
+        "codeSha256": "ee914f314f8dac6b2c219a3caf10fff97ae8b4af4baaa524cff8d7cbd98656ea",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "getBoolean",
+      "traitKind": "method",
+      "methodIndex": 9643,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "7abae257f2b184bfda7a286a06b5b39536ffc0b0ceedecfffdf23a11e0fdbc43",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getBundleNamesForLocale",
+      "traitKind": "method",
+      "methodIndex": 9635,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "0c7aaca7986600866c557aab382dfdaab7321b2c17c9e2276062e755d87d1e6e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getClass",
+      "traitKind": "method",
+      "methodIndex": 9644,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Class",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "367d0cd9d748a92558701e3fe7bcc168401a61ce01812e6394fcd74a73d96ecf",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getInt",
+      "traitKind": "method",
+      "methodIndex": 9641,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "6d83d26cd8223422f100d4d0f0f5046ad7c40392f0244a5e89d4a59c0d29f27f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getLocales",
+      "traitKind": "method",
+      "methodIndex": 9633,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "49b4f7ef9b02a734b11d42f756852f9146d2c426f9db79fb9a2fbab005d29b21",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getNumber",
+      "traitKind": "method",
+      "methodIndex": 9640,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "94349e3ee3955c0fb94480da4f1c87bae88727460060e1d7289a0c2667ab490e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getObject",
+      "traitKind": "method",
+      "methodIndex": 9637,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "a5075bf9a2f2fad5a5fd464d2729f1b1a1c5eb03995b1913960a46c5cc91c175",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getPreferredLocaleChain",
+      "traitKind": "method",
+      "methodIndex": 9634,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "c2a45d018b0e2b5dbf6919f5f35e2caa1affb91fc6ca1e0e2932b4c25a0cfa12",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getResourceBundle",
+      "traitKind": "method",
+      "methodIndex": 9628,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "mx.resources.IResourceBundle",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "096ebd2428f694e556dbdcc0dbb05b42f065c13f4bdd2ee2e2f3f160425ee27a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getString",
+      "traitKind": "method",
+      "methodIndex": 9638,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Array",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "fc584b7758ba557e52dda4b662cea5a443068e267bcbace550471f5401c1b2e7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getStringArray",
+      "traitKind": "method",
+      "methodIndex": 9639,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "e96ccf31952ed232265cc1494b98c896eadd705a7803b800fbbaf7b4f84a98e9",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "getUint",
+      "traitKind": "method",
+      "methodIndex": 9642,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "92cd02ce1b4e9eabf7c641ff43da662f1683ecaeded780223060d6634e96283d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "initializeLocaleChain",
+      "traitKind": "method",
+      "methodIndex": 9621,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "aebe5a01740b92b4ae58dbfd4fb1c81b5405a42bfbd5abf50d8573b799f41e3b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "installCompiledResourceBundles",
+      "traitKind": "method",
+      "methodIndex": 9617,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain",
+        "Array",
+        "Array",
+        "Boolean"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 155,
+      "bytecode": {
+        "codeLength": 155,
+        "codeSha256": "eac6e0ca9f0300e20c05f4d5330bc01b5849aea7269deb046e952c611fb0a51a",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "loadResourceModule",
+      "traitKind": "method",
+      "methodIndex": 9625,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean",
+        "flash.system.ApplicationDomain",
+        "flash.system.SecurityDomain"
+      ],
+      "returnType": "flash.events.IEventDispatcher",
+      "hasBody": true,
+      "codeLength": 253,
+      "bytecode": {
+        "codeLength": 253,
+        "codeSha256": "a9ebcd174e9d1cf03b6df842592b69b3e71264e3e91cd57d7447635621be352f",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "localeChain",
+      "traitKind": "getter",
+      "methodIndex": 9615,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c791bc1f94da9950a66825028233b9270bce8aa6e5922274ec323fccd59ead08",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "localeChain",
+      "traitKind": "setter",
+      "methodIndex": 9616,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "21124196c27e40fd9ed5e8c8749ffe913d6fdb0859d98fb1a9765a91b1451390",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.dumpResourceModule",
+      "traitKind": "method",
+      "methodIndex": 9648,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "cbb8768083a34585bd03b80a0aaed5abcb67644cfba9f289d24755b57edbe11a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.findBundle",
+      "traitKind": "method",
+      "methodIndex": 9645,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "mx.resources.IResourceBundle",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "579e23712fef7485971e8c2d4c56c81a5407e82293660e7aa4a034eb30c3196a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.getResourceBundleInternal",
+      "traitKind": "method",
+      "methodIndex": 9629,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "mx.resources.IResourceBundle",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "6dd29f2a9e4041f4fd4f2c6e770b0916e40ef7ceebb83883ad07542dc1164d27",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.getSystemPreferredLocales",
+      "traitKind": "method",
+      "methodIndex": 9647,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "f7169e849bf2611b7ffc011d97dda1c539f24458cf1aa426aea3e6d7db442d85",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.installCompiledResourceBundle",
+      "traitKind": "method",
+      "methodIndex": 9618,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain",
+        "String",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "mx.resources.IResourceBundle",
+      "hasBody": true,
+      "codeLength": 314,
+      "bytecode": {
+        "codeLength": 314,
+        "codeSha256": "66acbc38420b9158862160d012639821bb0519c0389119c33148af6254ff24ad",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "PrivateNs.newChildApplicationHandler",
+      "traitKind": "method",
+      "methodIndex": 9619,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.FocusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "62fadc240eda4184eb40e2eda90e8c46c9ee90c22a3fe42a1ee073a6bb44d628",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.processInfo",
+      "traitKind": "method",
+      "methodIndex": 9620,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Boolean"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 167,
+      "bytecode": {
+        "codeLength": 167,
+        "codeSha256": "3fffecd8e9cdb0f15eda8c72ea56108d36190ac6a920e00d6212a17ee4839153",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.supportNonFrameworkApps",
+      "traitKind": "method",
+      "methodIndex": 9646,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "4b6f1666898bb7696e029cd32b9eb666894eaaeac86bc8f96cf84eb6842622e0",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "removeResourceBundle",
+      "traitKind": "method",
+      "methodIndex": 9630,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "9b42c53a4ec9b18b1d495b458acbca18eb231f754f2759233b79a798be507e73",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeResourceBundlesForLocale",
+      "traitKind": "method",
+      "methodIndex": 9631,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "f34dace11b39add2c5ed2ae9bb33337c25faaacaffc6350cd5e6652393bb6b7c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unloadResourceModule",
+      "traitKind": "method",
+      "methodIndex": 9626,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 172,
+      "bytecode": {
+        "codeLength": 172,
+        "codeSha256": "e976fed375464fc665c892e64ed62c84b7317019e49c14d375ef14f217e9819e",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "update",
+      "traitKind": "method",
+      "methodIndex": 9632,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "15d79e3fe0b723c531527850793b784ce1184ebd36281af18809fca4c19f7e61",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 9613,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.resources.IResourceManager",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "e45e96faa9d6594046bbae2c87f0f8ab1b5b43a8d745fa5b9ff877c4c5795868",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

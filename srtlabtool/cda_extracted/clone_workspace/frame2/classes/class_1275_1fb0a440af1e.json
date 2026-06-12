@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1275,
+  "className": "com.chrysler.cda.domain.discovery.device.DeviceTypes",
+  "classNameNormalized": "com.chrysler.cda.domain.discovery.device.DeviceTypes",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 28111,
+  "cinitMethod": 28107,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 48,
+    "codeSha256": "6705020025ace6ec631e7ada27ed0d548799c36bfab9e7efeb624fcfd5e03929",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "IsPod",
+      "traitKind": "method",
+      "methodIndex": 28109,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.discovery.device.DiscoveredDevice"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "9d2a6fed07f7797fa11b4c76401564d2be5d9a6907675e68b02c168d1d36754e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "IsUserSpecifiedPod",
+      "traitKind": "method",
+      "methodIndex": 28108,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.discovery.device.DiscoveredDevice"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "2947ff1fb07a501edcb1fc7f64814d98e656237ec9d4d747cc9f2c008d14314c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "IsVector",
+      "traitKind": "method",
+      "methodIndex": 28110,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.discovery.device.DiscoveredDevice"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "59d5af0e3034480cc2948bc891054db8482918a7dd98c1b064f6dab76a89c578",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

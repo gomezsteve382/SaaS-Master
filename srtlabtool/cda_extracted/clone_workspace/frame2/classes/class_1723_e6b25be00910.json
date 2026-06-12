@@ -1,0 +1,221 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1723,
+  "className": "com.chrysler.cda.event.message.start.StartCDAMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.start.StartCDAMessage",
+  "superName": "com.chrysler.cda.event.message.LinkableMessage",
+  "superNameNormalized": "com.chrysler.cda.event.message.LinkableMessage",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.event.message.RetryableMessage"
+  ],
+  "iinitMethod": 33697,
+  "cinitMethod": 33693,
+  "iinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "296a618f7b13c9855547505834632f8eb45345bede23de73035032cf72ff7a89",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 123,
+    "codeSha256": "31d764d69c531344378290e0e525bc5800f2696b77c4e1d766820cab445eb9d7",
+    "bytecodeLineCount": 8
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getFailureCount",
+      "traitKind": "method",
+      "methodIndex": 33701,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "10ca57f515cd399ee8ca2c3af942fbd1df8f8a3bada43e1180f803b2e51569a5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getMaxRetries",
+      "traitKind": "method",
+      "methodIndex": 33702,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1337cfed86341b64c9463ef050d22858a066a4fbed9febee3227bbbf75d7a7b6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "incrementFailures",
+      "traitKind": "method",
+      "methodIndex": 33699,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "66cba4b6428eeb57bfa502b3de17b5f2c8124c8252b0bd848e91f4753d52c91a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "isSessionTokenSet",
+      "traitKind": "method",
+      "methodIndex": 33704,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "5d3b94dc14c3079acd43f305a2d31e2d5ef1e547cb94bc149badcac4437fb0e1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "reset",
+      "traitKind": "getter",
+      "methodIndex": 33703,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a670ff4e98a3e84995fb0c0ce55468ab074b5ebd00f92c30719253f23de9b9eb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resetFailures",
+      "traitKind": "method",
+      "methodIndex": 33700,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "e51848b8175e4905c9baf53c91e269ae785bb44737bb957cade3f6a5b3a459dc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resetState",
+      "traitKind": "method",
+      "methodIndex": 33698,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.event.message.start.StartCDAMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "92f93886fa58e8d8b2595e1798eb35ef58349810ab2850d32b9bbfc4546e1b3e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sessionToken",
+      "traitKind": "getter",
+      "methodIndex": 33706,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "02ccfde3181e58c5ffbe4b2abf3c2216eb6a8174973671943997e203453d2dee",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sessionToken",
+      "traitKind": "setter",
+      "methodIndex": 33705,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "0a0db3bbf91a56b4dd371f9377bdeb1d96a84029cdeacf0479d05beeccc06a79",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "create",
+      "traitKind": "method",
+      "methodIndex": 33694,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.start.StartCDAMessage",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "347f7b5a38fab26f6ebd34965fe121845f56fd5de7e19cd02b455312fc80b157",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "createPrototypeMode",
+      "traitKind": "method",
+      "methodIndex": 33695,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.start.StartCDAMessage",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "5a451d378fc07dd65630b3f205b851816d32cbc0e14c0794fff6db4de2d10f52",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "createVin",
+      "traitKind": "method",
+      "methodIndex": 33696,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.YearBodyInfo"
+      ],
+      "returnType": "com.chrysler.cda.event.message.start.StartCDAMessage",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "874a02643be307c6d83b3fdfa10906867d5c5afdaab9a42d6d26686a44befcb3",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,371 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 563,
+  "className": "spark.effects.Animate",
+  "classNameNormalized": "spark.effects.Animate",
+  "superName": "mx.effects.Effect",
+  "superNameNormalized": "mx.effects.Effect",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 10890,
+  "cinitMethod": 10889,
+  "iinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "de95fcd964bab24febd6c55fa742a197b24f4fe15117c75e9e3a46bd076f3f17",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "b31ac9a46dc1ebf6a8d74133380218bba5eacf908da5984d2a27a76175d22958",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 10905,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "c0b9815211c9478ab20240339cf98d291cc9202480e30d28fa5875ef1ac2e63b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "disableLayout",
+      "traitKind": "getter",
+      "methodIndex": 10899,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "680c161b96d398ef630b5e5b1c8edf93af26fbacaf9ab388ee74fcf6b430f0d1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "disableLayout",
+      "traitKind": "setter",
+      "methodIndex": 10900,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "30e55a13ecb3916e99ef7a620102a6af74d3f492ab6834f04b993a73b63bf4b6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "easer",
+      "traitKind": "getter",
+      "methodIndex": 10893,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.easing.IEaser",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0b5f4e9eb7f4e948ab5a7aaa6a9ff5d55ddede00172f94664afbb1f5cbe31890",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "easer",
+      "traitKind": "setter",
+      "methodIndex": 10894,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.easing.IEaser"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5dbd0227afd6ead3ec1d499637222746c010f04b3a3c840bb7e8931e0ef0c401",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getAffectedProperties",
+      "traitKind": "method",
+      "methodIndex": 10901,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 628,
+      "bytecode": {
+        "codeLength": 628,
+        "codeSha256": "5e1875bad1885b5b4f4e7a43541aa3053ed13339759ccc8d3e95c9bd81791072",
+        "bytecodeLineCount": 40
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.applyEndValues",
+      "traitKind": "method",
+      "methodIndex": 10910,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 354,
+      "bytecode": {
+        "codeLength": 354,
+        "codeSha256": "a207d843f4e30a90b728cefe7709bc6803db9741c1bb4d4c16f13bc5880a70d0",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.applyStartValues",
+      "traitKind": "method",
+      "methodIndex": 10909,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 194,
+      "bytecode": {
+        "codeLength": 194,
+        "codeSha256": "ff1f7c0f59d8a39212bd030f8559076897bfea5c4a038559c32492dff669d433",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.captureValues",
+      "traitKind": "method",
+      "methodIndex": 10908,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Boolean",
+        "Array"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 167,
+      "bytecode": {
+        "codeLength": 167,
+        "codeSha256": "ca0ba97c5cba09d4a130f1128ae45baef0be8a781d79d6a1398bed0138958b1b",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "interpolator",
+      "traitKind": "getter",
+      "methodIndex": 10895,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.interpolation.IInterpolator",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b9cd27ebe1fd986edfdce36663559ec4290bbfe6f4c6d0a93705be84f2129323",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "interpolator",
+      "traitKind": "setter",
+      "methodIndex": 10896,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.interpolation.IInterpolator"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f91f1b1254349e154dae5dfd5958ffa94d3358375e0aa472c7f00b187f7ef96d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "motionPaths",
+      "traitKind": "getter",
+      "methodIndex": 10891,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "__AS3__.vec.Vector<spark.effects.animation.MotionPath>",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "78dfb1561655601de66a8ec8be77dd0a2ffaeeb433b553d725ba32c3a9244ff2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "motionPaths",
+      "traitKind": "setter",
+      "methodIndex": 10892,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<spark.effects.animation.MotionPath>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "329eda553c6511b5867f89aae0aaf3a816bbf94f2ca946218e8122a5b3e52999",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.animationEventHandler",
+      "traitKind": "method",
+      "methodIndex": 10907,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "0fa9b26477f065c70b47aa4bd8557ba2d56d6bf1d57ae75f8a323434e910d651",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "relevantStyles",
+      "traitKind": "getter",
+      "methodIndex": 10902,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "2d90dba946681218cccdd51661ca771c68140e3bcdec41ec51eb49ed5a31fc75",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 10906,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "01b43f948f86768a1bb01dd292a9f82ecec09a41855c4a72c9210f8e2098a031",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "repeatBehavior",
+      "traitKind": "getter",
+      "methodIndex": 10897,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b8bdaad5e9a1f7aa2b36fce16c0cad303711bf17b3893c5fa50515f015ba1b84",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "repeatBehavior",
+      "traitKind": "setter",
+      "methodIndex": 10898,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0ba280c03a78f09b118f9a66cde020e2f4d171e1fe8a1c919e242a9ac4a3fd83",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.effects:Animate.applyValueToTarget",
+      "traitKind": "method",
+      "methodIndex": 10904,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String",
+        "*",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "517b1082df2690f73deeb8b9d249efa8b363edf7a1c07530be73551b02068198",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.effects:Animate.initInstance",
+      "traitKind": "method",
+      "methodIndex": 10903,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.IEffectInstance"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 205,
+      "bytecode": {
+        "codeLength": 205,
+        "codeSha256": "7b6fd63cd3498f3f6391a14d7b84faf13e94ffb8a699ab93cb4ce1c22b0f3de0",
+        "bytecodeLineCount": 13
+      }
+    }
+  ],
+  "staticMembers": []
+}

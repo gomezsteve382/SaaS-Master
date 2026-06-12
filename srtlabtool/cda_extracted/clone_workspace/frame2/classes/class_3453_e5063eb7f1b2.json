@@ -1,0 +1,1425 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3453,
+  "className": "com.hurlant.math.BigInteger",
+  "classNameNormalized": "com.hurlant.math.BigInteger",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 52862,
+  "cinitMethod": 52860,
+  "iinitBytecode": {
+    "codeLength": 130,
+    "codeSha256": "295683854af5be25c6ab0e1560d531cd12573f69fc4c6c7f6aa6bcc22c5fa029",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 449,
+    "codeSha256": "47b19364c70bcf2e4914a66fbb8a5ce16497eecd135420c0cadd03620d8d7e62",
+    "bytecodeLineCount": 29
+  },
+  "instanceMembers": [
+    {
+      "traitName": "abs",
+      "traitKind": "method",
+      "methodIndex": 52868,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "cfff7983b925f9f71b5e78fb2eadd161292a002d1632edd9819e83f8ac667b7f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "add",
+      "traitKind": "method",
+      "methodIndex": 52926,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "a3b4212e1f20a0740f18dac364c60ad25abe7bbf1c2b2702eb06cf81df7993d7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "and",
+      "traitKind": "method",
+      "methodIndex": 52906,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "a08ee151cedf6d3ae8eabcac8220e113a8d7c74ac947b94134fbfb9e814bb6ae",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "andNot",
+      "traitKind": "method",
+      "methodIndex": 52912,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "41f06350fc94754a6546951bc566585104141c69ad9afd66fe22554ce2b9bf22",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "bitCount",
+      "traitKind": "method",
+      "methodIndex": 52919,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "4aadff386c0221a856b96155fe93cc96e00c6cd0bf5a41e217fd0103f3cbe936",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "bitLength",
+      "traitKind": "method",
+      "methodIndex": 52871,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "d4ac64866460956728623968f5b71c3dcb7de788d8625906e46c870e19051d2a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "byteValue",
+      "traitKind": "method",
+      "methodIndex": 52894,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "c5cdd6a285be7e8cbb4caf253996483e32589a63b7ba685b9cb305b0dd8c34fa",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "clearBit",
+      "traitKind": "method",
+      "methodIndex": 52923,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "4815c3b5d22108540443724be0e742ccae2dd61548cdd2c49f32315a60a60a43",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 52892,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "c3ca5cbc0ff3949830de563b0bfb3acb9a7e66df7675a7fe0d27dcc2483b93e1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.hurlant.math:BigInteger.addTo",
+      "traitKind": "method",
+      "methodIndex": 52925,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 394,
+      "bytecode": {
+        "codeLength": 394,
+        "codeSha256": "91d985568dd32a5efdccdaf9fafd9dd254d72b06613cfb22fd1868b9b50a14d8",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "com.hurlant.math:BigInteger.bitwiseTo",
+      "traitKind": "method",
+      "methodIndex": 52904,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "Function",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 277,
+      "bytecode": {
+        "codeLength": 277,
+        "codeSha256": "b0245eb547c3725c8ca5ac977a82e1e6a0a3a7944cbdf31e8cc38f9c998a34af",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "com.hurlant.math:BigInteger.changeBit",
+      "traitKind": "method",
+      "methodIndex": 52921,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Function"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "153107d6948f6caf120723ab304d387627f83145c3d714a10c130f9ed7218e5f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.hurlant.math:BigInteger.chunkSize",
+      "traitKind": "method",
+      "methodIndex": 52896,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "40cbdc29348c1b66d7a3517ef862374e3888263989133e5b86ff842a6214d3ce",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.hurlant.math:BigInteger.fromRadix",
+      "traitKind": "method",
+      "methodIndex": 52899,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 231,
+      "bytecode": {
+        "codeLength": 231,
+        "codeSha256": "015e10ac78744fb9e0881dffa904f0e7364e72927155009628b6fc3f9dbda905",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "com.hurlant.math:BigInteger.millerRabin",
+      "traitKind": "method",
+      "methodIndex": 52942,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 281,
+      "bytecode": {
+        "codeLength": 281,
+        "codeSha256": "06db78b25383a1c54f53163bf175124c46d3a39050aab6ffcbb68a652787376a",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "com.hurlant.math:BigInteger.modInt",
+      "traitKind": "method",
+      "methodIndex": 52939,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 131,
+      "bytecode": {
+        "codeLength": 131,
+        "codeSha256": "58fd15024e9787d0cffdd48756ada1e5d640eb559f99465d0eb50dd74b018d15",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "com.hurlant.math:BigInteger.nbi",
+      "traitKind": "method",
+      "methodIndex": 52891,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "642a7f9dd8bc6b1af341c7e0b747843594c56ae2eb831ebb3568c8a89316f761",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.hurlant.math:BigInteger.toRadix",
+      "traitKind": "method",
+      "methodIndex": 52898,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 191,
+      "bytecode": {
+        "codeLength": 191,
+        "codeSha256": "ea0e8ff9d7683803d1e7254a3370a27edd2eb1c56b5815caba60ae66826db89c",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "compareTo",
+      "traitKind": "method",
+      "methodIndex": 52869,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "15a1406c1bf4c0e6275e44cae3ae4a07d2396e44c080ad12f36b3bdaa803aacd",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 52863,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "69d30f4d1609b75b2cd1e6af7b98ebb192a62f0d9d36caafa9bd76ca8013f2d2",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "divide",
+      "traitKind": "method",
+      "methodIndex": 52929,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "3063c1847d77e662ec877242c5d16fa1ee58f23ca2c8c51f8f19eafe18eafbd4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "divideAndRemainder",
+      "traitKind": "method",
+      "methodIndex": 52931,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "f9ecca3a3766a56e3567702318966d3d63f1de52634a9b3cdbae7b29ff769b80",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "equals",
+      "traitKind": "method",
+      "methodIndex": 52901,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "7997e4030d94302d67a136c789903e6cb884fbedf1621cee5c64a45054c86a5b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flipBit",
+      "traitKind": "method",
+      "methodIndex": 52924,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "aa8ed0f04fcee806f99d331f42373ffe5b80e409c61c9f51cc09d05b0376a8c2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "gcd",
+      "traitKind": "method",
+      "methodIndex": 52938,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 325,
+      "bytecode": {
+        "codeLength": 325,
+        "codeSha256": "c0a78d8b30d7b26a66eb26723884ff86a62147f4d8d1e62666f9e4694a09dfdf",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "getLowestSetBit",
+      "traitKind": "method",
+      "methodIndex": 52917,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "2feb76022230860a94babeea50bbd166c4a80aab4cf7f1b98316c71ca1f2aa6f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.am",
+      "traitKind": "method",
+      "methodIndex": 52883,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "com.hurlant.math.BigInteger",
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 187,
+      "bytecode": {
+        "codeLength": 187,
+        "codeSha256": "526ddf82838bd2d8986039d9fe32d4d6e1616397be4fa561544a06df854f86ac",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.clamp",
+      "traitKind": "method",
+      "methodIndex": 52877,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "f9259a1d27bba2d7e31a96aa3a7e2d536eab269753e011c386eb8013578b8e13",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.copyTo",
+      "traitKind": "method",
+      "methodIndex": 52874,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "39cb41988e411f374f369f44e853a79d1e87a9407b5b331e745c33a6ed114d8b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.dAddOffset",
+      "traitKind": "method",
+      "methodIndex": 52933,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 213,
+      "bytecode": {
+        "codeLength": 213,
+        "codeSha256": "4dfdfb4570153ee790de37d8e4ecaec63500b3703fb8299de12cf7442864bc9f",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.divRemTo",
+      "traitKind": "method",
+      "methodIndex": 52886,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "com.hurlant.math.BigInteger",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1190,
+      "bytecode": {
+        "codeLength": 1190,
+        "codeSha256": "f3114411bb154302f278dc0dd56bd24090f04996c72fb190cbdeacf373bf4e9c",
+        "bytecodeLineCount": 75
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.dlShiftTo",
+      "traitKind": "method",
+      "methodIndex": 52878,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 104,
+      "bytecode": {
+        "codeLength": 104,
+        "codeSha256": "cbaf2f06de6c88dff1216bcf4f647828c5e5092d2aadab0afe6f6b5ee06c3ad8",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.dMultiply",
+      "traitKind": "method",
+      "methodIndex": 52932,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "a68e849f835285448e801931dc046a470a3c635bf92d5183d92d5a1528ca552c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.drShiftTo",
+      "traitKind": "method",
+      "methodIndex": 52879,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "1e30a2b7014c31ffff8f9f756bb79f91f8540cdb857ee456606612cc3e827dc0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.exp",
+      "traitKind": "method",
+      "methodIndex": 52889,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "com.hurlant.math.IReduction"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 165,
+      "bytecode": {
+        "codeLength": 165,
+        "codeSha256": "4348232ae42cc043251747fdc41f1c1f01116b119421fe7df4e049ad12c73a78",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.fromArray",
+      "traitKind": "method",
+      "methodIndex": 52876,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 429,
+      "bytecode": {
+        "codeLength": 429,
+        "codeSha256": "613a72b698a41d44f08d7d0dc8687cc90616aba77bbee010c4493cdc41d05856",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.fromInt",
+      "traitKind": "method",
+      "methodIndex": 52875,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "90c45e3d37967c9a179c146d8a36f470a33062dfd9ae60100e8742f9866859c1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.intAt",
+      "traitKind": "method",
+      "methodIndex": 52890,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "a22e5e25af0b7a0506aabed1419c7c1bcec5fa4f09470b8fc63bde1ea069f0ca",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.invDigit",
+      "traitKind": "method",
+      "methodIndex": 52887,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 142,
+      "bytecode": {
+        "codeLength": 142,
+        "codeSha256": "037c34de3f1783f1edcc7b8989f3cce51595059bbba8647885b32b1d3c0a07b6",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.isEven",
+      "traitKind": "method",
+      "methodIndex": 52888,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "bbba501ec442d509c31bd8d946fe9f2e56b08869471651e82a7377a8f8599e14",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.lShiftTo",
+      "traitKind": "method",
+      "methodIndex": 52880,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "32e2f4e615cb9f6bd2782cc93a6c545e8b53cd67f245cfe871238844a2794c4e",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.multiplyLowerTo",
+      "traitKind": "method",
+      "methodIndex": 52935,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "int",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 221,
+      "bytecode": {
+        "codeLength": 221,
+        "codeSha256": "ac02d56bc54f0a542584304b1958a607757b4189700a0c9486575bb719738944",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.multiplyTo",
+      "traitKind": "method",
+      "methodIndex": 52884,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "3a8b496718b08aacde851b4984b95c6fb02a60d72909a8a4b3ea440d33037e16",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.multiplyUpperTo",
+      "traitKind": "method",
+      "methodIndex": 52936,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "int",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 179,
+      "bytecode": {
+        "codeLength": 179,
+        "codeSha256": "9588588aa7cc10641bbae2753be786f49ccf7a17b963ed9958a4528fa2e553cc",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.nbits",
+      "traitKind": "method",
+      "methodIndex": 52870,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 150,
+      "bytecode": {
+        "codeLength": 150,
+        "codeSha256": "379c485942073c2357a1bfc7069c0fca4feba62685b121a3f1588bb1d0342897",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.rShiftTo",
+      "traitKind": "method",
+      "methodIndex": 52881,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 265,
+      "bytecode": {
+        "codeLength": 265,
+        "codeSha256": "5accfebce65bd57e8cd1ee64085f78ab97994552ac7a8131380f0522e14c404e",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.squareTo",
+      "traitKind": "method",
+      "methodIndex": 52885,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 345,
+      "bytecode": {
+        "codeLength": 345,
+        "codeSha256": "c3a066e3863ab3b7b9598da841b9ddbc7c58918e5d7045c79617aae66ad62fd1",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "http://crypto.hurlant.com/BigInteger.subTo",
+      "traitKind": "method",
+      "methodIndex": 52882,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 394,
+      "bytecode": {
+        "codeLength": 394,
+        "codeSha256": "d258735ba90c1cc627db60b1635fe7ab8a94a3386f912094deb241c774699404",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "intValue",
+      "traitKind": "method",
+      "methodIndex": 52893,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 137,
+      "bytecode": {
+        "codeLength": 137,
+        "codeSha256": "86b715f5d0101dc32265307f3d8d90274b58205ebeef5b64acaf0009d9f0f2c5",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "isProbablePrime",
+      "traitKind": "method",
+      "methodIndex": 52941,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 272,
+      "bytecode": {
+        "codeLength": 272,
+        "codeSha256": "4cc7bfab791c402facdded3b3b45b6081a6c27de2fb6e6022ba7c31a43de7e34",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "max",
+      "traitKind": "method",
+      "methodIndex": 52903,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "7416fb3673756b176724e151e1c0778fd889a53bbe47b1a62e6973c05ca6a7e0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "min",
+      "traitKind": "method",
+      "methodIndex": 52902,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "08006194bc0151e984c961ccbcf0f5324ee05d7dfdb36b2be7e0a322c641e5bf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mod",
+      "traitKind": "method",
+      "methodIndex": 52872,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "40231af72016adbae5d0ba3540634af2c93667ff01c5cb9a4044dd1c685830bc",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "modInverse",
+      "traitKind": "method",
+      "methodIndex": 52940,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 596,
+      "bytecode": {
+        "codeLength": 596,
+        "codeSha256": "2957b42c1b5cdad232414b2d1514b7e95df91c4ef8afe02de07a6870fe4a6bd1",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "modPow",
+      "traitKind": "method",
+      "methodIndex": 52937,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 794,
+      "bytecode": {
+        "codeLength": 794,
+        "codeSha256": "7940a181fef39bdd07fc6712cb4e9741d1ccbb6dc87cd11d0dc7c70bca92625d",
+        "bytecodeLineCount": 50
+      }
+    },
+    {
+      "traitName": "modPowInt",
+      "traitKind": "method",
+      "methodIndex": 52873,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "d5ed70e079f177e3ec17e771ad32bbe22d276cb00decf89d362198d2d11d8994",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "multiply",
+      "traitKind": "method",
+      "methodIndex": 52928,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "73d3d7058206e01b8e523a92f6f51274f0cc0d748a0b367c65bfa5caff4ad62d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "negate",
+      "traitKind": "method",
+      "methodIndex": 52867,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "0e0c081631a168fc9c962f98a1bcc9410956988c0868a827fd15a53dd51350fb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "not",
+      "traitKind": "method",
+      "methodIndex": 52913,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "b63f1abd3f634fc1d2b88f12f4b0634b29cb7a714e5448f6327d0874ecfc00e6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "or",
+      "traitKind": "method",
+      "methodIndex": 52908,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "c81f02256436219645d19723b49b867de56dac70d459c161b38fcc260a59d375",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "pow",
+      "traitKind": "method",
+      "methodIndex": 52934,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "77782c43abe1137b2cd1edae2bdfa415bd35d90847b2418704eb6202667bee92",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "primify",
+      "traitKind": "method",
+      "methodIndex": 52943,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "84499efac3f8fe8e5263404cad2d5c408d09cd7ddb632aa58e0210c52ac670ee",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.cbit",
+      "traitKind": "method",
+      "methodIndex": 52918,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "e422c6a104c74b0606f553f1cd6d88a193750ded9f432fb2698df009d858a1a5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.lbit",
+      "traitKind": "method",
+      "methodIndex": 52916,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "166ba95d6ef28bdb7b36951436f91300828f41120543f394d828bbc39df38110",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.op_and",
+      "traitKind": "method",
+      "methodIndex": 52905,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "c671ce1ac1c79939f98e74b762f9691844a0c71fdc0dddc6c54f2e11bc133254",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.op_andnot",
+      "traitKind": "method",
+      "methodIndex": 52911,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0179adee67da52c608d09c8524214fe89732d91756d423022f05e2e22aee464c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.op_or",
+      "traitKind": "method",
+      "methodIndex": 52907,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "51546cf1499be4d62fb8234433c29a497f06e251551f04cc73db3d93bc087b4c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.op_xor",
+      "traitKind": "method",
+      "methodIndex": 52909,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "260c665a5283ee6fb9aee422fe6407fffa9a6e52ad00eb5985301b395ed7d669",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "remainder",
+      "traitKind": "method",
+      "methodIndex": 52930,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "0e53ed05ae38b929e101504168c8b435614f76f043805f2c5cb2246d3d8bf157",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setBit",
+      "traitKind": "method",
+      "methodIndex": 52922,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "983ffae6cbec5a4b0770f04eaf12324091876dcc989026a570d39b61b9e2707f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "shiftLeft",
+      "traitKind": "method",
+      "methodIndex": 52914,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "bbb0d0faf9352e9e6b7cd290c50e0a5e59ce21600450f5e9ab038359959f5270",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "shiftRight",
+      "traitKind": "method",
+      "methodIndex": 52915,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "528a6058cf75389369387e04300bcdfe2b0cc877f1deed31e7fb161ee888bdbf",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "shortValue",
+      "traitKind": "method",
+      "methodIndex": 52895,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "7878b374fcf0138cc6c023e9296b06d9d542fc0f251f3f4c70a8a8814e921a98",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "sigNum",
+      "traitKind": "method",
+      "methodIndex": 52897,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "e62f4995339b626c24bc46c82482f8eb34d5ba912b8cbcf3432b0450f318a1ac",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "subtract",
+      "traitKind": "method",
+      "methodIndex": 52927,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "7e2f86b0d371998776aa14f076626e86c4dd08cd738a00dc434bada4ba6b222d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "testBit",
+      "traitKind": "method",
+      "methodIndex": 52920,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "1c5fcef0d64035e502b50abfdb47a63b7ad9d3c780997763a02bcecf2f04d442",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "toArray",
+      "traitKind": "method",
+      "methodIndex": 52865,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 290,
+      "bytecode": {
+        "codeLength": 290,
+        "codeSha256": "f5df1ae17c7d91bbffec54bf59491f6e482a4654f30094b3ebf6c7acd404aca9",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "toByteArray",
+      "traitKind": "method",
+      "methodIndex": 52900,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 381,
+      "bytecode": {
+        "codeLength": 381,
+        "codeSha256": "0cd13d784dd5dc875794761b15ab5a852e99c3120f44209ece7461a7a9392ca6",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 52864,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 497,
+      "bytecode": {
+        "codeLength": 497,
+        "codeSha256": "04815955a3cfd408ce67d4f2257932d876da5d5de4837eacdf0534d0c125d32c",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "valueOf",
+      "traitKind": "method",
+      "methodIndex": 52866,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "dedcf2a3a7fcaeb0498a5e76e3bb4846149f7efe41c8c925a3e889cf0dd407ad",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "xor",
+      "traitKind": "method",
+      "methodIndex": 52910,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.math.BigInteger"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "8ab1aa649101b52dd62bcc64c9637a7263dbe5c5684c8207ae8896f1469419c7",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "nbv",
+      "traitKind": "method",
+      "methodIndex": 52861,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "com.hurlant.math.BigInteger",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "b5e0e088db4bb09250b170dd31b8367a6db7c5bb0339479965add2ed7799988c",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3565,
+  "className": "com.diagnosticProcedures.util.DiagnosticProcedureUtils",
+  "classNameNormalized": "com.diagnosticProcedures.util.DiagnosticProcedureUtils",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 53605,
+  "cinitMethod": 53600,
+  "iinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "575f98f53ee50052d862d85eb8d00870b13f1baeb6e9dcbbc5c556787fe522dc",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "createXPathQuery",
+      "traitKind": "method",
+      "methodIndex": 53601,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "memorphic.xpath.XPathQuery",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "d63756a6124bd1af069d877ccf14d07cd7c2567cd20adb7d013973a89b5ad867",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "evalJsExpression",
+      "traitKind": "method",
+      "methodIndex": 53604,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.IJavaScriptExec",
+        "String"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "0fdf7b33fb67448c2f6d13ce86f7589b7e6007ff7d14757e39b41ce9ab411256",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "execXPathQuery",
+      "traitKind": "method",
+      "methodIndex": 53603,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.xpath.XPathQuery",
+        "XML"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "c5f414b98924f8e8e5d9a89e05986fcaca0ee36e1b10e31c620f4084155a6cba",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "execXPathQueryStr",
+      "traitKind": "method",
+      "methodIndex": 53602,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "XML"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "fea3b850f95b44e511bc49e19987bd72bae11e0d74f5551aa440a672eb8d6e78",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

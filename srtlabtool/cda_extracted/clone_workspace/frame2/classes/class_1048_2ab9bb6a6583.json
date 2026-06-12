@@ -1,0 +1,118 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1048,
+  "className": "com.chrysler.cda.application.cdaservices.VersionCommand",
+  "classNameNormalized": "com.chrysler.cda.application.cdaservices.VersionCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 22583,
+  "cinitMethod": 22576,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "219a4f1ca95d8876a4666e7020b5bc9656fcef944aaa100e83182feab8e171fe",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "GetCdaServicesVersion",
+      "traitKind": "method",
+      "methodIndex": 22578,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.cdaservices.CdaServicesVersionMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "f6049461273c9ef989bd3f03d084b910b60d45b713b479f945cc65efd0ad71ce",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "GetCdaServicesVersionKo",
+      "traitKind": "method",
+      "methodIndex": 22582,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.cdaservices.CdaServicesVersionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "aea76ca0a198c644eeba3de24a42f12a8fc537d876597ee8c371a60caefe85ed",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "GetCdaServicesVersionOk",
+      "traitKind": "method",
+      "methodIndex": 22579,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.cdaservices.CdaServicesVersionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "5f0a51b0410012fa7d9edf0f56fd2404cc1d3f1f4a7dd68d3345522f7349e207",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.startCdaServices",
+      "traitKind": "method",
+      "methodIndex": 22577,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "334591316503d3cdc1f5e30fe6f60fe997231e7d889c9a2aa1db730f33be28d8",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "setCdaVersion",
+      "traitKind": "method",
+      "methodIndex": 22580,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.cdaservices.CdaServicesVersionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "2ab814727158983896f22e31779a81b6e8aca2414a0d352ee37c55a9076cea7b",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

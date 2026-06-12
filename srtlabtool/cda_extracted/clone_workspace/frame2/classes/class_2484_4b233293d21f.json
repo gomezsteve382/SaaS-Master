@@ -1,0 +1,66 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2484,
+  "className": "PrivateNs.AuthenticationMessageResponder",
+  "classNameNormalized": "PrivateNs.AuthenticationMessageResponder",
+  "superName": "mx.messaging.MessageResponder",
+  "superNameNormalized": "mx.messaging.MessageResponder",
+  "domainBucket": "auth",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42842,
+  "cinitMethod": 42841,
+  "iinitBytecode": {
+    "codeLength": 16,
+    "codeSha256": "9c2566e3ca1cf55497c085250ae4fbe8524db31dc19d5250c754e9012d07c729",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "Channel.as$136:AuthenticationMessageResponder.resultHandler",
+      "traitKind": "method",
+      "methodIndex": 42843,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 114,
+      "bytecode": {
+        "codeLength": 114,
+        "codeSha256": "92e441cf0809ee25ae9ad4f1ad5808a8a8e953afbef43e1c368d1e9e5a942b13",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "Channel.as$136:AuthenticationMessageResponder.statusHandler",
+      "traitKind": "method",
+      "methodIndex": 42844,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "0d14d7f156c776daec09a9f9d2549b268b0ad2c078210c54e4546d6981e25c64",
+        "bytecodeLineCount": 14
+      }
+    }
+  ],
+  "staticMembers": []
+}

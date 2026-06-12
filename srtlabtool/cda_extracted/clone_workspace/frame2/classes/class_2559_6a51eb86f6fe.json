@@ -1,0 +1,120 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2559,
+  "className": "com.chrysler.cda.domain.witech.components.ParsleyAdapterImpl",
+  "classNameNormalized": "com.chrysler.cda.domain.witech.components.ParsleyAdapterImpl",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.domain.witech.interfaces.IParsleyAdapter"
+  ],
+  "iinitMethod": 43809,
+  "cinitMethod": 43806,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "24975db269932e595a5c87d57f03c4ec3174f1235e1497b0e0955dcff1b0c689",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "brokerCommand",
+      "traitKind": "getter",
+      "methodIndex": 43808,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.witech.interfaces.IWebServiceBroker",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "87f779f219361e815b3a93cba9cea256b3fbf71b30dd4299eb11bcdd4667a62d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "execute",
+      "traitKind": "method",
+      "methodIndex": 43810,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.witech.interfaces.ISisalService"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "9429667b27e587f80372e92c36de51f26b87eadd72d45493a402989e82ee3b12",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "fault",
+      "traitKind": "method",
+      "methodIndex": 43812,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "1b7ec6b620c580b47c62c8b3b056238685fa13b70654200c86071db37d72a57e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "result",
+      "traitKind": "method",
+      "methodIndex": 43811,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 310,
+      "bytecode": {
+        "codeLength": 310,
+        "codeSha256": "d1fbbcce704f515e72d083f5c2c56b04ca21a024eeab3a722cada66e1a2925c3",
+        "bytecodeLineCount": 20
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "Respond",
+      "traitKind": "method",
+      "methodIndex": 43807,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.rpc.AsyncToken",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "3fdd42033de24618fc61dd4f6e34e5e54598dbd7ec3f28b2ee4d0694a0952ce3",
+        "bytecodeLineCount": 7
+      }
+    }
+  ]
+}

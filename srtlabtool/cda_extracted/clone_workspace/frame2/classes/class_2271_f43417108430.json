@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2271,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCEnvironmentalMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCEnvironmentalMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 40534,
+  "cinitMethod": 40532,
+  "iinitBytecode": {
+    "codeLength": 36,
+    "codeSha256": "de96b56469261eeea2b2c9434bef0a5f52f1cc7878c848d2c17f9fca8ac73217",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "095778eb6628434d9b61e30aee7a5a8f3fff8a8cc02968a3233edbf23ac17942",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "hexCode",
+      "traitKind": "getter",
+      "methodIndex": 40535,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b6a6a8ce9cb10993bda53f6474d722951abdb9d8d2113393b40e562409d64006",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hexCode",
+      "traitKind": "setter",
+      "methodIndex": 40536,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "857f7d5bbdbbdea6749a61edac3cf6df913b6fb254d0af97d640bf5294b26b00",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "message",
+      "traitKind": "method",
+      "methodIndex": 40533,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "com.chrysler.cda.domain.diagnostics.ecu.DtcObject"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.dtcs.FindDTCEnvironmentalMessage",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "9ddd65d1684001bd3ee96f187efd97313b47dd1479a9e72870128313a85fbfff",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

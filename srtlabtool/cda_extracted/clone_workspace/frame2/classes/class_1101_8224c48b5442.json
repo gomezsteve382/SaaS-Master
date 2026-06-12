@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1101,
+  "className": "com.chrysler.cda.application.state.CredentialsStateCommand",
+  "classNameNormalized": "com.chrysler.cda.application.state.CredentialsStateCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23770,
+  "cinitMethod": 23766,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 22,
+    "codeSha256": "ef34e3dd77d295a3c789f48562b4f7b83690b969280d2c16ae976bb10ebea2f8",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "SetCredentialsStateCommand",
+      "traitKind": "method",
+      "methodIndex": 23767,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.state.CommandCredentialsStateMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "01a7f5b55985b516a208d0088fb59ee8a6590f231279c7728c28696a33f3346b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "SetCredentialsStateCommandKO",
+      "traitKind": "method",
+      "methodIndex": 23769,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.CommandCredentialsStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "c8e1d1a5580dfdd73ac15b9e02f60fcefc915fd014d1e1f93270bee690fef8e3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "SetCredentialsStateCommandOK",
+      "traitKind": "method",
+      "methodIndex": 23768,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.state.CommandCredentialsStateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "43e657f2ff98f38d657538471d96a7fcb005bd912fca6b4e82b31fc87443f044",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

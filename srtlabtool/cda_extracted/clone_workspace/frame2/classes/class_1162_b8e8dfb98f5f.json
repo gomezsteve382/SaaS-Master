@@ -1,0 +1,143 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1162,
+  "className": "mx.rpc.http.SerializationFilter",
+  "classNameNormalized": "mx.rpc.http.SerializationFilter",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 25822,
+  "cinitMethod": 25815,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 16,
+    "codeSha256": "2da1a4747f0d8402eec1f100ce17fa1b11c74ec89462e78e40657016e90f3994",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "deserializeResult",
+      "traitKind": "method",
+      "methodIndex": 25817,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.http.AbstractOperation",
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "7c87179180b1af9f9d53fb3416f3bd8a6c123415f2185af78698204be3832c16",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getRequestContentType",
+      "traitKind": "method",
+      "methodIndex": 25818,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.http.AbstractOperation",
+        "Object",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "dcd5a67d30fcdcb185c69ad98b10db7f458ac9141ee83e300c514b2ba74359b7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serializeBody",
+      "traitKind": "method",
+      "methodIndex": 25820,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.http.AbstractOperation",
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "7c87179180b1af9f9d53fb3416f3bd8a6c123415f2185af78698204be3832c16",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serializeParameters",
+      "traitKind": "method",
+      "methodIndex": 25819,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.http.AbstractOperation",
+        "Array"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 157,
+      "bytecode": {
+        "codeLength": 157,
+        "codeSha256": "d407bb0946137b2fa57b1d137fbb6124b55f45fa5f3f12da22beac14f31dbf61",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "serializeURL",
+      "traitKind": "method",
+      "methodIndex": 25821,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.http.AbstractOperation",
+        "Object",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "dcd5a67d30fcdcb185c69ad98b10db7f458ac9141ee83e300c514b2ba74359b7",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "registerFilterForResultFormat",
+      "traitKind": "method",
+      "methodIndex": 25816,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.rpc.http.SerializationFilter"
+      ],
+      "returnType": "mx.rpc.http.SerializationFilter",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "9b815d0b11636849559cacf1e8b361515c208f56c8fac0c2cbef68909a16a101",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

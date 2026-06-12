@@ -1,0 +1,661 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3724,
+  "className": "mx.rpc.xml.SchemaMarshaller",
+  "classNameNormalized": "mx.rpc.xml.SchemaMarshaller",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55584,
+  "cinitMethod": 55579,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "e4c580e9c97dcca64fee5fcca4a2760e155b7e4bfd8c2e0162935bcf9ce725b5",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 240,
+    "codeSha256": "cb172068830fe10127c16fa689aaeacdc6b99331c475282808e1b6c433932bb3",
+    "bytecodeLineCount": 15
+  },
+  "instanceMembers": [
+    {
+      "traitName": "marshall",
+      "traitKind": "method",
+      "methodIndex": 55587,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "00c81780d9caf35a578c928860aaa3d9dbbceebe31f64792e448d852aec6b5c9",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "marshallAny",
+      "traitKind": "method",
+      "methodIndex": 55589,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 140,
+      "bytecode": {
+        "codeLength": 140,
+        "codeSha256": "3c7186d81c1ff92dd5057fa3e88b49159a8845b7c00b855c5d79eab0377c9143",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "marshallBase64Binary",
+      "traitKind": "method",
+      "methodIndex": 55590,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "c5a85b590289d1675cd00640a27d114307fc0b33a2d83a8a8c8dfb58f5e0ffb5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "marshallBoolean",
+      "traitKind": "method",
+      "methodIndex": 55591,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 180,
+      "bytecode": {
+        "codeLength": 180,
+        "codeSha256": "9706379d0f0f519fe1eae10b0fed74edc8ecad82da3970f68981629a0630fb78",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "marshallDatetime",
+      "traitKind": "method",
+      "methodIndex": 55592,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 537,
+      "bytecode": {
+        "codeLength": 537,
+        "codeSha256": "ce34922da2ecf1a7582c5891dcb6709c5b06e6986c313afc32c5be7fd3914fa4",
+        "bytecodeLineCount": 34
+      }
+    },
+    {
+      "traitName": "marshallDecimal",
+      "traitKind": "method",
+      "methodIndex": 55593,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 133,
+      "bytecode": {
+        "codeLength": 133,
+        "codeSha256": "4f400aab1d7f0a3a6644a3295b17256d3d41887ee39e83f865b0e478ea0d9ece",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "marshallDouble",
+      "traitKind": "method",
+      "methodIndex": 55594,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "299f0daee22e599f0531020f0ae42adf8fae060af2f7c26cb5efbcc5581c7b5f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "marshallDuration",
+      "traitKind": "method",
+      "methodIndex": 55595,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "c5abac2aecde9b2a1609395c120e90a42b0c85808e95504ac1b628a713dcd998",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "marshallFloat",
+      "traitKind": "method",
+      "methodIndex": 55596,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 235,
+      "bytecode": {
+        "codeLength": 235,
+        "codeSha256": "5fdf2c84282cfc5f7ebf5994639e770f314c86d0ff330c38d37f6904ec8f87bd",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "marshallGregorian",
+      "traitKind": "method",
+      "methodIndex": 55597,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 1344,
+      "bytecode": {
+        "codeLength": 1344,
+        "codeSha256": "48fbea71bf9f8042fc5a510dba844544e72216049fbcebfdf029a6c9af59a54b",
+        "bytecodeLineCount": 84
+      }
+    },
+    {
+      "traitName": "marshallHexBinary",
+      "traitKind": "method",
+      "methodIndex": 55598,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "391196e6a01a4a8d4361cbf5386a8a767855e073cf77d92ecbd2a47ee368a079",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "marshallInteger",
+      "traitKind": "method",
+      "methodIndex": 55599,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 620,
+      "bytecode": {
+        "codeLength": 620,
+        "codeSha256": "3aeb24d88ea7af7476f2f876eb271eebf75ba6d0d1ec821cbd7ef2fce437ce6d",
+        "bytecodeLineCount": 39
+      }
+    },
+    {
+      "traitName": "marshallString",
+      "traitKind": "method",
+      "methodIndex": 55600,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "84dfc4cd37c573ac3356901ebe33a33f049b5573c7b4eaef7c7b723568ed6d1c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.registerMarshallers",
+      "traitKind": "method",
+      "methodIndex": 55614,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 2853,
+      "bytecode": {
+        "codeLength": 2853,
+        "codeSha256": "a4cd5f40925896bfc582ae8561c99fd368cc9658832290a0417a8708bd25e44d",
+        "bytecodeLineCount": 179
+      }
+    },
+    {
+      "traitName": "unmarshall",
+      "traitKind": "method",
+      "methodIndex": 55588,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 260,
+      "bytecode": {
+        "codeLength": 260,
+        "codeSha256": "e43007c945a98f2b0cb76e68697fd2af6dc5739c72b0c1355227636afabf21e2",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "unmarshallAny",
+      "traitKind": "method",
+      "methodIndex": 55601,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 321,
+      "bytecode": {
+        "codeLength": 321,
+        "codeSha256": "78cd13a94bb47dfacc9276379618890f47b13426c63a6a407b94de5f96f345d3",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "unmarshallBase64Binary",
+      "traitKind": "method",
+      "methodIndex": 55602,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "e2dcd56f16bae048c42917c7fb4d5691e548e8be5c1ac6fbb044758391fd5f93",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "unmarshallBoolean",
+      "traitKind": "method",
+      "methodIndex": 55603,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "fdeffd9324b58fff8c2d1a611a5f87e4f916dba0392764144a9d7498996ce008",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "unmarshallDate",
+      "traitKind": "method",
+      "methodIndex": 55604,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 402,
+      "bytecode": {
+        "codeLength": 402,
+        "codeSha256": "58d43c37f5acbeaabddc91e446cf05384c3b441964c29ac3ab76ca1ee8562155",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "unmarshallDatetime",
+      "traitKind": "method",
+      "methodIndex": 55605,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 802,
+      "bytecode": {
+        "codeLength": 802,
+        "codeSha256": "ac48957ad4e65f17bc8e9bbd54bb85b2f0174ce4832bbcbd73a1a52ccb1dbbef",
+        "bytecodeLineCount": 51
+      }
+    },
+    {
+      "traitName": "unmarshallDecimal",
+      "traitKind": "method",
+      "methodIndex": 55606,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "7eaafb66169a264e17600ca756bc5ec6a67bdeba670b7849d3f822a8abdf74a0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unmarshallDouble",
+      "traitKind": "method",
+      "methodIndex": 55607,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "cdd7ccf9fa79cb94966af65f6df75a201fcaade07a4e679e3fac00ad3e9f6cc5",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "unmarshallDuration",
+      "traitKind": "method",
+      "methodIndex": 55608,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "c5abac2aecde9b2a1609395c120e90a42b0c85808e95504ac1b628a713dcd998",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unmarshallFloat",
+      "traitKind": "method",
+      "methodIndex": 55609,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "09c5f6ec72d8e4b2b83d4ecba1ada0970d1414500d056cb0e62ec12f9fbf144c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unmarshallGregorian",
+      "traitKind": "method",
+      "methodIndex": 55610,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 129,
+      "bytecode": {
+        "codeLength": 129,
+        "codeSha256": "04ad2ce210db85c4bd1045ca2b6b75c73891af1273b9034078d4329c97f75015",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "unmarshallHexBinary",
+      "traitKind": "method",
+      "methodIndex": 55611,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "30a0693031f006cc393ec4969f1d3decf38c8bb9e5411d13d49f7a4d2cac99cd",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "unmarshallInteger",
+      "traitKind": "method",
+      "methodIndex": 55612,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "67435a030a6987f55b0c5ad34cca708c3768382c6c2079303aad81af47c671c6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "unmarshallString",
+      "traitKind": "method",
+      "methodIndex": 55613,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "QName",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "4252cbedc0b4142a33385d0a4a69c38b63d272a2498225c40568422f59d3c4d1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "validating",
+      "traitKind": "getter",
+      "methodIndex": 55585,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ded77f742db7195a4c4001db284064e732deff3c5459e378450e36f5f52e8e15",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "validating",
+      "traitKind": "setter",
+      "methodIndex": 55586,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "2e8625e38e3f16634e35f7d7c90175e5b479b92e8a6dcd6e9111eb84fd5c117a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "guessSimpleType",
+      "traitKind": "method",
+      "methodIndex": 55580,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 141,
+      "bytecode": {
+        "codeLength": 141,
+        "codeSha256": "16a106250a4e27accd0470d725cd77cbfb892cdadc3ef08776b3ed2284d53632",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.specialNumber",
+      "traitKind": "method",
+      "methodIndex": 55581,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "cbb9e504953a06cfc398e9a8fd845f2fa7ca29565bb2591441ad15930aa111dc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.whitespaceCollapse",
+      "traitKind": "method",
+      "methodIndex": 55582,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "90bd8d11f449ad1668d18cb67e4109e0abd08c67029c4436083e1bce02dd008d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.whitespaceReplace",
+      "traitKind": "method",
+      "methodIndex": 55583,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "5acdda4c9fbd2bed962e33147a5a05ce67e45350df6d5131b12fb1cee924f854",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

@@ -1,0 +1,230 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1513,
+  "className": "spark.effects.supportClasses.AnimateTransformInstance",
+  "classNameNormalized": "spark.effects.supportClasses.AnimateTransformInstance",
+  "superName": "spark.effects.supportClasses.AnimateInstance",
+  "superNameNormalized": "spark.effects.supportClasses.AnimateInstance",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 32652,
+  "cinitMethod": 32651,
+  "iinitBytecode": {
+    "codeLength": 172,
+    "codeSha256": "e9c8f422766fc74284e96e588ac97d6fbd9c8c7bd3d421f37a106630bf36dc21",
+    "bytecodeLineCount": 11
+  },
+  "cinitBytecode": {
+    "codeLength": 157,
+    "codeSha256": "d716eedbafa80bdb480090bc1e39002b29909557e12a190d4de6b178e8803199",
+    "bytecodeLineCount": 10
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addMotionPath",
+      "traitKind": "method",
+      "methodIndex": 32656,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.MotionPath",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 505,
+      "bytecode": {
+        "codeLength": 505,
+        "codeSha256": "5cf91ccee16d34128a8e00991b6c286416242af1f61a0845b1fa90c11f7a7982",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "animationEnd",
+      "traitKind": "method",
+      "methodIndex": 32661,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.Animation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "7b8ed3e648ba50e7df751c560f217b016673f37457a42cae20c154c365e85f2c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "animationStart",
+      "traitKind": "method",
+      "methodIndex": 32660,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.Animation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "ecf8cabee90b58a5ba2cbc05905688e753a4080fe6cc4a890dddee5b60d3903a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "play",
+      "traitKind": "method",
+      "methodIndex": 32659,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1378,
+      "bytecode": {
+        "codeLength": 1378,
+        "codeSha256": "511ddaa68b81e72da30da7d398c58f893ca606e9d07c7cfdf99c991e1a3cfd77",
+        "bytecodeLineCount": 87
+      }
+    },
+    {
+      "traitName": "PrivateNs.initProjection",
+      "traitKind": "method",
+      "methodIndex": 32657,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 246,
+      "bytecode": {
+        "codeLength": 246,
+        "codeSha256": "413d72a51c2f7d0c3cec11cd7e51c2958f8c8d32a5d14e505138b6795edbf3ea",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.insertKeyframe",
+      "traitKind": "method",
+      "methodIndex": 32655,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<spark.effects.animation.Keyframe>",
+        "spark.effects.animation.Keyframe",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 150,
+      "bytecode": {
+        "codeLength": 150,
+        "codeSha256": "2f655a0901a63155b50b1fdc551bbac672bde458ceb2edb62f16401931ff5438",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.isValidValue",
+      "traitKind": "method",
+      "methodIndex": 32654,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "93f3bb5ec5d76b09019597cbe215d826e3a8e87e89dbacf469f7e72d18619f5a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeProjection",
+      "traitKind": "method",
+      "methodIndex": 32658,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "4ec18004c0ef4e4d9cb2605dee2280380ceb68d05c54aee13158e3c3d1a0ce0c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateTransformCenter",
+      "traitKind": "method",
+      "methodIndex": 32662,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "7ec5caea62a5919546392fa90bbb978e6e791dd8493b06edf2c3b13954f47393",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "spark.effects.supportClasses:AnimateTransformInstance.applyValues",
+      "traitKind": "method",
+      "methodIndex": 32664,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.animation.Animation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1707,
+      "bytecode": {
+        "codeLength": 1707,
+        "codeSha256": "759c0eda618e31e00c5bed961721806dd428681fa8b9a69f15ad1af30a0ef6e7",
+        "bytecodeLineCount": 107
+      }
+    },
+    {
+      "traitName": "spark.effects.supportClasses:AnimateTransformInstance.getCurrentValue",
+      "traitKind": "method",
+      "methodIndex": 32663,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 631,
+      "bytecode": {
+        "codeLength": 631,
+        "codeSha256": "23506a93c7eee3c2ec49987d2913db94afecf0de18a0abdd29beeec11e53e4c9",
+        "bytecodeLineCount": 40
+      }
+    },
+    {
+      "traitName": "startEffect",
+      "traitKind": "method",
+      "methodIndex": 32653,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "b92a836ae4ebe34c0c9d730ee14d1505149923e32971f75a8f3bd70d7e9a77be",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

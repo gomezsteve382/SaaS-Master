@@ -1,0 +1,96 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3421,
+  "className": "mx.rpc.soap.LoadEvent",
+  "classNameNormalized": "mx.rpc.soap.LoadEvent",
+  "superName": "mx.rpc.events.WSDLLoadEvent",
+  "superNameNormalized": "mx.rpc.events.WSDLLoadEvent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 52343,
+  "cinitMethod": 52341,
+  "iinitBytecode": {
+    "codeLength": 30,
+    "codeSha256": "0e8fdbab41a65ab2a6e9f290c36f2beabb555158dfcf220d26affe0ea39792ac",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "2f211da238c922d3afb6dace73a6c6babaec0e15e879f9b7597bce3d070e4011",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 52345,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.Event",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "97d0ce595379655e0cac80dd187750bd2d7cc62c2e09b57fb86d2b1eab1ac56d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "document",
+      "traitKind": "getter",
+      "methodIndex": 52344,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.xml.XMLDocument",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "ab8b1fad34db94fb18c57622431bc1a30d63dcf3c3816373fa7d34a6bfd7ad00",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 52346,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "ed1cd205e9ba9428082bf35379176cf98fc845fc99b632bc5e6c62096a3ee347",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createEvent",
+      "traitKind": "method",
+      "methodIndex": 52342,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.wsdl.WSDL",
+        "String"
+      ],
+      "returnType": "mx.rpc.soap.LoadEvent",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "166a740ede0d93637fae9a7d039b1ae670b61624ad10ce81002a77b5d50f4feb",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

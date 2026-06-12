@@ -1,0 +1,1245 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 128,
+  "className": "spark.components.supportClasses.GroupBase",
+  "classNameNormalized": "spark.components.supportClasses.GroupBase",
+  "superName": "mx.core.UIComponent",
+  "superNameNormalized": "mx.core.UIComponent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "spark.core.IViewport"
+  ],
+  "iinitMethod": 2454,
+  "cinitMethod": 2452,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "b1ec28d22b7d884e8de82039b07367385de3df1518b81ce564319f20321a3eed",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 2507,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 607,
+      "bytecode": {
+        "codeLength": 607,
+        "codeSha256": "c2d8fd1432fb4daa4a80f055b7c061b4828c58fa27df24158fcf7e416f2e5b9a",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "alpha",
+      "traitKind": "setter",
+      "methodIndex": 2455,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "490e0ecbe7f5d3832b83a9eacb52d86980b7ef864874e1ba263d424ed2be2b67",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "autoLayout",
+      "traitKind": "getter",
+      "methodIndex": 2471,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "6a7c924d9e382926233eb20f7968079733341061230beff2d21d91cb7fc6cb94",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "autoLayout",
+      "traitKind": "setter",
+      "methodIndex": 2472,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "b5df096af9a22d21dabfa30ad310b16c896ae9959e9cf7378088e290578ed788",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "baselinePosition",
+      "traitKind": "getter",
+      "methodIndex": 2456,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "2ff164612aee32ba2fdc105e8f8f522e68e7a2d16b2b3aaf071d04e8a213243f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "clipAndEnableScrolling",
+      "traitKind": "getter",
+      "methodIndex": 2467,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "0e4e894fde916fec62c33ac2d9c0ea3de2cb51344acdd555937335358dd9c88c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "clipAndEnableScrolling",
+      "traitKind": "setter",
+      "methodIndex": 2468,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "7dddf7aefc6c56d1a1428e43693356e5c48d0553d6059048bab6e8e95f87a70b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "containsElement",
+      "traitKind": "method",
+      "methodIndex": 2517,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "c137bf737eade5aee595d186e2e40f9bb14a5e6c798592b8ce5ba87b7562f66c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "contentHeight",
+      "traitKind": "getter",
+      "methodIndex": 2504,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e69dccee1620ead96429a57bd38eefe611132549e4415ecb30ad97a78217b7f2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "contentWidth",
+      "traitKind": "getter",
+      "methodIndex": 2502,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7dd392ad819849c4747273838eb344574dd641c0b52717d85c3e896a6ffcd4cd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "enabled",
+      "traitKind": "setter",
+      "methodIndex": 2459,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 97,
+      "bytecode": {
+        "codeLength": 97,
+        "codeSha256": "873642e53f27c66971c14359ab29c8e28b6ad7dde3434cb1420d345785c8b178",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "focusPane",
+      "traitKind": "getter",
+      "methodIndex": 2511,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Sprite",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "763ad52bc66e929e1abb7e47c2726029e658bd9bb586a1e1f6418df084e85f1b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "focusPane",
+      "traitKind": "setter",
+      "methodIndex": 2512,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Sprite"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "146fca4ab18bbd888c598d2c0c11c4151254ffcfc2b34e587afaf2fbc819b9f5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getElementAt",
+      "traitKind": "method",
+      "methodIndex": 2514,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "mx.core.IVisualElement",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getElementIndex",
+      "traitKind": "method",
+      "methodIndex": 2516,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 5,
+      "bytecode": {
+        "codeLength": 5,
+        "codeSha256": "373837edc6fda9895a312ffb66877d05cf3b10900872fafec73557af7aa30b69",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getHorizontalScrollPositionDelta",
+      "traitKind": "method",
+      "methodIndex": 2499,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "5287117e896de36611f470b494859a2339ebef1acc3a3ed1eb2f8909b1866406",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getVerticalScrollPositionDelta",
+      "traitKind": "method",
+      "methodIndex": 2500,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "8f22ec9750bff428861ae7bb18d1e10fafd4bb58f151f1843a8521bf9a2f0fd8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getVirtualElementAt",
+      "traitKind": "method",
+      "methodIndex": 2515,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Number",
+        "Number"
+      ],
+      "returnType": "mx.core.IVisualElement",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "fbec922819f58f6bb156448611d6ecec5c338a42acfd9f886a0029f6bd83e3ed",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "globalToLocal",
+      "traitKind": "method",
+      "methodIndex": 2497,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Point"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "f721931a3dbfa64b8d7aa86d5c4284211deb9ee40b3a21ae41e0f1a69749c938",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "horizontalScrollPosition",
+      "traitKind": "getter",
+      "methodIndex": 2463,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "8b0f5cbce387f899e04440d5c3e44baa410aeb1d08897cf226a19572e368676b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "horizontalScrollPosition",
+      "traitKind": "setter",
+      "methodIndex": 2527,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "ac87de1b12602d08cafae29f58c295628d036c5abc760439cac6597b97c48c44",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.$addEventListener",
+      "traitKind": "method",
+      "methodIndex": 2509,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "a21982280b0db383383172ddbf8c1ffbebe45181601fd86661957c60f1f00511",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.$invalidateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 2489,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2e432e3bcbc2ce03d3d8a7778ff16b83ae36186000a9f2a5fde549d7da26b755",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.$invalidateSize",
+      "traitKind": "method",
+      "methodIndex": 2488,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ff0f6497adbf48e655edad9d23d9c9a4e92dae582d00d08eaa0b8d50c7833664",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.$removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 2510,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "7510b3a7d822655f9f61860a10b231744ada774087aae97af804c8c3187575a1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.childXYChanged",
+      "traitKind": "method",
+      "methodIndex": 2487,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "3786685003b6147078b34d497181daf3c0155805ff199fa75ccd4b43542e968b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.drawBackground",
+      "traitKind": "method",
+      "methodIndex": 2481,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 371,
+      "bytecode": {
+        "codeLength": 371,
+        "codeSha256": "27413f4fde090748613f0a014dcefd1b2f4736f9bad6a0ea34ebed08310ae42d",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.hasMouseListeners",
+      "traitKind": "getter",
+      "methodIndex": 2483,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "13f646e7eeb2a66c9b57fb4366daf07d1a523ef2c904dbbefe0a791a7b10a590",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.hasMouseListeners",
+      "traitKind": "setter",
+      "methodIndex": 2482,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "874c8a3a391f78aa58acb46c857ab499495e18c6106bb4b0f336fe93b0a265a7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.isElementVisible",
+      "traitKind": "method",
+      "methodIndex": 2501,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.ILayoutElement"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "f22769bd76c581aa02dee7d0599a74058b507519c7b14eaa99e5952b205b2927",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "invalidateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 2486,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "1368d3f0ddaeb08b6111d2932b393548537e09ad0332eecf0307179ef45d41d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "invalidateSize",
+      "traitKind": "method",
+      "methodIndex": 2485,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "7d60d7b9d4afa7c77f1c09b2e66823c4b31dee430987cd09e3daff05cf41f5e2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layout",
+      "traitKind": "getter",
+      "methodIndex": 2460,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.supportClasses.LayoutBase",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d53acf1d30ebf12fa77b87521b2c73301067e5d87f86bbfabd7c951b523297fc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layout",
+      "traitKind": "setter",
+      "methodIndex": 2461,
+      "methodName": "",
+      "paramTypes": [
+        "spark.layouts.supportClasses.LayoutBase"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "ea29fd4b543a75598f8751c231b82bb05b94d25137c79470842d75143a08365b",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "localToGlobal",
+      "traitKind": "method",
+      "methodIndex": 2498,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Point"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "5ace9e3a6b7962c77ebee31efd9b62514f3f091f6203d4c616d143ee1d575622",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "luminosityClip",
+      "traitKind": "getter",
+      "methodIndex": 2524,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4b5d6cb6c68dbc18d1449cdd5ba2afa16b9885f5bb57eaa80fd983b707ff0f24",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "luminosityClip",
+      "traitKind": "setter",
+      "methodIndex": 2525,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "7281b617a5dec14dae270b6a01f86bf46193c3fbc5311ca696268f05b9f73bfd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "luminosityInvert",
+      "traitKind": "getter",
+      "methodIndex": 2522,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5120434d534d95f68f74b1287dd9c3079174e57df051be1522c1f51d501a3b7f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "luminosityInvert",
+      "traitKind": "setter",
+      "methodIndex": 2523,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "29d81950da99c6f9ea131cfa761c39452ced7a538af1646ebbfffa0c00cf91e3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mask",
+      "traitKind": "getter",
+      "methodIndex": 2518,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "2b77556ed511b802984c132e27c9e64ffc466d4e86ed30aa6e9e89b91a73eb83",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mask",
+      "traitKind": "setter",
+      "methodIndex": 2519,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "66491737ca605e99f4f78ca281a7f105e74e7b56c67e8c922b446386642d07ae",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "maskType",
+      "traitKind": "getter",
+      "methodIndex": 2520,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fa7cef13ba6c33d73a99a7c91ee4a29a623c67a00e7b069ecd495c3fc86209d1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "maskType",
+      "traitKind": "setter",
+      "methodIndex": 2521,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "df0cb2d44a682b5f0382d81e6b3a4d2b9e290a0c547f9d79e5fa3662688f9ee0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mouseChildren",
+      "traitKind": "setter",
+      "methodIndex": 2457,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "deba57cfc9593b8cd3ad1575fdeea0c721f8d770d9edf5dc3e346d25ef353539",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mouseEnabled",
+      "traitKind": "setter",
+      "methodIndex": 2458,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "304cc4f18fa516dfc2729f164d524e4b30eca1b9950da409e65b43779d3c06a3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mouseEnabledWhereTransparent",
+      "traitKind": "getter",
+      "methodIndex": 2479,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ce26fb6a14b7f4425ca9823fdfa02c092cd7d233894b96c6c946987035f92c47",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mouseEnabledWhereTransparent",
+      "traitKind": "setter",
+      "methodIndex": 2480,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "26de8723150d0c0dfc0bccc38c92e482e4334445ea28281fe613b79d906022b9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "numElements",
+      "traitKind": "getter",
+      "methodIndex": 2513,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 5,
+      "bytecode": {
+        "codeLength": 5,
+        "codeSha256": "373837edc6fda9895a312ffb66877d05cf3b10900872fafec73557af7aa30b69",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "overlay",
+      "traitKind": "getter",
+      "methodIndex": 2473,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.supportClasses.DisplayLayer",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "f6ef87628d4259a3ada02a55d3884add6305ad60cd2895b16603f81c70e76395",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._1010846676verticalScrollPosition",
+      "traitKind": "setter",
+      "methodIndex": 2466,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "f1eb2c0fca14117391998d675d692188ead56cb431bac726a3ff1d6857d26b41",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._754184102horizontalScrollPosition",
+      "traitKind": "setter",
+      "methodIndex": 2464,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "c932c28a4a800de94d5c3d6223b3756825f217c6acd57f7eaa356131fc64d135",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.calculateLuminositySettings",
+      "traitKind": "method",
+      "methodIndex": 2495,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "669937bd487a50ef2ad62d4f41b473d86d6b73bd106d90cb17b4b935d5099cb9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.destroyOverlay",
+      "traitKind": "method",
+      "methodIndex": 2476,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "3158f0c005090c97699664e539d0bfb5a70e6b8ef0a23ab7fccef8821026a344",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.overlay_objectAdd",
+      "traitKind": "method",
+      "methodIndex": 2474,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.DisplayLayerObjectExistenceEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "e53ce8ed4323165f84a1619623c7fcd718b2985b2d8c60a03ff1cd2586abae9b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.overlay_objectRemove",
+      "traitKind": "method",
+      "methodIndex": 2475,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.DisplayLayerObjectExistenceEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "dad8be153653e16d76fee0b7c39ecf8eadd3bead42041751e17eed359a3b4ab2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.redispatchLayoutEvent",
+      "traitKind": "method",
+      "methodIndex": 2462,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 98,
+      "bytecode": {
+        "codeLength": 98,
+        "codeSha256": "8ead7321ec5d67087bd8e2c6f5b4a371c4580e90fcc118f9d42e67e38a879817",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.setContentHeight",
+      "traitKind": "method",
+      "methodIndex": 2505,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "11389b28237037a95776fc4bbacb095e07015576418d42a2ea6e791ca36cf6aa",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.setContentWidth",
+      "traitKind": "method",
+      "methodIndex": 2503,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "879957aa3ae8dcdd4fa815f7380fbaa7027a5e11eceb5de044c348766de6579a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 2508,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 603,
+      "bytecode": {
+        "codeLength": 603,
+        "codeSha256": "f8148a164ee34e50599f901174a100c987751b7a249fc94de8bdd2fb662e0f7a",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "resizeMode",
+      "traitKind": "getter",
+      "methodIndex": 2477,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0d36ed3d48dc2b8f58640c62b13fe5d636b090d55490c11893ba174f709c611c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "resizeMode",
+      "traitKind": "setter",
+      "methodIndex": 2478,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "b89a9bc011b4a50c049a3c22fea73c4cde74c0f2d6b16f9eb78ba0e7a74c7e40",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "scrollRect",
+      "traitKind": "getter",
+      "methodIndex": 2469,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "f38c06db70e77516014c2bbe865a049100b2c4aacd8c2b331b7910a203099003",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "scrollRect",
+      "traitKind": "setter",
+      "methodIndex": 2470,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "7624239bd93c9de0b71e3582b81c603592a22f4bb35ed4d6d6015b7b68df72cf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setContentSize",
+      "traitKind": "method",
+      "methodIndex": 2506,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "2f94ff52119c487cb87b2a7488a9d3610f88cab295c3ce4d4085741e003f7e40",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:GroupBase.canSkipMeasurement",
+      "traitKind": "method",
+      "methodIndex": 2484,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "0b62debc15806487353ade0f2c83672620de0540222ce3a02ae70337c798fedc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:GroupBase.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 2491,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "8156a85087866db0f03cf6dc7d7acfd714e7f23b70ac4b31ad04b2341b8a02a8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:GroupBase.createChildren",
+      "traitKind": "method",
+      "methodIndex": 2490,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "c5421a76e438ba400fa5d1c652f770d5f1e600fcf1737622e783927ea5df507c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:GroupBase.measure",
+      "traitKind": "method",
+      "methodIndex": 2492,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "cb9118c6593b234e1f75beeeaab66344351286883c44f0bbacb692e9c0b4ffa5",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:GroupBase.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 2494,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 607,
+      "bytecode": {
+        "codeLength": 607,
+        "codeSha256": "e148fb2cc2e9b73ad6bfc40e7f53c3e2aabff27c025d1803a8ba7367d372d759",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "spark.components.supportClasses:GroupBase.validateMatrix",
+      "traitKind": "method",
+      "methodIndex": 2493,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "576f9fcdfd86096e7f298490c3dac007b1285fb0827af62ce0df4d033fc72bea",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "styleChanged",
+      "traitKind": "method",
+      "methodIndex": 2496,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "74453a7471d19277ac0664e7fef41fa4f3c88410b910f77a363d912f8ce3002b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "verticalScrollPosition",
+      "traitKind": "getter",
+      "methodIndex": 2465,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "d98419a211202002e5f3638cfc3e9cc9872d0716ba1f428861fa08ddfbc3d7ca",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "verticalScrollPosition",
+      "traitKind": "setter",
+      "methodIndex": 2526,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "7416a1cb063313602d708862b33f128bd88128d9cbe1292b21edc0f076502de3",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.sortOnLayer",
+      "traitKind": "method",
+      "methodIndex": 2453,
+      "methodName": "",
+      "paramTypes": [
+        "__AS3__.vec.Vector<mx.core.IVisualElement>"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 133,
+      "bytecode": {
+        "codeLength": 133,
+        "codeSha256": "c1986b8ebbd3d69424b3eea3331cd6d8d4b429b0015230aeeaba6199f48310ab",
+        "bytecodeLineCount": 9
+      }
+    }
+  ]
+}

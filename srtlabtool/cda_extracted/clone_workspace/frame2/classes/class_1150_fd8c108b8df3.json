@@ -1,0 +1,231 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1150,
+  "className": "com.chrysler.cda.infrastructure.LogZipper",
+  "classNameNormalized": "com.chrysler.cda.infrastructure.LogZipper",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 25425,
+  "cinitMethod": 25409,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "1fbc5fe835e677d7cdf7c1af42e2707ee0797fd566d333f820c39c254f1842ad",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cdaServiceLogDirectoryBackup",
+      "traitKind": "getter",
+      "methodIndex": 25413,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "6af70cb7e3618815bb678c7736410c9dee7c15df3df05f16f8890e1009eaeacd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaServicesLogDirectory",
+      "traitKind": "getter",
+      "methodIndex": 25411,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "6cb385d1c7b81b8a4fedb83c837933359c540846652c1b4b745c4a5f5ebeadab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.infrastructure:LogZipper.readEachFile",
+      "traitKind": "method",
+      "methodIndex": 25420,
+      "methodName": "",
+      "paramTypes": [
+        "deng.fzip.FZip",
+        "Boolean"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 428,
+      "bytecode": {
+        "codeLength": 428,
+        "codeSha256": "56f1a834b01be3b91b664a0d96b9f8b96448f9f12f3c247313fd575e245aee3d",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "flashLogArchiveDirectory",
+      "traitKind": "getter",
+      "methodIndex": 25415,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "0f9067ae28798203f549021bc7945e7e9271da743435ac23aafa3fd07ddf9ad8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashLogDirectory",
+      "traitKind": "getter",
+      "methodIndex": 25414,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "c0695b65c0bceeddd003ea9140ff19a646ce4f5f79174780025e3ee4aae8deea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "jiraZipUpLogs",
+      "traitKind": "method",
+      "methodIndex": 25416,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "f2615ef7430bd38f2080037671d664d2e3c79f9f1010ab8fc050406c46c32b9d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.displaySystemMessage",
+      "traitKind": "method",
+      "methodIndex": 25424,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "31d17bfd9a0b84108b6bdc0e3f5b58ee3b0e6216071dc22a19e8110717da55df",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.processFiles",
+      "traitKind": "method",
+      "methodIndex": 25421,
+      "methodName": "",
+      "paramTypes": [
+        "deng.fzip.FZip",
+        "Array",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "86a79eea3bb8d8f20ec22491ad763e44956db2af58a46e2e9a0eeb2326ac985f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.processMostRecentThreeFiles",
+      "traitKind": "method",
+      "methodIndex": 25423,
+      "methodName": "",
+      "paramTypes": [
+        "deng.fzip.FZip",
+        "Array",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 137,
+      "bytecode": {
+        "codeLength": 137,
+        "codeSha256": "86e5fdd346a966b1a65fec0dfe90f01e852ff7ca34bb78571bc6f3981da7b61d",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "wdeLogDirectory",
+      "traitKind": "getter",
+      "methodIndex": 25410,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "36708c0b1f48ccbc9efc262b29f2827abfcabb84adab01379d5593ea511c0b37",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wdeLogDirectoryBackup",
+      "traitKind": "getter",
+      "methodIndex": 25412,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "b97e90b08485e2cf24785bf09fcdfbde7e826cde093d5088e5a2903f8879402e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "zipUpLogs",
+      "traitKind": "method",
+      "methodIndex": 25419,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 581,
+      "bytecode": {
+        "codeLength": 581,
+        "codeSha256": "d0ba46def54b839dda75753714b136053229c48aea673e39a770164e72315153",
+        "bytecodeLineCount": 37
+      }
+    }
+  ],
+  "staticMembers": []
+}

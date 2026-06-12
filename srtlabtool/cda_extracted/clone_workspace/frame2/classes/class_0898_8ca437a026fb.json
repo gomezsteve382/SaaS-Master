@@ -1,0 +1,157 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 898,
+  "className": "com.chrysler.cda.domain.witech.WiTECHServices",
+  "classNameNormalized": "com.chrysler.cda.domain.witech.WiTECHServices",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 17761,
+  "cinitMethod": 17753,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "c7b0080c787ca54cea033a5c8c474e187b474a44f8e885ed53692639e711a86a",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 17756,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "eb09cfa9a17d59aebf8a97ecac9febb67377f47610b669275ba3556038223603",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "cjdServicesDescriptor",
+      "traitKind": "getter",
+      "methodIndex": 17754,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "wde.common.services.impl.ServicesDescriptor",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ad4c2298ca180a0e6809fccc635101260857ecf4f6783aaf1a02d19946667429",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cjdServicesDescriptor",
+      "traitKind": "setter",
+      "methodIndex": 17755,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.impl.ServicesDescriptor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "1970c093cfda298517cc30299dcaf1228ae71406a4aecf63127873875da4186e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 17757,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "303a642c5e4712102dbf30c4bec5d411fda1890a12313152fe8629ef0f3744d7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 17758,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "39736ffca037947a63504248b1b37910eae8c81d01758bdb46f8c1509fbcc4ff",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 17759,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "0ae923e779fda9a0e0e3fe838daa0c57de8fd9aa72b82e3ad8e8d4c17ff83be4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 17760,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "0e9776be739bf7e6f39ab0b67a378cca5bbc026642139f387f6072e8f3c557cb",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

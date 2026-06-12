@@ -1,0 +1,86 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1759,
+  "className": "PrivateNs.MoveElementMemento",
+  "classNameNormalized": "PrivateNs.MoveElementMemento",
+  "superName": "PrivateNs.BaseMemento",
+  "superNameNormalized": "PrivateNs.BaseMemento",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.edit.IMemento"
+  ],
+  "iinitMethod": 33918,
+  "cinitMethod": 33916,
+  "iinitBytecode": {
+    "codeLength": 47,
+    "codeSha256": "8a23300b79c25cdc3c478e4de32a5609544cb7647050cfb84bc1fb9e98c41871",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 33920,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "c2069a4ecacf41055b3bf04ca741d148444e9e920132c0018d90c0b9ea21b02e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 33919,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "b5add0d098e359ec0b572221a94d400444b4003310948f8a7483d671cabfd5ab",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "perform",
+      "traitKind": "method",
+      "methodIndex": 33917,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.elements.FlowElement",
+        "flashx.textLayout.elements.FlowGroupElement",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "b530f4b8e43f9974b3a87907f5cb35c27e6a2be780d4fb6c5b3cf52da917368b",
+        "bytecodeLineCount": 7
+      }
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2675,
+  "className": "PrivateNs.DefaultViewManagerFactory",
+  "classNameNormalized": "PrivateNs.DefaultViewManagerFactory",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.factory.ViewManagerFactory"
+  ],
+  "iinitMethod": 45084,
+  "cinitMethod": 45083,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "d532bc218510eb37772140f6af0796bd33484411e7c1b891f1255987041bd082",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "autowireFilter",
+      "traitKind": "getter",
+      "methodIndex": 45091,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.core.view.ViewAutowireFilter",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "86c1099ed79b014d32e5bfedfe2ac9283dea6fe78b62dd3120fed121171e702e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "autowireFilter",
+      "traitKind": "setter",
+      "methodIndex": 45092,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.view.ViewAutowireFilter"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "b1466de5bf3e0db723c36c89a2f89861090783908e75099b4f94abcb44c7fe34",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "componentAddedEvent",
+      "traitKind": "getter",
+      "methodIndex": 45089,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "67b36bf927e5f9db1596025d4dae15fa8fba13d6afdabed8d6b1226c3f349c66",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "componentAddedEvent",
+      "traitKind": "setter",
+      "methodIndex": 45090,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "a0e948b9e13fc66378504ec658e4d3927ca0031493e0a5f837bc6a80fe3d0826",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "componentRemovedEvent",
+      "traitKind": "getter",
+      "methodIndex": 45087,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "43e101e200072692aa8e27c53f1184f6ee86438b2e0b718e74c04893e665e3e4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "componentRemovedEvent",
+      "traitKind": "setter",
+      "methodIndex": 45088,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "aa54936b8b8b38a8f90f8dec8d82d6f2db53d44c61b043c50655af731dbcb408",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "viewRootRemovedEvent",
+      "traitKind": "getter",
+      "methodIndex": 45085,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "79307878dd42ca3de2a1ad996f4b137e9c8b66d3206ad0d1ecc26562953e4989",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "viewRootRemovedEvent",
+      "traitKind": "setter",
+      "methodIndex": 45086,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "960f7286bec6010c7bd7a591de7f0b3fe87a69bc5949879dfd352dd88aaa01ac",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

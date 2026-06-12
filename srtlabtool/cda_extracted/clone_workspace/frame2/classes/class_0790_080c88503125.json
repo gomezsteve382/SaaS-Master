@@ -1,0 +1,151 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 790,
+  "className": "com.chrysler.cda.application.sync.MessageOfTheDayCommand",
+  "classNameNormalized": "com.chrysler.cda.application.sync.MessageOfTheDayCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "sync",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 15321,
+  "cinitMethod": 15312,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 55,
+    "codeSha256": "f4f35799336cb8035d45353bda6c2ce5a4f115e3224dc1dffd64d9bee61cfc37",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [
+    {
+      "traitName": "checkPreference",
+      "traitKind": "method",
+      "methodIndex": 15320,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 294,
+      "bytecode": {
+        "codeLength": 294,
+        "codeSha256": "335b90060877d3ec63e994ac6c0a4a2b7e80f8debee1f46c6c1d278f3dd6f94b",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "displayMessage",
+      "traitKind": "method",
+      "methodIndex": 15319,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 124,
+      "bytecode": {
+        "codeLength": 124,
+        "codeSha256": "7ead426b61597f28270a5dc1c19ed5537e3c88badc24ab4924a72d04f1e1f468",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "getManifest",
+      "traitKind": "method",
+      "methodIndex": 15317,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "9c4a3967cc1eeec7fd3f10d3d501a7d329b8894e7b86fd2f9955c53ac31f7a6e",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 15316,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.sync.MessageOfTheDayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 202,
+      "bytecode": {
+        "codeLength": 202,
+        "codeSha256": "61305275669f761c580b04b509b42be84f2754baa6369df423de754adaaee44f",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "processManifest",
+      "traitKind": "method",
+      "methodIndex": 15318,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "372bfa50a4a9e8b54db62db4df97a348b00962e4ffc36ad86839328ec1905e5f",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "generateManifestRecord",
+      "traitKind": "method",
+      "methodIndex": 15313,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "29268aaad73eca2e6b6ef3a7a95b56d5fe515b0a0adb828de2ad1898a1258f49",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "isSameManifestItem",
+      "traitKind": "method",
+      "methodIndex": 15314,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 347,
+      "bytecode": {
+        "codeLength": 347,
+        "codeSha256": "9f6862834f9612a7b3b24af42994a4264ca269c618fcc9d9aed597133774ef8b",
+        "bytecodeLineCount": 22
+      }
+    }
+  ]
+}

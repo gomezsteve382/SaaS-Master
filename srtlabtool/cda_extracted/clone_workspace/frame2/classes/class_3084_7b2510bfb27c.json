@@ -1,0 +1,270 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3084,
+  "className": "wde.common.ui.dialog.WDEPopUpManager",
+  "classNameNormalized": "wde.common.ui.dialog.WDEPopUpManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49045,
+  "cinitMethod": 49044,
+  "iinitBytecode": {
+    "codeLength": 90,
+    "codeSha256": "28e6923671ccd947b657ebdde5624a0deb0e2ce96d362936afac06191b5d8f68",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addPopUp",
+      "traitKind": "method",
+      "methodIndex": 49046,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.ui.dialog.PopUpDescriptor",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "5ae86870a4e34e2f8d15f0015c76c6e45ea7c8339851e9b551ae225d54521275",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "centerCurrentPopUp",
+      "traitKind": "method",
+      "methodIndex": 49054,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "614b3117d12c2c76800c88261d74c4c0f9572480b119ee01784dd791c447d0d1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "currentPopUp",
+      "traitKind": "getter",
+      "methodIndex": 49058,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "wde.common.ui.dialog.PopUpDescriptor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "086144c5d7a8f7ad429364b8c2e19acf85ab86545466ea5ead2724fc6858e875",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getPopUpByName",
+      "traitKind": "method",
+      "methodIndex": 49056,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.core.IFlexDisplayObject",
+      "hasBody": true,
+      "codeLength": 150,
+      "bytecode": {
+        "codeLength": 150,
+        "codeSha256": "136097d2cc0efaebe7d88620aa6da03af7d5d8bf51aa99d0f88d53668a2eeaf5",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "getPopUpByType",
+      "traitKind": "method",
+      "methodIndex": 49055,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.core.IFlexDisplayObject",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "66ed079aaffe3e1a2767474279f2a113cc859093a005cbf35227ccb1f54d5740",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "hideAllPopUps",
+      "traitKind": "getter",
+      "methodIndex": 49059,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8da2756b393526e602fb4cbf2547924d1c76389fb1ce1175a01988e479907d5a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hideAllPopUps",
+      "traitKind": "setter",
+      "methodIndex": 49060,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "5e188fa8b9d18a6f0c2527300f6387ea31f551723e7e24e2faf342cf03579117",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "isCurrentPopUpFatal",
+      "traitKind": "getter",
+      "methodIndex": 49051,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "0c20bb51450799843e7068ef2d9451c07ec0bd531c95b8512e87c79639708a54",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "popUpQueue",
+      "traitKind": "getter",
+      "methodIndex": 49057,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b43fe5bafbfc46c9bb9498ee28c63b49006b2a0ad0baae73ea4e9cee0aa474f9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.putCurrentPopUpBackInQueue",
+      "traitKind": "method",
+      "methodIndex": 49052,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "a7e5e049f6d9669b2c4d2beec6f2f00b05495caac0d1166824656bc5033a053e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeAllPopUps",
+      "traitKind": "method",
+      "methodIndex": 49053,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "71bf0855c1c2f9e23521b664be4e4ee5c46930ea3854ae40b859d40cd55c52e8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removePopUp",
+      "traitKind": "method",
+      "methodIndex": 49047,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexDisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 170,
+      "bytecode": {
+        "codeLength": 170,
+        "codeSha256": "0383e39c411fa1d5eb4b758cc69561b87f4769a65ba10d4b09712c67dc24d3d8",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "shouldReplaceCurrentPopUp",
+      "traitKind": "getter",
+      "methodIndex": 49050,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "9b1fc03b4e628078e300ee278e793b328284af0bdf32d56dc68dae48382f0c53",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "showCurrentPopUp",
+      "traitKind": "method",
+      "methodIndex": 49049,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "f42cc1f129a419903aa2af60393f7e39f276f002897a758d930f3078384d901a",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "showHighestPriorityPopup",
+      "traitKind": "method",
+      "methodIndex": 49048,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "81987caa5fe12170f602f1a16a12efd7004919af3f5410f92f4dfdd6783f67f6",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

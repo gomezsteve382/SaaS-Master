@@ -1,0 +1,135 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3604,
+  "className": "mx.rpc.xml.XMLLoader",
+  "classNameNormalized": "mx.rpc.xml.XMLLoader",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54112,
+  "cinitMethod": 54111,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "92411e593e4c0dc133906d811661827cbcca7269add1f52839baf77ad92dc049",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "load",
+      "traitKind": "method",
+      "methodIndex": 54113,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "36defe21b688389a28a34eaebb576ee3f71f96034c7b5ce1461197fe06a10299",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:XMLLoader.faultHandler",
+      "traitKind": "method",
+      "methodIndex": 54117,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "d34a3681457d7b0b61e024253478e37a071762fcfc13b197ae9b1cb35e36b7fa",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:XMLLoader.getQualifiedLocation",
+      "traitKind": "method",
+      "methodIndex": 54116,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "5ba00c022b48c91b4c4578f51a0ed1efc6c6df5059a93b2d2feb2a90a8d2f816",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:XMLLoader.initializeService",
+      "traitKind": "method",
+      "methodIndex": 54114,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.http.HTTPService"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 152,
+      "bytecode": {
+        "codeLength": 152,
+        "codeSha256": "b67866bb4449b3b6d36f276933d17a9abc4e303f5b8b83f33bc50d169a651165",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:XMLLoader.internalLoad",
+      "traitKind": "method",
+      "methodIndex": 54115,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "22af2d2455c28f044c3fe440f68eb6dfabc6bb892906ba034cdeb172c8f8ca19",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:XMLLoader.resultHandler",
+      "traitKind": "method",
+      "methodIndex": 54118,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.ResultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "a51953e880b527c07e30f1f165b1629f2a8999313b3f25c5c243556ec297917e",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,226 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3355,
+  "className": "com.diagnosticProcedures.node.FileIOProcedureNode",
+  "classNameNormalized": "com.diagnosticProcedures.node.FileIOProcedureNode",
+  "superName": "com.diagnosticProcedures.node.ProcedureNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.ProcedureNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51665,
+  "cinitMethod": 51664,
+  "iinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "dfc7736c8b0d4a353dc340ebfc33d92ef550724f5d43ebbedaec7179aa8ff35e",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "09497a1a1ab38663a008c8d8ee2556eedca1535a1794facfd88e2e22a3a340e0",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "CancelFileProcess",
+      "traitKind": "method",
+      "methodIndex": 51674,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "c291a9590e17901a9e182f7ff87b1cc8a8f1e684b566fdadb2bf9a57a719f9a7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "fabricateDirectoryFromCookie",
+      "traitKind": "method",
+      "methodIndex": 51668,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 182,
+      "bytecode": {
+        "codeLength": 182,
+        "codeSha256": "4e2e5621b4a2b1fb151a878baee09d69d5d0ece3a95a4ebfce0a5ed514947899",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.buildResultXMLOnError",
+      "traitKind": "method",
+      "methodIndex": 51677,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "cd2b7617cf6d5a8eaea633b09424f4f6d9180871df8323e50b062d2cbfe6c966",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.processReadFile",
+      "traitKind": "method",
+      "methodIndex": 51673,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 324,
+      "bytecode": {
+        "codeLength": 324,
+        "codeSha256": "793bd62725abe7ff5fd4792fbba29ee18c18b0a6a9883ff069be92622399c433",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeOpenEventListeners",
+      "traitKind": "method",
+      "methodIndex": 51675,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "464eef705c3fc4310b6ceeafe79130fabb6051bc01973e33059009df57b53d4d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeSaveEventListeners",
+      "traitKind": "method",
+      "methodIndex": 51676,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "49a4a87f2434f3a5ebc65ba8cee1908e3d47d40e2295a3581b3e4fa7571d2405",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51666,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "db7af907e2d9f56a5b4028d055d125d3883582806eb9f1b3ce0e9aaf0615d840",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "processResult",
+      "traitKind": "method",
+      "methodIndex": 51669,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "283cf4206231718736b269320627e3d6b485359b264593c42d5a6d1603573294",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "promptToOpenFile",
+      "traitKind": "method",
+      "methodIndex": 51667,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 472,
+      "bytecode": {
+        "codeLength": 472,
+        "codeSha256": "f79aff9befa2a0a29f04f091803337b53caf64cec484c013a19f30b19c836002",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "ReadFile",
+      "traitKind": "method",
+      "methodIndex": 51671,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 192,
+      "bytecode": {
+        "codeLength": 192,
+        "codeSha256": "54593d0dd1483a80b1221834df615e034117de8ab3ffc28929d24238944ce32e",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "SaveFile",
+      "traitKind": "method",
+      "methodIndex": 51670,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 289,
+      "bytecode": {
+        "codeLength": 289,
+        "codeSha256": "cb7f0c865f15d24f7c69ff0e2f5c886bf6290b78832dfa7525b351aa40fc5100",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "storeOffDirectory",
+      "traitKind": "method",
+      "methodIndex": 51672,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "270dea1f96b4e3b0d334a175928ccbdacb8c43864f40a4458aa05c86ef774028",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

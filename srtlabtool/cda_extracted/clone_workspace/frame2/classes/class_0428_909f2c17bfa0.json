@@ -1,0 +1,945 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 428,
+  "className": "spark.skins.spark.RadioButtonSkin",
+  "classNameNormalized": "spark.skins.spark.RadioButtonSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 8812,
+  "cinitMethod": 8811,
+  "iinitBytecode": {
+    "codeLength": 1579,
+    "codeSha256": "de6fa1d6e857aa232fecb0770d4c964981181a4db82e5213980f9b62f6a8345a",
+    "bytecodeLineCount": 99
+  },
+  "cinitBytecode": {
+    "codeLength": 45,
+    "codeSha256": "1e1e1430aac58e946f44fb17004df37ece81296248b8a78c1cfc7706c5e442b5",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry1",
+      "traitKind": "getter",
+      "methodIndex": 8848,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "346a303ad99f3472d9bae92ee73c3d224c256cb6c3961fd439535999e7db42e9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry1",
+      "traitKind": "setter",
+      "methodIndex": 8849,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "1ea0a721bdf7bd5cf05e4326eefcc89b8f57f4c42d9bb89bbf59cd17a8882ebe",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry2",
+      "traitKind": "getter",
+      "methodIndex": 8850,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f03e53b35f62f06f9e64457654704d1a94d0d863fdd4dec37c19450a091b2ab0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry2",
+      "traitKind": "setter",
+      "methodIndex": 8851,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "c31e0f13c04c29871a6fc514349d066a6a8fc59608b3d7682dda3eaae41adb06",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry3",
+      "traitKind": "getter",
+      "methodIndex": 8852,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "64629fed24840b9867fea6fc78cfe4653b1d492d85d761ccba90e9cbf7566d85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry3",
+      "traitKind": "setter",
+      "methodIndex": 8853,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4221688621181f715cdf85d4d67af20565383ce1fa5af92910183748f1c4318c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry4",
+      "traitKind": "getter",
+      "methodIndex": 8854,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d9019ad021ae2a3f7d9c2a3954a898b23e5515a820cc71351921f4c0e0978d0a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry4",
+      "traitKind": "setter",
+      "methodIndex": 8855,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e4d9c616030f26f19489403a88a93a0965a5966164678338783a516de7dc7ff2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry5",
+      "traitKind": "getter",
+      "methodIndex": 8856,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "766cc9d389a57df94076bcc05fb3f4c38957020cac25c98432ffea08a062990b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry5",
+      "traitKind": "setter",
+      "methodIndex": 8857,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "5f88371e78d19344aa243f6bfd6de0de6ca14c8f9cb947894c495ad7e288cb20",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry6",
+      "traitKind": "getter",
+      "methodIndex": 8858,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7abc65513aa66881d48837424b16999901a58d8184270c24881548d4981374d9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_GradientEntry6",
+      "traitKind": "setter",
+      "methodIndex": 8859,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "984d5a2b4010713bc5d8ae6c7569cea626d72eb6cc328072d51b6d098a786b4c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_Group1",
+      "traitKind": "getter",
+      "methodIndex": 8860,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "dc495b3c04dbc14bf9e1cb2b4ed9beadd70fe627c0fded9eb05e60c2c7ee0ba8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_Group1",
+      "traitKind": "setter",
+      "methodIndex": 8861,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "906e3e1a80a65879e0841b01348d342454a8bc83addb2c6b3670ab54f917264f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_SolidColor2",
+      "traitKind": "getter",
+      "methodIndex": 8862,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3b11df473be0187a2de5e0b97ab40312ee2baa31183a46e57286d7a90379323c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_RadioButtonSkin_SolidColor2",
+      "traitKind": "setter",
+      "methodIndex": 8863,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "28f6770dd2ec6470573c3f01a408f9a48624f0567d54f79a2e3d14a6edae2d6a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "colorizeExclusions",
+      "traitKind": "getter",
+      "methodIndex": 8815,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "87eacad312749cc4ed65bfcac39983e5010f2f0a7f65ab0cdd2e7eca1e887228",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dot",
+      "traitKind": "getter",
+      "methodIndex": 8864,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "8117af3a97521d5a44a159aaadc5c7faaf658e00052d6507545b98bb723a5c8e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dot",
+      "traitKind": "setter",
+      "methodIndex": 8865,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Path"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "cf65d72a43bf2b5be25077ef6afba27f3539f13a6f4027d19a53359e876eaabc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dotFill",
+      "traitKind": "getter",
+      "methodIndex": 8866,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e0e693d72235ad860ec9cf365d6812d3927e7986634212eaa0a9d361280b0baf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dotFill",
+      "traitKind": "setter",
+      "methodIndex": 8867,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "44bb715b50f9e543400842d93406473afa3fb108a972143ef4463b799926af9b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "focusSkinExclusions",
+      "traitKind": "getter",
+      "methodIndex": 8818,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0be25cf996c9eca19c7398139d06e7d94682da52a26339b365784db75ae28953",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 8870,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RadioButton",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1bf846d62f88d9ef319ce79e15336066031d1ac158b30822732392f7faf00f52",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 8871,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RadioButton"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e8a11861a3316b62e43489f331d50e02f0638d64236727dea794bae1a93c045d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 8814,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "labelDisplay",
+      "traitKind": "getter",
+      "methodIndex": 8868,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5499227869fd865bef0e2a38fdf70e19d4aa3b7afe34b97da066bf884b009c46",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "labelDisplay",
+      "traitKind": "setter",
+      "methodIndex": 8869,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Label"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "2d4b23df5abe9c69763fb9629d870faca4e58809d481a75e646666607904ddd0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 8813,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "356a33df3a6859703ccc683e994b45862a83189a4991a1db3fd7ee29e20b6a30",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Ellipse1_c",
+      "traitKind": "method",
+      "methodIndex": 8820,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Ellipse",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "bee02658710d143638402a0fbec5f1943cca935b1330b4ad02d980c3ef3f773b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Ellipse2_c",
+      "traitKind": "method",
+      "methodIndex": 8824,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Ellipse",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "0d3c201859ffced5f91cc1e7d7ec98260530b484a09818b2b5250f778a16b0a7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Ellipse3_c",
+      "traitKind": "method",
+      "methodIndex": 8830,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Ellipse",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "3f486c58cede1d426fb56e4ca13b9a28f241ffd04c95eabab84abb19651d79a1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Ellipse4_i",
+      "traitKind": "method",
+      "methodIndex": 8836,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Ellipse",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "f5ba9340942ac9c8f305881719b034fda87b273e7bdf16b2e1c74705cc0cd325",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry1_i",
+      "traitKind": "method",
+      "methodIndex": 8822,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "69559fbb0ee429c9e304ad5bf5a53f666739994be05c35e4c1a6260bf4a647a0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry10_c",
+      "traitKind": "method",
+      "methodIndex": 8845,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "f9f26a0ac7cae0b8b66dbd42c2047ff869e65f19df3a10a931e2b7b8b8582261",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry11_c",
+      "traitKind": "method",
+      "methodIndex": 8846,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "b6955551edb4f5948d66e19c25b00d3b2c6bf5239acf046d049792f442b420db",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry2_i",
+      "traitKind": "method",
+      "methodIndex": 8823,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "52d1cda08d9267158fa627b2a19ebea905b3563c912525d8ae17cf4c611cfd15",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry3_i",
+      "traitKind": "method",
+      "methodIndex": 8826,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "f4afe48e528e8ce5be7e0b2462f03305ba8e2f7fd4e43096f6fecab195c5ebb5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry4_i",
+      "traitKind": "method",
+      "methodIndex": 8827,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "16e6d92f6d123ede366560b93a703407e65a049073144099a06d30dd78ddcf2b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry5_i",
+      "traitKind": "method",
+      "methodIndex": 8832,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "027eb69e945bbb778e80897e7a3708783aa70a25d053b427c45192fef58d5826",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry6_i",
+      "traitKind": "method",
+      "methodIndex": 8833,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "0785441092110db178f2bfe3336b8f463ae906dcd3fc47c31634f99572d3697f",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry7_c",
+      "traitKind": "method",
+      "methodIndex": 8838,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "e0fd5608ffec8c07c8362f0be0ac62c5a420ec83521bd8bb50051872af7e9bcc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry8_c",
+      "traitKind": "method",
+      "methodIndex": 8839,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "6c59767665b1e352e6db1fd64abef7e33ce7048c74b70d175af66cfc0f42429c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_GradientEntry9_c",
+      "traitKind": "method",
+      "methodIndex": 8844,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "b6955551edb4f5948d66e19c25b00d3b2c6bf5239acf046d049792f442b420db",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Group1_i",
+      "traitKind": "method",
+      "methodIndex": 8819,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "3cec7481c0b98bf3686328b1e322536ebae22578ed2c56b55bae771fd9ab53a2",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 8847,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "0c935c4c0f1b8d7ee574e19fe508f60562ac86091c66e8ecc2e3db2aa18ead08",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_LinearGradient1_c",
+      "traitKind": "method",
+      "methodIndex": 8825,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "f08cd5f456d0050d882eddcf8da7156f4b52f3c42ec6eff8253a3fae90d28234",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_LinearGradientStroke1_c",
+      "traitKind": "method",
+      "methodIndex": 8821,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "a698609e5bef95a2007872b5bf8acd66785fce182358ee2e0ad6566c48b5ff9b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_LinearGradientStroke2_c",
+      "traitKind": "method",
+      "methodIndex": 8831,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "39dfd781a2058d027c4bded2a3cdf11f87d4df85e5fb42ca1ad9156b18fa5297",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_LinearGradientStroke3_c",
+      "traitKind": "method",
+      "methodIndex": 8837,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "73553b171bceeb42e0346622e33106bc3f4fca4320b730baf6c36733561d9abf",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_LinearGradientStroke4_c",
+      "traitKind": "method",
+      "methodIndex": 8843,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradientStroke",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "b65eeba6ca262d537c611024cfae9f113a2b0b115d4c81f6c66fd50ec46ffd69",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Path1_c",
+      "traitKind": "method",
+      "methodIndex": 8828,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "f50786dddc0177a95af30afeebe33ee40289289d79c694b589021916d7635777",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Path2_i",
+      "traitKind": "method",
+      "methodIndex": 8840,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "1fb34f5f2f2419783fbfb2905889516811e5b740ea9f662d0df246171c75d82c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Path3_i",
+      "traitKind": "method",
+      "methodIndex": 8842,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "6b81251bca3a1e7d0f7849641efd674866ae862609cdca0b2f8d1a5192df8449",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_Rect1_c",
+      "traitKind": "method",
+      "methodIndex": 8834,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "7d5b7fd44ac691173202e7b82856b21d6f189207f03d51627f4f92903db71ee3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_SolidColor1_c",
+      "traitKind": "method",
+      "methodIndex": 8829,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "4ec4651140850dc52a18cfffc5727af902a73e938c4b383a4073c76055fad961",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_SolidColor2_i",
+      "traitKind": "method",
+      "methodIndex": 8835,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "07c406dd470dff7b1028541a480d93d368814747b7964f291513ae257e7a2be0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._RadioButtonSkin_SolidColor3_i",
+      "traitKind": "method",
+      "methodIndex": 8841,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "61fe7e61d563dafe4eda91131fd21fe7bff2d449c16549d4449f834a0416ab4d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:RadioButtonSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 8817,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "symbolItems",
+      "traitKind": "getter",
+      "methodIndex": 8816,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a5045d2f0571477a5da18969a8e20305c927c40115909fc4994ac5bb6d15f45f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,181 @@
+{
+  "frame": "frame1",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 32,
+  "className": "mx.core.RSLListLoader",
+  "classNameNormalized": "mx.core.RSLListLoader",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 517,
+  "cinitMethod": 516,
+  "iinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "d90deb96c4a7c1568e3af9898aadb8df6476b622105bd09ab159e82e818b5269",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "70f78b5b1e3d8d47ac8bc312a76a65f1b3622838e1814f40505a7b75801a3b35",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getIndex",
+      "traitKind": "method",
+      "methodIndex": 521,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "43640ad3d513f1d7bf80a9f75885b32ad3f987011c2bc3b0c37ef8084a8b624d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getItem",
+      "traitKind": "method",
+      "methodIndex": 520,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "mx.core.RSLItem",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "1608521051d0f13eadff93e07515f77d8b37405958379d3d975431afb0f8658d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getItemCount",
+      "traitKind": "method",
+      "methodIndex": 522,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "cf74bb818ae3988474f99436e85ec46d08cebbddf4d9a0e0d83041b7133a58bb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isDone",
+      "traitKind": "method",
+      "methodIndex": 523,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "d4f5297b55021d6293fdd0b7e9921075d81d2f0028a37f93aaddcdafb4c8eb67",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "load",
+      "traitKind": "method",
+      "methodIndex": 518,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "Function",
+        "Function",
+        "Function",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "21feb8583ed987354598022e784da0ba271a92c77d5305f649c98efa67c9b690",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.listCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 524,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "a20c444acee1380a40bb45e193bc99e6cd5d18f19b7a2640f9b03fd40cedbf4b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.listIOErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 525,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "0f244f74bd90013e9810ecd2c9f91dc9e8bd3603592376928efd621bf6a501e4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.listSecurityErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 526,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "15bbd53c8e6120189fd4b9827cd3fd85b81910f06593e8aadf69761bdd67092f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.loadNext",
+      "traitKind": "method",
+      "methodIndex": 519,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "f4f489d5216c71717d53c7b868c65837c7447f8aadb3594b0b3048be8279151a",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

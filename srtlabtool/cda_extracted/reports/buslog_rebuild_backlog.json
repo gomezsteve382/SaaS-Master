@@ -1,0 +1,1243 @@
+{
+  "summary": {
+    "classCount": 91,
+    "memberNodeCount": 886,
+    "edgeCount": 1717,
+    "crossDomainEdgeCount": 187
+  },
+  "phases": [
+    {
+      "name": "Phase 1 - Core Stream Engine",
+      "goal": "Rebuild runtime logging flow, stream lifecycle, and state model.",
+      "acceptanceCriteria": [
+        "Bus stream can start, pause, resume, and stop deterministically.",
+        "Core log model updates are replayable from recorded message batches.",
+        "No UI dependency required to validate stream command behavior."
+      ],
+      "classCount": 39,
+      "dependencies": [],
+      "topClasses": [
+        {
+          "className": "com.chrysler.cda.application.buslog.BuslogStreamCommand",
+          "classNameNormalized": "com.chrysler.cda.application.buslog.BuslogStreamCommand",
+          "bucket": "application_commands",
+          "totalMembers": 50,
+          "inboundEdges": 0,
+          "outboundEdges": 51,
+          "priorityScore": 551
+        },
+        {
+          "className": "com.chrysler.cda.event.message.buslog.BuslogStreamMessage",
+          "classNameNormalized": "com.chrysler.cda.event.message.buslog.BuslogStreamMessage",
+          "bucket": "core",
+          "totalMembers": 26,
+          "inboundEdges": 68,
+          "outboundEdges": 27,
+          "priorityScore": 423
+        },
+        {
+          "className": "com.chrysler.cda.domain.buslog.BusLogPacket",
+          "classNameNormalized": "com.chrysler.cda.domain.buslog.BusLogPacket",
+          "bucket": "core",
+          "totalMembers": 23,
+          "inboundEdges": 1,
+          "outboundEdges": 25,
+          "priorityScore": 257
+        },
+        {
+          "className": "com.chrysler.cda.event.message.buslog.BuslogStreamMessageFilter",
+          "classNameNormalized": "com.chrysler.cda.event.message.buslog.BuslogStreamMessageFilter",
+          "bucket": "core",
+          "totalMembers": 7,
+          "inboundEdges": 9,
+          "outboundEdges": 8,
+          "priorityScore": 96
+        },
+        {
+          "className": "com.chrysler.cda.application.buslog.ConfigurationStoreCommand",
+          "classNameNormalized": "com.chrysler.cda.application.buslog.ConfigurationStoreCommand",
+          "bucket": "application_commands",
+          "totalMembers": 8,
+          "inboundEdges": 0,
+          "outboundEdges": 9,
+          "priorityScore": 89
+        },
+        {
+          "className": "com.chrysler.cda.event.message.buslog.ExternalAppLoggerConsoleMessageFactory",
+          "classNameNormalized": "com.chrysler.cda.event.message.buslog.ExternalAppLoggerConsoleMessageFactory",
+          "bucket": "core",
+          "totalMembers": 6,
+          "inboundEdges": 3,
+          "outboundEdges": 7,
+          "priorityScore": 73
+        },
+        {
+          "className": "com.chrysler.cda.application.buslog.BuslogExportCommand",
+          "classNameNormalized": "com.chrysler.cda.application.buslog.BuslogExportCommand",
+          "bucket": "application_commands",
+          "totalMembers": 6,
+          "inboundEdges": 0,
+          "outboundEdges": 7,
+          "priorityScore": 67
+        },
+        {
+          "className": "com.chrysler.cda.event.message.buslog.BuslogExportMessage",
+          "classNameNormalized": "com.chrysler.cda.event.message.buslog.BuslogExportMessage",
+          "bucket": "core",
+          "totalMembers": 3,
+          "inboundEdges": 8,
+          "outboundEdges": 4,
+          "priorityScore": 50
+        },
+        {
+          "className": "com.chrysler.core.infrastructure.BuslogSerializationFilter",
+          "classNameNormalized": "com.chrysler.core.infrastructure.BuslogSerializationFilter",
+          "bucket": "core",
+          "totalMembers": 3,
+          "inboundEdges": 0,
+          "outboundEdges": 4,
+          "priorityScore": 34
+        },
+        {
+          "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLogControlBarComponentWatcherSetupUtil",
+          "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLogControlBarComponentWatcherSetupUtil",
+          "bucket": "core",
+          "totalMembers": 2,
+          "inboundEdges": 0,
+          "outboundEdges": 4,
+          "priorityScore": 24
+        },
+        {
+          "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerBooleanDataGridColumnInnerClass0WatcherSetupUtil",
+          "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerBooleanDataGridColumnInnerClass0WatcherSetupUtil",
+          "bucket": "core",
+          "totalMembers": 2,
+          "inboundEdges": 0,
+          "outboundEdges": 4,
+          "priorityScore": 24
+        },
+        {
+          "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerLiteWatcherSetupUtil",
+          "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerLiteWatcherSetupUtil",
+          "bucket": "core",
+          "totalMembers": 2,
+          "inboundEdges": 0,
+          "outboundEdges": 4,
+          "priorityScore": 24
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 - Config and Interaction Flows",
+      "goal": "Rebuild configuration selectors, import/export interactions, and store/load behavior.",
+      "acceptanceCriteria": [
+        "Configuration selection and persistence paths are stable across sessions.",
+        "Import/export/store-load interactions preserve schema and field semantics.",
+        "Dialog and selector components emit typed events for command layer."
+      ],
+      "classCount": 31,
+      "dependencies": [],
+      "topClasses": [
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuSelector",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuSelector",
+          "bucket": "configuration",
+          "totalMembers": 76,
+          "inboundEdges": 3,
+          "outboundEdges": 79,
+          "priorityScore": 845
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponentInnerClass0",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponentInnerClass0",
+          "bucket": "configuration",
+          "totalMembers": 58,
+          "inboundEdges": 0,
+          "outboundEdges": 60,
+          "priorityScore": 640
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponent",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponent",
+          "bucket": "configuration",
+          "totalMembers": 55,
+          "inboundEdges": 4,
+          "outboundEdges": 57,
+          "priorityScore": 615
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponent",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponent",
+          "bucket": "configuration",
+          "totalMembers": 29,
+          "inboundEdges": 5,
+          "outboundEdges": 31,
+          "priorityScore": 331
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreLoadWindow",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreLoadWindow",
+          "bucket": "configuration",
+          "totalMembers": 27,
+          "inboundEdges": 2,
+          "outboundEdges": 29,
+          "priorityScore": 303
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreSaveWindow",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreSaveWindow",
+          "bucket": "configuration",
+          "totalMembers": 22,
+          "inboundEdges": 0,
+          "outboundEdges": 24,
+          "priorityScore": 244
+        },
+        {
+          "className": "com.chrysler.cda.domain.diagnostics.buslog.BuslogConfiguration",
+          "classNameNormalized": "com.chrysler.cda.domain.diagnostics.buslog.BuslogConfiguration",
+          "bucket": "configuration",
+          "totalMembers": 19,
+          "inboundEdges": 5,
+          "outboundEdges": 21,
+          "priorityScore": 221
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuWrapper",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuWrapper",
+          "bucket": "configuration",
+          "totalMembers": 16,
+          "inboundEdges": 0,
+          "outboundEdges": 18,
+          "priorityScore": 178
+        },
+        {
+          "className": "com.chrysler.cda.event.message.buslog.ConfigurationStoreRequestMessage",
+          "classNameNormalized": "com.chrysler.cda.event.message.buslog.ConfigurationStoreRequestMessage",
+          "bucket": "configuration",
+          "totalMembers": 11,
+          "inboundEdges": 15,
+          "outboundEdges": 13,
+          "priorityScore": 153
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentInnerClass0",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentInnerClass0",
+          "bucket": "configuration",
+          "totalMembers": 13,
+          "inboundEdges": 0,
+          "outboundEdges": 14,
+          "priorityScore": 144
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreLoadWindowInnerClass0",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreLoadWindowInnerClass0",
+          "bucket": "configuration",
+          "totalMembers": 13,
+          "inboundEdges": 0,
+          "outboundEdges": 14,
+          "priorityScore": 144
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuSelectorInnerClass0",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuSelectorInnerClass0",
+          "bucket": "configuration",
+          "totalMembers": 8,
+          "inboundEdges": 0,
+          "outboundEdges": 10,
+          "priorityScore": 90
+        }
+      ]
+    },
+    {
+      "name": "Phase 3 - Message Generator and Tooling",
+      "goal": "Rebuild generator features and supporting helper workflows.",
+      "acceptanceCriteria": [
+        "Message generation produces expected frame/request payload structure.",
+        "Tooling hooks integrate with core stream APIs without hidden side effects.",
+        "Generated content can be validated with deterministic snapshots."
+      ],
+      "classCount": 4,
+      "dependencies": [],
+      "topClasses": [
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorMessageItem",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorMessageItem",
+          "bucket": "message_generator",
+          "totalMembers": 24,
+          "inboundEdges": 6,
+          "outboundEdges": 26,
+          "priorityScore": 278
+        },
+        {
+          "className": "com.chrysler.Assets_buslogMessageGeneratorDown",
+          "classNameNormalized": "com.chrysler.Assets_buslogMessageGeneratorDown",
+          "bucket": "message_generator",
+          "totalMembers": 0,
+          "inboundEdges": 0,
+          "outboundEdges": 1,
+          "priorityScore": 1
+        },
+        {
+          "className": "com.chrysler.Assets_buslogMessageGeneratorOver",
+          "classNameNormalized": "com.chrysler.Assets_buslogMessageGeneratorOver",
+          "bucket": "message_generator",
+          "totalMembers": 0,
+          "inboundEdges": 0,
+          "outboundEdges": 1,
+          "priorityScore": 1
+        },
+        {
+          "className": "com.chrysler.Assets_buslogMessageGeneratorUp",
+          "classNameNormalized": "com.chrysler.Assets_buslogMessageGeneratorUp",
+          "bucket": "message_generator",
+          "totalMembers": 0,
+          "inboundEdges": 0,
+          "outboundEdges": 1,
+          "priorityScore": 1
+        }
+      ]
+    },
+    {
+      "name": "Phase 4 - UI/Polish and Residual Classes",
+      "goal": "Complete remaining UI skins/helpers and cross-domain integration edges.",
+      "acceptanceCriteria": [
+        "Residual buslog classes are linked with no unresolved class/type references.",
+        "Cross-domain entry points (diagnostic/proxi/ecu) are explicitly mapped and tested.",
+        "Visual and workflow parity validated against extracted asset/state map."
+      ],
+      "classCount": 17,
+      "dependencies": [],
+      "topClasses": [
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLite",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLite",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 175,
+          "inboundEdges": 3,
+          "outboundEdges": 179,
+          "priorityScore": 1935
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLitePM",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLitePM",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 63,
+          "inboundEdges": 6,
+          "outboundEdges": 65,
+          "priorityScore": 707
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogFilebackedList",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogFilebackedList",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 22,
+          "inboundEdges": 2,
+          "outboundEdges": 24,
+          "priorityScore": 248
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConsoleSkin",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConsoleSkin",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 17,
+          "inboundEdges": 0,
+          "outboundEdges": 19,
+          "priorityScore": 189
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogSocketStreamList",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogSocketStreamList",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 15,
+          "inboundEdges": 2,
+          "outboundEdges": 17,
+          "priorityScore": 171
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLogControlBarComponent",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLogControlBarComponent",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 12,
+          "inboundEdges": 0,
+          "outboundEdges": 14,
+          "priorityScore": 134
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.Console",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.Console",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 10,
+          "inboundEdges": 3,
+          "outboundEdges": 11,
+          "priorityScore": 117
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLiteExternalAppModel",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLiteExternalAppModel",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 7,
+          "inboundEdges": 2,
+          "outboundEdges": 9,
+          "priorityScore": 83
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanMXDataGridItemRenderer",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanMXDataGridItemRenderer",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 7,
+          "inboundEdges": 1,
+          "outboundEdges": 8,
+          "priorityScore": 80
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringMXDataGridItemRenderer",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringMXDataGridItemRenderer",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 6,
+          "inboundEdges": 1,
+          "outboundEdges": 7,
+          "priorityScore": 69
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanDataGridColumnInnerClass0",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanDataGridColumnInnerClass0",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 6,
+          "inboundEdges": 0,
+          "outboundEdges": 8,
+          "priorityScore": 68
+        },
+        {
+          "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumnInnerClass0",
+          "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumnInnerClass0",
+          "bucket": "diagnostic_ui",
+          "totalMembers": 6,
+          "inboundEdges": 0,
+          "outboundEdges": 8,
+          "priorityScore": 68
+        }
+      ]
+    }
+  ],
+  "orderedClasses": [
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLite",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLite",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 175,
+      "inboundEdges": 3,
+      "outboundEdges": 179,
+      "priorityScore": 1935
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuSelector",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuSelector",
+      "bucket": "configuration",
+      "totalMembers": 76,
+      "inboundEdges": 3,
+      "outboundEdges": 79,
+      "priorityScore": 845
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLitePM",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLitePM",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 63,
+      "inboundEdges": 6,
+      "outboundEdges": 65,
+      "priorityScore": 707
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponentInnerClass0",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponentInnerClass0",
+      "bucket": "configuration",
+      "totalMembers": 58,
+      "inboundEdges": 0,
+      "outboundEdges": 60,
+      "priorityScore": 640
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponent",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponent",
+      "bucket": "configuration",
+      "totalMembers": 55,
+      "inboundEdges": 4,
+      "outboundEdges": 57,
+      "priorityScore": 615
+    },
+    {
+      "className": "com.chrysler.cda.application.buslog.BuslogStreamCommand",
+      "classNameNormalized": "com.chrysler.cda.application.buslog.BuslogStreamCommand",
+      "bucket": "application_commands",
+      "totalMembers": 50,
+      "inboundEdges": 0,
+      "outboundEdges": 51,
+      "priorityScore": 551
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.BuslogStreamMessage",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.BuslogStreamMessage",
+      "bucket": "core",
+      "totalMembers": 26,
+      "inboundEdges": 68,
+      "outboundEdges": 27,
+      "priorityScore": 423
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponent",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationComponent",
+      "bucket": "configuration",
+      "totalMembers": 29,
+      "inboundEdges": 5,
+      "outboundEdges": 31,
+      "priorityScore": 331
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreLoadWindow",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreLoadWindow",
+      "bucket": "configuration",
+      "totalMembers": 27,
+      "inboundEdges": 2,
+      "outboundEdges": 29,
+      "priorityScore": 303
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorMessageItem",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorMessageItem",
+      "bucket": "message_generator",
+      "totalMembers": 24,
+      "inboundEdges": 6,
+      "outboundEdges": 26,
+      "priorityScore": 278
+    },
+    {
+      "className": "com.chrysler.cda.domain.buslog.BusLogPacket",
+      "classNameNormalized": "com.chrysler.cda.domain.buslog.BusLogPacket",
+      "bucket": "core",
+      "totalMembers": 23,
+      "inboundEdges": 1,
+      "outboundEdges": 25,
+      "priorityScore": 257
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogFilebackedList",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogFilebackedList",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 22,
+      "inboundEdges": 2,
+      "outboundEdges": 24,
+      "priorityScore": 248
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreSaveWindow",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreSaveWindow",
+      "bucket": "configuration",
+      "totalMembers": 22,
+      "inboundEdges": 0,
+      "outboundEdges": 24,
+      "priorityScore": 244
+    },
+    {
+      "className": "com.chrysler.cda.domain.diagnostics.buslog.BuslogConfiguration",
+      "classNameNormalized": "com.chrysler.cda.domain.diagnostics.buslog.BuslogConfiguration",
+      "bucket": "configuration",
+      "totalMembers": 19,
+      "inboundEdges": 5,
+      "outboundEdges": 21,
+      "priorityScore": 221
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConsoleSkin",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConsoleSkin",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 17,
+      "inboundEdges": 0,
+      "outboundEdges": 19,
+      "priorityScore": 189
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuWrapper",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuWrapper",
+      "bucket": "configuration",
+      "totalMembers": 16,
+      "inboundEdges": 0,
+      "outboundEdges": 18,
+      "priorityScore": 178
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogSocketStreamList",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogSocketStreamList",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 15,
+      "inboundEdges": 2,
+      "outboundEdges": 17,
+      "priorityScore": 171
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.ConfigurationStoreRequestMessage",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.ConfigurationStoreRequestMessage",
+      "bucket": "configuration",
+      "totalMembers": 11,
+      "inboundEdges": 15,
+      "outboundEdges": 13,
+      "priorityScore": 153
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentInnerClass0",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentInnerClass0",
+      "bucket": "configuration",
+      "totalMembers": 13,
+      "inboundEdges": 0,
+      "outboundEdges": 14,
+      "priorityScore": 144
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreLoadWindowInnerClass0",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreLoadWindowInnerClass0",
+      "bucket": "configuration",
+      "totalMembers": 13,
+      "inboundEdges": 0,
+      "outboundEdges": 14,
+      "priorityScore": 144
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLogControlBarComponent",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLogControlBarComponent",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 12,
+      "inboundEdges": 0,
+      "outboundEdges": 14,
+      "priorityScore": 134
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.Console",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.Console",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 10,
+      "inboundEdges": 3,
+      "outboundEdges": 11,
+      "priorityScore": 117
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.BuslogStreamMessageFilter",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.BuslogStreamMessageFilter",
+      "bucket": "core",
+      "totalMembers": 7,
+      "inboundEdges": 9,
+      "outboundEdges": 8,
+      "priorityScore": 96
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuSelectorInnerClass0",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogConfigurationComponentEcuSelectorInnerClass0",
+      "bucket": "configuration",
+      "totalMembers": 8,
+      "inboundEdges": 0,
+      "outboundEdges": 10,
+      "priorityScore": 90
+    },
+    {
+      "className": "com.chrysler.cda.application.buslog.ConfigurationStoreCommand",
+      "classNameNormalized": "com.chrysler.cda.application.buslog.ConfigurationStoreCommand",
+      "bucket": "application_commands",
+      "totalMembers": 8,
+      "inboundEdges": 0,
+      "outboundEdges": 9,
+      "priorityScore": 89
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLiteExternalAppModel",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerLiteExternalAppModel",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 7,
+      "inboundEdges": 2,
+      "outboundEdges": 9,
+      "priorityScore": 83
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanMXDataGridItemRenderer",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanMXDataGridItemRenderer",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 7,
+      "inboundEdges": 1,
+      "outboundEdges": 8,
+      "priorityScore": 80
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.ExternalAppLoggerConsoleMessageFactory",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.ExternalAppLoggerConsoleMessageFactory",
+      "bucket": "core",
+      "totalMembers": 6,
+      "inboundEdges": 3,
+      "outboundEdges": 7,
+      "priorityScore": 73
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringMXDataGridItemRenderer",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringMXDataGridItemRenderer",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 6,
+      "inboundEdges": 1,
+      "outboundEdges": 7,
+      "priorityScore": 69
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanDataGridColumnInnerClass0",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanDataGridColumnInnerClass0",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 6,
+      "inboundEdges": 0,
+      "outboundEdges": 8,
+      "priorityScore": 68
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumnInnerClass0",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumnInnerClass0",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 6,
+      "inboundEdges": 0,
+      "outboundEdges": 8,
+      "priorityScore": 68
+    },
+    {
+      "className": "com.chrysler.cda.application.buslog.BuslogExportCommand",
+      "classNameNormalized": "com.chrysler.cda.application.buslog.BuslogExportCommand",
+      "bucket": "application_commands",
+      "totalMembers": 6,
+      "inboundEdges": 0,
+      "outboundEdges": 7,
+      "priorityScore": 67
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.BuslogExportMessage",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.BuslogExportMessage",
+      "bucket": "core",
+      "totalMembers": 3,
+      "inboundEdges": 8,
+      "outboundEdges": 4,
+      "priorityScore": 50
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerMXDataGridItemRendererBase",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerMXDataGridItemRendererBase",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 3,
+      "inboundEdges": 2,
+      "outboundEdges": 4,
+      "priorityScore": 38
+    },
+    {
+      "className": "com.chrysler.core.infrastructure.BuslogSerializationFilter",
+      "classNameNormalized": "com.chrysler.core.infrastructure.BuslogSerializationFilter",
+      "bucket": "core",
+      "totalMembers": 3,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 34
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerDataGridColumnBase",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerDataGridColumnBase",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 2,
+      "inboundEdges": 2,
+      "outboundEdges": 3,
+      "priorityScore": 27
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumn",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerStringDataGridColumn",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 1,
+      "inboundEdges": 7,
+      "outboundEdges": 2,
+      "priorityScore": 26
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogConfigurationComponentEcuSelectorInnerClass0WatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogConfigurationComponentEcuSelectorInnerClass0WatcherSetupUtil",
+      "bucket": "configuration",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogConfigurationComponentEcuSelectorWatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogConfigurationComponentEcuSelectorWatcherSetupUtil",
+      "bucket": "configuration",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogConfigurationComponentWatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogConfigurationComponentWatcherSetupUtil",
+      "bucket": "configuration",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLogControlBarComponentWatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLogControlBarComponentWatcherSetupUtil",
+      "bucket": "core",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogGeneratorConfigurationComponentInnerClass0WatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogGeneratorConfigurationComponentInnerClass0WatcherSetupUtil",
+      "bucket": "configuration",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogGeneratorConfigurationComponentWatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BuslogGeneratorConfigurationComponentWatcherSetupUtil",
+      "bucket": "configuration",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerBooleanDataGridColumnInnerClass0WatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerBooleanDataGridColumnInnerClass0WatcherSetupUtil",
+      "bucket": "core",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerLiteWatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerLiteWatcherSetupUtil",
+      "bucket": "core",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerStringDataGridColumnInnerClass0WatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_BusLoggerStringDataGridColumnInnerClass0WatcherSetupUtil",
+      "bucket": "core",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_ConfigurationStoreLoadWindowWatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_ConfigurationStoreLoadWindowWatcherSetupUtil",
+      "bucket": "configuration",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "_com_chrysler_cda_presentation_component_diagnostic_busLog_ConfigurationStoreSaveWindowWatcherSetupUtil",
+      "classNameNormalized": "_com_chrysler_cda_presentation_component_diagnostic_busLog_ConfigurationStoreSaveWindowWatcherSetupUtil",
+      "bucket": "configuration",
+      "totalMembers": 2,
+      "inboundEdges": 0,
+      "outboundEdges": 4,
+      "priorityScore": 24
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanDataGridColumn",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BusLoggerBooleanDataGridColumn",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 1,
+      "inboundEdges": 4,
+      "outboundEdges": 2,
+      "priorityScore": 20
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.IExternalApp",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.IExternalApp",
+      "bucket": "core",
+      "totalMembers": 1,
+      "inboundEdges": 4,
+      "outboundEdges": 1,
+      "priorityScore": 19
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.StartBusLoggerMessage",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.StartBusLoggerMessage",
+      "bucket": "core",
+      "totalMembers": 1,
+      "inboundEdges": 3,
+      "outboundEdges": 2,
+      "priorityScore": 18
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.ExternalAppFailureMessage",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.ExternalAppFailureMessage",
+      "bucket": "core",
+      "totalMembers": 1,
+      "inboundEdges": 2,
+      "outboundEdges": 3,
+      "priorityScore": 17
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.ExternalAppNotPresentMessage",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.ExternalAppNotPresentMessage",
+      "bucket": "core",
+      "totalMembers": 1,
+      "inboundEdges": 2,
+      "outboundEdges": 3,
+      "priorityScore": 17
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.ExternalAppLaunched",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.ExternalAppLaunched",
+      "bucket": "core",
+      "totalMembers": 1,
+      "inboundEdges": 1,
+      "outboundEdges": 3,
+      "priorityScore": 15
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.ExternalAppLoggerConsoleMessage",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.ExternalAppLoggerConsoleMessage",
+      "bucket": "core",
+      "totalMembers": 1,
+      "inboundEdges": 1,
+      "outboundEdges": 3,
+      "priorityScore": 15
+    },
+    {
+      "className": "com.chrysler.cda.application.buslog.BuslogGetChannelsCommand",
+      "classNameNormalized": "com.chrysler.cda.application.buslog.BuslogGetChannelsCommand",
+      "bucket": "application_commands",
+      "totalMembers": 1,
+      "inboundEdges": 0,
+      "outboundEdges": 2,
+      "priorityScore": 12
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogControlBarDivider",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogControlBarDivider",
+      "bucket": "diagnostic_ui",
+      "totalMembers": 1,
+      "inboundEdges": 0,
+      "outboundEdges": 2,
+      "priorityScore": 12
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.BuslogGetChannelsMessage",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.BuslogGetChannelsMessage",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 3,
+      "outboundEdges": 1,
+      "priorityScore": 7
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationEvent",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.BuslogGeneratorConfigurationEvent",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 1,
+      "outboundEdges": 1,
+      "priorityScore": 3
+    },
+    {
+      "className": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreEvent",
+      "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.busLog.ConfigurationStoreEvent",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 1,
+      "outboundEdges": 1,
+      "priorityScore": 3
+    },
+    {
+      "className": "com.chrysler.Assets_buslogClearDown",
+      "classNameNormalized": "com.chrysler.Assets_buslogClearDown",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogClearOver",
+      "classNameNormalized": "com.chrysler.Assets_buslogClearOver",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogClearUp",
+      "classNameNormalized": "com.chrysler.Assets_buslogClearUp",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogConfigDown",
+      "classNameNormalized": "com.chrysler.Assets_buslogConfigDown",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogConfigLoadDown",
+      "classNameNormalized": "com.chrysler.Assets_buslogConfigLoadDown",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogConfigLoadOver",
+      "classNameNormalized": "com.chrysler.Assets_buslogConfigLoadOver",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogConfigLoadUp",
+      "classNameNormalized": "com.chrysler.Assets_buslogConfigLoadUp",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogConfigOver",
+      "classNameNormalized": "com.chrysler.Assets_buslogConfigOver",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogConfigSaveDown",
+      "classNameNormalized": "com.chrysler.Assets_buslogConfigSaveDown",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogConfigSaveOver",
+      "classNameNormalized": "com.chrysler.Assets_buslogConfigSaveOver",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogConfigSaveUp",
+      "classNameNormalized": "com.chrysler.Assets_buslogConfigSaveUp",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogConfigUp",
+      "classNameNormalized": "com.chrysler.Assets_buslogConfigUp",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_busLogDown",
+      "classNameNormalized": "com.chrysler.Assets_busLogDown",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogExportDown",
+      "classNameNormalized": "com.chrysler.Assets_buslogExportDown",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogExportOver",
+      "classNameNormalized": "com.chrysler.Assets_buslogExportOver",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogExportUp",
+      "classNameNormalized": "com.chrysler.Assets_buslogExportUp",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogImportDown",
+      "classNameNormalized": "com.chrysler.Assets_buslogImportDown",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogImportOver",
+      "classNameNormalized": "com.chrysler.Assets_buslogImportOver",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogImportUp",
+      "classNameNormalized": "com.chrysler.Assets_buslogImportUp",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogMessageGeneratorDown",
+      "classNameNormalized": "com.chrysler.Assets_buslogMessageGeneratorDown",
+      "bucket": "message_generator",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogMessageGeneratorOver",
+      "classNameNormalized": "com.chrysler.Assets_buslogMessageGeneratorOver",
+      "bucket": "message_generator",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogMessageGeneratorUp",
+      "classNameNormalized": "com.chrysler.Assets_buslogMessageGeneratorUp",
+      "bucket": "message_generator",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_busLogOver",
+      "classNameNormalized": "com.chrysler.Assets_busLogOver",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogPauseDown",
+      "classNameNormalized": "com.chrysler.Assets_buslogPauseDown",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogPauseOver",
+      "classNameNormalized": "com.chrysler.Assets_buslogPauseOver",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogPauseUp",
+      "classNameNormalized": "com.chrysler.Assets_buslogPauseUp",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogRecordDown",
+      "classNameNormalized": "com.chrysler.Assets_buslogRecordDown",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogRecordOver",
+      "classNameNormalized": "com.chrysler.Assets_buslogRecordOver",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_buslogRecordUp",
+      "classNameNormalized": "com.chrysler.Assets_buslogRecordUp",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.Assets_busLogUp",
+      "classNameNormalized": "com.chrysler.Assets_busLogUp",
+      "bucket": "core",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    },
+    {
+      "className": "com.chrysler.cda.event.message.buslog.BuslogConfigureMessage",
+      "classNameNormalized": "com.chrysler.cda.event.message.buslog.BuslogConfigureMessage",
+      "bucket": "configuration",
+      "totalMembers": 0,
+      "inboundEdges": 0,
+      "outboundEdges": 1,
+      "priorityScore": 1
+    }
+  ]
+}

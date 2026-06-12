@@ -1,0 +1,256 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3357,
+  "className": "com.diagnosticProcedures.node.StartProcedureNode",
+  "classNameNormalized": "com.diagnosticProcedures.node.StartProcedureNode",
+  "superName": "com.diagnosticProcedures.node.ProcedureNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.ProcedureNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51704,
+  "cinitMethod": 51703,
+  "iinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "aac097f6054219beadb01d29f90c8f5d313a3b3e61afe08b8a7ae7789724fa8a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 35,
+    "codeSha256": "9f33b68fc507408439f84a03336180b78e99f7fa699f942e8b77bb8e2a272e31",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.node.addDefaultParameters",
+      "traitKind": "method",
+      "methodIndex": 51717,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IService"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "9449dc21e4ac4b3123a164318388caaaba99d921a918626007836c6e871b153a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.node.defaultParameters",
+      "traitKind": "getter",
+      "methodIndex": 51716,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "b257f0242ff58065e0dcf99cb33fe8c78c5a5da0f6fe2db3389f35ac027192c2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.node.setParameter",
+      "traitKind": "method",
+      "methodIndex": 51718,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IService",
+        "String",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "58501b7f8f3e93d73d75582b9346d885efcd17ab56623ab1a211fd6a0af29556",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "exclusiveAccessResult",
+      "traitKind": "method",
+      "methodIndex": 51707,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "43b97e93fa57e7ceb63ba7b0fc5a590d4f35f89af6830658828331a77d15ea03",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "fault",
+      "traitKind": "method",
+      "methodIndex": 51715,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "517b91e0d56c81da0fa51403b0e443d64b6fe7636308bdc3b48b3e13ee12e5c3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "manualSessionServiceResult",
+      "traitKind": "method",
+      "methodIndex": 51709,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b480f7bfd7e803975c2359da99353d54ed663b95f73f3267150575b8c0c42883",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.areRespondersFinished",
+      "traitKind": "method",
+      "methodIndex": 51711,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "a032ab7042c5390c8a590f92d3b7932001f25c4e615843731fc3c320b9aef709",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.hasManualDiagnosticSessionControl",
+      "traitKind": "method",
+      "methodIndex": 51710,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "ac9bbd2ca99fd0c2e066d97cfb4665543f08e05e90d4e212d8d3cc1e1e68035f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.startExclusiveAccess",
+      "traitKind": "method",
+      "methodIndex": 51706,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 151,
+      "bytecode": {
+        "codeLength": 151,
+        "codeSha256": "20c3b13be1b5f888604dcd8ebae1c7f72ce90f49ac3ae9ddcb4033c0eafd88b7",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.startManualSessionControl",
+      "traitKind": "method",
+      "methodIndex": 51708,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "1296266131bfac9ed88bc137018083fb15100f920497b32ea8c9c32b3e8d1c16",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopService",
+      "traitKind": "method",
+      "methodIndex": 51712,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IClosable"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "18c31233dd3953751f05ad2ff0113d981b1e8447078b16f21759f8955e96af15",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51705,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "5a29193e97152707abb813e20a479c8a7d49873bfe1a3e9b4836c81a7cf3eba7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stop",
+      "traitKind": "method",
+      "methodIndex": 51713,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "cf0cb7be4ca5740921a788bfe20986cc91b2ed5476e14da52d2af341d33da9bc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "yes",
+      "traitKind": "method",
+      "methodIndex": 51714,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "0f8e3d69c72172e5681073d449bc3a1ae37a8f2f76b1a08aa4d3967e294f099b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

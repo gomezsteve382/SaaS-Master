@@ -1,0 +1,66 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 292,
+  "className": "mx.messaging.messages.CommandMessageExt",
+  "classNameNormalized": "mx.messaging.messages.CommandMessageExt",
+  "superName": "mx.messaging.messages.CommandMessage",
+  "superNameNormalized": "mx.messaging.messages.CommandMessage",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.utils.IExternalizable"
+  ],
+  "iinitMethod": 6579,
+  "cinitMethod": 6578,
+  "iinitBytecode": {
+    "codeLength": 11,
+    "codeSha256": "a4296a129963a234ea7d8bcc3ba475f660fda299ffd1dc383a844be75596be33",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "messageId",
+      "traitKind": "getter",
+      "methodIndex": 6581,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "d6528961c4bd9d4a1702be0c977696f356b978f11f685f2c88bb49ffe9c19e56",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeExternal",
+      "traitKind": "method",
+      "methodIndex": 6580,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataOutput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "0e3b391854df2daa9b241d12c2b187d926f50a09321e92a6e0728696c7e80c09",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

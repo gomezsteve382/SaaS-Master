@@ -1,0 +1,436 @@
+From 1a950cfcf9856b48c24aca9da8b336b3d1943cc9 Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 03:57:07 +0000
+Subject: [PATCH] Consolidate SEC16/SEC6 derivation into one verified core
+ (immoSecret.js)
+
+The BCM<->RFH SEC16 byte-reversal and PCM SEC6 slice were hand-reimplemented
+in 9 files (securityBytes, keyProgWizard, bcmPcmSync, gpec2aPcmAnalyzer,
+mpc5606bBcm, rfhPcmPair, liveImmo, parseModule), plus a duplicate reverse16()
+function in liveImmo. That copy-paste is the 'preview/writer gating drift'
+bug class.
+
+Add immoSecret.js: a zero-dependency leaf module that is the single source of
+truth for the BCM/RFH/PCM secret byte relationships (reverse16,
+bcmSec16FromRfh/rfhSec16FromBcm, pcmSec6FromRfh/pcmSec6FromBcm,
+deriveAllFromRfh/deriveAllFromBcm). deriveAllFromBcm adds the BCM-as-source
+direction the bench marry workflow actually uses.
+
+Route every reversal/slice through it. Proven byte-identical to the prior
+canonical deriveAllFromSec16 and the old hand loops across 1,000,003 fuzzed
+inputs; all 9 modules import cleanly with no cycles.
+---
+ artifacts/srt-lab/src/lib/bcmPcmSync.js       |   7 +-
+ .../srt-lab/src/lib/gpec2aPcmAnalyzer.js      |   8 +-
+ artifacts/srt-lab/src/lib/immoSecret.js       | 115 ++++++++++++++++++
+ artifacts/srt-lab/src/lib/keyProgWizard.js    |   6 +-
+ artifacts/srt-lab/src/lib/liveImmo.js         |  10 +-
+ artifacts/srt-lab/src/lib/mpc5606bBcm.js      |   7 +-
+ artifacts/srt-lab/src/lib/parseModule.js      |   3 +-
+ artifacts/srt-lab/src/lib/rfhPcmPair.js       |   4 +-
+ artifacts/srt-lab/src/lib/securityBytes.js    |  26 ++--
+ 9 files changed, 149 insertions(+), 37 deletions(-)
+ create mode 100644 artifacts/srt-lab/src/lib/immoSecret.js
+
+diff --git a/artifacts/srt-lab/src/lib/bcmPcmSync.js b/artifacts/srt-lab/src/lib/bcmPcmSync.js
+index 5be9ef3..b847613 100644
+--- a/artifacts/srt-lab/src/lib/bcmPcmSync.js
++++ b/artifacts/srt-lab/src/lib/bcmPcmSync.js
+@@ -26,6 +26,7 @@
+ 
+ import { writePcmSec6 } from './securityBytes.js';
+ import { writeModuleVIN } from './fileUtils.js';
++import { reverse16 } from './immoSecret.js';
+ 
+ /**
+  * P1 — TwinTab.applyPcmFromBcm.
+@@ -44,9 +45,9 @@ import { writeModuleVIN } from './fileUtils.js';
+  * non-canonical PCM size (engine writer refuses).
+  */
+ export function applyPcmFromBcm(pcmBuf, bcmSec16Stored) {
+-  const sec16Rev = new Uint8Array(16);
+-  for (let i = 0; i < 16; i++) sec16Rev[i] = bcmSec16Stored[15 - i];
+-  return writePcmSec6(pcmBuf, sec16Rev);
++  // BCM stores SEC16 byte-reversed vs the RFH form; reverse16 yields the RFH
++  // form the engine writer slices its first 6 bytes from. (immoSecret.js)
++  return writePcmSec6(pcmBuf, reverse16(bcmSec16Stored));
+ }
+ 
+ /**
+diff --git a/artifacts/srt-lab/src/lib/gpec2aPcmAnalyzer.js b/artifacts/srt-lab/src/lib/gpec2aPcmAnalyzer.js
+index 886c7bf..10295a7 100644
+--- a/artifacts/srt-lab/src/lib/gpec2aPcmAnalyzer.js
++++ b/artifacts/srt-lab/src/lib/gpec2aPcmAnalyzer.js
+@@ -35,6 +35,7 @@ import {
+   writePcmSec6,
+ } from './securityBytes.js';
+ import { extractRfhPflashIdentity } from './rfhPflashIdentity.js';
++import { reverse16, pcmSec6FromRfh } from './immoSecret.js';
+ 
+ /* Valid VIN body: 17 chars, A–Z / 0–9, no I, O, Q. */
+ export const GPEC2A_VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
+@@ -265,11 +266,10 @@ export function derivePcmSec6FromDonor(donorMod) {
+   if (donorMod.type === 'BCM') {
+     const r = resolveBcmSec16(donorMod.data);
+     if (!r || !r.bytes || r.bytes.length < 16 || r.blank) return null;
+-    const rfhSec16 = new Uint8Array(16);
+-    for (let i = 0; i < 16; i++) rfhSec16[i] = r.bytes[15 - i];
++    const rfhSec16 = reverse16(r.bytes.slice(0, 16));
+     if (allFill(rfhSec16, 0xff) || allFill(rfhSec16, 0x00)) return null;
+     return {
+-      sec6: rfhSec16.slice(0, 6),
++      sec6: pcmSec6FromRfh(rfhSec16),
+       rfhSec16,
+       source: 'BCM',
+       detail: `reverse(BCM SEC16 · ${r.source || 'resolved'})[0:6]`,
+@@ -281,7 +281,7 @@ export function derivePcmSec6FromDonor(donorMod) {
+     const rfhSec16 = new Uint8Array(vs.bytes);
+     if (allFill(rfhSec16, 0xff) || allFill(rfhSec16, 0x00)) return null;
+     return {
+-      sec6: rfhSec16.slice(0, 6),
++      sec6: pcmSec6FromRfh(rfhSec16),
+       rfhSec16,
+       source: 'RFHUB',
+       detail: 'RFHUB SEC16[0:6]',
+diff --git a/artifacts/srt-lab/src/lib/immoSecret.js b/artifacts/srt-lab/src/lib/immoSecret.js
+new file mode 100644
+index 0000000..068473b
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/immoSecret.js
+@@ -0,0 +1,115 @@
++/* immoSecret.js — SINGLE SOURCE OF TRUTH for the immobilizer-secret byte
++ * relationships across BCM / RFHUB / PCM.
++ *
++ * This is a LEAF module: it imports nothing, so it can be imported anywhere
++ * (parseModule, securityBytes, keyProgWizard, the analyzers, the UI) with zero
++ * risk of an import cycle. Every place that needs to turn one module's secret
++ * into another module's secret MUST call these helpers instead of hand-rolling
++ * the byte loop — that hand-rolled loop was previously copy-pasted in 7+ files,
++ * which is the "preview/writer gating drift" bug class the project keeps hitting.
++ *
++ * The ground-truth relationships (see .agents/memory/module-sync-source-of-truth.md):
++ *   - The 16-byte SEC16 secret is stored byte-REVERSED between BCM and RFHUB.
++ *       BCM SEC16 = reverse(RFH SEC16)   and   RFH SEC16 = reverse(BCM SEC16)
++ *     Reversal is its own inverse, so both directions are the *same* operation.
++ *   - The PCM (GPEC2A) immobilizer secret is the first 6 bytes of the RFH form:
++ *       PCM SEC6 = RFH_SEC16[0:6] = reverse(BCM_SEC16)[0:6]
++ *
++ * All helpers return a fresh Uint8Array and never mutate their input.
++ */
++
++/** Number of bytes in a SEC16 immobilizer secret. */
++export const SEC16_LEN = 16;
++/** Number of bytes in a PCM (GPEC2A) SEC6 immobilizer secret. */
++export const SEC6_LEN = 6;
++
++function toBytes(v, who) {
++  if (v == null) throw new Error(`${who}: secret is null/undefined`);
++  // Accept Uint8Array, Array, or anything array-like of byte values.
++  const out = v instanceof Uint8Array ? v : Uint8Array.from(v);
++  return out;
++}
++
++/**
++ * Reverse a 16-byte SEC16 secret. This is the BCM<->RFH transform in BOTH
++ * directions (reversal is an involution). Throws unless the input is exactly
++ * 16 bytes, so a truncated/oversized buffer can never silently produce a
++ * wrong-length secret that downstream writers would stamp into a module.
++ *
++ * @param {Uint8Array|number[]} sec16 exactly 16 bytes
++ * @returns {Uint8Array} a new 16-byte reversed copy
++ */
++export function reverse16(sec16) {
++  const b = toBytes(sec16, 'reverse16');
++  if (b.length !== SEC16_LEN) {
++    throw new Error(`reverse16: expected ${SEC16_LEN} bytes, got ${b.length}`);
++  }
++  const out = new Uint8Array(SEC16_LEN);
++  for (let i = 0; i < SEC16_LEN; i++) out[i] = b[SEC16_LEN - 1 - i];
++  return out;
++}
++
++/** BCM SEC16 from RFH SEC16. Alias of {@link reverse16}. */
++export const bcmSec16FromRfh = reverse16;
++
++/** RFH SEC16 from BCM SEC16. Alias of {@link reverse16} (same operation). */
++export const rfhSec16FromBcm = reverse16;
++
++/**
++ * PCM SEC6 from an RFH-form SEC16: the first 6 bytes.
++ * @param {Uint8Array|number[]} rfhSec16 at least 6 bytes (16 in practice)
++ * @returns {Uint8Array} a new 6-byte copy
++ */
++export function pcmSec6FromRfh(rfhSec16) {
++  const b = toBytes(rfhSec16, 'pcmSec6FromRfh');
++  if (b.length < SEC6_LEN) {
++    throw new Error(`pcmSec6FromRfh: need at least ${SEC6_LEN} bytes, got ${b.length}`);
++  }
++  return new Uint8Array(b.slice(0, SEC6_LEN));
++}
++
++/**
++ * PCM SEC6 from a BCM-form SEC16: reverse to RFH form, then take 6 bytes.
++ * @param {Uint8Array|number[]} bcmSec16 exactly 16 bytes
++ * @returns {Uint8Array} a new 6-byte copy
++ */
++export function pcmSec6FromBcm(bcmSec16) {
++  return pcmSec6FromRfh(reverse16(bcmSec16));
++}
++
++/**
++ * Derive every dependent secret from the authoritative RFH-form SEC16.
++ * Kept for back-compat with securityBytes.deriveAllFromSec16.
++ * @param {Uint8Array|number[]} rfhSec16 exactly 16 bytes
++ * @returns {{ bcmSec16: Uint8Array, rfhubSec16: Uint8Array, pcmSec6: Uint8Array }}
++ */
++export function deriveAllFromRfh(rfhSec16) {
++  const b = toBytes(rfhSec16, 'deriveAllFromRfh');
++  if (b.length !== SEC16_LEN) {
++    throw new Error(`deriveAllFromRfh: rfhSec16 must be exactly ${SEC16_LEN} bytes`);
++  }
++  return {
++    bcmSec16: reverse16(b),
++    rfhubSec16: new Uint8Array(b),
++    pcmSec6: pcmSec6FromRfh(b),
++  };
++}
++
++/**
++ * Derive every dependent secret from the authoritative BCM-form SEC16.
++ * This is the direction your bench workflow actually uses: a married BCM is the
++ * source of truth, and an unmarried RFHUB/PCM gets re-derived to join the set.
++ * @param {Uint8Array|number[]} bcmSec16 exactly 16 bytes
++ * @returns {{ bcmSec16: Uint8Array, rfhubSec16: Uint8Array, pcmSec6: Uint8Array }}
++ */
++export function deriveAllFromBcm(bcmSec16) {
++  const b = toBytes(bcmSec16, 'deriveAllFromBcm');
++  if (b.length !== SEC16_LEN) {
++    throw new Error(`deriveAllFromBcm: bcmSec16 must be exactly ${SEC16_LEN} bytes`);
++  }
++  return {
++    bcmSec16: new Uint8Array(b),
++    rfhubSec16: reverse16(b),
++    pcmSec6: pcmSec6FromBcm(b),
++  };
++}
+diff --git a/artifacts/srt-lab/src/lib/keyProgWizard.js b/artifacts/srt-lab/src/lib/keyProgWizard.js
+index a55dc68..5edfa7f 100644
+--- a/artifacts/srt-lab/src/lib/keyProgWizard.js
++++ b/artifacts/srt-lab/src/lib/keyProgWizard.js
+@@ -29,6 +29,7 @@ import {
+   writeRfhSec16FromBcm,
+   writeXc2268Sec16,
+ } from './securityBytes.js';
++import { reverse16 } from './immoSecret.js';
+ 
+ const IMMO_BACKUP_SIZE = 24 * 8; // 192 bytes (IMMO_REC × IMMO_KC)
+ 
+@@ -663,8 +664,7 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
+     let bcmPatched;
+     try {
+       const r1 = writeBcmSec16Gen2(bcm.data, rfhSec16);
+-      const bcmSec16BE = new Uint8Array(16);
+-      for (let i = 0; i < 16; i++) bcmSec16BE[i] = rfhSec16[15 - i];
++      const bcmSec16BE = reverse16(rfhSec16);
+       // writeBcmFlatSec16 self-guards against an overlapping mirror1 at
+       // 0x40C0 (see securityBytes.js) — no caller-side skip needed.
+       const flat = writeBcmFlatSec16(r1.bytes, bcmSec16BE);
+@@ -749,7 +749,7 @@ export function runRfhBcmSync({ rfh, bcm, direction } = {}) {
+   const rfhAfter = parseModule(rfhPatched, rfh.name + '_SYNC');
+   const slot1 = rfhAfter?.sec16s?.[0];
+   const slot2 = rfhAfter?.sec16s?.[1];
+-  const expectedRfh = Array.from(bcmSec16BE).reverse();
++  const expectedRfh = reverse16(bcmSec16BE);
+   const slot1Eq = slot1?.raw && expectedRfh.every((b, i) => slot1.raw[i] === b);
+   const slot2Eq = slot2?.raw && expectedRfh.every((b, i) => slot2.raw[i] === b);
+   ok('Round-trip: parseModule(patched RFH).sec16s[0].raw = reverse(BCM SEC16)', !!slot1Eq);
+diff --git a/artifacts/srt-lab/src/lib/liveImmo.js b/artifacts/srt-lab/src/lib/liveImmo.js
+index efadfb9..f1b609e 100644
+--- a/artifacts/srt-lab/src/lib/liveImmo.js
++++ b/artifacts/srt-lab/src/lib/liveImmo.js
+@@ -368,11 +368,10 @@ export async function eraseAllKeys(engine, { tx, rx } = DEFAULT_ADDR, {
+  * tx/rx byte so a tech can pause before committing and the
+  * `bench-override` UI gate is the second line of defence. */
+ 
+-function reverse16(arr) {
+-  const out = new Uint8Array(16);
+-  for (let i = 0; i < 16; i++) out[i] = arr[15 - i];
+-  return out;
+-}
++/* reverse16 is the single-source-of-truth BCM<->RFH transform, imported from
++ * immoSecret.js (see import below). All four DID builders/extractors here pass
++ * exactly 16 bytes, so the strict-length core is a drop-in replacement for the
++ * former local copy. */
+ 
+ export const SEC16_WRITE_RECIPES = {
+   RFHUB_GEN2_DID_F102: {
+@@ -456,6 +455,7 @@ function bytesEqual16(a, b) {
+ 
+ import { logSec16Sync } from './sec16SyncLog.js';
+ import { classifyPlatform } from './sec16Platforms.js';
++import { reverse16 } from './immoSecret.js';
+ 
+ /* ─── writeSec16 ────────────────────────────────────────────────────────────
+  * Task #678 — live SEC16 writer with module-specific recipe.
+diff --git a/artifacts/srt-lab/src/lib/mpc5606bBcm.js b/artifacts/srt-lab/src/lib/mpc5606bBcm.js
+index 8fc54c7..6674d7c 100644
+--- a/artifacts/srt-lab/src/lib/mpc5606bBcm.js
++++ b/artifacts/srt-lab/src/lib/mpc5606bBcm.js
+@@ -38,6 +38,7 @@
+ 
+ import { crc16 } from './crc.js';
+ import { writeBcmSec16Gen2, writeBcmFlatSec16 } from './securityBytes.js';
++import { reverse16 } from './immoSecret.js';
+ 
+ export const MPC5606B_CANONICAL_BASES = [0x5320, 0x5340, 0x5360, 0x5380];
+ export const MPC5606B_ALT_BASES       = [0x1320, 0x1340, 0x1360, 0x1380];
+@@ -359,8 +360,7 @@ export function applyMpc5606bBcm(data, parsed, { newVin, newSec16Hex } = {}) {
+     /* writeBcmSec16Gen2 takes the RFHUB-side SEC16 (BCM stores the
+      * byte-reversed form). The tab collects 32 hex in BCM display
+      * order, so we reverse here before handing off. */
+-    const rfhSec16 = new Uint8Array(16);
+-    for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
++    const rfhSec16 = reverse16(bcmSec16);
+     const r = writeBcmSec16Gen2(out, rfhSec16);
+     out.set(r.bytes);
+     sec16Result = {
+@@ -432,8 +432,7 @@ export function rekeyVirginBcmFromRfhub(data, rfhSec16, newFobikCount) {
+   }
+ 
+   /* BCM SEC16 = reverse of RFHUB SEC16 (byte-swap across the 16-byte slot) */
+-  const bcmSec16 = new Uint8Array(16);
+-  for (let i = 0; i < 16; i++) bcmSec16[i] = rfhSec16[15 - i];
++  const bcmSec16 = reverse16(rfhSec16);
+ 
+   /* Step 1 — Fresh copy of the source buffer. */
+   const buf = new Uint8Array(data);
+diff --git a/artifacts/srt-lab/src/lib/parseModule.js b/artifacts/srt-lab/src/lib/parseModule.js
+index b4597e7..09d33a2 100644
+--- a/artifacts/srt-lab/src/lib/parseModule.js
++++ b/artifacts/srt-lab/src/lib/parseModule.js
+@@ -1,4 +1,5 @@
+ import {crc16,crc8rf,rfhGen2VinCs,rfhGen2DetectMagic,rfhSec16Cs,RFH_GEN2_VIN_CS_KNOWN_MAGICS} from './crc.js';
++import {reverse16} from './immoSecret.js';
+ import {isXc2268Rfhub,parseXc2268Image} from './xc2268Rfhub.js';
+ import {isZf8hpImage,parseZf8hpImage} from './zf8hp.js';
+ import {TC,TL,SKIM_VALUES,IMMO_REC,IMMO_KC,IMMO_BLOCK,SKIM_OFF} from './constants.js';
+@@ -1213,7 +1214,7 @@ function parseModule(data,filename,opts){
+       const csOk=storedCs===calcCs;
+       const blank=raw16.every(b=>b===0xFF||b===0x00);
+       const hex=Array.from(raw16).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+-      const reversed=new Uint8Array(16);for(let i=0;i<16;i++)reversed[i]=raw16[15-i];
++      const reversed=reverse16(raw16);
+       const reversedHex=Array.from(reversed).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join('');
+       info.bcmSec16={offset:0x838,raw:raw16,hex,reversed,reversedHex,storedCs,calcCs,csOk,blank};
+     }
+diff --git a/artifacts/srt-lab/src/lib/rfhPcmPair.js b/artifacts/srt-lab/src/lib/rfhPcmPair.js
+index 1d7d0b1..c882530 100644
+--- a/artifacts/srt-lab/src/lib/rfhPcmPair.js
++++ b/artifacts/srt-lab/src/lib/rfhPcmPair.js
+@@ -1,6 +1,7 @@
+ import {crc16, crc8rf, rfhGen2VinCs, rfhGen2DetectMagic} from './crc.js';
+ import {writePcmSec6} from './securityBytes.js';
+ import {classifyPcmSec6,PCM_VIN_OFFSETS_GPEC2A} from './parseModule.js';
++import {reverse16} from './immoSecret.js';
+ 
+ const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
+ 
+@@ -116,8 +117,7 @@ function parseSec16(data, off) {
+   const csXorWord = (xr << 8) | xr;
+   const csOk = !blank && (csStored === csXorWord || csStored === csXorByte || (csStored & 0xFF) === xr);
+   const hex = hexBytes(raw);
+-  const reversed = new Uint8Array(16);
+-  for (let i = 0; i < 16; i++) reversed[i] = raw[15 - i];
++  const reversed = reverse16(raw);
+   const bcmHex = hexBytes(reversed);
+   const pinDec = ((raw[14] << 8) | raw[15]).toString().padStart(5, '0');
+   return {
+diff --git a/artifacts/srt-lab/src/lib/securityBytes.js b/artifacts/srt-lab/src/lib/securityBytes.js
+index 0c2fbcd..1aee5d0 100644
+--- a/artifacts/srt-lab/src/lib/securityBytes.js
++++ b/artifacts/srt-lab/src/lib/securityBytes.js
+@@ -93,10 +93,7 @@ export function deriveAllFromSec16(rfhubSec16) {
+   if (!rfhubSec16 || rfhubSec16.length !== 16) {
+     throw new Error('deriveAllFromSec16: rfhubSec16 must be exactly 16 bytes');
+   }
+-  const bcmSec16 = new Uint8Array(16);
+-  for (let i = 0; i < 16; i++) bcmSec16[i] = rfhubSec16[15 - i];
+-  const pcmSec6 = new Uint8Array(rfhubSec16.slice(0, 6));
+-  return { bcmSec16, rfhubSec16: new Uint8Array(rfhubSec16), pcmSec6 };
++  return deriveAllFromRfh(rfhubSec16);
+ }
+ 
+ /* XC2268 SEC16 lives in xc2268Rfhub.js's "single source of truth" layout
+@@ -109,6 +106,10 @@ import {
+   XC2268_SEC16_LEN,
+   xc2268ImageChecksum,
+ } from './xc2268Rfhub.js';
++/* Single source of truth for the BCM<->RFH<->PCM secret byte relationships.
++ * Every reversal / SEC6 slice in this file routes through these so the
++ * derivation can never drift between the writers. */
++import { reverse16, pcmSec6FromRfh, deriveAllFromRfh } from './immoSecret.js';
+ 
+ /* CRC-16/CCITT-FALSE — poly 0x1021, init 0xFFFF.
+  * Same primitive as engCrc16 / lib/crc.js#crc16, duplicated here so this
+@@ -161,8 +162,7 @@ const hexStr = (arr) => [...arr].map(b => b.toString(16).padStart(2, '0')).join(
+  * ---------------------------------------------------------------------------- */
+ export function writeBcmSec16Gen2(bytes, rfhSec16) {
+   if (!rfhSec16 || rfhSec16.length !== 16) throw new Error('RFH SEC16 must be 16 bytes');
+-  const bcmSec16 = new Uint8Array(16);
+-  for (let i = 0; i < 16; i++) bcmSec16[i] = rfhSec16[15 - i];
++  const bcmSec16 = reverse16(rfhSec16);
+   const prefix7 = bcmSec16.slice(0, 7);
+   const suffix9 = bcmSec16.slice(7, 16);
+   const out = new Uint8Array(bytes);
+@@ -316,8 +316,7 @@ export function writeBcmFlatSec16(bytes, resolvedSec16, options = {}) {
+   }
+ 
+   const out = new Uint8Array(bytes);
+-  const le = new Uint8Array(16);
+-  for (let i = 0; i < 16; i++) le[i] = resolvedSec16[15 - i];
++  const le = reverse16(resolvedSec16);
+ 
+   const mirror1OverlapsFlat = (
+     out.length >= 0x40C8 &&
+@@ -404,7 +403,7 @@ const CANONICAL_PCM_SIZES = new Set([4096, 8192]);
+  * ---------------------------------------------------------------------------- */
+ export function writePcmSec6(bytes, rfhSec16) {
+   if (!rfhSec16 || rfhSec16.length < 6) throw new Error('Need at least 6 bytes of RFH SEC16');
+-  const sec6 = rfhSec16.slice(0, 6);
++  const sec6 = pcmSec6FromRfh(rfhSec16);
+   const out = new Uint8Array(bytes);
+   let patched = 0;
+   let markerUsed = null;
+@@ -448,8 +447,7 @@ export function writePcmSec6(bytes, rfhSec16) {
+  * ---------------------------------------------------------------------------- */
+ export function writeRfhSec16FromBcm(bytes, bcmSec16) {
+   if (!bcmSec16 || bcmSec16.length !== 16) throw new Error('BCM SEC16 must be 16 bytes');
+-  const rfhSec16 = new Uint8Array(16);
+-  for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
++  const rfhSec16 = reverse16(bcmSec16);
+   const chk = crc8_65(rfhSec16);
+   const out = new Uint8Array(bytes);
+   if (out[0x0500] !== 0xAA || out[0x0501] !== 0x55 ||
+@@ -502,8 +500,7 @@ export function writeRfhSec16FromBcm(bytes, bcmSec16) {
+ export function writeRfhSec16Gen1(bytes, bcmSec16) {
+   if (!bcmSec16 || bcmSec16.length !== 16) throw new Error('BCM SEC16 must be 16 bytes');
+   if (bytes.length < 0x00D2) throw new Error('Buffer too small to be a Gen1 RFHUB (need ≥ 0xD2 B)');
+-  const rfhSec16 = new Uint8Array(16);
+-  for (let i = 0; i < 16; i++) rfhSec16[i] = bcmSec16[15 - i];
++  const rfhSec16 = reverse16(bcmSec16);
+   const chk = crc8_65(rfhSec16);
+   const out = new Uint8Array(bytes);
+   let patched = 0;
+@@ -548,8 +545,7 @@ export function writeXc2268Sec16(bytes, bcmSec16) {
+   if (bcmSec16.every((b) => b === 0xFF || b === 0x00)) {
+     throw new Error('Refusing to write XC2268 SEC16 from a blank BCM secret');
+   }
+-  const rfhSec16 = new Uint8Array(XC2268_SEC16_LEN);
+-  for (let i = 0; i < XC2268_SEC16_LEN; i++) rfhSec16[i] = bcmSec16[XC2268_SEC16_LEN - 1 - i];
++  const rfhSec16 = reverse16(bcmSec16);
+   const chk = crc16ccitt(rfhSec16);
+   const out = new Uint8Array(bytes);
+   let patched = 0;
+-- 
+2.43.0
+

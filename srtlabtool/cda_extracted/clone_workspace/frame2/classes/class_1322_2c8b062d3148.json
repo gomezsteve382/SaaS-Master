@@ -1,0 +1,383 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1322,
+  "className": "spark.components.RadioButton",
+  "classNameNormalized": "spark.components.RadioButton",
+  "superName": "spark.components.supportClasses.ToggleButtonBase",
+  "superNameNormalized": "spark.components.supportClasses.ToggleButtonBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.managers.IFocusManagerGroup"
+  ],
+  "iinitMethod": 28795,
+  "cinitMethod": 28794,
+  "iinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "77a9a18afe827dd53e0ca8b6ae9810953b114e8a4868009fe07506a9a34f410d",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 46,
+    "codeSha256": "3594ff7747af773cc3b14d463ce542cb3f1529a4051540e260b9db171a4b1127",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "enabled",
+      "traitKind": "getter",
+      "methodIndex": 28796,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "4e373c6920f37e903e4679b4b16151ff083ddeb2b4e0bd5f038367ac4c514960",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "group",
+      "traitKind": "getter",
+      "methodIndex": 28799,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RadioButtonGroup",
+      "hasBody": true,
+      "codeLength": 273,
+      "bytecode": {
+        "codeLength": 273,
+        "codeSha256": "4b5ed17adb31e52373aae5ed0bf78234cebb815beafa62eda0289f444aaabc09",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "group",
+      "traitKind": "setter",
+      "methodIndex": 28800,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RadioButtonGroup"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "d722ffd4015d0e85c8449098628fd452a5a6c4013d45b7c2456192c40e8e30c3",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "groupName",
+      "traitKind": "getter",
+      "methodIndex": 28801,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "537d364f96949cbe589e4f802548e3bd80e91eac13ca9420fdde0ffa98ac312b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "groupName",
+      "traitKind": "setter",
+      "methodIndex": 28802,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "2c49f59c33099c9f60dac40fd11002e2b142768f63543c4e0e425d2ece46988c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.addToGroup",
+      "traitKind": "method",
+      "methodIndex": 28810,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RadioButtonGroup",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b9fd522dd522869687d673927f7b56850c69ed1eeb0a9c3a4ba3ede43b2990bc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.autoGroupIndex",
+      "traitKind": "getter",
+      "methodIndex": 28798,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "d14701f7226a6a1edfaccd031de1963fca4983253bfe2f3e10ad7907601ade05",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.isRadioButtonEnabled",
+      "traitKind": "method",
+      "methodIndex": 28814,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RadioButton"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "cc779d3e293f740d81136d47e871b849377cc51d66eeab3f560fa88a9b1bb315",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeFromGroup",
+      "traitKind": "method",
+      "methodIndex": 28811,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "af1c9558ea6a685bf3370f07d4b8787ebee4fc4988e6536decf93ae9956b0ae6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.setNext",
+      "traitKind": "method",
+      "methodIndex": 28813,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 158,
+      "bytecode": {
+        "codeLength": 158,
+        "codeSha256": "4871f251c7d29abf351a5683acb7c9691d80298fe283990e9ba0e89c1b3f7699",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.setPrev",
+      "traitKind": "method",
+      "methodIndex": 28812,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 157,
+      "bytecode": {
+        "codeLength": 157,
+        "codeSha256": "cda6d38b7d62a7c15a04c667756b69dc2452e0bc9f9606d1285ef008f37518f3",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.setThis",
+      "traitKind": "method",
+      "methodIndex": 28815,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "50a65ac7e6f68b0e2272bab2ef185273aaae1ecfc010f5da53dd874391d81293",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "selected",
+      "traitKind": "setter",
+      "methodIndex": 28803,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "e785d3a2477953f52b775cbb02781810d3ae9ed3e729dfa93602864731a318f4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components:RadioButton.buttonReleased",
+      "traitKind": "method",
+      "methodIndex": 28809,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 109,
+      "bytecode": {
+        "codeLength": 109,
+        "codeSha256": "aa4569d962b33ccac46f63724e8ed6e6edf8ef61de24c7c0173b30ad94e9b6ad",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "spark.components:RadioButton.commitProperties",
+      "traitKind": "method",
+      "methodIndex": 28807,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "9a857da00bbb5b9936858b7c179dd0e077b25f2b4dc6036a70bb9bdf96b80997",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components:RadioButton.initializeAccessibility",
+      "traitKind": "method",
+      "methodIndex": 28806,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "2c0df680777c23e940f9e46620500d8d4b230cad9b015eb92d0cab2220ae20f8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.components:RadioButton.keyDownHandler",
+      "traitKind": "method",
+      "methodIndex": 28816,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 271,
+      "bytecode": {
+        "codeLength": 271,
+        "codeSha256": "45168a041771e4bf8a1d0443b3908bc56b8aa8ab0bea869f5eb93871fa33a9f4",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "spark.components:RadioButton.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 28817,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "249d2c773acf66c5638cda4bb47f8dbd3eee46783f78648abea67e5dec801924",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.components:RadioButton.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 28808,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "ddc56aea830921e6d0a0e96213838f5740fbc94edf800f36795a149ba41b532f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "suggestedFocusSkinExclusions",
+      "traitKind": "getter",
+      "methodIndex": 28797,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "eb54e11a4534dcbc4d5b9aa9bdab30aa8bd30c0f3fa245f5515f46c0b6e5eb92",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "value",
+      "traitKind": "getter",
+      "methodIndex": 28804,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c1be533bbe82c25ab9a7e6c3f63aaa221ca89cf42d34292bcc9f2a4e86ed8d14",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "value",
+      "traitKind": "setter",
+      "methodIndex": 28805,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "89a18b526db4436a13190d5d4a00e930a19f280f3cf1289ad2b812ffd455fadf",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

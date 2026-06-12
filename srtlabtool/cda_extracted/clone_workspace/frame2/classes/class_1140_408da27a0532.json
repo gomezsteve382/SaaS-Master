@@ -1,0 +1,329 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1140,
+  "className": "com.chrysler.cda.domain.diagnostic.procedures.LegacySession",
+  "classNameNormalized": "com.chrysler.cda.domain.diagnostic.procedures.LegacySession",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 25134,
+  "cinitMethod": 25112,
+  "iinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "9b04aec56c254e29eac0ceae761868a637b8ae82adb9b261df30be84b56b700e",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.domain.diagnostic.procedures.getEcuArray",
+      "traitKind": "method",
+      "methodIndex": 25132,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "44a40e2f6d3597a4eb6dbeaee32643cd5f249d7737d6bc9db8ccd3fe58f085a7",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "ecuContextUpdated",
+      "traitKind": "method",
+      "methodIndex": 25117,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.CollectionEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "b32375bbf2d830af4f455cccb370635036e01d96420842c5bd80c7b0845c2641",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "ecus",
+      "traitKind": "getter",
+      "methodIndex": 25116,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "8d1d25e6edd4581f380b67111ba8165f8547367afef920aee85286725be6b017",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "endOfSession",
+      "traitKind": "method",
+      "methodIndex": 25133,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.EndOfSessionMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "ce42afdd42d037d46911c94747d6afbaf92c1d467a2e86884e4be32caa7bd140",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isAlive",
+      "traitKind": "method",
+      "methodIndex": 25121,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "af3251957b09bc60e726b9e2365490e3de62c7ff3236c0201761134aad97f137",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "legacySessionHotUpdate",
+      "traitKind": "method",
+      "methodIndex": 25118,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 69,
+      "bytecode": {
+        "codeLength": 69,
+        "codeSha256": "c9fdd850665a9fd5a100a285a04390da35ad9ecf264023c4774177f8307d18df",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onInitialization",
+      "traitKind": "method",
+      "methodIndex": 25113,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "f77be10edaa847ee21eba212e6fc47e83b4a3ca2ec04e131715cf59581d22233",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.createResponder",
+      "traitKind": "method",
+      "methodIndex": 25131,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "Function"
+      ],
+      "returnType": "mx.rpc.IResponder",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "66d33a06c93ff2d0f816acee41ecee196acf41002cf64000206d7858f64589b7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.createStartResponder",
+      "traitKind": "method",
+      "methodIndex": 25130,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "Function"
+      ],
+      "returnType": "mx.rpc.IResponder",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "451475242e8caeb58141c844daa8f23bfe8f0f8e68c5b80fd37561f33c26a8a4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.repeat",
+      "traitKind": "method",
+      "methodIndex": 25123,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "0a2557d172eea1fe5e7c3635fd4f43800826c176a1f5b1c79652945056554a2d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.sessionHotUpdateFailure",
+      "traitKind": "method",
+      "methodIndex": 25125,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.sessionHotUpdateSuccess",
+      "traitKind": "method",
+      "methodIndex": 25124,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "94eee50c372fad6b2279ea6c5bddd9291d88264cfabac6a0e5f77ff457011e41",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.sessionRefreshFailure",
+      "traitKind": "method",
+      "methodIndex": 25127,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "6041f13c1657ae9bef7129a49c30a71c04b929b26d408c1409b23dff166f8efd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.sessionRefreshSuccess",
+      "traitKind": "method",
+      "methodIndex": 25126,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "48990e68ba788665dbdd20ac4df6c6a0884910666a232b5a48aa6e31621ab523",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "setEcuInstanceIds",
+      "traitKind": "method",
+      "methodIndex": 25115,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 158,
+      "bytecode": {
+        "codeLength": 158,
+        "codeSha256": "8cf3ca9e28c68939a8fb2b3812fb4e87b4efb0f564b5c72784a0faf629b6aeaf",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "startSession",
+      "traitKind": "method",
+      "methodIndex": 25119,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.IResponder"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 293,
+      "bytecode": {
+        "codeLength": 293,
+        "codeSha256": "818a0660d393081500149ac16a82779d74526452a7a5e84fc2bc474e0484d808",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "stopSession",
+      "traitKind": "method",
+      "methodIndex": 25120,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "3ad8a233dc58c46a1ac7da846d69cc807dc964e7c8eb7d913ee08001aab74ce0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "wdeSessionToken",
+      "traitKind": "getter",
+      "methodIndex": 25122,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "09fd1a337f417ecdc126ce0a0d8eee8c9dc75474faa5df95fd114bb15c632f38",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

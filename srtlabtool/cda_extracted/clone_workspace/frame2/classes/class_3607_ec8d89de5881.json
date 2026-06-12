@@ -1,0 +1,197 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3607,
+  "className": "mx.rpc.xml.SchemaProcessor",
+  "classNameNormalized": "mx.rpc.xml.SchemaProcessor",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54141,
+  "cinitMethod": 54140,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getValueOccurence",
+      "traitKind": "method",
+      "methodIndex": 54147,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "21681d86d5de1eafe130019fad7b5e037aecc1a9218b4d7ec8713866cecdb66f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "isBuiltInType",
+      "traitKind": "method",
+      "methodIndex": 54146,
+      "methodName": "",
+      "paramTypes": [
+        "QName"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "08872e3d1c4b9a40fc6f968081f582bc80531075493e4416b1fe5c663792bdd8",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:SchemaProcessor.constants",
+      "traitKind": "getter",
+      "methodIndex": 54144,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.xml.SchemaConstants",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "a72cfb5db7d03de3655c87da3e20eaf6f8905597b3a8f03ae449d2205160ad78",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:SchemaProcessor.getAttributeFromNode",
+      "traitKind": "method",
+      "methodIndex": 54148,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "XML"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "cc06191a418603221a6fa139ac6d4158d48bf8e1644ab22dddd2129dd72cedb0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:SchemaProcessor.getMaxOccurs",
+      "traitKind": "method",
+      "methodIndex": 54150,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "0389674c9f57be50ef45de617a8acdb78da39170c4eadaecf46e074889596f81",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:SchemaProcessor.getMinOccurs",
+      "traitKind": "method",
+      "methodIndex": 54151,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "7ace7d692d71e24d8cedbddf909e4054072bd5f9929e1d76e8dabae3248f3e2a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:SchemaProcessor.getSingleElementFromNode",
+      "traitKind": "method",
+      "methodIndex": 54149,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "ce2922e46ef57f907480b2dde26b2e2bbe1b2ed982401e2d5f35434153014ed2",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "reset",
+      "traitKind": "method",
+      "methodIndex": 54145,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "e2aaa113b179d5b37d9e6ecfd016eaea26d5e6f80588fd424b455f27bd9e191c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "schemaManager",
+      "traitKind": "getter",
+      "methodIndex": 54142,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.xml.SchemaManager",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "020bfa7526e89f8adb7a893fb6348724a496bbf971361573ce9b76be76fff2b1",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "schemaManager",
+      "traitKind": "setter",
+      "methodIndex": 54143,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.xml.SchemaManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "7a00258ac3a550ff16a11170c7f96ed61bedd7ad8233766c005a43a51f94644d",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

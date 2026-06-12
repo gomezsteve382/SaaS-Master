@@ -1,0 +1,527 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1874,
+  "className": "flashx.textLayout.conversion.TextLayoutImporter",
+  "classNameNormalized": "flashx.textLayout.conversion.TextLayoutImporter",
+  "superName": "flashx.textLayout.conversion.BaseTextLayoutImporter",
+  "superNameNormalized": "flashx.textLayout.conversion.BaseTextLayoutImporter",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.conversion.ITextLayoutImporter"
+  ],
+  "iinitMethod": 35387,
+  "cinitMethod": 35375,
+  "iinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "4505953a2cdc702ec4758fbd5c62bd4223fdb3cf0efa21b521dd2eedb890e453",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 337,
+    "codeSha256": "99485d016bc4e6516ef52aa8c9bc0095c684e1d7b335e3ce77717f67570914ff",
+    "bytecodeLineCount": 22
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createDictionaryFromXML",
+      "traitKind": "method",
+      "methodIndex": 35403,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flash.utils.Dictionary",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "231e6e03c27c5468f99285a1b604a1b0529f5740bd7cb08859e860405b943e5b",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "createDivFromXML",
+      "traitKind": "method",
+      "methodIndex": 35393,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.DivElement",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "2387a3928b7edc20ebe696a9cf08da5848316c33b435e61831664932527e4050",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "createInlineGraphicFromXML",
+      "traitKind": "method",
+      "methodIndex": 35399,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.InlineGraphicElement",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "7b533c6c4670fe8ba3b2351ed4eceafecc41b300568a65e4fe48387b1b0af082",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "createLinkFromXML",
+      "traitKind": "method",
+      "methodIndex": 35397,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.LinkElement",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "30e947d30838fef642abab20972acfbcd767da39d2ec9f2b7e935cd72f7b71e3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "createListFromXML",
+      "traitKind": "method",
+      "methodIndex": 35400,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.ListElement",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "babbec9c9f1ebd2668f8807d105408bdf5826418e6e0593833e1994f1502d0e6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "createListItemFromXML",
+      "traitKind": "method",
+      "methodIndex": 35401,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.ListItemElement",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "15768178fb5567a1dc29d7a2dcb93ee60a55e1af5f2a91e381a910a7cb28bff0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "createListMarkerFormatDictionaryFromXML",
+      "traitKind": "method",
+      "methodIndex": 35404,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flash.utils.Dictionary",
+      "hasBody": true,
+      "codeLength": 121,
+      "bytecode": {
+        "codeLength": 121,
+        "codeSha256": "6d4ce6b441ba16c67c42e188e998d4ae834812182ec46dcdab461bdf31c4023f",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "createParagraphFromXML",
+      "traitKind": "method",
+      "methodIndex": 35394,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.ParagraphElement",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "2b123684e79300de34a2d234839d1c3c16db6e1d5561d380305358966ab781ed",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "createSpanFromXML",
+      "traitKind": "method",
+      "methodIndex": 35398,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.SpanElement",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "1580d5ba1febbdeffa7ca322fc0318688183d22aecaf4928883e6ccb8f9b3919",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "createSubParagraphGroupFromXML",
+      "traitKind": "method",
+      "methodIndex": 35395,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.SubParagraphGroupElement",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "9b94eb140d82a3761f11c61fa7d6ca7010aecec22f0affc083751c23a14839c8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "createTCYFromXML",
+      "traitKind": "method",
+      "methodIndex": 35396,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.TCYElement",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "96142218bd383029d59fd155fe80b97bf0420f78fc25e2c43b46a359d665a70d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "createTextFlowFromXML",
+      "traitKind": "method",
+      "methodIndex": 35392,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "flashx.textLayout.elements.TextFlow"
+      ],
+      "returnType": "flashx.textLayout.elements.TextFlow",
+      "hasBody": true,
+      "codeLength": 246,
+      "bytecode": {
+        "codeLength": 246,
+        "codeSha256": "ae55b0dce415dabef94746aa8d1ad3409d0d228649054090102be77bb779cf94",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "extractTextFormatAttributesHelper",
+      "traitKind": "method",
+      "methodIndex": 35402,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "flashx.textLayout.conversion.TLFormatImporter"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "795b1cbec58effd42bc4b31f4006d5e7c80136872aabece2b4f7553350a56363",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.conversion:TextLayoutImporter.parseContent",
+      "traitKind": "method",
+      "methodIndex": 35390,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "flashx.textLayout.elements.TextFlow",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "31a3250e4a1d4dc750883540178205351ad5f87fce70b92bb422ea0ec51444c7",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "imageSourceResolveFunction",
+      "traitKind": "getter",
+      "methodIndex": 35388,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f99325357e6057ac397c3b1d81a6f1a6ddeb45f0806644c9b5f8a59c3c955584",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "imageSourceResolveFunction",
+      "traitKind": "setter",
+      "methodIndex": 35389,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "4b5299ae61fe0ab556e54f30acd702a7c734f5f44046b78b174923cb95a40171",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseStandardFlowElementAttributes",
+      "traitKind": "method",
+      "methodIndex": 35391,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowElement",
+        "XML",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 184,
+      "bytecode": {
+        "codeLength": 184,
+        "codeSha256": "fa9057f72ed7f7fba3c6a53722655c63d1009e9f42294d5894a4aac8b59b69c6",
+        "bytecodeLineCount": 12
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "defaultConfiguration",
+      "traitKind": "getter",
+      "methodIndex": 35376,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.conversion.ImportExportConfiguration",
+      "hasBody": true,
+      "codeLength": 501,
+      "bytecode": {
+        "codeLength": 501,
+        "codeSha256": "4eec795336d871d7093633e97eea1783f68ddec96906e834c04c745f7dd7877f",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "parseDivElement",
+      "traitKind": "method",
+      "methodIndex": 35385,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutImporter",
+        "XML",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "c1eb16a584d359ca2c4efd2c8a694e0d8dda2c1f9e092dfbfceaaeb0cf0b49af",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "parseInlineGraphic",
+      "traitKind": "method",
+      "methodIndex": 35386,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutImporter",
+        "XML",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "23fc0198dae893a34dbe2880fd5e96943f84247793d305363046bdf2a113e148",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "parseLink",
+      "traitKind": "method",
+      "methodIndex": 35380,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutImporter",
+        "XML",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "62e4fc2ef52531d042e22c7a6bdb62a7934a0c287040693bb52068f9c5590623",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "parseLinkActiveFormat",
+      "traitKind": "method",
+      "methodIndex": 35382,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutImporter",
+        "XML",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "58783fbf1d85557fec1dbd780829a03c34d3303b418c131a3f6898f13779a5f9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "parseLinkHoverFormat",
+      "traitKind": "method",
+      "methodIndex": 35383,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutImporter",
+        "XML",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "24da6a044515fb8f570c8ea5f9ed057fcd69d01d3d0cf8cce1305cdfd4d8a0d6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "parseLinkNormalFormat",
+      "traitKind": "method",
+      "methodIndex": 35381,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutImporter",
+        "XML",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "aaa2788b15330ec77943bd4bd22fa53c64690069f630d448580e58972aa26791",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "parseListMarkerFormat",
+      "traitKind": "method",
+      "methodIndex": 35384,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutImporter",
+        "XML",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "fc023948d4c16f43501214fda50589101cda9ae00ec19dae42b98acb20cb5d49",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "parseSPGE",
+      "traitKind": "method",
+      "methodIndex": 35378,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutImporter",
+        "XML",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "dc3d7faf77d235a83f7a38361060b4fce3920da6120cec20ff0706d92de93832",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "parseTCY",
+      "traitKind": "method",
+      "methodIndex": 35379,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.conversion.BaseTextLayoutImporter",
+        "XML",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "936266f88e9311a43ecd4ad135fe7d69e7b3c9d6898f40f141deaacc2d55d1c4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "restoreDefaults",
+      "traitKind": "method",
+      "methodIndex": 35377,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "9342ea903a2bdaad91c6888d7a157a6663fb8c9934461337b2c8fa06632e8ae4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

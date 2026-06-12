@@ -1,0 +1,145 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 191,
+  "className": "spark.filters.BlurFilter",
+  "classNameNormalized": "spark.filters.BlurFilter",
+  "superName": "mx.filters.BaseFilter",
+  "superNameNormalized": "mx.filters.BaseFilter",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.filters.IBitmapFilter"
+  ],
+  "iinitMethod": 3866,
+  "cinitMethod": 3865,
+  "iinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "0b6a6f1215403fba2e18aa5932bdcb5644b1750c096e67dad15493315f1c492b",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "blurX",
+      "traitKind": "getter",
+      "methodIndex": 3867,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "f24c2be693365a91caf44a6162954267df5831c969ca3c01924cd918f1e13e21",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "blurX",
+      "traitKind": "setter",
+      "methodIndex": 3868,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "022f13c75c99b82a18ed3f705a25024eaad900033c9785da331e3baf12a0548e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "blurY",
+      "traitKind": "getter",
+      "methodIndex": 3869,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9cbfeda5c5fb76c02333deeca73fbfc47f2be00373c91ef2485ce1df84b78191",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "blurY",
+      "traitKind": "setter",
+      "methodIndex": 3870,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "c8fc31488e65f550f16cb4e72f817bef1556325bd99e638a83d7d54e21b8c941",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 3873,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.filters.BitmapFilter",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "86b94466e9ffbb136685cd32f37d98d938d1f2d0a688749768800b3f05544859",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "quality",
+      "traitKind": "getter",
+      "methodIndex": 3871,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d99c028080b4a6303f590c2f76113546c0c57e9d64789f9b11108fd872bf1d32",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "quality",
+      "traitKind": "setter",
+      "methodIndex": 3872,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "ff06facf44f867c3e197be7469835b41e9379861f81c1b0b9d919ae8ac0f4227",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

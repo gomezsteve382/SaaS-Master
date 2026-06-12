@@ -1,0 +1,245 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3011,
+  "className": "com.diagnosticProcedures.logging.Recorder",
+  "classNameNormalized": "com.diagnosticProcedures.logging.Recorder",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 48304,
+  "cinitMethod": 48303,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cleanUp",
+      "traitKind": "method",
+      "methodIndex": 48307,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "3ae60a87f80129d791231787c167a0f3dec843107d6014d71adc653d198b5a67",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "closed",
+      "traitKind": "method",
+      "methodIndex": 48308,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "96139316d22873cb4ea035301f8840f687d427e82adf3b94dd041bb1836acedb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 48306,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.model.GuidedDiagnosticModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "2f05a05680fb7491c0e2d1c8ba0ab862083bf8f3cedcd84295d2e3397eed5960",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "log",
+      "traitKind": "getter",
+      "methodIndex": 48305,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "513d44dc7062def5d1460b653085e8c6182e8d90361c14077045d818dd2c73bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.closeStep",
+      "traitKind": "method",
+      "methodIndex": 48317,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "3441ebd0b1ce2e363abeb13d4e78b33967a854c9a4068336d7381bf37eada8b9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "recordAsynchronousResult",
+      "traitKind": "method",
+      "methodIndex": 48315,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "3e0fd12023b046d4b16d0068b6938f4a6f544dd3adfb2d34affb238f3f2859f7",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "recordAsynchronousStore",
+      "traitKind": "method",
+      "methodIndex": 48316,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "ab1a23920a8d3999b1e2e94d294011d9bf83709febadb8b663e6b3634c29226a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "recordFault",
+      "traitKind": "method",
+      "methodIndex": 48312,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.Fault"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "0c7e9e394c8686ca7cfc5db0e47dd07a481a2909993eb55f6d6278f8f8fa4f7f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "recordNode",
+      "traitKind": "method",
+      "methodIndex": 48309,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "a391664752f67dd8cdc1bada9fb041f02f5a629cf02a9a9f6cc25bab2a6ff16c",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "recordRecording",
+      "traitKind": "method",
+      "methodIndex": 48314,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.logging.Recorder"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "b4515575fb8f1d73f3835db0d535c9206f301bbd4b1a91874b3b305fb0df10ef",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "recordResult",
+      "traitKind": "method",
+      "methodIndex": 48311,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "653432bae8cc96f466e1c62a58f2c5f6199f022c21743d18e456bfbf1501052e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "recordStoredData",
+      "traitKind": "method",
+      "methodIndex": 48313,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "cf65f7390d43e278b1715090db9c00c2caddd44d726957c9b9b422858a222f5c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "recordTransactionURL",
+      "traitKind": "method",
+      "methodIndex": 48310,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "95105768b96ac88fd532c75b38d827d91e8dad4f88fd2efbe3cb95ce230deb91",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

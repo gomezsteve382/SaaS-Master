@@ -1,0 +1,905 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 113,
+  "className": "mx.core.AdvancedLayoutFeatures",
+  "classNameNormalized": "mx.core.AdvancedLayoutFeatures",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IAssetLayoutFeatures"
+  ],
+  "iinitMethod": 2231,
+  "cinitMethod": 2225,
+  "iinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "ede2f1c3f95db0410bd9156aff661e3dc9812c2b31df1b234ba73113acc4cbde",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 199,
+    "codeSha256": "7562110a6c458ec0e1ca27879b9f9ca1e5f36befcf48c94b84c80d40039402f7",
+    "bytecodeLineCount": 13
+  },
+  "instanceMembers": [
+    {
+      "traitName": "computedMatrix",
+      "traitKind": "getter",
+      "methodIndex": 2274,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Matrix",
+      "hasBody": true,
+      "codeLength": 360,
+      "bytecode": {
+        "codeLength": 360,
+        "codeSha256": "ad9c12a60e552c81bcd3f1a1d7ad2cb1c12a4ee006944d05273196ce4d9c78fe",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "computedMatrix3D",
+      "traitKind": "getter",
+      "methodIndex": 2275,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Matrix3D",
+      "hasBody": true,
+      "codeLength": 474,
+      "bytecode": {
+        "codeLength": 474,
+        "codeSha256": "fb5527976f9c82deb7db34ab240458fa8295a5dcf598e20b30069fa902770a2e",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "is3D",
+      "traitKind": "getter",
+      "methodIndex": 2262,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "53699d5d2dc042c277c8ab57d3c22ea8c673f336321c629295fdf983aee70db3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "layoutIs3D",
+      "traitKind": "getter",
+      "methodIndex": 2263,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "a9893c4c11a32807092c72ecc0cca56043ed5eb759bccfc07b6422b08a2859ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutMatrix",
+      "traitKind": "getter",
+      "methodIndex": 2259,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Matrix",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "9a6b1ad5e6e6e319d39e30666118b76884ffac3b5be15c49e89ba0e7157bb145",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutMatrix",
+      "traitKind": "setter",
+      "methodIndex": 2258,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "1c111810efe610044f82526763b9444ba9e87f1d236fac39c71f665aa1712d11",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutMatrix3D",
+      "traitKind": "getter",
+      "methodIndex": 2261,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Matrix3D",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "75af2be3483ade1af7feecc8b49cf9fb398b6c740480a8af4b8b2fd770bf842b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutMatrix3D",
+      "traitKind": "setter",
+      "methodIndex": 2260,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix3D"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "04ee6987fb780554c0f2c59a92470aa20fc65857d8f632ca72b18a49a95cd8bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutRotationX",
+      "traitKind": "getter",
+      "methodIndex": 2247,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "3b391a981e362897d9eff4af1bfb1b783e05c89724134fccbbbba1d08b67c528",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutRotationX",
+      "traitKind": "setter",
+      "methodIndex": 2246,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "7abd09740ab58932fadff5d9f2fd100956623461f8cfc5aff2df6e9c417e3176",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutRotationY",
+      "traitKind": "getter",
+      "methodIndex": 2249,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "10a8c1e729b43d8e0be5626a952ab70eaa58d71431280b62c282910813fbf6c8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutRotationY",
+      "traitKind": "setter",
+      "methodIndex": 2248,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "6c6ad6d3413c3e1994df12b7e3c0beca338fd267918c0ee89691a2271d81f615",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutRotationZ",
+      "traitKind": "getter",
+      "methodIndex": 2251,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "a7bade800e025e838dc771fc64cbc08eb0270da18a0867c81ace7b2def76c7f2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutRotationZ",
+      "traitKind": "setter",
+      "methodIndex": 2250,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "6238cb734376257b7116c07db12881ce4b1dda91ae4eed65beefe264918c2319",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutScaleX",
+      "traitKind": "getter",
+      "methodIndex": 2253,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "21ce05cbb9fc432a4eb4bc3d0a34873ee9a5afa63e17bdb7a7eaf19afe2cdfec",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutScaleX",
+      "traitKind": "setter",
+      "methodIndex": 2252,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "08c2a3f82335596ddb43ca1fa9e24b9eaa9798c170f29e2eb404724f71d62b65",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutScaleY",
+      "traitKind": "getter",
+      "methodIndex": 2255,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "2c1e543798a7687062a49a150088bda026e476847d9e29dd3c0cd78090220cd0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutScaleY",
+      "traitKind": "setter",
+      "methodIndex": 2254,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "2ac65d50e5956d6a464fa5593c1dfb5d553d65f34046673ecaf3943cbd4c0f4c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutScaleZ",
+      "traitKind": "getter",
+      "methodIndex": 2257,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "d500385bf019b5100d768165b1ae9d8ee81bc2f865581d834fb579f07d4f6424",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutScaleZ",
+      "traitKind": "setter",
+      "methodIndex": 2256,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "d2b04c6262ece02932648ef9c627fa46842af0320e341172ecd8f9ef23cb80c5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutWidth",
+      "traitKind": "getter",
+      "methodIndex": 2238,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "efa1c73b3e731a216ec38541a33b685cef1c9340f60e131417a92a1ac954b9e2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutWidth",
+      "traitKind": "setter",
+      "methodIndex": 2239,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "25be1132b536aee2a793b3b6a184221f3eea63f20a74805e49216c6ac1a35b7a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "layoutX",
+      "traitKind": "getter",
+      "methodIndex": 2233,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "ce9bcff1b375078084ea5846b81c9fc44c78addbe5839e0b63aca1e655e25b22",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutX",
+      "traitKind": "setter",
+      "methodIndex": 2232,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "ed5ac70d585e4e795dfd343f541e83b5ae620b2707268d7a183541cc739d6fba",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutY",
+      "traitKind": "getter",
+      "methodIndex": 2235,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "ff7625d80055d05c2f376e98db8a7835c62ba91fd799d1b5e04e0405dbafd75d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutY",
+      "traitKind": "setter",
+      "methodIndex": 2234,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "0129f6fc509d6f4cc5ace28660fc653ee6c0a4d7de23e564f7e6e85cb0a17b7d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutZ",
+      "traitKind": "getter",
+      "methodIndex": 2237,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "bdb2f4ae2e9979b6d4dad8de5574d14574c31f07aabacc6f3f9bcc724177d6b1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "layoutZ",
+      "traitKind": "setter",
+      "methodIndex": 2236,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "b85fbb20f5a0b06031e65633eca2bf5851c5fd37be40c01445ad85f9fcf3a8e3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mirror",
+      "traitKind": "getter",
+      "methodIndex": 2267,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "78e12df07f6625a71e6359ae3f71c75b7126aef8b78854beaa1a6acda27efb12",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mirror",
+      "traitKind": "setter",
+      "methodIndex": 2268,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "aac255966168eb76aed465ef9ea35245c810bfbd1f9955dd8de3371ab957b136",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "postLayoutTransformOffsets",
+      "traitKind": "getter",
+      "methodIndex": 2265,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.geom.TransformOffsets",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d7d0cc2db4ee7840a92b979298670c884720a9ee9a5d30a4ddcd191624a3c685",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "postLayoutTransformOffsets",
+      "traitKind": "setter",
+      "methodIndex": 2264,
+      "methodName": "",
+      "paramTypes": [
+        "mx.geom.TransformOffsets"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 83,
+      "bytecode": {
+        "codeLength": 83,
+        "codeSha256": "fa015ef1ad6617098a26c5b35ac97df4bdec892336d7d106fa3212192f1d4236",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.completeTransformCenterAdjustment",
+      "traitKind": "method",
+      "methodIndex": 2277,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 580,
+      "bytecode": {
+        "codeLength": 580,
+        "codeSha256": "de0908edbbd6335046a8e77cbaf536d9ac8da2b237073c3228ff80f9d59d188d",
+        "bytecodeLineCount": 37
+      }
+    },
+    {
+      "traitName": "PrivateNs.invalidate",
+      "traitKind": "method",
+      "methodIndex": 2273,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "ba45d6924a23f53ca8b1acf5594fd4f4b544a65ff00ccbb3e4eb42e648b24193",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.postLayoutTransformOffsetsChangedHandler",
+      "traitKind": "method",
+      "methodIndex": 2266,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c6332d38f1f1f8546b25fc1b2f05f2f3a36a891b6255b7428eeaef1ffae04243",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stretchX",
+      "traitKind": "getter",
+      "methodIndex": 2269,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "77448e4c012e836960650d0676e5b88a4a55ca24b183ab02823b86ad636c3705",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stretchX",
+      "traitKind": "setter",
+      "methodIndex": 2270,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "d77c66f03af16ef1b33140eff1453e179bceabc55c76302ee35e2ee489812422",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "stretchY",
+      "traitKind": "getter",
+      "methodIndex": 2271,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "20062d4af15330fdc868c26afa46d826839b9aac38900bfd92bd151c9efedd48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stretchY",
+      "traitKind": "setter",
+      "methodIndex": 2272,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "e844120f9aa3286c501d0b34af7615cddd5386570b40d6722b352726aced201a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "transformAround",
+      "traitKind": "method",
+      "methodIndex": 2278,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 839,
+      "bytecode": {
+        "codeLength": 839,
+        "codeSha256": "58dfaddc277ea3ab951ab0603a977f1f8bdf90efc69e0ebbbdc7ca452317113f",
+        "bytecodeLineCount": 53
+      }
+    },
+    {
+      "traitName": "transformPointToParent",
+      "traitKind": "method",
+      "methodIndex": 2276,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D",
+        "flash.geom.Vector3D"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 367,
+      "bytecode": {
+        "codeLength": 367,
+        "codeSha256": "2541c24e42963cf336fa32dfebbf003c86b6c5233cd70a0faa6d213c80b2238a",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "transformX",
+      "traitKind": "getter",
+      "methodIndex": 2241,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "883ae0df977637d6ec8f5657ab9fdb07a4f6ea92928b470eb11cf834c15e9187",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transformX",
+      "traitKind": "setter",
+      "methodIndex": 2240,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "d24307e456c4d7add3967f9fccfa4c98c6a09538709f79b7705ecffdec2713b5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transformY",
+      "traitKind": "getter",
+      "methodIndex": 2243,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "1b434d7badd85b3d824d4c411fbd504dde5c77bd15e4e7d7b5b0472dd0695fae",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transformY",
+      "traitKind": "setter",
+      "methodIndex": 2242,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "b68538298eb18901057642997e25869adacfc832084163e7d805fe1f856a50ec",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transformZ",
+      "traitKind": "getter",
+      "methodIndex": 2245,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "da8e3559b30014dc40f454bacac2683c658d61639b2771eaccd8161d851a0ad6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transformZ",
+      "traitKind": "setter",
+      "methodIndex": 2244,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "3b29e27ab6d4537f9f2f7d9b030523c4bbcf840d0ea2812a1405c415a2ece124",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "build2DMatrix",
+      "traitKind": "method",
+      "methodIndex": 2229,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "f7ccecbf1f1398a1d7e2ddbace3319bf8b6341789a6bb1e2a309dee46cee3a75",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "build3DMatrix",
+      "traitKind": "method",
+      "methodIndex": 2230,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix3D",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "fd218a8b8ec61e8524cd8a5a820644eb4739120361e1e03227e92c826b06af29",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.initTransformVectorFunction",
+      "traitKind": "method",
+      "methodIndex": 2228,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix3D",
+        "flash.geom.Vector3D"
+      ],
+      "returnType": "flash.geom.Vector3D",
+      "hasBody": true,
+      "codeLength": 195,
+      "bytecode": {
+        "codeLength": 195,
+        "codeSha256": "965623427a7f517281eb04d9206c5226a0c7c5553bd749dd1c9b7b9ad4760f3c",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.nativeTransformVector",
+      "traitKind": "method",
+      "methodIndex": 2227,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix3D",
+        "flash.geom.Vector3D"
+      ],
+      "returnType": "flash.geom.Vector3D",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "38d3295b543d762b571e68b81c95f66f3effa857d362ddf3b0470c5c85f09c86",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.pre10_0_22_87_transformVector",
+      "traitKind": "method",
+      "methodIndex": 2226,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Matrix3D",
+        "flash.geom.Vector3D"
+      ],
+      "returnType": "flash.geom.Vector3D",
+      "hasBody": true,
+      "codeLength": 157,
+      "bytecode": {
+        "codeLength": 157,
+        "codeSha256": "ccebb9bcdbcac1f6f1f09c860ee1a2317b48a248af61728c652b3a0d92ea59c9",
+        "bytecodeLineCount": 10
+      }
+    }
+  ]
+}

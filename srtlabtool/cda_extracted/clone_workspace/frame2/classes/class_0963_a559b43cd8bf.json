@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 963,
+  "className": "com.chrysler.cda.application.util.FindOSUpdateCommand",
+  "classNameNormalized": "com.chrysler.cda.application.util.FindOSUpdateCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 19700,
+  "cinitMethod": 19696,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "e7e384210720a6ff6de61cd1f818c64551128d7877d0ff9503a3a501006ede9b",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onRequestPODOSUpdateMessage",
+      "traitKind": "method",
+      "methodIndex": 19697,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.util.RequestForPODOSUpdateMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "ce4df4eabc1a1fe0b6c318d84d8d2db53d8835d9cf6404d737dc62647db29640",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "requestForPODOSUpdateMessageError",
+      "traitKind": "method",
+      "methodIndex": 19699,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.util.RequestForPODOSUpdateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "434da715e0ec1293559bca7a4058eeb5860b54320e7331a4f7b566d09b492c13",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "requestForPODOSUpdateMessageResult",
+      "traitKind": "method",
+      "methodIndex": 19698,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.util.RequestForPODOSUpdateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "f6bdfd60426604cec052f266246173e1d9df2645a771f451ed9831f5d26c2c0b",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

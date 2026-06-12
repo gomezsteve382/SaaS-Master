@@ -1,0 +1,327 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2366,
+  "className": "mx.effects.Tween",
+  "classNameNormalized": "mx.effects.Tween",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 41476,
+  "cinitMethod": 41471,
+  "iinitBytecode": {
+    "codeLength": 175,
+    "codeSha256": "499ee25fa6aede60517a68d49c33754d1e8a69d0bf26a3b246cccd4d3ac3d33c",
+    "bytecodeLineCount": 11
+  },
+  "cinitBytecode": {
+    "codeLength": 56,
+    "codeSha256": "f5649949fd87af465f38d122896f263fbf64645af3441aff4655b7c37182231a",
+    "bytecodeLineCount": 4
+  },
+  "instanceMembers": [
+    {
+      "traitName": "easingFunction",
+      "traitKind": "setter",
+      "methodIndex": 41481,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "3eff9aebf55885017505e0c234be60d82eb12bd21d638717d59adbeba9c93fe4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "endTween",
+      "traitKind": "method",
+      "methodIndex": 41482,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "bd52a55e8fcbf681d53e2b8d9d978bd127ada8fb79101fae20dd19a0f2eeae1c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.doInterval",
+      "traitKind": "method",
+      "methodIndex": 41483,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 231,
+      "bytecode": {
+        "codeLength": 231,
+        "codeSha256": "0997211dce132e3b18e783024fc49b331f79ffa99ed6e33af037ec10e538201f",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getCurrentValue",
+      "traitKind": "method",
+      "methodIndex": 41484,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "394365f1aa8939fa658bbb45c7cc6c9cdfac205476b4a8941110b90bee7e508f",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.playheadTime",
+      "traitKind": "getter",
+      "methodIndex": 41477,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2c247da394a2a3f8c7163c39df603f644afe77102683ef547ed1b762e8c9d032",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.playReversed",
+      "traitKind": "getter",
+      "methodIndex": 41478,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b550e9f67f0f6b4dfbd83c6e142b657796c3a9acb153a666509ade576de6ed05",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.playReversed",
+      "traitKind": "setter",
+      "methodIndex": 41479,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "43426f00717faacd77e90c5d4d540a2031015551630c07164911a8a981f33227",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pause",
+      "traitKind": "method",
+      "methodIndex": 41488,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "dfdb1870091d2f09711e316f3935b3fb0cf23afd350b265da2f05f6c3dcf071e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.defaultEasingFunction",
+      "traitKind": "method",
+      "methodIndex": 41485,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "b115f9c6ab837a61e8328f213b5d6c43d5e11a4f884945b8f341cc8acdce74fe",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "resume",
+      "traitKind": "method",
+      "methodIndex": 41490,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "8d4cd0b9c10d355f4e349d8f4f90504c487b41dfb19a7ddf71c14ea5a4e5e12b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "reverse",
+      "traitKind": "method",
+      "methodIndex": 41487,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "49227287752122b308e04cc5dfa651c93372d2ae884f03e8d8942acf7d0a2fb4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "seek",
+      "traitKind": "method",
+      "methodIndex": 41486,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "f30e0bd48476887c6b24f68aebae77cc943547af23404023cede81d828277242",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "setTweenHandlers",
+      "traitKind": "method",
+      "methodIndex": 41480,
+      "methodName": "",
+      "paramTypes": [
+        "Function",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "30bc64deae7b215a1695b56a92cac94ea8fa929eae5ffd1b55636b5440e51257",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stop",
+      "traitKind": "method",
+      "methodIndex": 41489,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "3916af9f3582e81acd81e378c85e756e90bb4df6ad49a1d577be941f86fd17b8",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.removeTween",
+      "traitKind": "method",
+      "methodIndex": 41474,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.Tween"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "7a704914ec55222767fc1e16dd9c1e1a79ca363399060b10fe7857ac32a67932",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.addTween",
+      "traitKind": "method",
+      "methodIndex": 41472,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.Tween"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "0d2fb9cafd019bbf61101e6ccd72d44b652e6002c481141f9daf45a474f8e932",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeTweenAt",
+      "traitKind": "method",
+      "methodIndex": 41473,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 139,
+      "bytecode": {
+        "codeLength": 139,
+        "codeSha256": "0a854c3f816c654e8c5136be258cddf8aa5bd5fbde386bc2e8a705614f818f96",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.timerHandler",
+      "traitKind": "method",
+      "methodIndex": 41475,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "2cff3468150c5da6ccc52eb981f28d87f8c951daa650169949ed121fc9297fc5",
+        "bytecodeLineCount": 9
+      }
+    }
+  ]
+}

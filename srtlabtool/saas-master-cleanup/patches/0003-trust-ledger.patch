@@ -1,0 +1,281 @@
+From 1b84ed07da90c5126b2a4ce05f2bf1ecb7cc2cb5 Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 04:31:06 +0000
+Subject: [PATCH] Trust ledger: honest grounding for every seed-key algorithm
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add algoProvenance.js — single source of truth for how much each algorithm /
+writer can be trusted (bench-verified / grounded-extracted / unverified;
+default unverified for unknowns). Attach a grounding record to every ALGOS
+entry and correct the overstated hint strings: 'VILLAIN confirmed' (TIPM
+mixing is reconstructed, only the tables were extracted), 'VILLAIN q2/q3/q4'
+(constants are real but the sxor application is inference), and the cda6 /
+sbec / xtea_sgw labels. No algorithm changes — provenance honesty only.
+
+Verified: 43/43 algorithms carry a grounding entry (0 bench-verified, 21
+extracted-unconfirmed, 22 unverified); algos.js imports clean.
+---
+ artifacts/srt-lab/src/lib/algoProvenance.js | 157 ++++++++++++++++++++
+ artifacts/srt-lab/src/lib/algos.js          |  53 ++++---
+ 2 files changed, 193 insertions(+), 17 deletions(-)
+ create mode 100644 artifacts/srt-lab/src/lib/algoProvenance.js
+
+diff --git a/artifacts/srt-lab/src/lib/algoProvenance.js b/artifacts/srt-lab/src/lib/algoProvenance.js
+new file mode 100644
+index 0000000..e3eab32
+--- /dev/null
++++ b/artifacts/srt-lab/src/lib/algoProvenance.js
+@@ -0,0 +1,157 @@
++/* algoProvenance.js — SINGLE SOURCE OF TRUTH for how much each seed→key
++ * algorithm and each immobilizer-secret writer can be trusted.
++ *
++ * WHY THIS EXISTS: a forensic grounding audit found that several subsystems
++ * carried provenance language ("VILLAIN confirmed", "byte-verified", "ground
++ * truth") that overstated what was actually recovered from the dealer-tool
++ * binaries. Worse, almost nothing in the seed→key path has ever been confirmed
++ * against a live seed/key capture from a real ECU — the "golden" tests prove
++ * self-consistency (formula vs its own pinned vectors), not correctness on
++ * hardware. This module records the HONEST grounding so the UI can show a
++ * confidence level and never present a guess as a fact.
++ *
++ * GROUNDING LEVELS (ascending trust):
++ *   'unverified'         — hand-asserted or inferred; NO extraction source AND
++ *                          NO bench confirmation. Treat output as a candidate
++ *                          to be tried, never as known-correct.
++ *   'grounded-extracted' — the value/structure is traceable to something pulled
++ *                          out of a binary (CDA.swf const pool, VILLAIN dump,
++ *                          AlfaOBD IL, a decompiled .pyc). Still NOT proven on a
++ *                          vehicle.
++ *   'bench-verified'     — reproduces a real before/after capture byte-for-byte.
++ *                          The only level you can act on without a second source.
++ *
++ * `dangerous: true` marks an operation that can damage a module if the guess is
++ * wrong (e.g. a write/erase path), so callers can gate it behind an explicit
++ * acknowledgement.
++ *
++ * IMPORTANT: the default for an UNKNOWN id is 'unverified' (see groundingFor) —
++ * trust must be earned by an explicit entry, never assumed.
++ */
++
++export const GROUNDING = Object.freeze({
++  UNVERIFIED: 'unverified',
++  EXTRACTED: 'grounded-extracted',
++  BENCH: 'bench-verified',
++});
++
++const RANK = { unverified: 0, 'grounded-extracted': 1, 'bench-verified': 2 };
++
++/* Per seed→key algorithm id (matches algos.js ALGOS[].id). */
++export const ALGO_GROUNDING = Object.freeze({
++  // GPEC sxor primaries — q1 constants are in the VILLAIN dump, but the
++  // _gpec_calculator function body was never captured and there are zero live
++  // seed→key pairs, so the sxor application itself is unconfirmed.
++  gpec1:    { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (q1 const)', caveat: 'sxor application unverified; no bench pairs' },
++  gpec2:    { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (q1 const)', caveat: 'sxor application unverified; no bench pairs' },
++  gpec2f:   { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (q1 const)', caveat: 'sxor application unverified; no bench pairs' },
++  gpec2e:   { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (q1 const)', caveat: 'sxor application unverified; no bench pairs' },
++  gpec3:    { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (q1 const)', caveat: 'sxor application unverified; no bench pairs' },
++  gpec2a:   { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (q1 const)', caveat: 'sxor application unverified; no bench pairs' },
++  gpec15:   { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (q1 const)', caveat: 'sxor application unverified; no bench pairs' },
++  // GPEC q2/q3/q4 — constants are real in the dump, but the assumption that
++  // they feed the SAME sxor() as q1 is pure inference. NOT VILLAIN-confirmed.
++  gpec2_q2:  { level: GROUNDING.UNVERIFIED, source: 'VILLAIN dump (q2 const)', caveat: 'sxor application is inference, not described in the dump' },
++  gpec2f_q2: { level: GROUNDING.UNVERIFIED, source: 'VILLAIN dump (q2 const)', caveat: 'sxor application is inference' },
++  gpec2e_q2: { level: GROUNDING.UNVERIFIED, source: 'VILLAIN dump (q2 const)', caveat: 'sxor application is inference' },
++  gpec2e_q3: { level: GROUNDING.UNVERIFIED, source: 'VILLAIN dump (q3 const)', caveat: 'sxor application is inference' },
++  gpec2e_q4: { level: GROUNDING.UNVERIFIED, source: 'VILLAIN dump (q4 const)', caveat: 'sxor application is inference' },
++  gpec3_q2:  { level: GROUNDING.UNVERIFIED, source: 'VILLAIN dump (q2 const)', caveat: 'sxor application is inference' },
++  gpec2a_q2: { level: GROUNDING.UNVERIFIED, source: 'VILLAIN dump (q2 const)', caveat: 'sxor application is inference' },
++  gpec15_q2: { level: GROUNDING.UNVERIFIED, source: 'VILLAIN dump (q2 const)', caveat: 'sxor application is inference' },
++  // NGC — tables in the dump, mixing function reconstructed; label mismatch
++  // (binary says DAIMCHRYSLER/13, code uses DAIMLERCHRYSLER1/16).
++  ngc:  { level: GROUNDING.UNVERIFIED, source: 'VILLAIN dump (NT/NS/NGC_PRE tables)', caveat: 'mixing function reconstructed, not in dump' },
++  jtec: { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (fixed key 0000)', caveat: 'trivially confirmed' },
++  // sbec — hand-typed magic, no source at all.
++  sbec: { level: GROUNDING.UNVERIFIED, source: null, caveat: 'hand-asserted magic; no extraction source' },
++  // cda6 — the DEFAULT body-bus unlock (BCM/RFHUB/ABS/IPC/EPS/radio/ORC/HVAC).
++  // The CDA SWF confirms WHICH modules use the "cda6" label, but the transform
++  // (0x4B129F/0x1234/0xABCD) appears in NO extraction artifact. Highest blast
++  // radius of any single guess in the tool.
++  cda6: { level: GROUNDING.UNVERIFIED, source: null, caveat: 'formula in no artifact; CDA.swf confirms only the label, not the transform' },
++  // xtea_sgw — the 128-bit key IS lifted from CDA.swf, but the VILLAIN wiTECH
++  // analysis says SGW unlock is SERVER-SIDE ("the tool cannot compute unlock
++  // codes locally"), so a local XTEA may be the wrong model entirely.
++  xtea_sgw: { level: GROUNDING.UNVERIFIED, source: 'CDA.swf @0x24664A (key only)', caveat: 'SGW auth is likely server-side; local-compute model unconfirmed' },
++  // TIPM — all six tables are in the dump; the parity-XOR mixing routine is not.
++  t80:   { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (TT tables)', caveat: 'mixing routine reconstructed; not bench-verified' },
++  t36:   { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (TT tables)', caveat: 'mixing routine reconstructed; not bench-verified' },
++  t81:   { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (TT tables)', caveat: 'mixing routine reconstructed; not bench-verified' },
++  t3c:   { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (TT tables)', caveat: 'mixing routine reconstructed; not bench-verified' },
++  t3608: { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (TT tables)', caveat: 'mixing routine reconstructed; not bench-verified' },
++  tc605: { level: GROUNDING.EXTRACTED, source: 'VILLAIN dump (TT tables)', caveat: 'mixing routine reconstructed; not bench-verified' },
++  // AlfaOBD family — reverse-engineered from AlfaOBD.exe .NET IL; JS⇄Python
++  // cross-checked, but never bench-verified against an ECU.
++  alfa_ht: { level: GROUNDING.EXTRACTED, source: 'AlfaOBD.exe IL', caveat: 'JS⇄Python checked; not bench-verified' },
++  alfa_f:  { level: GROUNDING.EXTRACTED, source: 'AlfaOBD.exe IL', caveat: 'JS⇄Python checked; not bench-verified' },
++  alfa_ao: { level: GROUNDING.EXTRACTED, source: 'AlfaOBD.exe IL', caveat: 'JS⇄Python checked; not bench-verified' },
++  alfa_w6_tt: { level: GROUNDING.EXTRACTED, source: 'AlfaOBD.exe IL (w6)', caveat: 'not bench-verified' },
++  alfa_w6_tu: { level: GROUNDING.EXTRACTED, source: 'AlfaOBD.exe IL (w6)', caveat: 'not bench-verified' },
++  alfa_w6_tv: { level: GROUNDING.EXTRACTED, source: 'AlfaOBD.exe IL (w6)', caveat: 'not bench-verified' },
++  alfa_w6_ez: { level: GROUNDING.EXTRACTED, source: 'AlfaOBD.exe IL (w6)', caveat: 'not bench-verified' },
++  alfa_w6_custom: { level: GROUNDING.UNVERIFIED, source: 'operator input', caveat: 'user-supplied (r,s); correctness is the operator’s responsibility' },
++  // Asset-sweep promotions — ports of the project's OWN Python (srt_lab.py /
++  // srtlab_canflash_algos.py), which itself has no binary-extraction
++  // provenance. "vector-verified" is circular (formula vs its own pin).
++  aisin_tcm:     { level: GROUNDING.UNVERIFIED, source: 'project Python port', caveat: 'no binary provenance; vectors are self-pinned' },
++  alpine_radio:  { level: GROUNDING.UNVERIFIED, source: 'project Python port', caveat: 'no binary provenance; vectors are self-pinned' },
++  bcm_fca:       { level: GROUNDING.UNVERIFIED, source: 'project Python port', caveat: 'no binary provenance; vectors are self-pinned' },
++  bcm_standard:  { level: GROUNDING.UNVERIFIED, source: 'project Python port', caveat: 'no binary provenance; vectors are self-pinned' },
++  cummins_849:   { level: GROUNDING.UNVERIFIED, source: 'project Python port', caveat: 'no binary provenance; vectors are self-pinned' },
++  dcx_ptcm:      { level: GROUNDING.UNVERIFIED, source: 'project Python port', caveat: 'no binary provenance; vectors are self-pinned' },
++  egs52:         { level: GROUNDING.UNVERIFIED, source: 'project Python port', caveat: 'no binary provenance; vectors are self-pinned' },
++  mitsubishi_rar:{ level: GROUNDING.UNVERIFIED, source: 'project Python port', caveat: 'no binary provenance; vectors are self-pinned' },
++  ptim_lx:       { level: GROUNDING.UNVERIFIED, source: 'project Python port', caveat: 'no binary provenance; vectors are self-pinned' },
++});
++
++/* Per immobilizer-secret writer / parser subsystem. Keyed by a stable name the
++ * caller chooses (exported function name or subsystem id). */
++export const WRITER_GROUNDING = Object.freeze({
++  // The bench-verified core — your marry/parse/secret-write path.
++  parseModuleOffsets:  { level: GROUNDING.BENCH, source: 'real anonymized captures + bench traces', caveat: '' },
++  writeBcmSec16Gen2:   { level: GROUNDING.BENCH, source: 'real MPC5606B before/after', caveat: '' },
++  writePcmSec6:        { level: GROUNDING.BENCH, source: 'real GPEC2A before/after', caveat: '' },
++  writeRfhSec16FromBcm:{ level: GROUNDING.BENCH, source: 'real 24C32 before/after', caveat: '' },
++  knownWorkingKeys:    { level: GROUNDING.BENCH, source: 'real anonymized RFHUB dumps', caveat: 'primary vehicles only' },
++  charRfhubKeyTable:   { level: GROUNDING.EXTRACTED, source: 'real 21-key corpus RE', caveat: 'index formula solved but no before/after key-add pair' },
++  fcaProxi:            { level: GROUNDING.EXTRACTED, source: 'decompiled proxi_record.py', caveat: 'offsets decompile-derived, not bench-reverified' },
++  // The risky writers — these touch a real module but rest on a guess.
++  writeRfhSec16Gen1:   { level: GROUNDING.UNVERIFIED, source: null, caveat: 'crc8_65 assumed from Gen2; no physical 24C16 dump exists', dangerous: true },
++  writeXc2268Sec16:    { level: GROUNDING.UNVERIFIED, source: 'Task #634 screenshot', caveat: 'entire offset map incl. image-CRC reconstructed from a screenshot', dangerous: true },
++  dealerLockoutBypass: { level: GROUNDING.UNVERIFIED, source: null, caveat: '0xFF00 is the generic ISO-14229 erase RID relabeled; invented payload — can trigger an unintended firmware erase', dangerous: true },
++  keyWriterProtocol:   { level: GROUNDING.UNVERIFIED, source: 'public captures', caveat: 'VVDI/Tango framing never verified against a tethered writer', dangerous: true },
++  moparRadioCode:      { level: GROUNDING.UNVERIFIED, source: null, caveat: 'FAMILY_TABLE constants unexplained; outputs self-pinned' },
++  rfhPflashIdentity:   { level: GROUNDING.UNVERIFIED, source: 'competitor tool output', caveat: 'field shapes are pattern guesses' },
++});
++
++const UNKNOWN = Object.freeze({ level: GROUNDING.UNVERIFIED, source: null, caveat: 'no provenance entry; treat as unverified by default' });
++
++/** Grounding record for a seed→key algorithm id (defaults to unverified). */
++export function groundingFor(algoId) {
++  return ALGO_GROUNDING[algoId] || UNKNOWN;
++}
++
++/** Grounding record for a writer/subsystem name (defaults to unverified). */
++export function writerGrounding(name) {
++  return WRITER_GROUNDING[name] || UNKNOWN;
++}
++
++/** True only for bench-verified items — the ones safe to act on alone. */
++export function isTrusted(record) {
++  return RANK[record?.level] === RANK[GROUNDING.BENCH];
++}
++
++/** Short UI badge for a grounding record. */
++export function confidenceBadge(record) {
++  switch (record?.level) {
++    case GROUNDING.BENCH: return { text: 'BENCH-VERIFIED', tone: 'good' };
++    case GROUNDING.EXTRACTED: return { text: 'EXTRACTED · UNCONFIRMED', tone: 'warn' };
++    default: return { text: 'UNVERIFIED', tone: 'danger' };
++  }
++}
++
++/** Compare two levels: -1/0/1. */
++export function compareGrounding(a, b) {
++  return Math.sign((RANK[a] ?? 0) - (RANK[b] ?? 0));
++}
+diff --git a/artifacts/srt-lab/src/lib/algos.js b/artifacts/srt-lab/src/lib/algos.js
+index 8d2f45e..d8c994a 100644
+--- a/artifacts/srt-lab/src/lib/algos.js
++++ b/artifacts/srt-lab/src/lib/algos.js
+@@ -1,5 +1,11 @@
+ const u32=n=>n>>>0;
+ function sxor(s,c){let k=u32(s);for(let i=0;i<5;i++)k=k&0x80000000?u32((k<<1)^u32(c)):u32(k<<1);return k;}
++/* cda6 — default body-bus unlock (BCM/RFHUB/ABS/IPC/EPS/radio/ORC/HVAC).
++ * UNVERIFIED: the constants 0x4B129F/0x1234/0xABCD appear in NO extraction
++ * artifact. CDA.swf confirms only which modules carry the "cda6" *label*, not
++ * this transform, and there are no live seed→key pairs. Highest blast radius
++ * of any single guess in the tool — see algoProvenance.js. Do not present its
++ * output as known-correct. */
+ function cda6(s){let k=u32(s);k=u32(k^0x4B129F);k=u32((k<<3)|(k>>>29));k=u32(k+0x1234);k=u32(k^0xABCD);return u32((k>>>5)|(k<<27));}
+ const NT=[0x44,0x41,0x49,0x4D,0x4C,0x45,0x52,0x43,0x48,0x52,0x59,0x53,0x4C,0x45,0x52,0x31],NS=[0x9D9F,0xCE48,0xB0F3,0xD99B,0xA720,0xFDD6,0x836D,0x6F8E];
+ // NGC 14×32-bit pre-computation table — extracted from VILLAIN memory dump
+@@ -143,6 +149,7 @@ function alfaAo(seedBytes){
+ // generated module isn't pulled into the algos.js import graph for
+ // callers that only need the SGW XTEA bits.
+ import { AOBD_W6 } from "./alfaobdAlgorithms.generated.js";
++import { groundingFor } from "./algoProvenance.js";
+ 
+ function alfaW6By(seedBytes,name){
+   const rs=AOBD_W6[name];
+@@ -313,30 +320,30 @@ function ptim_lx(seed){
+ const ALGOS=[
+   {id:'gpec1',n:'GPEC1',h:'670269',fn:s=>sxor(s,670269)},
+   {id:'gpec2',n:'GPEC2',h:'Continental',fn:s=>sxor(s,0xE72E3799)},
+-  {id:'gpec2_q2',n:'GPEC2 q2',h:'0x1B64DB03 (VILLAIN q2)',fn:s=>sxor(s,0x1B64DB03)},
++  {id:'gpec2_q2',n:'GPEC2 q2',h:'0x1B64DB03 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0x1B64DB03)},
+   {id:'gpec2f',n:'GPEC2 Flash',h:'Flash',fn:s=>sxor(s,0x966AEEB1)},
+-  {id:'gpec2f_q2',n:'GPEC2 Flash q2',h:'0x440BCE28 (VILLAIN q2)',fn:s=>sxor(s,0x440BCE28)},
++  {id:'gpec2f_q2',n:'GPEC2 Flash q2',h:'0x440BCE28 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0x440BCE28)},
+   {id:'gpec2e',n:'GPEC2 EPROM',h:'EPROM',fn:s=>sxor(s,0x3F711F5A)},
+-  {id:'gpec2e_q2',n:'GPEC2 EPROM q2',h:'0xC3573AE9 (VILLAIN q2)',fn:s=>sxor(s,0xC3573AE9)},
+-  {id:'gpec2e_q3',n:'GPEC2 EPROM q3',h:'0x725EF016 (VILLAIN q3)',fn:s=>sxor(s,0x725EF016)},
+-  {id:'gpec2e_q4',n:'GPEC2 EPROM q4',h:'0x58329671 (VILLAIN q4)',fn:s=>sxor(s,0x58329671)},
++  {id:'gpec2e_q2',n:'GPEC2 EPROM q2',h:'0xC3573AE9 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0xC3573AE9)},
++  {id:'gpec2e_q3',n:'GPEC2 EPROM q3',h:'0x725EF016 · q3 const, sxor UNVERIFIED',fn:s=>sxor(s,0x725EF016)},
++  {id:'gpec2e_q4',n:'GPEC2 EPROM q4',h:'0x58329671 · q4 const, sxor UNVERIFIED',fn:s=>sxor(s,0x58329671)},
+   {id:'gpec3',n:'GPEC3',h:'2018+',fn:s=>sxor(s,0x129D657F)},
+-  {id:'gpec3_q2',n:'GPEC3 EPROM q2',h:'0xD0726B89 (VILLAIN q2)',fn:s=>sxor(s,0xD0726B89)},
++  {id:'gpec3_q2',n:'GPEC3 EPROM q2',h:'0xD0726B89 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0xD0726B89)},
+   {id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},
+-  {id:'gpec2a_q2',n:'GPEC2A EPROM q2',h:'0x3BA8FDC7 (VILLAIN q2)',fn:s=>sxor(s,0x3BA8FDC7)},
++  {id:'gpec2a_q2',n:'GPEC2A EPROM q2',h:'0x3BA8FDC7 · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0x3BA8FDC7)},
+   {id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},
+-  {id:'gpec15_q2',n:'GPEC2 2015 q2',h:'0xCFB81A2E (VILLAIN q2)',fn:s=>sxor(s,0xCFB81A2E)},
++  {id:'gpec15_q2',n:'GPEC2 2015 q2',h:'0xCFB81A2E · q2 const, sxor UNVERIFIED',fn:s=>sxor(s,0xCFB81A2E)},
+   {id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},
+   {id:'jtec',n:'JTEC',h:'Fixed 0000',fn:()=>0},
+-  {id:'sbec',n:'SBEC (legacy)',h:'(seed*4)+0x9018',fn:s=>u32(s*4+0x9018)},
+-  {id:'cda6',n:'CDA6',h:'BCM/ABS/IPC',fn:s=>cda6(s)},
+-  {id:'xtea_sgw',n:'SGW (XTEA)',h:'2018+ Secure Gateway (CDA.swf)',fn:s=>xtea_sgw(s)},
+-  {id:'t80',  n:'TIPM 0x80',h:'t8001 (VILLAIN confirmed)',fn:s=>tipm(s,'a')},
+-  {id:'t36',  n:'TIPM 0x36',h:'t3605 (VILLAIN confirmed)',fn:s=>tipm(s,'b')},
+-  {id:'t81',  n:'TIPM 0x81',h:'t8101 (VILLAIN confirmed)',fn:s=>tipm(s,'c')},
+-  {id:'t3c',  n:'TIPM 0x3C',h:'t3c   (VILLAIN confirmed)',fn:s=>tipm(s,'d')},
+-  {id:'t3608',n:'TIPM 0x08',h:'t3608 (VILLAIN confirmed)',fn:s=>tipm(s,'e')},
+-  {id:'tc605',n:'TIPM 0xC6',h:'tc605 (VILLAIN confirmed)',fn:s=>tipm(s,'f')},
++  {id:'sbec',n:'SBEC (legacy)',h:'(seed*4)+0x9018 · UNVERIFIED, no source',fn:s=>u32(s*4+0x9018)},
++  {id:'cda6',n:'CDA6',h:'BCM/ABS/IPC · UNVERIFIED formula (label only in CDA.swf)',fn:s=>cda6(s)},
++  {id:'xtea_sgw',n:'SGW (XTEA)',h:'2018+ SGW · key from CDA.swf · may be SERVER-SIDE',fn:s=>xtea_sgw(s)},
++  {id:'t80',  n:'TIPM 0x80',h:'t8001 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'a')},
++  {id:'t36',  n:'TIPM 0x36',h:'t3605 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'b')},
++  {id:'t81',  n:'TIPM 0x81',h:'t8101 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'c')},
++  {id:'t3c',  n:'TIPM 0x3C',h:'t3c   · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'d')},
++  {id:'t3608',n:'TIPM 0x08',h:'t3608 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'e')},
++  {id:'tc605',n:'TIPM 0xC6',h:'tc605 · tables extracted, mixing UNVERIFIED',fn:s=>tipm(s,'f')},
+   // ── AlfaOBD seed-key family (RE'd from AlfaOBD.exe .NET IL) ──
+   {id:'alfa_ht',n:'AlfaOBD ht',h:'w6(0x41AA42BB,0x22BA9A31)',fn:alfaHtU32},
+   {id:'alfa_f', n:'AlfaOBD f',  h:'XTEA64 LE seed',           fn:alfaFU32},
+@@ -371,6 +378,18 @@ const ALGOS=[
+   {id:'alfa_w6_custom',n:'AlfaOBD w6 (custom)',h:'wrapper name or manual (r, s)',fn:()=>0,custom:'alfa_w6'},
+ ];
+ 
++/* Attach the honest grounding record (algoProvenance.js) to every algorithm so
++ * the SeedTab/unlock UI can render a confidence badge instead of trusting the
++ * free-text `h` hint. `grounding` = {level, source, caveat}; defaults to
++ * 'unverified' for any id without an explicit ledger entry. */
++for (const a of ALGOS) a.grounding = groundingFor(a.id);
++
++/** Grounding record for an unlock id (used by unlockKey / SeedTab). Unknown or
++ * missing id resolves to cda6 at runtime, which is itself UNVERIFIED. */
++export function groundingForUnlock(unlockId) {
++  return groundingFor(unlockId || 'cda6');
++}
++
+ // Look up an unlock algorithm by the id used in MODULE_TARGETS.unlock.
+ // Returns a u32 key for the given u32 seed, or null if the id is unknown.
+ // Prefer unlockKeyBytes for AlfaOBD primitives — those care about byte
+-- 
+2.43.0
+

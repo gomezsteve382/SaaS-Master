@@ -1,0 +1,188 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2694,
+  "className": "org.spicefactory.parsley.core.view.impl.DefaultViewManager",
+  "classNameNormalized": "org.spicefactory.parsley.core.view.impl.DefaultViewManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.view.ViewManager",
+    "org.spicefactory.parsley.core.bootstrap.InitializingService"
+  ],
+  "iinitMethod": 45300,
+  "cinitMethod": 45299,
+  "iinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "ce726648164ea4ff2a301b07e63e477f3e0efe5da482364d0d9c2fb8d53b7be2",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 35,
+    "codeSha256": "1cc8a3fa908f685828e91d0fbdb524f5551d3e0218e46e2022ef7cb51f518344",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addViewRoot",
+      "traitKind": "method",
+      "methodIndex": 45304,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 273,
+      "bytecode": {
+        "codeLength": 273,
+        "codeSha256": "e4e22f5f7673e75bc82a9b55b9cf6809cf337d7c426dbcd0f0b8b8a18cce93ba",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 45301,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.bootstrap.BootstrapInfo"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "36928ede781dc0b59d613d00ed31bf1e920c7a8d9ada8915348cdbeb4940c923",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.contextDestroyed",
+      "traitKind": "method",
+      "methodIndex": 45303,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.events.ContextEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 143,
+      "bytecode": {
+        "codeLength": 143,
+        "codeSha256": "7767167cd4a62fb7852a143baf1c5498f1ca5b859dadfd885178b4f598bda090",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.filteredViewRootRemoved",
+      "traitKind": "method",
+      "methodIndex": 45306,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "3e8a4fb509ba9f3884f21af89471716b46469eaf6dc0b1e9ceabd773eebbb025",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleRemovedViewRoot",
+      "traitKind": "method",
+      "methodIndex": 45308,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.ViewRoot"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "b9ec7ae89bd41d29d9d1c48187f4ef19bb8194a5b596c85c3cf797be014951e5",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.ignoredFilteredAddedToStage",
+      "traitKind": "method",
+      "methodIndex": 45309,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.IEventDispatcher"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.initViewRootHandlers",
+      "traitKind": "method",
+      "methodIndex": 45302,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "fc8138c645037f0e40c0c2d525d390445f54245c265be6bc9fddad1025f8fddf",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.viewRootRemoved",
+      "traitKind": "method",
+      "methodIndex": 45305,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "40ee64b0e513d3791c0a89e0a3c4903c18395e9befca7564b65f1bc72ed2cf54",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeViewRoot",
+      "traitKind": "method",
+      "methodIndex": 45307,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "80f3fe09035467a79750fdde8c76310f983e5fccdd1f99d7d31c4682e0a207ea",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

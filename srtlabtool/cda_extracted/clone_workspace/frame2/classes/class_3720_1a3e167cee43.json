@@ -1,0 +1,81 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3720,
+  "className": "mx.rpc.events.SchemaLoadEvent",
+  "classNameNormalized": "mx.rpc.events.SchemaLoadEvent",
+  "superName": "mx.rpc.events.XMLLoadEvent",
+  "superNameNormalized": "mx.rpc.events.XMLLoadEvent",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55550,
+  "cinitMethod": 55548,
+  "iinitBytecode": {
+    "codeLength": 60,
+    "codeSha256": "0543fe650f0572e43f2612f939a438a0be2d44cb30d7639865e0ab5fd29ed99e",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "5e0d8d4da5d1761d90e4d9071619d958ab382d67a1ce528b33d6d0bf97889378",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 55551,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.Event",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "8e09ed2ca799b0400c2b23284f1ec0ece5b70ba6f39da18bc6ad50196fb49f90",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 55552,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "2bb7e6397a553fa7edf612a5a819a85d1826eaa3ddfec6f7228b17c32a2d8a78",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createEvent",
+      "traitKind": "method",
+      "methodIndex": 55549,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.xml.Schema",
+        "String"
+      ],
+      "returnType": "mx.rpc.events.SchemaLoadEvent",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "166a740ede0d93637fae9a7d039b1ae670b61624ad10ce81002a77b5d50f4feb",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

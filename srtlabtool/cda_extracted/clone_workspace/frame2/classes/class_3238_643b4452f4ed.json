@@ -1,0 +1,52 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3238,
+  "className": "org.spicefactory.parsley.rpc.flex.command.AsyncTokenCommandFactory",
+  "classNameNormalized": "org.spicefactory.parsley.rpc.flex.command.AsyncTokenCommandFactory",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "sync",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.messaging.command.CommandFactory"
+  ],
+  "iinitMethod": 50477,
+  "cinitMethod": 50475,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createCommand",
+      "traitKind": "method",
+      "methodIndex": 50476,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "org.spicefactory.parsley.core.messaging.Message"
+      ],
+      "returnType": "org.spicefactory.parsley.core.messaging.command.Command",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "0dee6ef8d0d83b0f67d715bc41f8c07f5c4062d50db0e8b31f2c27a62512c5f5",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

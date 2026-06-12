@@ -1,0 +1,96 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2562,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.ExtendedDiagnosticModeMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.ExtendedDiagnosticModeMessage",
+  "superName": "com.chrysler.cda.event.message.LinkableMessage",
+  "superNameNormalized": "com.chrysler.cda.event.message.LinkableMessage",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 43876,
+  "cinitMethod": 43875,
+  "iinitBytecode": {
+    "codeLength": 35,
+    "codeSha256": "7f85ac3c2e5bc4f8b46b6c67d032b1a831a603af3464c4e5d73eb319c1b1cae0",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "fc0e2ec41b9779991991c2d2668bb689641bb8da1e8c440f54788f15db8c8ec3",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 43877,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a572a83ea40cae5184349900caabaec00f21b85ff497db7ca4d826ae37c253ac",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 43878,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "705759505741569f001b72d0df94c2aab0664e338e8c6d6830bf34494992b4ef",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "failOnError",
+      "traitKind": "getter",
+      "methodIndex": 43879,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4f780c9f45c6df41d97543cdf3f5809c84de8baf5f898d5f1abc962b21c001ac",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "failOnError",
+      "traitKind": "setter",
+      "methodIndex": 43880,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "77dcee38e8980361e17fc93ae8a61cd8fd92d5aef17426521f37e74caa113591",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

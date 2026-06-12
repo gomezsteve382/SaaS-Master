@@ -1,0 +1,211 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1051,
+  "className": "com.chrysler.cda.presentation.component.sync.SyncLoginBase",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.sync.SyncLoginBase",
+  "superName": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "superNameNormalized": "com.chrysler.cda.presentation.window.PopupAbstractWindow",
+  "domainBucket": "sync",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 22602,
+  "cinitMethod": 22601,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "059bfaeb73c663cd017003d251b68fe21fdaf1b62cf73d860228de59b9bad216",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 82,
+    "codeSha256": "8ee63479285128b8c027459f8caf179df29ccc9c847931ccf25890b8f503ce30",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.sync:SyncLoginBase.doCancel",
+      "traitKind": "method",
+      "methodIndex": 22606,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "ccf37684e8548e1ac5ca93f3a16c6df8028fc379ad52cce8807053dacbb865c8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.sync:SyncLoginBase.doSync",
+      "traitKind": "method",
+      "methodIndex": 22608,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "Boolean",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "43d8a97c7ff93c129306814288367feeb8adfc97170d6a6227b3f90ef7dfe9f4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.sync:SyncLoginBase.focusOn",
+      "traitKind": "method",
+      "methodIndex": 22604,
+      "methodName": "",
+      "paramTypes": [
+        "mx.managers.IFocusManagerComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "ce6f7370925f04932b25e95decf4dfd8fc0768f2efa77167e60035538c9c46b9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.sync:SyncLoginBase.onEsc",
+      "traitKind": "method",
+      "methodIndex": 22605,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.KeyboardEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "aee2789cfb822ce2596564ee05e1305dd223ff4d69c15a48fb1715cd23019fe0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.sync:SyncLoginBase.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 22613,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "7cb6108b810ea37c9067f06e7a6fa39a08767d1e3771bebdb3ddbb22ab89a2a4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "getter",
+      "methodIndex": 22611,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.sync.SyncLoginController",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e094f5d5b76bf10379531fb33c5d851164f0bc1adf3c860ce47fa4e7994ce593",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "setter",
+      "methodIndex": 22612,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.sync.SyncLoginController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5fb24dddf836a4072fc789487a5409243338b26a95db639470f79aef6a670618",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onInit",
+      "traitKind": "method",
+      "methodIndex": 22603,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "9eb4b4ef8edd9fad05e0235f3447b160bc8972bd234e0c264f356ce3e65c9175",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "getter",
+      "methodIndex": 22609,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.sync.SyncLoginPM",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "996712b45eae319268138901aacf4c866bd122f51a16e8e2ce8ed3756b5487b4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pm",
+      "traitKind": "setter",
+      "methodIndex": 22610,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.sync.SyncLoginPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "6ff95cc481925364ad859ea2ae79170e4de08be8a75fa79d6d2d861ac93d6c48",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removePopup",
+      "traitKind": "method",
+      "methodIndex": 22607,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "44aec62c600a03fbcb8d8eed38b1ef87ec1867b9d4306a0b6933bcb1000bb385",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,228 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 217,
+  "className": "PrivateNs.TouchScrollHelper",
+  "classNameNormalized": "PrivateNs.TouchScrollHelper",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 4371,
+  "cinitMethod": 4370,
+  "iinitBytecode": {
+    "codeLength": 71,
+    "codeSha256": "8c0754b63ad6964cf4b8ec981af5031c87c7bcbb7f3088d67dfeb3d891cc7954",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 72,
+    "codeSha256": "70be254061c7f8f0a7c3a05f726caa19063b0bd57bca269d623ab65b3aeefd67",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "endTouchScroll",
+      "traitKind": "method",
+      "methodIndex": 4383,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "de9d3a4c2e4e86e51f35277b61971332771a5decd8ee5db10c719b2424e3ed22",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.addMouseEventHistory",
+      "traitKind": "method",
+      "methodIndex": 4374,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 180,
+      "bytecode": {
+        "codeLength": 180,
+        "codeSha256": "4b14c642cf7a5bf115264d463827e549a82f7e2b8e05bf0437348ac141c5a3d9",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "PrivateNs.calculateFinalDragVelocity",
+      "traitKind": "method",
+      "methodIndex": 4381,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 428,
+      "bytecode": {
+        "codeLength": 428,
+        "codeSha256": "2da0557931d269d49a445964d7a3dfb529fe3dcef18855d0648b1f82f9853b24",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "PrivateNs.calculateThrowVelocity",
+      "traitKind": "method",
+      "methodIndex": 4380,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 379,
+      "bytecode": {
+        "codeLength": 379,
+        "codeSha256": "b9be8b4798095874c3cfed9d2b33390c3cc0a4510bfcae340512dfd88bf7fee9",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchBubblingEventOnMouseDownedDisplayObject",
+      "traitKind": "method",
+      "methodIndex": 4382,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "30ba6a9f5e77ccbb3c1ec0de3c63cae0c37421b4316c5ebb90fd2f3e14b0606b",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.dragTimerHandler",
+      "traitKind": "method",
+      "methodIndex": 4378,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "96abc7af451135335b3031df2bb7adc593f36807e70c1dca841ad76083a563fd",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.installMouseListeners",
+      "traitKind": "method",
+      "methodIndex": 4375,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "554c1e183ef4410f986bc1697d4adb4b448fd62f0a81889ff8c3b7b1d3eced9c",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.sbRoot_mouseMoveHandler",
+      "traitKind": "method",
+      "methodIndex": 4377,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 888,
+      "bytecode": {
+        "codeLength": 888,
+        "codeSha256": "88f3d2393771961f5ce6761f4a2a984c73b07caadadc9066771ac57b393321c0",
+        "bytecodeLineCount": 56
+      }
+    },
+    {
+      "traitName": "PrivateNs.sbRoot_mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 4379,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 594,
+      "bytecode": {
+        "codeLength": 594,
+        "codeSha256": "7814f94cfc85827b334d90adcbee767fbe798f0b4642c3c5a936875b4be57908",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "PrivateNs.uninstallMouseListeners",
+      "traitKind": "method",
+      "methodIndex": 4376,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "40c0333835c909173c22aaf037d9bb9fd5f227a03abd2673d726cd4c1349dcc5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "startScrollWatch",
+      "traitKind": "method",
+      "methodIndex": 4372,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 192,
+      "bytecode": {
+        "codeLength": 192,
+        "codeSha256": "05fc9130a917bafabbbe8bac2dee26e7ed6a370b8d20b243cfa48178de76d87c",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "stopScrollWatch",
+      "traitKind": "method",
+      "methodIndex": 4373,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bd445e6330d382f1f3e8fa5ccf1486e00df2e0bdf38cdc4eb09367615001fbf7",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

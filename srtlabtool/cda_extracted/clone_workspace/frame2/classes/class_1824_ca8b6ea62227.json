@@ -1,0 +1,457 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1824,
+  "className": "flashx.textLayout.formats.ListMarkerFormat",
+  "classNameNormalized": "flashx.textLayout.formats.ListMarkerFormat",
+  "superName": "flashx.textLayout.formats.TextLayoutFormat",
+  "superNameNormalized": "flashx.textLayout.formats.TextLayoutFormat",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.formats.IListMarkerFormat"
+  ],
+  "iinitMethod": 34848,
+  "cinitMethod": 34842,
+  "iinitBytecode": {
+    "codeLength": 7,
+    "codeSha256": "1cece65569adb6186a7ff37d3f0783c84e979f894fc0534d1b7a7db83bcd2eae",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 384,
+    "codeSha256": "4d9637dc9623f7ac12a56de330ae4ccd9c73266a77e3e2de2f614d6f7be62ac6",
+    "bytecodeLineCount": 24
+  },
+  "instanceMembers": [
+    {
+      "traitName": "afterContent",
+      "traitKind": "getter",
+      "methodIndex": 34859,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "5ef0bc7874cfa2b96c31d3bae3d3349d5fe5b625151d28cfaa9c9d3925879136",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "afterContent",
+      "traitKind": "setter",
+      "methodIndex": 34860,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "ca0c13f857b2bca7e54d3a97f9fa71f4a810cc82b7e795794942ec78c0f22a38",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "apply",
+      "traitKind": "method",
+      "methodIndex": 34866,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "2aed69ffe6a8b12f262a2ab18efc2629a9f037712f36f60f4d23d7e1b48979ec",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "beforeContent",
+      "traitKind": "getter",
+      "methodIndex": 34857,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "d7c576d99b4a2d234d942c4151445fac701b20c404a433e5b9d2f46b7137396f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "beforeContent",
+      "traitKind": "setter",
+      "methodIndex": 34858,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "cb2a8de7a2d6958dc8e7cd210f12c579ac2de70ad462000bfa2a0008a338834b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "concat",
+      "traitKind": "method",
+      "methodIndex": 34864,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "86e5f77b6eb725b838bccf761d2d0bb31d31eee15ddebbec729838bcaff21e76",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "concatInheritOnly",
+      "traitKind": "method",
+      "methodIndex": 34865,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "fee23865d430d322c7c9676894760d9b997601db535c937e9f476f503c027e27",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "content",
+      "traitKind": "getter",
+      "methodIndex": 34855,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "41608623a154c93d39701b6342ddc26f867d4a7efb26a90ba36560d215861699",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "content",
+      "traitKind": "setter",
+      "methodIndex": 34856,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "972a4b7ca54423b2dfaa4bff0a03caa0683d054cff4f0b08fcde4f42a75991c1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "copy",
+      "traitKind": "method",
+      "methodIndex": 34863,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "cdee22cdc906c562c419092746d4694fff22cd378b4a01a932ffe22f766e4133",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "counterIncrement",
+      "traitKind": "getter",
+      "methodIndex": 34853,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "d1af4204369480ad4deeb3b254444930913fc3daad75099da77c4ba4df0228db",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "counterIncrement",
+      "traitKind": "setter",
+      "methodIndex": 34854,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "8ad9e5ed6038afc2c6d77030ba10b340f5941c29ff55169697a010a64711f6dd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "counterReset",
+      "traitKind": "getter",
+      "methodIndex": 34851,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "197d063030d4a096dcb379f88efec86fe00c2e0ca78100c89479110c11e961d7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "counterReset",
+      "traitKind": "setter",
+      "methodIndex": 34852,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "6107112307283588966c5786681d5ce8d70c2795f737505dab77df4a5f5f9553",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.setLMFStyle",
+      "traitKind": "method",
+      "methodIndex": 34849,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.property.Property",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "d2997c5cd13dfb0b448bf5dea0a20e3a79198966c914ec6fdef193d3b620841d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "removeClashing",
+      "traitKind": "method",
+      "methodIndex": 34868,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "f7735840bf9f66455c12094561928c7d51fe37806e70e0323a1157115dfd4e0a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "removeMatching",
+      "traitKind": "method",
+      "methodIndex": 34867,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.formats.ITextLayoutFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 110,
+      "bytecode": {
+        "codeLength": 110,
+        "codeSha256": "8e1660203d00d90ec45f3805ae2e274aa40d38941ee00b4a1f19cb4eba59bf4a",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "setStyle",
+      "traitKind": "method",
+      "methodIndex": 34850,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "e51c1f94003d93f80bf8102cacba831f88779280ba4baa3303dc875bb7d3b8af",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "suffix",
+      "traitKind": "getter",
+      "methodIndex": 34861,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "7a3044674c7545c1779f72d27f21fce1f42f9656296ec73cd353d0a910edaed2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "suffix",
+      "traitKind": "setter",
+      "methodIndex": 34862,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "03fcef4faa9c3e0f5870a1a577212800dc57424a4c5247d0aea8a14f4869d9e1",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createListMarkerFormat",
+      "traitKind": "method",
+      "methodIndex": 34847,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "flashx.textLayout.formats.ListMarkerFormat",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "15bdb6891408fdf3f0c4b57edb6c9c4ed32d0a93932aa12d312db239f69deaf0",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.createCounterContentProperty",
+      "traitKind": "method",
+      "methodIndex": 34845,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean",
+        "__AS3__.vec.Vector<String>"
+      ],
+      "returnType": "flashx.textLayout.property.Property",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "024874a59dd808140ce471df601abae1f02013ef5267cc6a6824282f2ef0b5f4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.createCounterIncrementProperty",
+      "traitKind": "method",
+      "methodIndex": 34844,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean",
+        "__AS3__.vec.Vector<String>"
+      ],
+      "returnType": "flashx.textLayout.property.Property",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "f9421811d68c9625bac57cabad4fb13f5a1afbef6fe2a686fa07ee9b40bd5868",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.createCounterResetProperty",
+      "traitKind": "method",
+      "methodIndex": 34843,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "Boolean",
+        "__AS3__.vec.Vector<String>"
+      ],
+      "returnType": "flashx.textLayout.property.Property",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "b5d29643bcd5317f9052e74c617b1bc8e8dc4164c9e03414f6913e94ff9cf932",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.description",
+      "traitKind": "getter",
+      "methodIndex": 34846,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 89,
+      "bytecode": {
+        "codeLength": 89,
+        "codeSha256": "2ae9083a68d0c0866ba101d236a5a3e40cedc688599269ac80c4f21daa43c686",
+        "bytecodeLineCount": 6
+      }
+    }
+  ]
+}

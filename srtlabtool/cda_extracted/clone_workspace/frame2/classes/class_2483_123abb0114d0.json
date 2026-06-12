@@ -1,0 +1,87 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2483,
+  "className": "mx.rpc.xml.SimpleXMLEncoder",
+  "classNameNormalized": "mx.rpc.xml.SimpleXMLEncoder",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42837,
+  "cinitMethod": 42835,
+  "iinitBytecode": {
+    "codeLength": 34,
+    "codeSha256": "a6cec965cc4547cc7c68a412b025ae5bebaaf66e2a728b5d5adfc8631f4a68b6",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 193,
+    "codeSha256": "62a52685d8adf8b0674d2d6bdffe8f284407db9dd834614e2da2cbe159dd0caf",
+    "bytecodeLineCount": 13
+  },
+  "instanceMembers": [
+    {
+      "traitName": "encodeValue",
+      "traitKind": "method",
+      "methodIndex": 42838,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "QName",
+        "flash.xml.XMLNode"
+      ],
+      "returnType": "flash.xml.XMLNode",
+      "hasBody": true,
+      "codeLength": 593,
+      "bytecode": {
+        "codeLength": 593,
+        "codeSha256": "0848c1a5fbc6ed19a744c095ebbfa49d5f7434a25c4c2378ac8ee66cc50b34b6",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDataTypeFromObject",
+      "traitKind": "method",
+      "methodIndex": 42839,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 149,
+      "bytecode": {
+        "codeLength": 149,
+        "codeSha256": "45c6ae2bfc9fb3a30b063aad4d57ffc6e784a5ac6d6a4d79d218dd3b2e4527b3",
+        "bytecodeLineCount": 10
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "mx.rpc.xml.encodeDate",
+      "traitKind": "method",
+      "methodIndex": 42836,
+      "methodName": "",
+      "paramTypes": [
+        "Date",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 376,
+      "bytecode": {
+        "codeLength": 376,
+        "codeSha256": "249f513e72310248b0244efa8fa6e3c128300d7df25becf19117110ce57ed95c",
+        "bytecodeLineCount": 24
+      }
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2199,
+  "className": "com.chrysler.cda.event.message.tools.UpdateEcuInstanceIdCustomDisplayMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.tools.UpdateEcuInstanceIdCustomDisplayMessage",
+  "superName": "com.chrysler.cda.event.message.RetryableMessageImpl",
+  "superNameNormalized": "com.chrysler.cda.event.message.RetryableMessageImpl",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 39679,
+  "cinitMethod": 39678,
+  "iinitBytecode": {
+    "codeLength": 51,
+    "codeSha256": "74f75a42b831b0cc4cec95e2054af37e19c0359509052304e0b3cb4768d1004d",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "databaseName",
+      "traitKind": "getter",
+      "methodIndex": 39688,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cfa361fd107c9f5dd3e002eeb0744cc61ec5d1b85364a71f386727d7bc845ad5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "databaseName",
+      "traitKind": "setter",
+      "methodIndex": 39689,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "299c11014591c47dc86ff08e6447d46b92e272fe453c0555d66573a530cc6c7f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 39690,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "603afdf600b57f7d82a062a3784f8db5324bf3bad1573d536ce7d23059176b3b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 39691,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "413b699b2db299bc20ce1546199c092df0fa8f70041a4b3793a650b4a9982293",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isocode",
+      "traitKind": "getter",
+      "methodIndex": 39680,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e91fcc6a114952e167e2a5ca8355285ba2f943febce9e89007fd598494153d44",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isocode",
+      "traitKind": "setter",
+      "methodIndex": 39681,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "dcea52665819449e3dabe2d9103a4b40d63abfe1e13c10bfc06931ea07d54e1a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "min",
+      "traitKind": "getter",
+      "methodIndex": 39682,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "839266effa499462b1e29c6d23942b7819597f339c4f465084b1d55f64e9447a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "min",
+      "traitKind": "setter",
+      "methodIndex": 39683,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f92324a86b23667322b11f9cea39456ce21890299a2d2dcbfca39d51d1019185",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "variant",
+      "traitKind": "getter",
+      "methodIndex": 39686,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "47d9445bedc19cd7588e15c4f7432f1363b3a9adbf34252d1f15239e80f8573d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "variant",
+      "traitKind": "setter",
+      "methodIndex": 39687,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "2b6df4cd87348bdeba3a27757a4ea9eb65c5ae8454f7f571b9d4ed8b8c3baec3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "version",
+      "traitKind": "getter",
+      "methodIndex": 39684,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "85273abb485f419b687efcb7db9b73495dfde4063f6b756e604a63f24f65e6ec",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "version",
+      "traitKind": "setter",
+      "methodIndex": 39685,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b73be56331da06eeda845857fe99641fde1cce685a24f2a13712751bf4f6e04f",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

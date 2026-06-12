@@ -1,0 +1,104 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2144,
+  "className": "com.chrysler.cda.presentation.component.proxi.file.support.CreateProxiJSON",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.file.support.CreateProxiJSON",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 38936,
+  "cinitMethod": 38931,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "encodeElement",
+      "traitKind": "method",
+      "methodIndex": 38935,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "7d1864390f4c8a375199dcd9b40f231aab4fbc2e0c9f9d77008f411249579d4e",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "encodeElements",
+      "traitKind": "method",
+      "methodIndex": 38934,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "fa96687a415e0f633517a521f874bc099539328e2521a0df4277ad9961a06607",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "encodeProxiFile",
+      "traitKind": "method",
+      "methodIndex": 38932,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.YearBodyInfo",
+        "String",
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "4050ce960d886d9e43446021ca1707de75272ce9a8ab7f1e7579f53c55936f44",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "header",
+      "traitKind": "method",
+      "methodIndex": 38933,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.YearBodyInfo",
+        "String",
+        "String"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "b0f84bcf390e8bf57e0d97d3843870689aab45cad7ff68681ff020ea0e0ce271",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

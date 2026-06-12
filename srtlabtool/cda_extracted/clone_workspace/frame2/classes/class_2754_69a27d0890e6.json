@@ -1,0 +1,348 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2754,
+  "className": "spark.components.supportClasses.InteractionStateDetector",
+  "classNameNormalized": "spark.components.supportClasses.InteractionStateDetector",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 46337,
+  "cinitMethod": 46336,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "c96145f504682678bf9022c9e0128a1614c2adc1b06c55e0f9e15431909e1382",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "PrivateNs.addHandlers",
+      "traitKind": "method",
+      "methodIndex": 46345,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 124,
+      "bytecode": {
+        "codeLength": 124,
+        "codeSha256": "8ad796d204beb6471cbdf1de1ddcf95bcbc5b2cc4eb824af9d41fb4abc35c7a2",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.addSystemMouseHandlers",
+      "traitKind": "method",
+      "methodIndex": 46346,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "87e720c7a7b28a9f9aa650202af85ef6784cef9d0a44e388de366607890a9e81",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.anyButtonDown",
+      "traitKind": "method",
+      "methodIndex": 46357,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "9145f2966050ceaf990c7c998995ddfa56d1f4810b471f6638841bcac2cdb091",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.hovered",
+      "traitKind": "getter",
+      "methodIndex": 46338,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "926c171d2adb68c725759abe9432b64ca49e76a2f4410b3e7ace5dbc138ff8d0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.hovered",
+      "traitKind": "setter",
+      "methodIndex": 46339,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "3961da4bf5a1704c4c33450a5ce9d136d84e2a4638e8adbd66e26c3092e5fc99",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.invalidateState",
+      "traitKind": "method",
+      "methodIndex": 46344,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "15d79e3fe0b723c531527850793b784ce1184ebd36281af18809fca4c19f7e61",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.isDown",
+      "traitKind": "method",
+      "methodIndex": 46343,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "fce2d7f4c395b7543fefe47107b29c3e88a9030c0d0068d5e16d0aebadf11fb8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseCaptured",
+      "traitKind": "getter",
+      "methodIndex": 46340,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bb8cc74cecb02757f646c621ba6f000e48d3f8466dd9cf016166e3ef595997e3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseCaptured",
+      "traitKind": "setter",
+      "methodIndex": 46341,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "fa849200f57ebc172f80bf7223892993bc52cff6a6498cda3f0a2fd673c54df9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseDownSelectTimer_timerCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 46355,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "539bb171ade81246845b6122c1ada8da1584a6f00948009f6fa7292cd64e03e2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseEventHandler",
+      "traitKind": "method",
+      "methodIndex": 46352,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 379,
+      "bytecode": {
+        "codeLength": 379,
+        "codeSha256": "71f3e8abe86be768419aee5613bf71db491d6e0cd61c72b1978a0e81c8b240e1",
+        "bytecodeLineCount": 24
+      }
+    },
+    {
+      "traitName": "PrivateNs.mouseUpDeselectTimer_timerCompleteHandler",
+      "traitKind": "method",
+      "methodIndex": 46356,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "347aef8e77b1abb86c190c7aec6bdf0ba196a15a58636bdf7a55b981ef931f8b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeSystemMouseHandlers",
+      "traitKind": "method",
+      "methodIndex": 46347,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "e23b9e9880c86c22135f57da8db5c05cc8503da6933594bc09f64f18f0cb73cf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.startDeselectRendererAfterDelayTimer",
+      "traitKind": "method",
+      "methodIndex": 46350,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "8b87fc4087cdc0bcf82615958bc094d669e684086e9fa51179a92b3fb59d54f6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.startSelectRendererAfterDelayTimer",
+      "traitKind": "method",
+      "methodIndex": 46348,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "6536448ad0ffb87cb0706a1df88ac9e0df28f238304fe5029ac8fc6714739f13",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopDeselectRendererAfterDelayTimer",
+      "traitKind": "method",
+      "methodIndex": 46351,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "ff2d3144078531653bfbf8e9b805e585696b0410ce629fe8885ade2f434b9915",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.stopSelectRendererAfterDelayTimer",
+      "traitKind": "method",
+      "methodIndex": 46349,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "92bb1e20aa733578226fa650e413aa18d5fe21388a30646beb6354281a483e3c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.systemManager_mouseUpHandler",
+      "traitKind": "method",
+      "methodIndex": 46353,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 105,
+      "bytecode": {
+        "codeLength": 105,
+        "codeSha256": "ba51254ffd7b45c3e5f9a7409be94e074f0f36812f437988917edc9375c9fd31",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs.touchInteractionStartHandler",
+      "traitKind": "method",
+      "methodIndex": 46354,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.TouchInteractionEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "b93bcc86d1315d2f20207b6674a425eb8293f659a7362238b4edec690a215069",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "state",
+      "traitKind": "getter",
+      "methodIndex": 46342,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "f62d9ff33152662aa7ab96411de4c0608148544d70fa17314761e0d72340c1aa",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

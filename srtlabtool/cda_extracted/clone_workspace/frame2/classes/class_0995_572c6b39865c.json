@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 995,
+  "className": "com.chrysler.cda.application.authenticatedDiagnostics.ADARolesCommand",
+  "classNameNormalized": "com.chrysler.cda.application.authenticatedDiagnostics.ADARolesCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 20745,
+  "cinitMethod": 20741,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "c9cd1459839095e9c1ada7dd8bb7aa7bedfcd7857d85c9a07f2ea17e66ef8e21",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ADARoles",
+      "traitKind": "method",
+      "methodIndex": 20742,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.securitygateway.ADARolesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "7de2ad51445971054544767ca6756d660fc0dd01bdac1354bee0438275dab206",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "error",
+      "traitKind": "method",
+      "methodIndex": 20744,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.securitygateway.ADARolesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "f5dce3f18a4c399778ede2c19d18617ff7f5cc82c2aafd6756cf24d84b02b85c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "result",
+      "traitKind": "method",
+      "methodIndex": 20743,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.securitygateway.ADARolesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "13b1858c9c09d404e36c8353d7d85bfcf2f98c750b5484543fba87a48c659eb7",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": []
+}

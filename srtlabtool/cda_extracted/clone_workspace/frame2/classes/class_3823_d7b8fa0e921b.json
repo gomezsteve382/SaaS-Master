@@ -1,0 +1,98 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3823,
+  "className": "org.spicefactory.parsley.processor.messaging.ManagedEventsProcessor",
+  "classNameNormalized": "org.spicefactory.parsley.processor.messaging.ManagedEventsProcessor",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.registry.ObjectProcessor"
+  ],
+  "iinitMethod": 56461,
+  "cinitMethod": 56459,
+  "iinitBytecode": {
+    "codeLength": 33,
+    "codeSha256": "ebd22d6d652c6a5687791d0f3e118ef3fc24cb619c4e77704b1aa28560725b52",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "postDestroy",
+      "traitKind": "method",
+      "methodIndex": 56463,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "06ac66e4eb71dceea73a47c204267a9d96562751172b6ce1d0c479efd55ea86d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "preInit",
+      "traitKind": "method",
+      "methodIndex": 56462,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "ef870a9265d8d38a3090c931fea6b261210e599f20f01b1bf9e7a6723abc98f6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 56464,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "f39172f91dfa40fa4743fb4a2501b8b76c130989be994fd7a829f501a4f546ab",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "newFactory",
+      "traitKind": "method",
+      "methodIndex": 56460,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Function"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.ObjectProcessorFactory",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "e9cbfbabdee325203d390fe66390ec9e90aa950cbbf05cb2bb348da57c1fd98e",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

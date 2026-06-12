@@ -1,0 +1,180 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2486,
+  "className": "mx.messaging.channels.DirectHTTPChannel",
+  "classNameNormalized": "mx.messaging.channels.DirectHTTPChannel",
+  "superName": "mx.messaging.Channel",
+  "superNameNormalized": "mx.messaging.Channel",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42909,
+  "cinitMethod": 42908,
+  "iinitBytecode": {
+    "codeLength": 101,
+    "codeSha256": "c958ae793bd60b829ecd8c840c5f7f4d99f1a3a5437ffad178963d601d7af8f2",
+    "bytecodeLineCount": 7
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "connected",
+      "traitKind": "getter",
+      "methodIndex": 42910,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "d585616625656f7803c9407d288dca461830151e2b66e2009440e239c604ef48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createURLRequest",
+      "traitKind": "method",
+      "methodIndex": 42917,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "flash.net.URLRequest",
+      "hasBody": true,
+      "codeLength": 546,
+      "bytecode": {
+        "codeLength": 546,
+        "codeSha256": "922f02c5482089dcb961715d14dc3b2390367438a044a3545763e3216218f713",
+        "bytecodeLineCount": 35
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.realtime",
+      "traitKind": "getter",
+      "methodIndex": 42912,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "8bd91b4d6662c2af4743360fdfdadd0ffd59568f99d5771831541eb0e40a633f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:DirectHTTPChannel.connectTimeoutHandler",
+      "traitKind": "method",
+      "methodIndex": 42913,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:DirectHTTPChannel.getMessageResponder",
+      "traitKind": "method",
+      "methodIndex": 42914,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageAgent",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "mx.messaging.MessageResponder",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "72fe5d7c8cfcbaa4ae7faee436f62c503830b160a2110238e9c1ac5fff52a1a7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:DirectHTTPChannel.internalConnect",
+      "traitKind": "method",
+      "methodIndex": 42915,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "300ba96cb09103f4004d952ea2edef7e097859ac239824d86d962a7aac8e006a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mx.messaging.channels:DirectHTTPChannel.internalSend",
+      "traitKind": "method",
+      "methodIndex": 42916,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.MessageResponder"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 255,
+      "bytecode": {
+        "codeLength": 255,
+        "codeSha256": "c1acfb3e9c0c2f7e90abb08694f1b701b7570c39104285d07cb7d650da5a8ebd",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "protocol",
+      "traitKind": "getter",
+      "methodIndex": 42911,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 6,
+      "bytecode": {
+        "codeLength": 6,
+        "codeSha256": "9745e385ac2ec23d5aa17a6dbc249197445ae1fe5e5ba2b83597c4f9eb592781",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setCredentials",
+      "traitKind": "method",
+      "methodIndex": 42918,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.messaging.MessageAgent",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "79f18c02bf8d3bc6eca0b9e20d4f17d6cd9b8861468c2c5f6f1ce44f0dffe626",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

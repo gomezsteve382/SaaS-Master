@@ -1,0 +1,348 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3160,
+  "className": "com.diagnosticProcedures.BatchExecutorBase",
+  "classNameNormalized": "com.diagnosticProcedures.BatchExecutorBase",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "wde.common.framework.IDisposable"
+  ],
+  "iinitMethod": 49917,
+  "cinitMethod": 49914,
+  "iinitBytecode": {
+    "codeLength": 161,
+    "codeSha256": "da0c0a6ca5e8e365d3d6dcd9a178c26fafe004be08921d084951087ef09921a4",
+    "bytecodeLineCount": 11
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "cleanup",
+      "traitKind": "method",
+      "methodIndex": 49933,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 131,
+      "bytecode": {
+        "codeLength": 131,
+        "codeSha256": "92f71d75f555e1cebd51c1dd442c1ac362bcf0332344ecf297631c02b48d85d3",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BatchExecutorBase.bundlesLoaded",
+      "traitKind": "getter",
+      "methodIndex": 49926,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "4fe14617811102a5f375f06bbf9f567dac6737d41ee496c8484c2bf14c75bbe9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BatchExecutorBase.complete",
+      "traitKind": "method",
+      "methodIndex": 49929,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "146efae6a2382aa65e1bad8318694a8cf8be2e1737a22efd88986bc381d1c4e2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BatchExecutorBase.loadCompleted",
+      "traitKind": "method",
+      "methodIndex": 49925,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "8989ad216705d59980ed6df4fd128ebcf4b79ea8c5459cdd9c5e05bff6bbb767",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BatchExecutorBase.onLoadError",
+      "traitKind": "method",
+      "methodIndex": 49927,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "447b15470530d43fdbeaf83544cdb27d2fb47be3ca7b0dda5cc574dc23416ec8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:BatchExecutorBase.progress",
+      "traitKind": "method",
+      "methodIndex": 49928,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "478458f5e757de46d7de25f9eacce649bbc36e3dddeb04261295c76045ca31b4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.onLoadComplete",
+      "traitKind": "method",
+      "methodIndex": 49923,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "b173266b6304bbb7f4b03465ba33cfae119b806ca34e2871b2bf82b83adb8e46",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 49935,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "bd78138879f4620566d1c31b4ed66dea0e56767fedf86382ec6172eebed044c8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "factories",
+      "traitKind": "getter",
+      "methodIndex": 49919,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.api.IBatchExecutorFactories",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6a07334a26e240845aa742eeeef1de4574bd4a1c61ceb4005672fc3e2f1d6642",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getResult",
+      "traitKind": "method",
+      "methodIndex": 49922,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "a1f397d352a8a1e4f184bf19a2d43a821067f72356895d68e27e1da233839700",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "isComplete",
+      "traitKind": "getter",
+      "methodIndex": 49920,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ca2229f45f6c5d4cdeb8d2da850f02c5e081c53e6981bbca65cf4ffbfd7f1d8a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "logger",
+      "traitKind": "getter",
+      "methodIndex": 49934,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "9d6bd546d4430a0fcf87036ed94e2ff63b5b20b230854d488d21b2b45866e295",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.errorHandler",
+      "traitKind": "method",
+      "methodIndex": 49924,
+      "methodName": "",
+      "paramTypes": [
+        "Error"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "ea0b64d8f03a664f28e9185ae2ac5a1a27a7e08017afa5481015678eaf4c2bbc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.onStateChange",
+      "traitKind": "method",
+      "methodIndex": 49931,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 217,
+      "bytecode": {
+        "codeLength": 217,
+        "codeSha256": "f94fc1fed844f82dcf40736d6a33d6ac142f70df88353c86c09e3e91915c20fc",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "PrivateNs.runNextBundle",
+      "traitKind": "method",
+      "methodIndex": 49930,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 131,
+      "bytecode": {
+        "codeLength": 131,
+        "codeSha256": "bca4c4f1c7dca63c17f89ecf8877ea5733a25980b35d2194ba9358406c898a3a",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.setFactories",
+      "traitKind": "method",
+      "methodIndex": 49918,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.IBatchExecutorFactories"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "153fac92cf08a76ad9114521b1e23876d27b12078ac76d3e92583c94fe0b7a08",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "procedures",
+      "traitKind": "getter",
+      "methodIndex": 49921,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "e81a44fd07e0b1044d87f003528022ff71f790afcb41cb7d87b5d9b583ef7111",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "qualsExecuted",
+      "traitKind": "getter",
+      "methodIndex": 49915,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4e73d07f58a86a59f87187a546a4c222b0de97f375ce4dacac41b2c07eb1ae28",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "start",
+      "traitKind": "method",
+      "methodIndex": 49932,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "43e51cc849af68dcf5e407d48c7c7342f2de91139422492ecb5f2cd2aa22745f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "totalQualsToBeExecuted",
+      "traitKind": "getter",
+      "methodIndex": 49916,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7de3b8c6d226338c35d9005fca6a9ca3f2343380e44a12da87642e0683088cd4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

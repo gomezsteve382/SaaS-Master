@@ -1,0 +1,208 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 213,
+  "className": "com.dcctools.witech.diagnostic.engine.settings.ServiceSettings",
+  "classNameNormalized": "com.dcctools.witech.diagnostic.engine.settings.ServiceSettings",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 4298,
+  "cinitMethod": 4296,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "557d6429f9c3f6dec0faa2952c0965472d04cababd66bc741490366d05c07735",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "defaultHTTPContext",
+      "traitKind": "getter",
+      "methodIndex": 4300,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.dcctools.witech.diagnostic.engine.http.HTTPContext",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1fbc1e6265fc8bbef73c6361012e6b726a17eadbf84d5ba837e0cd5207699672",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "defaultHTTPContext",
+      "traitKind": "setter",
+      "methodIndex": 4299,
+      "methodName": "",
+      "paramTypes": [
+        "com.dcctools.witech.diagnostic.engine.http.HTTPContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "4096a8ed4e4ec70dba1bd57f81ad6d24224e414fd9afa05b3311dbea43cdac6f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "iv",
+      "traitKind": "getter",
+      "methodIndex": 4307,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c4428e68c75751cc4e95a28464d09d4d5ffd063fd139e4b9b37ba05537aea3a2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "iv",
+      "traitKind": "setter",
+      "methodIndex": 4308,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6c60a53b425c87abb6543479224c3553fb7cd4fa16741ae04e5c3c4334dfa7ed",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "key",
+      "traitKind": "getter",
+      "methodIndex": 4305,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fbd4d3a7e6ca3b29bde470e639c471f3ece32c2356b5391115a3a43fcdcf8232",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "key",
+      "traitKind": "setter",
+      "methodIndex": 4306,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "df0514c65e76880d425c86499cca10e1a71e28ec166a403e73c514606442e0ac",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "secretKeyService",
+      "traitKind": "getter",
+      "methodIndex": 4304,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.dcctools.witech.diagnostic.engine.cryptography.ISecretKeyService",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3e49ec41c8b8d81c1ae7315bdba5b472becbd0796420e0410f8a3d76a3abed73",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "secretKeyService",
+      "traitKind": "setter",
+      "methodIndex": 4303,
+      "methodName": "",
+      "paramTypes": [
+        "com.dcctools.witech.diagnostic.engine.cryptography.ISecretKeyService"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "16936c2942c8be3d6f8e739819ce7156c043bc69aa578fb41fa6749e700a5493",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useSecretKey",
+      "traitKind": "getter",
+      "methodIndex": 4302,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9863f354b6c9b92fbda508bb9c8b1413f89f627b671c94dbe0d94273ce853cca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useSecretKey",
+      "traitKind": "setter",
+      "methodIndex": 4301,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "14ee559abe2b88eefa65804e236e95d8c29f28525a8f47291c1a52e30e677d2e",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 4297,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.dcctools.witech.diagnostic.engine.settings.ServiceSettings",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "90791bc26a7e744773a3488f42f0b65078670174f0d4ea23e98e44291244838c",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

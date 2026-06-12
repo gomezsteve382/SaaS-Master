@@ -1,0 +1,182 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 230,
+  "className": "spark.primitives.supportClasses.StrokedElement",
+  "classNameNormalized": "spark.primitives.supportClasses.StrokedElement",
+  "superName": "spark.primitives.supportClasses.GraphicElement",
+  "superNameNormalized": "spark.primitives.supportClasses.GraphicElement",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 5497,
+  "cinitMethod": 5496,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "spark.primitives.supportClasses:StrokedElement.beginDraw",
+      "traitKind": "method",
+      "methodIndex": 5501,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Graphics"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "7f78f5c4894a663098212aab87b5af702de747d1dddf184a86bcd761f2e1aba3",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.primitives.supportClasses:StrokedElement.draw",
+      "traitKind": "method",
+      "methodIndex": 5502,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Graphics"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.primitives.supportClasses:StrokedElement.endDraw",
+      "traitKind": "method",
+      "methodIndex": 5503,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Graphics"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "adc8ce87ea27dd4795a0d7ac91e7f68c2581622e5aabdc68f1ad602e0885b098",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "spark.primitives.supportClasses:StrokedElement.getStrokeBounds",
+      "traitKind": "method",
+      "methodIndex": 5504,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "2290eb99fdb5d6b1a6e99e199facce02527df1d537d500e2430f8431b542cb24",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "spark.primitives.supportClasses:StrokedElement.getStrokeExtents",
+      "traitKind": "method",
+      "methodIndex": 5505,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 435,
+      "bytecode": {
+        "codeLength": 435,
+        "codeSha256": "afefe12b5cf1594cf4e03d042370e5a125d2fd4aa1e5a515cade91c4be2cf26e",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "spark.primitives.supportClasses:StrokedElement.stroke_propertyChangeHandler",
+      "traitKind": "method",
+      "methodIndex": 5506,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.PropertyChangeEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "81305da033b75ebfe29c87c67c2a14fb029d9802ebbf7f907cf2bf2e7c8a9abe",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "spark.primitives.supportClasses:StrokedElement.updateDisplayList",
+      "traitKind": "method",
+      "methodIndex": 5500,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "d214c4b83dedf99f59f034b819bc1788125cbe046726d04203283eebb93a51cc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "stroke",
+      "traitKind": "getter",
+      "methodIndex": 5498,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.IStroke",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e72619f2795583117be4ae024e6f7c1e4f5f995159b8f92b3950fd0f2bb6eaee",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "stroke",
+      "traitKind": "setter",
+      "methodIndex": 5499,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.IStroke"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 114,
+      "bytecode": {
+        "codeLength": 114,
+        "codeSha256": "3676cb5f936a7bb31d333f0b59ea63867c882f5a19033b242c35d4e01737e5e6",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,140 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1085,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.dtcs.FindDTCSnapshotDataForScanReportCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.dtcs.FindDTCSnapshotDataForScanReportCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23508,
+  "cinitMethod": 23497,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onFindDTCSnapshotDataForScanReport",
+      "traitKind": "method",
+      "methodIndex": 23499,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.report.FindDTCSnapshotDataForScanReportMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "4aa039f0e8c3b866cf3b468e70f5a49f04bd803960d1ac27fa1423c367aa0e85",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onGetDtcSnaphostDataForScanReportError",
+      "traitKind": "method",
+      "methodIndex": 23503,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.report.GetDtcSnapshotDataForScanReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "28f268f8c5880c91cb8414c1ef95e2165b0d5a82edc43f8a7ab661160e6a5191",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onGetDtcSnaphostQualificationForScanReportMessageError",
+      "traitKind": "method",
+      "methodIndex": 23507,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.report.GetDtcComponentQualificationDataForScanReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "5896df186596c96d5985bd43da1cd14f52ffbdba8670ce6e80bfc1465126d74a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onGetDtcSnapshotDataForScanReportResult",
+      "traitKind": "method",
+      "methodIndex": 23501,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.report.GetDtcSnapshotDataForScanReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "36ce3164cc5f5770191605e8ace36c119b86c817ce534fcc5af4b3fea4b7fb5f",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onGetDtcSnapshotQualificationForScanReportMessageResult",
+      "traitKind": "method",
+      "methodIndex": 23505,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.report.GetDtcComponentQualificationDataForScanReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "efdca99aa460104f34670f7e70fd8812850bfaa497562f8258ca3aa987d1c794",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "QualifyData",
+      "traitKind": "method",
+      "methodIndex": 23498,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 185,
+      "bytecode": {
+        "codeLength": 185,
+        "codeSha256": "5568effe88648719225c046e384cc94f0b022682d39830841ae74bbf80273334",
+        "bytecodeLineCount": 12
+      }
+    }
+  ]
+}

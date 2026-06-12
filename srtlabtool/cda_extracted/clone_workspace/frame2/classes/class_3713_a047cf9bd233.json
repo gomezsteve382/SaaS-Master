@@ -1,0 +1,224 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3713,
+  "className": "mx.rpc.wsdl.WSDLEncoding",
+  "classNameNormalized": "mx.rpc.wsdl.WSDLEncoding",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55479,
+  "cinitMethod": 55478,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "encodingStyle",
+      "traitKind": "getter",
+      "methodIndex": 55480,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "8f3e4293c775532385fde215d005ae4840e4ff5b64cb93ed6847ac95df2f8348",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "encodingStyle",
+      "traitKind": "setter",
+      "methodIndex": 55481,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "827560f34ac3b51613614800fbfbf5b470ef357484499722312971dd4ff3f7aa",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hasPart",
+      "traitKind": "method",
+      "methodIndex": 55490,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "adadd9a6bb8545923b231e85d008e7e18a13b412408f381a8e35eb695e254799",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "message",
+      "traitKind": "getter",
+      "methodIndex": 55482,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "QName",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2504cbee490252b4b9950759b9bfc52f320774ef8bcbf84af7cd8733818ce1bd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "message",
+      "traitKind": "setter",
+      "methodIndex": 55483,
+      "methodName": "",
+      "paramTypes": [
+        "QName"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b1dd5faf35883cb6bac1f54ce341b17c93e8b76ee5727323a8d7dd6ee69c5ff1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "namespaceURI",
+      "traitKind": "getter",
+      "methodIndex": 55484,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "960cefddb0b3cbb0644f9101bd3dc3316bba2c0b50e22be0096d9034a0308dcc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "namespaceURI",
+      "traitKind": "setter",
+      "methodIndex": 55485,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "66ac3af5a4d65961fc866b57afbad1a0b917eb5f1aa3702354663c8a03271624",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "parts",
+      "traitKind": "getter",
+      "methodIndex": 55486,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0b61b71d9d80612d5145cd8bd8c4e6fa27318e8d17282c0557c984de0ab866d8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setParts",
+      "traitKind": "method",
+      "methodIndex": 55491,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "2d3b9adffe619d2943bd24c2ede10e04c2d8e32e56af3881b0229ce7d4c67743",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "soapConstants",
+      "traitKind": "getter",
+      "methodIndex": 55487,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.soap.SOAPConstants",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "6dc1d3817d1b616efcb4e096ddc467152226ca04f03fd90125dbc8e13381a324",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "useStyle",
+      "traitKind": "getter",
+      "methodIndex": 55488,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c5af35546a1ed89c5507509a9cf7ae3c6ff201513aafa9a7f24317df2e94b405",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useStyle",
+      "traitKind": "setter",
+      "methodIndex": 55489,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f2444fcf05cbb9949f1a63d50ef7cb66993b99b3594f287699d8ab5c34be740a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,626 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2278,
+  "className": "com.diagnosticProcedures.model.DPSettings",
+  "classNameNormalized": "com.diagnosticProcedures.model.DPSettings",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 40590,
+  "cinitMethod": 40580,
+  "iinitBytecode": {
+    "codeLength": 124,
+    "codeSha256": "281d3dec6eccefacede0f928749099b3c7d87d77c4796e6084ed341c38c87a5e",
+    "bytecodeLineCount": 8
+  },
+  "cinitBytecode": {
+    "codeLength": 93,
+    "codeSha256": "1f179164ecead76f2034d5edf596fa84cfb177cc4e877296dacfdeae01c1a039",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dealerCode",
+      "traitKind": "getter",
+      "methodIndex": 40613,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9e3d984d82e1eba68749cc9e1c4fa3e98b1c1577f71c86669ae27d2b8a2c993b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "dealerCode",
+      "traitKind": "setter",
+      "methodIndex": 40614,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "7e3b0c4c37fbc8aebe0dafed60a1c21945402c3f732ad37bd59236634a35c74d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "exclusiveAccessCommand",
+      "traitKind": "getter",
+      "methodIndex": 40583,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.api.ICommand",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "14ee0bd26751ec5e7defcf9aa8f8fc4a8692188cb5df48b12705688636f95581",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "exclusiveAccessCommand",
+      "traitKind": "setter",
+      "methodIndex": 40615,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.ICommand"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "31892bfbe2344ff3e3ba13855a7a90cb0cad4b09de2654c037cdf4eee805ef57",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "flashNodeSupported",
+      "traitKind": "getter",
+      "methodIndex": 40611,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "43d40992a024e114b8bc277ae9f04fea4ae3ac354038b1f661a949c40b120ced",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashNodeSupported",
+      "traitKind": "setter",
+      "methodIndex": 40612,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "f798348f051602a3bd2096865921f83e52b3e3990ecf11224e3bab7731b6a4cf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "fontSize",
+      "traitKind": "getter",
+      "methodIndex": 40605,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7228745050a42151c6f917f0fe0aeabc37449d68b501138797feaaeb62af273d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fontSize",
+      "traitKind": "setter",
+      "methodIndex": 40606,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "80e599be12d1ef5413cedb36c6d37b2605b68ed95ef7e48cd5c2137e46343f63",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "instanceFactory",
+      "traitKind": "getter",
+      "methodIndex": 40589,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.api.IDiagnosticProcedureInstanceFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "02130cea226dcea790e37408be3073bba9368fe937eb321bd98d0c7fd029444f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "instanceFactory",
+      "traitKind": "setter",
+      "methodIndex": 40618,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.IDiagnosticProcedureInstanceFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "68d7b6e12769cb73db8c777177dc457e7949aad555fcf43b0992b93e74acadcf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "isLoggedIn",
+      "traitKind": "getter",
+      "methodIndex": 40601,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "d5a3f3daff2b3d2457dd1cfa202e1b1a2a399c00c2e072737d8671245d02a08b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "locale",
+      "traitKind": "getter",
+      "methodIndex": 40607,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "50c688e68cb6bfdea33a132093e528a09f590285d9c3e55ca9e26e60a2bdd445",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "locale",
+      "traitKind": "setter",
+      "methodIndex": 40608,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "f826ea10e4b7a39627e5e595acacd3dc41f0e3f7821cf7f9d5733b8e1822d236",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "loginCancelled",
+      "traitKind": "method",
+      "methodIndex": 40602,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "9403c9e160ca6d34e65f963317e002b5d9698ea6f28f413acff5b55d6d2072a0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "manualSessionControl",
+      "traitKind": "getter",
+      "methodIndex": 40585,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.api.ICommand",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "078c521134af28541f1895e63c69892186d925036a0428cb2bb3e9bb8af77c6e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "manualSessionControl",
+      "traitKind": "setter",
+      "methodIndex": 40616,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.ICommand"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "dbb5a95154269e6e830ac0a21019a0af7f3558fa56a77d47b547dd55693710ce",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "popUpManager",
+      "traitKind": "getter",
+      "methodIndex": 40591,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "wde.common.ui.dialog.WDEPopUpManager",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "746766e66f97fabb7e618a5fa20546d3d9cb8b7307c1e8b8cc10e093a63b9b5a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "popUpManager",
+      "traitKind": "setter",
+      "methodIndex": 40592,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.ui.dialog.WDEPopUpManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "564e0c3ea639800a88e2afb4da061b8235216826783cab5a78459f73c22f3db2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "portDataVO",
+      "traitKind": "getter",
+      "methodIndex": 40603,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.vo.PortDataVO",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c62ba278ecbb042d7e7ff4a1af0e67f77c01414ba2179d5f7b17930e64de0011",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "portDataVO",
+      "traitKind": "setter",
+      "methodIndex": 40604,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.vo.PortDataVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "2a6f13485695232e9b0a86514c286c7512b3c01bb4b5c605aeed38707a18bbe8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._1164573845serviceFactory",
+      "traitKind": "setter",
+      "methodIndex": 40586,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.IServiceFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "46e3a9f5c44e5217e56e455f6e5e6b4bcadc42631bd726a5347bfd89eac676e0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._1455478963manualSessionControl",
+      "traitKind": "setter",
+      "methodIndex": 40584,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.ICommand"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "29d6e26153189813ac0abefc0a69f45bc62120201aeab8d282cf867c0f358849",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._1615712949instanceFactory",
+      "traitKind": "setter",
+      "methodIndex": 40588,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.IDiagnosticProcedureInstanceFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "2a0a1a790a2ebacf7f6368f2d4063ebd074d6cb693c09a2948f5b5a4cd669db9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._796570807exclusiveAccessCommand",
+      "traitKind": "setter",
+      "methodIndex": 40582,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.ICommand"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "05226c9745533e9ecf50ae4d46592739b47799bd465e8ced5288f4c51778a721",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serviceFactory",
+      "traitKind": "getter",
+      "methodIndex": 40587,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.api.IServiceFactory",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "89f4e30cb05434af527a2cb934b6005429450bbccd435d5e702d5a65daa525df",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serviceFactory",
+      "traitKind": "setter",
+      "methodIndex": 40617,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.api.IServiceFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "7ceda3df37b394d861687dea962ecc3e2c9983adf93098e9861b807ffe368dce",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "sessionToken",
+      "traitKind": "getter",
+      "methodIndex": 40599,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ea9c192946c0ebe4c34edbffbc182e27036aec79b255296cceacf3927fd49728",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "sessionToken",
+      "traitKind": "setter",
+      "methodIndex": 40600,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "c5bf62c7e7af7bad5d81009a474b4b783be324321caaf186bc669817d65e3cb2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "wdeServiceDescriptor",
+      "traitKind": "getter",
+      "methodIndex": 40595,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "wde.common.services.IServicesDescriptor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1c8e06f554bfbc565389472bee5a92b1d5a10f0f239cd382f086d101d16248c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wdeServiceDescriptor",
+      "traitKind": "setter",
+      "methodIndex": 40596,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IServicesDescriptor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "21df0ab79dbb76daaa434161c1bbbf95e12bf8325dc6a87bda19739bb6b2f369",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "webNodeSupported",
+      "traitKind": "getter",
+      "methodIndex": 40609,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f7a14ea5e08644d5012500d879cd8af74291fb4959fbad837ea4393e3a327eff",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "webNodeSupported",
+      "traitKind": "setter",
+      "methodIndex": 40610,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "10a2e0836d50510446339fb17a009b20bd4f90cec640cc855b746febb26468d3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "webServicesDescriptor",
+      "traitKind": "getter",
+      "methodIndex": 40597,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "wde.common.services.IServicesDescriptor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "81e019364fff559934d2a3b3cf7ca76c68a3cafe32ecb55547f307b1a3b746eb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "webServicesDescriptor",
+      "traitKind": "setter",
+      "methodIndex": 40598,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IServicesDescriptor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "185473f58172b1bc4d44e57a4dc421bda17ed0be4034293ea17120a630db48ac",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "wiTechServicesDescriptor",
+      "traitKind": "getter",
+      "methodIndex": 40593,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "wde.common.services.IServicesDescriptor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9f9dc4a64c3c44ce185bc715cc9ce944b78c3e0029aba0b5e6b8397c298162ab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wiTechServicesDescriptor",
+      "traitKind": "setter",
+      "methodIndex": 40594,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.IServicesDescriptor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "a779cd052c46495794b36dc45e406cb7e1bf3877eb5d53e5a92584ea2eee0f6f",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 40581,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.model.DPSettings",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "eae5aa8f71e9b3271c1e15e0a87f6eca321a401e6364dac34dd8643ce3e7a390",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

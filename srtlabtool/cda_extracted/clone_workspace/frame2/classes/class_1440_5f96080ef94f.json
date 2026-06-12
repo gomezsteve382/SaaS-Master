@@ -1,0 +1,235 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1440,
+  "className": "spark.primitives.Ellipse",
+  "classNameNormalized": "spark.primitives.Ellipse",
+  "superName": "spark.primitives.supportClasses.FilledElement",
+  "superNameNormalized": "spark.primitives.supportClasses.FilledElement",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 31834,
+  "cinitMethod": 31833,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getBoundsXAtSize",
+      "traitKind": "method",
+      "methodIndex": 31838,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 208,
+      "bytecode": {
+        "codeLength": 208,
+        "codeSha256": "63fb569cc950a4f54417a306325e8b82db3eb18ddddec8315a8a6bc674c68f02",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "getBoundsYAtSize",
+      "traitKind": "method",
+      "methodIndex": 31839,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 208,
+      "bytecode": {
+        "codeLength": 208,
+        "codeSha256": "04f14a50155d743e24ac6f3c7ef6dec3414487fd0f4ee34a5db0b1fc1c2a133b",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "getLayoutBoundsX",
+      "traitKind": "method",
+      "methodIndex": 31840,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "4cd5988c8517b10973cd8ab5637d0441d4fa1b5cfff6d84cb178e9c3d47217f6",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "getLayoutBoundsY",
+      "traitKind": "method",
+      "methodIndex": 31841,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "a2de8fd2d90dbdfa681ceb710ffe8d0cebd9fa7504aaab47fdbcdb4a6a64b494",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.fitLayoutBoundsIterative",
+      "traitKind": "method",
+      "methodIndex": 31845,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": true,
+      "codeLength": 361,
+      "bytecode": {
+        "codeLength": 361,
+        "codeSha256": "ed72d3f16dc10a600703a70b5266f65d5dd2e862fb42fb7cfbc62fd1cc8ecfcc",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "PrivateNs.getBoundingBox",
+      "traitKind": "method",
+      "methodIndex": 31842,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "f5ebed73ed559ef2eaaf8be388ec35f6836a998e69c5ab43ff6afb30a43d3b2d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.setLayoutBoundsTransformed",
+      "traitKind": "method",
+      "methodIndex": 31844,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 339,
+      "bytecode": {
+        "codeLength": 339,
+        "codeSha256": "4826496bfc3c52f6ec469e86cba0a522f8c19334a1bb2c2f1b4a2f04b986e9eb",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "setLayoutBoundsSize",
+      "traitKind": "method",
+      "methodIndex": 31843,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "6bff181794dd17013fdb2d86a9ed0d06d7d5852f14d5c722c9f3d87563c5614d",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.primitives:Ellipse.draw",
+      "traitKind": "method",
+      "methodIndex": 31835,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.Graphics"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "786cf913996af288d6d3825c1c147f717a3453cd6afa2a437606cb81594faf9f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.primitives:Ellipse.transformHeightForLayout",
+      "traitKind": "method",
+      "methodIndex": 31837,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "c3b8307c0c94e1814f4c94b9e9864feff7760d1e4f387b8cf14cc2af5ae4779f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "spark.primitives:Ellipse.transformWidthForLayout",
+      "traitKind": "method",
+      "methodIndex": 31836,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "ffe19288a94b5ed5124e5a6d85bfe0234514f6e4e701fcaf5e0caf15f9412ae0",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,131 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 291,
+  "className": "mx.messaging.messages.CommandMessage",
+  "classNameNormalized": "mx.messaging.messages.CommandMessage",
+  "superName": "mx.messaging.messages.AsyncMessage",
+  "superNameNormalized": "mx.messaging.messages.AsyncMessage",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 6571,
+  "cinitMethod": 6569,
+  "iinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "09d1855bb68080889384eca6374f467060df6ac37fcb5347de815e8d68053ce5",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 309,
+    "codeSha256": "3beb70141bb464f6a8e4d8c544fa5859073e6f7e8cf279f5493173b43aae0c81",
+    "bytecodeLineCount": 20
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getSmallMessage",
+      "traitKind": "method",
+      "methodIndex": 6572,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.messages.IMessage",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "8e5176e4be442317c0c58123b8d0d820fa55a5f8919e267dcedf020c707c4394",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.messaging.messages:CommandMessage.addDebugAttributes",
+      "traitKind": "method",
+      "methodIndex": 6573,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "9a6d7b4ed56b626730e7dd30d521391c8fe84df05c46797d34aa5fddbcccd10b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readExternal",
+      "traitKind": "method",
+      "methodIndex": 6575,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 167,
+      "bytecode": {
+        "codeLength": 167,
+        "codeSha256": "8a675d1ef357f40d46c41a1fe80952a6f444bce99f2f2140a42d7afc3cdd44fb",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 6574,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "3c8279a59892007d1d51f1dd51c46f8bae914efc707930de323a1a2ec2a7391b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "writeExternal",
+      "traitKind": "method",
+      "methodIndex": 6576,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataOutput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "40898acfe3509266c4ae6060e2e61ce9e968c45e4786ff7213905f93e2279f88",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getOperationAsString",
+      "traitKind": "method",
+      "methodIndex": 6570,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 265,
+      "bytecode": {
+        "codeLength": 265,
+        "codeSha256": "ad53812d616a2e5a32b0dbf9aa425ac506903bee0d2178723b4a488e2093206d",
+        "bytecodeLineCount": 17
+      }
+    }
+  ]
+}

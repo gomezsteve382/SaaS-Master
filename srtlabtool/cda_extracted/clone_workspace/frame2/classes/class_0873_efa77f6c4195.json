@@ -1,0 +1,51 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 873,
+  "className": "com.chrysler.cda.domain.witech.command.WebServiceBroker",
+  "classNameNormalized": "com.chrysler.cda.domain.witech.command.WebServiceBroker",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.domain.witech.interfaces.IWebServiceBroker"
+  ],
+  "iinitMethod": 17356,
+  "cinitMethod": 17354,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 17355,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.witech.interfaces.ISisalService"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "2800395b54ce054334ca227dd80d428c3b2045ec6190e08812f9b027649a17e4",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": []
+}

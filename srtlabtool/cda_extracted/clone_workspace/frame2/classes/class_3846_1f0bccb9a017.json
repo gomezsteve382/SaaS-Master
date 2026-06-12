@@ -1,0 +1,260 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3846,
+  "className": "com.hurlant.crypto.tls.SSLSecurityParameters",
+  "classNameNormalized": "com.hurlant.crypto.tls.SSLSecurityParameters",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.tls.ISecurityParameters"
+  ],
+  "iinitMethod": 56605,
+  "cinitMethod": 56603,
+  "iinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "ef51fdaf735528e946715ae42ec28c05e9078c75b466879630b24f055ad0974e",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "20db38ffb7e9d5fa4c94087a4ac9dbad4d31a77601f8b6ecb478367881c3e3f3",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "computeCertificateVerify",
+      "traitKind": "method",
+      "methodIndex": 56617,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 4,
+      "bytecode": {
+        "codeLength": 4,
+        "codeSha256": "3955430267c7daaf757f4cc0f0ff5f3270daf5903d8ad872c796cef0e761f18b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "computeVerifyData",
+      "traitKind": "method",
+      "methodIndex": 56616,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 432,
+      "bytecode": {
+        "codeLength": 432,
+        "codeSha256": "ada0be2fc4e433dec5e9efbaab1b847f1298dc582e2bb861756b6a6e0af72845",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "getBulkCipher",
+      "traitKind": "method",
+      "methodIndex": 56607,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f930701205311fa0dc452de9cb59c4729b01dfc848640f65e988ac5a69fe4f2c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getCipherType",
+      "traitKind": "method",
+      "methodIndex": 56608,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "60d4deffd1c6aed4bfbf28c2b22619207d9e4d39064d54a63376a1459b4f4ae6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getConnectionStates",
+      "traitKind": "method",
+      "methodIndex": 56618,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 435,
+      "bytecode": {
+        "codeLength": 435,
+        "codeSha256": "9c973ddc37bc2033eaa67bf22254fad39078659d4565f7699eacb5c1b1ff2289",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "getMacAlgorithm",
+      "traitKind": "method",
+      "methodIndex": 56609,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f3aec65657803859a9bb4856616cbdbe5520d905d5e09b9fe8bfc7ecbc834eb3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "reset",
+      "traitKind": "method",
+      "methodIndex": 56606,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "e5137ab4eda252cb19a76f71994587c7c1b67e419df72dd655d0754e9b7c8c23",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setCipher",
+      "traitKind": "method",
+      "methodIndex": 56610,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 200,
+      "bytecode": {
+        "codeLength": 200,
+        "codeSha256": "bd0147c0eb01482fa4296d0d413d880a4bd41773aae9718894769fc92b021374",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "setClientRandom",
+      "traitKind": "method",
+      "methodIndex": 56613,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "19212eceac93c4220c6a901b4c61f31c19c2d35d2919ce42d88c686f67f9a5dd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setCompression",
+      "traitKind": "method",
+      "methodIndex": 56611,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "778b49f68b38eb25cd49970e3e008a4bb983315077462266bf0827e827a5f931",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "setPreMasterSecret",
+      "traitKind": "method",
+      "methodIndex": 56612,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 479,
+      "bytecode": {
+        "codeLength": 479,
+        "codeSha256": "e5fa6b50580d4796cf0efea32c3fdc0cc22ebe9981301a312e4ce9e4945f08c7",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "setServerRandom",
+      "traitKind": "method",
+      "methodIndex": 56614,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "1db14e7e5431885586ffec0ca239dae69a268b09c9048801852185c2d2321b9c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "useRSA",
+      "traitKind": "getter",
+      "methodIndex": 56615,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "29b14099887a84ba67e043068bd7d8ffb49425a8f87ae512edae2442c5acfde3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "version",
+      "traitKind": "getter",
+      "methodIndex": 56604,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a938f9277751274e809f32c09fae2f02b9727cd343663dfdb2bdedd4299d7d87",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

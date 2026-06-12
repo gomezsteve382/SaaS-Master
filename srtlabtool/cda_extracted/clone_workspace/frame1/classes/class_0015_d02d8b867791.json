@@ -1,0 +1,221 @@
+{
+  "frame": "frame1",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 15,
+  "className": "mx.managers.SystemChildrenList",
+  "classNameNormalized": "mx.managers.SystemChildrenList",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IChildList"
+  ],
+  "iinitMethod": 376,
+  "cinitMethod": 375,
+  "iinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "b3a2cca74c4dca3387dd193353f4925b67c9156d89415a774ba7dfc657a1f146",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "70f78b5b1e3d8d47ac8bc312a76a65f1b3622838e1814f40505a7b75801a3b35",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addChild",
+      "traitKind": "method",
+      "methodIndex": 378,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "cc1e0998a30ac88af701726a1185d2def3d4dbe1c529dc5d79d0ef04779ee989",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "addChildAt",
+      "traitKind": "method",
+      "methodIndex": 379,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "int"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "989ddbb9fd5375c51693572973be2c5d5dc8a21ebcd60fba958772047a8e0be2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "contains",
+      "traitKind": "method",
+      "methodIndex": 387,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "59d2b7dfba0006ac47c6cceacc42c024a57410ca8cad1d98cff9984a47bf7783",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "getChildAt",
+      "traitKind": "method",
+      "methodIndex": 382,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "d37fe787b0599479cc1f591b6db71dea29f6202e974e27e9d1df9ab4eda42fa4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getChildByName",
+      "traitKind": "method",
+      "methodIndex": 383,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "018b81d9d3651ee9119a039559b8f5c9c46bed5b4ddd800ef392c5409d5a18aa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getChildIndex",
+      "traitKind": "method",
+      "methodIndex": 384,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "27c6dd376ea9cd1b1dad72989ae0a5345e058acde6f338075fc0d3f6fa638822",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getObjectsUnderPoint",
+      "traitKind": "method",
+      "methodIndex": 386,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Point"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "2b2e23c11c11ee003448db71a4c6a18268300304aa92dc88ec541fb18d45aaea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "numChildren",
+      "traitKind": "getter",
+      "methodIndex": 377,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "0f2ec9437836166786e77ddfce7778567eb8cd0438d4b4f13e3ae84946a6a18a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeChild",
+      "traitKind": "method",
+      "methodIndex": 380,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 93,
+      "bytecode": {
+        "codeLength": 93,
+        "codeSha256": "69978195b261f3c1eb99641727d5774db209fb54afca36cf398bfdad4b2a3302",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "removeChildAt",
+      "traitKind": "method",
+      "methodIndex": 381,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "9b0051faef585bef646b51c6dc0eec1cd151856bc42472c68faa2df6d3bee9f6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "setChildIndex",
+      "traitKind": "method",
+      "methodIndex": 385,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "2c7aad035454ea9e184f2c4c444559a4886c9ecb07e81769a16a12bbd08cbc82",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,68 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3521,
+  "className": "org.spicefactory.parsley.core.lifecycle.impl.DefaultLifecycleObserverRegistry",
+  "classNameNormalized": "org.spicefactory.parsley.core.lifecycle.impl.DefaultLifecycleObserverRegistry",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.lifecycle.LifecycleObserverRegistry"
+  ],
+  "iinitMethod": 53266,
+  "cinitMethod": 53265,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "d432bceb2ff2dc65e0bea23b87b4df49f8d8ca69689afb6e2bc84c15c7a28c2a",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addObserver",
+      "traitKind": "method",
+      "methodIndex": 53267,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.lifecycle.LifecycleObserver"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 100,
+      "bytecode": {
+        "codeLength": 100,
+        "codeSha256": "e370904325d2a56b6708af23f30bf2fe60fb8a4af6dd30c71a528e53aa73eb99",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "removeObserver",
+      "traitKind": "method",
+      "methodIndex": 53268,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.lifecycle.LifecycleObserver"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "82001b4fbba4999787dda513c2be72baaf45decfa8d3bf3582765d15c121954c",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

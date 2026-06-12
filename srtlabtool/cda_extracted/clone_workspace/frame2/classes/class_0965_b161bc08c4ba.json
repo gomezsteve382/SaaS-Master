@@ -1,0 +1,476 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 965,
+  "className": "com.chrysler.cda.presentation.component.edit.SettingsParent",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.edit.SettingsParent",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 19714,
+  "cinitMethod": 19713,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "059bfaeb73c663cd017003d251b68fe21fdaf1b62cf73d860228de59b9bad216",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 82,
+    "codeSha256": "572edb59bc863da2559be952950b8c2545ec165cff97bdebc45653dca1216aa9",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [
+    {
+      "traitName": "applySettings",
+      "traitKind": "method",
+      "methodIndex": 19716,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "d6a074dcf3bf72b9e0297d06355f0e631bd2a29302f9eff923cf20bcebafb4c7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "canFDController",
+      "traitKind": "getter",
+      "methodIndex": 19730,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.CANFDSettingsController",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5abda136b340089662b7cdc609e4435799951c145651f4a05a0e979c2036b537",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "canFDController",
+      "traitKind": "setter",
+      "methodIndex": 19731,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.CANFDSettingsController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a953871fef763f76565a017b5e57a2b28b7d2d4a4755bfdc3f9abd11f0012423",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "canFDModel",
+      "traitKind": "getter",
+      "methodIndex": 19728,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.CANFDSettingsModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "6676e925f0684cb49fe138b56cfe0e4a44a49be31b58b2bfdccd92e1b3acf4f6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "canFDModel",
+      "traitKind": "setter",
+      "methodIndex": 19729,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.CANFDSettingsModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f1999aa15f51ae937f7da8f88689951fe97c1217d07af2db9365a2cfcb245f3d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 19722,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "9e690571691e2502e41377ebedc56ce94e07fe53c31b85f90f16007897f2556f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 19723,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "3d9612f429cc630ff415fec33b489cd74e44843c4192c37faf318460896c19ea",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.edit:SettingsParent.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 19742,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b7cada0bbae4b0114e2d2febcf4ec0e393fdb87ef80ab96a266fe2e442ceb1ff",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashOptionsController",
+      "traitKind": "getter",
+      "methodIndex": 19734,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.FlashOptionsController",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "bd3ef6802079af3778cf69769a7bbe1a46efa4c8b44d2a5243d769d8dfcd9611",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashOptionsController",
+      "traitKind": "setter",
+      "methodIndex": 19735,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.FlashOptionsController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "1c62bcb0da6e5127cdab97ce60230fa080eac98546889fbfd01c65e3a19a9368",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "flashSettingsModel",
+      "traitKind": "getter",
+      "methodIndex": 19732,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.FlashSettingsModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "168434d6485fabfd0de593cb9a8ade59226382108fd36d2783ced92d11f21626",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashSettingsModel",
+      "traitKind": "setter",
+      "methodIndex": 19733,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.FlashSettingsModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "7be343fbc4f091a29940e12565079fc634ab238f3de2330c36d549f5c2ff5aa5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "generalSettingsController",
+      "traitKind": "getter",
+      "methodIndex": 19738,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.GeneralSettingsController",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "0e960acc4a94befc9790bc80026710fd4c262ceca6171faa9ddb26fd9a2ab81a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "generalSettingsController",
+      "traitKind": "setter",
+      "methodIndex": 19739,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.GeneralSettingsController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "2fa2c17a5222ca1a43c75d672d25125303daf00e4849df9991cc8f518ea551f3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "generalSettingsModel",
+      "traitKind": "getter",
+      "methodIndex": 19736,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.GeneralSettingsPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "71eee083eaf714160b360ccc7331144f6badc8fa875f32512de9fb15ff391a03",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "generalSettingsModel",
+      "traitKind": "setter",
+      "methodIndex": 19737,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.GeneralSettingsPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "3461cf7795113d7dbb1e87a57964e20b6bd79e4561db5aeb974bcb3f53661bfd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 19720,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "692d3e777981d2a4707f61fd94cb213f9f403c850254b740b07edf64823e3444",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 19721,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a3b1023869baf2aa54f30acad0732d4a0f24fca00947ba726f39000b7af46429",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 19715,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "9f3da2cc5733b829c411248f7c74673b1682a5f846705ff6f781489f2e95391f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "getter",
+      "methodIndex": 19718,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.SettingsPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fb2abb85e79d7795b05ec8b297105b11f225a2f01d199c9c91bc9abed0410bb4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "model",
+      "traitKind": "setter",
+      "methodIndex": 19719,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.SettingsPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4e55498b2d10b3385f8c7b9c7c1ce0d88fe9b7c521eab41b10a8665bf824fdb3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "revertSettings",
+      "traitKind": "method",
+      "methodIndex": 19717,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "afe8cf972422bd66f02aab9e19098838bfdd237489e0163611cf1fb1b8265fa9",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "settingsPM",
+      "traitKind": "getter",
+      "methodIndex": 19740,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.SettingsPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c20890f6c54c4db8723eff1a4e1cbbe49b3d04f99c6030a780dd98c4f0d35599",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "settingsPM",
+      "traitKind": "setter",
+      "methodIndex": 19741,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.SettingsPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "430940eb9be9c3067bffe5ca2ab9c712a7741ffe7b40af9806d5f523109bacad",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "transportLayerController",
+      "traitKind": "getter",
+      "methodIndex": 19726,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.TransportLayerController",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "8a5d327a04726cbeaeefcd57b82d09243a21cfcf96cd73ca4ce4f328f08ef5d7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transportLayerController",
+      "traitKind": "setter",
+      "methodIndex": 19727,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.TransportLayerController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0622737f0150901b253063c6e5dc969bb561b0e2c615dea8193dc076e9fedc77",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "transportLayerModel",
+      "traitKind": "getter",
+      "methodIndex": 19724,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.edit.TransportLayerModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "2e829157c6dc9e72569fed02f6f5d5d816f1c077e3bde0386e617df01b9560aa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "transportLayerModel",
+      "traitKind": "setter",
+      "methodIndex": 19725,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.edit.TransportLayerModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "54d6a4b55580e8649a52d0c4974531ac4159148c9c507c33568f67202f4416d9",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

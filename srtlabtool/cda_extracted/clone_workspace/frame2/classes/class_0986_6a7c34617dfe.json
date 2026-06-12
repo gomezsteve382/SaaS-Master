@@ -1,0 +1,67 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 986,
+  "className": "com.chrysler.cda.presentation.component.proxi.commands.PerformAlignmentCommand",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.commands.PerformAlignmentCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 20545,
+  "cinitMethod": 20542,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "4c9448d6096da095bc99f8fa8948ceea0ae7fb9513dd7ebe6999ad0d87bee98d",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getAlignmentInformationMessageHandler",
+      "traitKind": "method",
+      "methodIndex": 20544,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.PerformAlignmentMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "9f224dd63a7a9bf0cecb5ad51e2196e852e8bd487db1a035b000f9f1a5470ca2",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "extractECUInstanceIds",
+      "traitKind": "method",
+      "methodIndex": 20543,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "4e645ce1e4e7f81d06944a338fc738baaf278d9041115bab6311f757633ac2e4",
+        "bytecodeLineCount": 6
+      }
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1380,
+  "className": "PrivateNs.LineSegment",
+  "classNameNormalized": "PrivateNs.LineSegment",
+  "superName": "PrivateNs.PathSegment",
+  "superNameNormalized": "PrivateNs.PathSegment",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 30254,
+  "cinitMethod": 30253,
+  "iinitBytecode": {
+    "codeLength": 8,
+    "codeSha256": "759834360b3138b4f9f149bb91b34cde0e9d339d5cd03f58962655320a4089b4",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "draw",
+      "traitKind": "method",
+      "methodIndex": 30255,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.GraphicsPath",
+        "Number",
+        "Number",
+        "Number",
+        "Number",
+        "PrivateNs.PathSegment"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "33435384266432077590b222dd1e26886837e3bdfa2bb352c980bd8483a6eb7d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getBoundingBox",
+      "traitKind": "method",
+      "methodIndex": 30256,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.PathSegment",
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 212,
+      "bytecode": {
+        "codeLength": 212,
+        "codeSha256": "44d5927502a6a0f2b59899388e4c70ca32a15e102d187b3a31706ce8ee8c3271",
+        "bytecodeLineCount": 14
+      }
+    },
+    {
+      "traitName": "getTangent",
+      "traitKind": "method",
+      "methodIndex": 30257,
+      "methodName": "",
+      "paramTypes": [
+        "PrivateNs.PathSegment",
+        "Boolean",
+        "Number",
+        "Number",
+        "flash.geom.Matrix",
+        "flash.geom.Point"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "dbc0c6dff4fd16d7be1ef0c518161858f5ad3c3c5d38456b2f3691aa91314fdc",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

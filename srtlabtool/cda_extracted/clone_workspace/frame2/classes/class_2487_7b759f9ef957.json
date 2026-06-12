@@ -1,0 +1,115 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2487,
+  "className": "PrivateNs.DirectHTTPMessageResponder",
+  "classNameNormalized": "PrivateNs.DirectHTTPMessageResponder",
+  "superName": "mx.messaging.MessageResponder",
+  "superNameNormalized": "mx.messaging.MessageResponder",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42920,
+  "cinitMethod": 42919,
+  "iinitBytecode": {
+    "codeLength": 38,
+    "codeSha256": "c7bcbeb14cb9833eac597f87f99037571cfce34fafc5db83d52b0e08eac28a24",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "completeHandler",
+      "traitKind": "method",
+      "methodIndex": 42923,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 92,
+      "bytecode": {
+        "codeLength": 92,
+        "codeSha256": "e2152103fbbca9cc5f57ec3c083d39e104402c05ad72149f5171ce9f89a800b4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "DirectHTTPChannel.as$153:DirectHTTPMessageResponder.requestTimedOut",
+      "traitKind": "method",
+      "methodIndex": 42925,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 200,
+      "bytecode": {
+        "codeLength": 200,
+        "codeSha256": "cfdd3a539c17cee19b8d42035f802738eb3641a396fc203b654a12c4f351d6e8",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "errorHandler",
+      "traitKind": "method",
+      "methodIndex": 42921,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 257,
+      "bytecode": {
+        "codeLength": 257,
+        "codeSha256": "63d03070d3b013a88b8838e652f38660159d7d79b21fc828d28ac61258f58261",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "httpStatusHandler",
+      "traitKind": "method",
+      "methodIndex": 42924,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.HTTPStatusEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "087c12848a457f04bcca272dfae428ab178fb584c6a341026dec8c9f2a155370",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "securityErrorHandler",
+      "traitKind": "method",
+      "methodIndex": 42922,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 214,
+      "bytecode": {
+        "codeLength": 214,
+        "codeSha256": "32a9e1fd74a71d75534463b393cd68692738528c455e111e3bc82efe57981a10",
+        "bytecodeLineCount": 14
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,177 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3025,
+  "className": "com.diagnosticProcedures.model.DataStore",
+  "classNameNormalized": "com.diagnosticProcedures.model.DataStore",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 48537,
+  "cinitMethod": 48536,
+  "iinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "5947e9c3de0b247e76f09c3f61c6018b0daefadaf11277e33f3e2f092710d53e",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addListener",
+      "traitKind": "method",
+      "methodIndex": 48538,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.model.DataStoreListener"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 73,
+      "bytecode": {
+        "codeLength": 73,
+        "codeSha256": "17280f26a594f166ba29b08392d9143da90f4348d027890030f83b4e2788e5ff",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "hasListeners",
+      "traitKind": "getter",
+      "methodIndex": 48542,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "b694d3aa886ec3a298fa5afa3e2532e9175296b9bf0b16f4756a755f59939952",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isProducer",
+      "traitKind": "method",
+      "methodIndex": 48540,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.model.DataStoreProducer"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "24f97915ffa655ac4b524644098ad1784394e28efe4f3c8603f9448a7980fba4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "isValueSet",
+      "traitKind": "getter",
+      "methodIndex": 48541,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5a96eb65ae0b37bd6419c501830f23b68af28889dbe1fc8da59ea16e95eaff94",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "producer",
+      "traitKind": "setter",
+      "methodIndex": 48546,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.model.DataStoreProducer"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "ff9c02ef4543b14a3b20b2bbcc7039a8d718a20fd90443e3cc92692b35246226",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "removeListener",
+      "traitKind": "method",
+      "methodIndex": 48539,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.model.DataStoreListener"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "45e2bd278f46c4874ed0d1b09bf2ebee61ef1160930da56004ec1ee01224f517",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "reset",
+      "traitKind": "method",
+      "methodIndex": 48543,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "3985b27b7191566741dde119e6c4cfc7eefbd1e1f74fdb0a2a29b95f884ee637",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "value",
+      "traitKind": "getter",
+      "methodIndex": 48545,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ec3cde59291b87cdf763e5d908086522f0bbb1021b3fb23e75a0dab5f66a13d4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "value",
+      "traitKind": "setter",
+      "methodIndex": 48544,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "1a47fc579b33005418b6f4e6d26d8d74010e3ad193b6b32fd3bde511bceef627",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

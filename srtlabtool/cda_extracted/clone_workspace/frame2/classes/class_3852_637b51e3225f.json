@@ -1,0 +1,143 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3852,
+  "className": "com.hurlant.util.der.ObjectIdentifier",
+  "classNameNormalized": "com.hurlant.util.der.ObjectIdentifier",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.util.der.IAsn1Type"
+  ],
+  "iinitMethod": 56649,
+  "cinitMethod": 56648,
+  "iinitBytecode": {
+    "codeLength": 76,
+    "codeSha256": "582f7f1f12f995cfad558f2edb837b5474d0b69bce6e8d0bb501b98891d378d6",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dump",
+      "traitKind": "method",
+      "methodIndex": 56656,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "59c81a7b162b95f456bdac3d5a4567054d0cdb8c2ce68618db1914470b0a7299",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getLength",
+      "traitKind": "method",
+      "methodIndex": 56652,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c8e55b0eaa57d75ac117ed964472b2e6b0d3cc66a23ac4cb3c8c492f404e1a4a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getType",
+      "traitKind": "method",
+      "methodIndex": 56653,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "60f1fcf53d3e11567952cc4976d78f328ed29fe9af7e3d91b8c4015ce56d5e4e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.generate",
+      "traitKind": "method",
+      "methodIndex": 56650,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "96419bcfbc06caa736bd4d2a8023751f573ff1d26d6d5c49b6f5f1ce5e3d99b8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.parse",
+      "traitKind": "method",
+      "methodIndex": 56651,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "6352ad4363af4f36126bd4f997f60b9aa8be96990031fecf39c4a70f2a9311de",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "toDER",
+      "traitKind": "method",
+      "methodIndex": 56654,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 409,
+      "bytecode": {
+        "codeLength": 409,
+        "codeSha256": "c69079b834a992bf3143113ecf76dd97f261ccdb8baec91bdc9184a62230feb8",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 56655,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "f503bb63640ac34eb609f15191b6614916885f90de6e5161312f3e2060f18181",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

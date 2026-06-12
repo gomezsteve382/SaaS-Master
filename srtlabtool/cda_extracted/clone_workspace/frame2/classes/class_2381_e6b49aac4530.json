@@ -1,0 +1,145 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2381,
+  "className": "com.chrysler.cda.event.message.buslog.BuslogStreamMessageFilter",
+  "classNameNormalized": "com.chrysler.cda.event.message.buslog.BuslogStreamMessageFilter",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "buslog",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 41594,
+  "cinitMethod": 41592,
+  "iinitBytecode": {
+    "codeLength": 39,
+    "codeSha256": "dcaf312fa3ab8d7c594e589c614059353081391c25a865f018f2d14fd1f423b8",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "b134f77461bd70166b85b057d2ef0d865b7ec62164e79dac80b8ca3635a69603",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "copy",
+      "traitKind": "method",
+      "methodIndex": 41599,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.event.message.buslog.BuslogStreamMessageFilter",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "d48815057aff4a6b07e241fbbcb286404dab5da3483f44914500d3a32553ca74",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "equals",
+      "traitKind": "method",
+      "methodIndex": 41600,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.buslog.BuslogStreamMessageFilter"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "f11bbfbd553090118f834eed63cdaacbe0d15b2d2729e722df1407fd640fece2",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "filterType",
+      "traitKind": "getter",
+      "methodIndex": 41595,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b13121f28150d0273d88ff486ae07d32de9b04b604852e14250131566327fdd2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "filterType",
+      "traitKind": "setter",
+      "methodIndex": 41596,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "1e66851dd7059323026a85f1dbc75291959fddacf2ef5a8e84b70f3ec2e81fe7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "max",
+      "traitKind": "getter",
+      "methodIndex": 41598,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "3bead12135e1b401b328533bedc7957092e958969a7a07e4c1fb8c8bf3eda143",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "min",
+      "traitKind": "getter",
+      "methodIndex": 41597,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "54470f367cead800f99b116423a506915c2fecaa6c6df233b555d3383d32bc18",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "CreatePassFilter",
+      "traitKind": "method",
+      "methodIndex": 41593,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint"
+      ],
+      "returnType": "com.chrysler.cda.event.message.buslog.BuslogStreamMessageFilter",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "42c80a5b3750435a3ed2bd7e871f71a2cd333ae43d26850fe0aa896dc3dfec93",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

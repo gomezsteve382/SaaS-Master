@@ -1,0 +1,440 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 208,
+  "className": "spark.core.IEditableText",
+  "classNameNormalized": "spark.core.IEditableText",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "spark.core.IDisplayText"
+  ],
+  "iinitMethod": 4163,
+  "cinitMethod": 4128,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "spark.core:IEditableText.accessibilityProperties",
+      "traitKind": "getter",
+      "methodIndex": 4129,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.accessibility.AccessibilityProperties",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.accessibilityProperties",
+      "traitKind": "setter",
+      "methodIndex": 4130,
+      "methodName": "",
+      "paramTypes": [
+        "flash.accessibility.AccessibilityProperties"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.appendText",
+      "traitKind": "method",
+      "methodIndex": 4159,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.displayAsPassword",
+      "traitKind": "getter",
+      "methodIndex": 4131,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.displayAsPassword",
+      "traitKind": "setter",
+      "methodIndex": 4132,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.editable",
+      "traitKind": "getter",
+      "methodIndex": 4133,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.editable",
+      "traitKind": "setter",
+      "methodIndex": 4134,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.enabled",
+      "traitKind": "getter",
+      "methodIndex": 4135,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.enabled",
+      "traitKind": "setter",
+      "methodIndex": 4136,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.focusEnabled",
+      "traitKind": "getter",
+      "methodIndex": 4137,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.focusEnabled",
+      "traitKind": "setter",
+      "methodIndex": 4138,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.horizontalScrollPosition",
+      "traitKind": "getter",
+      "methodIndex": 4139,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.horizontalScrollPosition",
+      "traitKind": "setter",
+      "methodIndex": 4140,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.insertText",
+      "traitKind": "method",
+      "methodIndex": 4158,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.lineBreak",
+      "traitKind": "getter",
+      "methodIndex": 4141,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.lineBreak",
+      "traitKind": "setter",
+      "methodIndex": 4142,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.maxChars",
+      "traitKind": "getter",
+      "methodIndex": 4143,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.maxChars",
+      "traitKind": "setter",
+      "methodIndex": 4144,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.multiline",
+      "traitKind": "getter",
+      "methodIndex": 4145,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.multiline",
+      "traitKind": "setter",
+      "methodIndex": 4146,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.restrict",
+      "traitKind": "getter",
+      "methodIndex": 4147,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.restrict",
+      "traitKind": "setter",
+      "methodIndex": 4148,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.scrollToRange",
+      "traitKind": "method",
+      "methodIndex": 4157,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.selectable",
+      "traitKind": "getter",
+      "methodIndex": 4149,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.selectable",
+      "traitKind": "setter",
+      "methodIndex": 4150,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.selectAll",
+      "traitKind": "method",
+      "methodIndex": 4161,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.selectionActivePosition",
+      "traitKind": "getter",
+      "methodIndex": 4151,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.selectionAnchorPosition",
+      "traitKind": "getter",
+      "methodIndex": 4152,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.selectRange",
+      "traitKind": "method",
+      "methodIndex": 4160,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.setFocus",
+      "traitKind": "method",
+      "methodIndex": 4162,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.tabIndex",
+      "traitKind": "getter",
+      "methodIndex": 4153,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.tabIndex",
+      "traitKind": "setter",
+      "methodIndex": 4154,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.verticalScrollPosition",
+      "traitKind": "getter",
+      "methodIndex": 4155,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "spark.core:IEditableText.verticalScrollPosition",
+      "traitKind": "setter",
+      "methodIndex": 4156,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

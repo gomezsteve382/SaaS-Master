@@ -1,0 +1,221 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1097,
+  "className": "com.chrysler.cda.presentation.component.help.SGWHelp",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.help.SGWHelp",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 23720,
+  "cinitMethod": 23716,
+  "iinitBytecode": {
+    "codeLength": 369,
+    "codeSha256": "ff4fcc169342721d10aca4de9d91b5342e03c195b554fbc7e938cf5fe783136b",
+    "bytecodeLineCount": 24
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "d60800e30fa6ed074cc687e1fb17c25a59f0fb4984244bd30376765e76c8fe85",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.presentation.component.help:SGWHelp.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 23732,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1cbec1827cf99cdb0bccf73766b0cf77ca6cfb8bb655520d1c214b8488bef82a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "getter",
+      "methodIndex": 23733,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b00fb5c4f9e8a69e502dedbce6e86a1c6b7c93edf324e42975c200029b0d128c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18n",
+      "traitKind": "setter",
+      "methodIndex": 23734,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "b73c0c3ef24ffa18c6731e2d2567260b8ecf61c80f6f6a3df0eea9f8ed56a0a8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 23722,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 23721,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "f6ca5cc7f398c3179cd4abbff3eab362f3cd81e08f55399d8fab8c09144727d7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._SGWHelp_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 23723,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "9112e2796f729306ffc39a5ebaf5d55c7780632b9148eff6135360179ecaa1a5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._SGWHelp_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 23731,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "be943edb098de652610a736bbdaadc056725ce5df401a9602a456572d0b92e4d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._SGWHelp_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 23725,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Label",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "f5bafa7bbb4555404ae042425dc49ac46f4b39bb19c9c3a72b60a6f00d126638",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._SGWHelp_RichEditableText1_i",
+      "traitKind": "method",
+      "methodIndex": 23727,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "79e0f9060cd60b58c3935e26c5058871856a7d885c9e6bf2d19bca7e599f729d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._SGWHelp_Scroller1_c",
+      "traitKind": "method",
+      "methodIndex": 23726,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Scroller",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "a1f84ddc86aac947d9957287a9fdd3317e56813b07434d227480607a77a99165",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._SGWHelp_VGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 23724,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "d81ba9165b64aa534a98a52f53b938b6930355dc7f56fbb2b6aefcd79a9fbcc8",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 23717,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "76e7844249b8d2838ecff94cf7e642f7277cc6af5882b916aff308cbac47bdc6",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,384 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1028,
+  "className": "com.chrysler.cda.presentation.component.sync.SyncLoginController",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.sync.SyncLoginController",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "sync",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 21936,
+  "cinitMethod": 21912,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "db68ab9e35d0628c054add57bb3fcc4802fa3c7c61404eba03acde9a9cb9a95f",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "fda99cb0f17e7d19907ed2ffb8588845712559280326385f3177bff84e539061",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 21931,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "c60fa6e406195c005f19fe34859e067f18f80a492e27207cb2beb911a58bab50",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.sync.syncServerIsReachable",
+      "traitKind": "getter",
+      "methodIndex": 21929,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "42bc296f4549db3919e410de462050f5f284adfe937c250a7c00ec766b229234",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.sync.syncServerIsReachable",
+      "traitKind": "setter",
+      "methodIndex": 21930,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "7e0d4abec86dbfc74f604d7f504563bce8f0bb35ffb318498ad2856b8389509b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 21932,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "b60ac6fdadf1bb45df4649d04efbfd2db0017378b24a5a5560fdd290548bcd16",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "handleStartWDEFailure",
+      "traitKind": "method",
+      "methodIndex": 21928,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartWDEMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "0253b7b7fe58d66cbce7d55433dca979bc3f02e4e079c34ff83466edc3d6e380",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 21933,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "4726ecc37e2f508c237a75a6e4536f837b23d1dc4230aefbf1e3811af5ad3024",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "lastSyncNotificationError",
+      "traitKind": "method",
+      "methodIndex": 21920,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.sync.TestSyncStatusMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "b2f2fd8f2c5d48487aa8596748704c796a109ca501d92664a88b02f59e129a79",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "lastSyncNotificationSuccess",
+      "traitKind": "method",
+      "methodIndex": 21919,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.sync.TestSyncStatusMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 343,
+      "bytecode": {
+        "codeLength": 343,
+        "codeSha256": "f98063e4beafb96ea68ca813fcdbe7067af8207dfeb390e1d65c829a3dae9928",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "onAuthenticationSuccess",
+      "traitKind": "method",
+      "methodIndex": 21917,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.license.AuthenticateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 208,
+      "bytecode": {
+        "codeLength": 208,
+        "codeSha256": "caa9c0872124b8545a9f68f9bf4eccc4778144a6fdaae0efe95296d83427aea9",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "onStartSyncWithCredentialsResult",
+      "traitKind": "method",
+      "methodIndex": 21927,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.sync.StartSyncMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 117,
+      "bytecode": {
+        "codeLength": 117,
+        "codeSha256": "9783baa362526d5e3c9bf5c2b6d8e789cbd97ce23b5d8dad5d22ed8c74d3e14e",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "onSyncComplete",
+      "traitKind": "method",
+      "methodIndex": 21926,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.setup.SyncMonitorMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "c1c1167cf951e6604892a6d7e2210d51de10353934392c3d1b397b80f75c16d3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onTestConnectionError",
+      "traitKind": "method",
+      "methodIndex": 21914,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "ec1bb2138c8f5c38ccc1f5cc0202955cd914564bec7922301c481bab95c6bd48",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onTestConnectionResult",
+      "traitKind": "method",
+      "methodIndex": 21913,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.proxy.TestProxyConfigMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "36e9859cd10a6107a9dbdbf26e3f28b55000ab625cabedfdc104915dfea85929",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.showPopup",
+      "traitKind": "method",
+      "methodIndex": 21923,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "7c468894910338ba53e6740ea0203d1b449b6f30034d5dfe750832995893a077",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.showSyncAlert",
+      "traitKind": "method",
+      "methodIndex": 21922,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 87,
+      "bytecode": {
+        "codeLength": 87,
+        "codeSha256": "89fa32cd57522d4f03f8e08c550280f22a04a88c2092fc6e4b6319363b3a0a77",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 21934,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "fd9973cdbb306ffb835b7c0ff385e80d178bf54afd2b742827673fe33c58f372",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showSyncPrompt",
+      "traitKind": "method",
+      "methodIndex": 21918,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "89f119dffaaec7733fd05d1226fc3217a9cab5099bd266586be72c928248ba28",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "startWDE",
+      "traitKind": "method",
+      "methodIndex": 21925,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "054635093f241245a5d0caff2a837a3b65f65b8a43b15266becbb31edd54b5be",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "sync",
+      "traitKind": "method",
+      "methodIndex": 21924,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "b880ce3a322601292014301af8e828b9e0e636870621d94e6a8926a36cb31a4e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 21935,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "cc1873f08d64734d58fc76ac24d8f70e972547080868201733825510f90e9a2a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

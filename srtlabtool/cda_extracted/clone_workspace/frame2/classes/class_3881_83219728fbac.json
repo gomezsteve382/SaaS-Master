@@ -1,0 +1,100 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3881,
+  "className": "com.hurlant.crypto.tls.MACs",
+  "classNameNormalized": "com.hurlant.crypto.tls.MACs",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56834,
+  "cinitMethod": 56829,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 33,
+    "codeSha256": "8b654158be13110ced4e130183ca37758a20bf8617a7eff1a48bc558063390ac",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "getHashSize",
+      "traitKind": "method",
+      "methodIndex": 56830,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "4c9e57b2423c4c0aedd6fb973d399f517e9fd0827e68f4cf4fb8636c1d9e8e00",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getHMAC",
+      "traitKind": "method",
+      "methodIndex": 56832,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "com.hurlant.crypto.hash.HMAC",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "6a5a82406029383a06963efbb506eed87ba77ed097e0bff1baac48a54388a058",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getMAC",
+      "traitKind": "method",
+      "methodIndex": 56833,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "com.hurlant.crypto.hash.MAC",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "9f50d14102030fb75af32520d291c30358f1a7a59501f18d6f402557261daea4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getPadSize",
+      "traitKind": "method",
+      "methodIndex": 56831,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "fb2f2b3d6c9f8be6fc963c1f7f386bbff43a19c33605776fb0206aec963921d0",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

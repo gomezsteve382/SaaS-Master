@@ -1,0 +1,65 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 817,
+  "className": "com.chrysler.cda.domain.diagnostic.procedures.CDABatchExecutorFactories",
+  "classNameNormalized": "com.chrysler.cda.domain.diagnostic.procedures.CDABatchExecutorFactories",
+  "superName": "com.diagnosticProcedures.factory.BatchExecutorFactories",
+  "superNameNormalized": "com.diagnosticProcedures.factory.BatchExecutorFactories",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 15990,
+  "cinitMethod": 15987,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createDiagnosticProcedureBundles",
+      "traitKind": "method",
+      "methodIndex": 15988,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.DiagnosticProcedureBundlesLoader",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "fe485849a4a794e7154959310cbf6775d7f0cd8d412b02582467e2479bdfd58c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "createDiagnosticProcedureInstance",
+      "traitKind": "method",
+      "methodIndex": 15989,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "com.diagnosticProcedures.api.IDiagnosticProcedureProperties"
+      ],
+      "returnType": "com.diagnosticProcedures.DiagnosticProcedureInstance",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "6a198cdcaec8a8d0fc2bea53fd96daf952959a8d5f77324a331463c92b21c617",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

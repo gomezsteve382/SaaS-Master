@@ -1,0 +1,94 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2318,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.datadisplay.PollDataDisplayDDEValuesMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.datadisplay.PollDataDisplayDDEValuesMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.event.message.diagnostic.ecu.datadisplay.IDataDisplayDDEMessage"
+  ],
+  "iinitMethod": 41028,
+  "cinitMethod": 41027,
+  "iinitBytecode": {
+    "codeLength": 31,
+    "codeSha256": "84b4a444796b74ce27d8a93f0b684f8627d8d7c0490a197712e4be4a66efeaed",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ddes",
+      "traitKind": "getter",
+      "methodIndex": 41031,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a524d35f04d912aab2e496e05ddc1067473a820aab89fffbb6a8096af612d538",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "getter",
+      "methodIndex": 41029,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9e40732244739f3a56b31e595761122205bf85a296e4c801dab845888386296c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 41032,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0fa8da206519ca06188dbf41bd5e330c64624d9c98575557d3157ab0c588e07b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "token",
+      "traitKind": "getter",
+      "methodIndex": 41030,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "90676ae4a41f3bc086532bcc8042ad4e2a24e3616364374c88ebd3818f52a70a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

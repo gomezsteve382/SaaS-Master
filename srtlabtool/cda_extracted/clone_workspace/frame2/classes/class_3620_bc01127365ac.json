@@ -1,0 +1,243 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3620,
+  "className": "org.httpclient.HttpRequest",
+  "classNameNormalized": "org.httpclient.HttpRequest",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54374,
+  "cinitMethod": 54373,
+  "iinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "182b06e78fcebaca7e8e4db20911ffb587a402b5888985ddef042f01dec6f3dd",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 41,
+    "codeSha256": "a93d48d8062d7a8da08c0d0014d6d28030fdbcc42e3fc2066c9e0da0183b97c4",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addHeader",
+      "traitKind": "method",
+      "methodIndex": 54376,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "358dd42553d6a4e19f1e976cdc476407016d80b6ebe566ffd02238e9010c9e4f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "body",
+      "traitKind": "getter",
+      "methodIndex": 54381,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "175bbdfb6235b3a8afaabdbdcb94d50322d10f7f525aaf8b20ec932b0c10444e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "body",
+      "traitKind": "setter",
+      "methodIndex": 54382,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "57b3d586926695c6b88d37aa8d1f040c15e361486ba0715755b6b977950fe633",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "contentType",
+      "traitKind": "setter",
+      "methodIndex": 54383,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "713ae5615434a9fd59915a0f6c98320045131cb988b2cd754d383794463eb29a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getHeader",
+      "traitKind": "method",
+      "methodIndex": 54387,
+      "methodName": "",
+      "paramTypes": [
+        "com.adobe.net.URI",
+        "com.adobe.net.URI",
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 512,
+      "bytecode": {
+        "codeLength": 512,
+        "codeSha256": "83741ff75152841eca68051360651d8a094fb397a25017d630f1ec90eea58b90",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "hasRequestBody",
+      "traitKind": "getter",
+      "methodIndex": 54377,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "6bf5905f642386a5cc4ec3374c1dae7529e46af652e9064b79c92e2db70d104a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasResponseBody",
+      "traitKind": "getter",
+      "methodIndex": 54378,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "6bf5905f642386a5cc4ec3374c1dae7529e46af652e9064b79c92e2db70d104a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "header",
+      "traitKind": "getter",
+      "methodIndex": 54379,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.httpclient.HttpHeader",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "4cf7f2cc55a9f51e9c459d8e977ea7e11247e92e678214413aae960a63229575",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "method",
+      "traitKind": "getter",
+      "methodIndex": 54380,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "494fb2509b9b9dc5c6d7f962fbdec4caf71ca2150d44dbe1671baf8434b0860d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "org.httpclient:HttpRequest.loadDefaultHeaders",
+      "traitKind": "method",
+      "methodIndex": 54375,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "0105837d591d0670bcc822429ac76d1e38ec92ad6b3bd413bb3d441dbc391170",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setFormData",
+      "traitKind": "method",
+      "methodIndex": 54385,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 133,
+      "bytecode": {
+        "codeLength": 133,
+        "codeSha256": "a15cdd4fcd9416236284db2d5680bccb2ee0f1546a08ef4fc7ab0f2a4c986939",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "setMultipart",
+      "traitKind": "method",
+      "methodIndex": 54386,
+      "methodName": "",
+      "paramTypes": [
+        "org.httpclient.http.multipart.Multipart"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "fe868e9c0dc63542d4e9477f95b8bfccc8e3ea487689f025a051c851e2d4c066",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 54388,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "b10fc0d8566885ef72d1d5a495fd0bfcf0142897f78c0d478295652fab785a70",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

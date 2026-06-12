@@ -1,0 +1,99 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 261,
+  "className": "com.chrysler.core.infrastructure.FeedbackBuffer",
+  "classNameNormalized": "com.chrysler.core.infrastructure.FeedbackBuffer",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 6205,
+  "cinitMethod": 6203,
+  "iinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "46eefe2c8caeb882e3e480970dfda0216b2d2fb743d3a1b7b6b31907b35ef69f",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "append",
+      "traitKind": "method",
+      "methodIndex": 6206,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "512b4672540f9c410a01c15c01b00997a241ecd94b45313e23631fb452b16bbf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "flush",
+      "traitKind": "method",
+      "methodIndex": 6207,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "319879c5b0ca134d47f73f6d8e99ab296c9ec01b7f21353a9ed7024edf953223",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pull",
+      "traitKind": "method",
+      "methodIndex": 6208,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "57ffe07967052478ac9a1634bc73fadb8006fe38a17397a1aea0979fcfd85912",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 6204,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.infrastructure.FeedbackBuffer",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "4e75523c44e4d7518c336819417cb1f4fed554633eca37a7c5e17abf0240ae0f",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

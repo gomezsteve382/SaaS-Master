@@ -1,0 +1,167 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 66,
+  "className": "mx.core.UITextFormat",
+  "classNameNormalized": "mx.core.UITextFormat",
+  "superName": "flash.text.TextFormat",
+  "superNameNormalized": "flash.text.TextFormat",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 1696,
+  "cinitMethod": 1693,
+  "iinitBytecode": {
+    "codeLength": 35,
+    "codeSha256": "9c72fe5a28ba873835e2fcee6d56828b91659193e1f4f5858352bdfb482a7dd3",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.copyFrom",
+      "traitKind": "method",
+      "methodIndex": 1702,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.TextFormat"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 236,
+      "bytecode": {
+        "codeLength": 236,
+        "codeSha256": "2d879dda36e0a70dd1da7c1f4055163ea2d231379a646b9c68a99bf1caaf9433",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "measureHTMLText",
+      "traitKind": "method",
+      "methodIndex": 1700,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "flash.text.TextLineMetrics",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "0b416d22dfc521401c6b455d6bebc0926d8fe364dd7bb3f61b3ac9b9d37b4367",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "measureText",
+      "traitKind": "method",
+      "methodIndex": 1699,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "flash.text.TextLineMetrics",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "e775a5c0c4c1eb1e62a4b963f6cfcc13d16d4a8b054c7a9c8ca6ed99c9f6fddf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "getter",
+      "methodIndex": 1697,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IFlexModuleFactory",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "53458a6eb2a8474712ce815f750edb0e4fbd8dc88b2aac192946dd4447f0db64",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 1698,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2de936fd98a8df8d7ae9bf5ede779bb4c659f84545be143597b8540c79440756",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.measure",
+      "traitKind": "method",
+      "methodIndex": 1701,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "flash.text.TextLineMetrics",
+      "hasBody": true,
+      "codeLength": 356,
+      "bytecode": {
+        "codeLength": 356,
+        "codeSha256": "73fa2626c5f85357a04498a64f4bd6d7729de1b0e8e50f66854874b2646cdb83",
+        "bytecodeLineCount": 23
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.embeddedFontRegistry",
+      "traitKind": "getter",
+      "methodIndex": 1694,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IEmbeddedFontRegistry",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "fed4b501a2c6e736888f1df15b674d20eedec687596fa91d9e5ceedddc5f664d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.textFieldFactory",
+      "traitKind": "getter",
+      "methodIndex": 1695,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.ITextFieldFactory",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "4a186dd62f514afa6b6466710a8449b2e2182898c3a4f82689a6901edab37e15",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

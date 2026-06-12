@@ -1,0 +1,86 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1760,
+  "className": "PrivateNs.RemoveElementsMemento",
+  "classNameNormalized": "PrivateNs.RemoveElementsMemento",
+  "superName": "PrivateNs.BaseMemento",
+  "superNameNormalized": "PrivateNs.BaseMemento",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.edit.IMemento"
+  ],
+  "iinitMethod": 33923,
+  "cinitMethod": 33921,
+  "iinitBytecode": {
+    "codeLength": 33,
+    "codeSha256": "81fceacba9ef8c192a4009af75e6c86239c7a42310ba6d576027230fb23e6904",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 33925,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "8d69e586450b95c2d99d9239b664700f5a38347323ce93315f585f285477c3ea",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 33924,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "0c2e87805b54ad4539ca1623e27662e5c3553e6a481328745b0768d88eb452d3",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "perform",
+      "traitKind": "method",
+      "methodIndex": 33922,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.elements.FlowGroupElement",
+        "int",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "dc4737d1eaf420609a513696dcbfe92354dd2ec0f380f50aa2e4ca79be5bc533",
+        "bytecodeLineCount": 5
+      }
+    }
+  ]
+}

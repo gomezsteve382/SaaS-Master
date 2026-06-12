@@ -1,0 +1,638 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 911,
+  "className": "com.chrysler.cda.presentation.component.ecuconfig.ECUConfigImpl",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.ecuconfig.ECUConfigImpl",
+  "superName": "com.chrysler.cda.presentation.component.ecuconfig.ECUConfig",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.ecuconfig.ECUConfig",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 18268,
+  "cinitMethod": 18264,
+  "iinitBytecode": {
+    "codeLength": 793,
+    "codeSha256": "9822126e2b01ae53b55bb46a67228959b17b9e63f35b720d6dcaae343c3076a2",
+    "bytecodeLineCount": 50
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "1134141f5aa5be15b44e8ba8496b4cc027f9b9f47da841986710d2966e7eb0fc",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___ECUConfigImpl_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 18281,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "846e7d10ebb2be2ed03f2db0cac1753d2ccec68d17ad5eb1e978ea9a169eb13f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "___ECUConfigImpl_ECUConfig1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 18289,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "db1898087c9d8241f0480b1af3367041e447634f0dd862ff44516891d73df491",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__ecuConfigsDataGrid_itemSelected",
+      "traitKind": "method",
+      "methodIndex": 18285,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.FilterDataGridSelectionEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "e93fb8c0cf207279555ec38a996ca79ba5c0294c3c35111625b50ad6f838834f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__ecuConfigsDataGrid_rollOut_normal",
+      "traitKind": "method",
+      "methodIndex": 18276,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "984523fb1b028242b8993ba56d08eefbd8426d7f3dfa21f0273452c056115ec2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__ecuConfigsDataGrid_rollOver_normal",
+      "traitKind": "method",
+      "methodIndex": 18275,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "674f265ace05402f52ab3dc2f9101a595d525fa940083ce614fc0ec34c03326a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__errorPopover_close",
+      "traitKind": "method",
+      "methodIndex": 18288,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "984523fb1b028242b8993ba56d08eefbd8426d7f3dfa21f0273452c056115ec2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__errorPopover_closeCompletely",
+      "traitKind": "method",
+      "methodIndex": 18287,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "b4ebbf2ead163b25d894c0590bd2af24bd9cb6cd0089c645bd190a66a3e8b30f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "_ECUConfigImpl_Button1",
+      "traitKind": "getter",
+      "methodIndex": 18303,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e2b5f06252e167fb2a4fdee8209cade1430e070d2de8781da12e03637d954522",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ECUConfigImpl_Button1",
+      "traitKind": "setter",
+      "methodIndex": 18304,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a7f741a2030a68abfda2fc46937b81373e77c3707b11e675e2d3fb7d9cd7683e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_ECUConfigImpl_Label1",
+      "traitKind": "getter",
+      "methodIndex": 18305,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Label",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "45a530cd79d236772cf58b34b5abc4cc610c7e421cc54d0a21c2e1ffa4b9e878",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ECUConfigImpl_Label1",
+      "traitKind": "setter",
+      "methodIndex": 18306,
+      "methodName": "",
+      "paramTypes": [
+        "mx.controls.Label"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "9b8b84aa119065a0180346a077c35b007ccb238202cb5ce361355ca71203d86c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_ECUConfigImpl_SetProperty1",
+      "traitKind": "getter",
+      "methodIndex": 18307,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.states.SetProperty",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "74dac60b1a8b20e36c78a414c568e3f6e646fa0c988aee995838a743f05109bb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ECUConfigImpl_SetProperty1",
+      "traitKind": "setter",
+      "methodIndex": 18308,
+      "methodName": "",
+      "paramTypes": [
+        "mx.states.SetProperty"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "ade35ac72d64200d451918f13c8ea4aecb5ba4b17875b1399651d5deceae77dc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.ecuconfig:ECUConfigImpl.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 18302,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "32e1ebd0f69bfef66e421aa6578f4ac1b3bef002915f7274338d34bc04af5cb6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuConfigsDataGrid",
+      "traitKind": "getter",
+      "methodIndex": 18309,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.ecuconfig.components.ECUConfigsDataGrid",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e292a68c327ca27282d900df0321d4463599c0b8aeab6e15a611aa22b7b4bbf3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuConfigsDataGrid",
+      "traitKind": "setter",
+      "methodIndex": 18310,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.ecuconfig.components.ECUConfigsDataGrid"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4a10ef9c1a16730fee0fbb62f93b05ad330ce444cba2cd45013fbf0a707bf16b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "errorPopover",
+      "traitKind": "getter",
+      "methodIndex": 18311,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.ecuconfig.popover.ECUConfigErrorPopoverImpl",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5b43796cf248e6cac883fa853a4e07b021fbc2b89024955f149681c26079f3de",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "errorPopover",
+      "traitKind": "setter",
+      "methodIndex": 18312,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.ecuconfig.popover.ECUConfigErrorPopoverImpl"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "0d55dcb0f7da25a171494f79c531c222bd79d60d6d8053e6200dc0c432ef7d5d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hideMe",
+      "traitKind": "getter",
+      "methodIndex": 18313,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.Fade",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d519ffdcb81c40816deace77f75d9f707a6e545976fb068bc3aa4cdaf3b6fea8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hideMe",
+      "traitKind": "setter",
+      "methodIndex": 18314,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.Fade"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "bd8825094099b1e311b094437748584ddc3417c57044b34643ae1c89f29ccf03",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 18270,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 18269,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "8a9c126091bed19c1033f08cf96df97dab3fae9a40181997704779a618c1e5af",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onCreationComplete",
+      "traitKind": "method",
+      "methodIndex": 18271,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "5cbc06f202290f203a0d03724c5dd0847a164efb9f0ef6a5e9a0c17ef60ef7aa",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_Array6_c",
+      "traitKind": "method",
+      "methodIndex": 18282,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "e048832d8146cdffcc3298ecfbed49ad5b8d2b948e088816b3f2f772bcf88f1f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 18301,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 325,
+      "bytecode": {
+        "codeLength": 325,
+        "codeSha256": "7d7dcb3df425cafb0534ed2506a3ecdd04bf2ebe8c5cb3c6343f863ae8d2a655",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 18280,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "242b86046933fef6faa06a75b4cc79f1ef593c624677c14c56d23334977b49e4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_ConfigureTag1_i",
+      "traitKind": "method",
+      "methodIndex": 18272,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.flex.tag.view.ConfigureTag",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "27e6018c7e2b1e109cc54a26c2d84f4d03de285a60485c6cb2d44c2372a67351",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_ECUConfigErrorPopoverImpl1_i",
+      "traitKind": "method",
+      "methodIndex": 18286,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.ecuconfig.popover.ECUConfigErrorPopoverImpl",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "db95ec2542cf765bcc2b4060af89d8194caf541db2fbc2760332833f092b6c5c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_ECUConfigsDataGrid1_i",
+      "traitKind": "method",
+      "methodIndex": 18284,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.ecuconfig.components.ECUConfigsDataGrid",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "2d382aa9c1cc232a876d37dfc30d89ea1feb3cfdccc2369b8b4d99075ea6ffff",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_Fade1_i",
+      "traitKind": "method",
+      "methodIndex": 18274,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.Fade",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "b6bcaeb738b9ad7dd2d012d55ef42ea7321f1595643784e187c13ab42ae60480",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_Fade2_i",
+      "traitKind": "method",
+      "methodIndex": 18273,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.Fade",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "56c5668541f23756ee948be0a6554edefce6392e95274f10fbaf98ad1b3f2dea",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_HGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 18278,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.HGroup",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "56940bc9488228755d06db0217a626b47c793c15c6466ce712792d9df23d37bd",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_Label1_i",
+      "traitKind": "method",
+      "methodIndex": 18279,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Label",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "fc391057162cda068b271572851c7d99dddeaa9379c30e06a3b75332c6c48c62",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_RichEditableText1_i",
+      "traitKind": "method",
+      "methodIndex": 18283,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "8cd90f6f575926ef80cf5baccf423214ada7d6e47d75300bf15f53e785a29d98",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigImpl_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 18277,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "be06f7fa615ffa511cd5832c082e2327752779f4c568082f8401f8ce015f86b9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "showMe",
+      "traitKind": "getter",
+      "methodIndex": 18315,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.Fade",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fa0da0ded289fbdc8875ed856994548f69f77f5650f4667be8befb0763229289",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showMe",
+      "traitKind": "setter",
+      "methodIndex": 18316,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.Fade"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "dab4261919f47595a8cd419d53a5c03b026baae594d2ad1ae7efe02566eaf20d",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 18265,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "40c74a8bc54adfa38faf7576882934a0f15f37e9e699fabab546a4a840dc50a1",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3418,
+  "className": "mx.rpc.soap.WebService",
+  "classNameNormalized": "mx.rpc.soap.WebService",
+  "superName": "mx.rpc.soap.AbstractWebService",
+  "superNameNormalized": "mx.rpc.soap.AbstractWebService",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": false,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 52315,
+  "cinitMethod": 52314,
+  "iinitBytecode": {
+    "codeLength": 46,
+    "codeSha256": "5ea273d267b0979fb9652e8e6f84df88d0d8ade516637e949dfda36ff591b5c3",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "ef42b29f1d589ed0a7caf4d7efae478c268e455137351b9015a53f3f9dadfb48",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "canLoadWSDL",
+      "traitKind": "method",
+      "methodIndex": 52319,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "0bb22a1f07ee204087bfe60584c776655852930dd7dbe890abb72138ad92f189",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "getOperation",
+      "traitKind": "method",
+      "methodIndex": 52320,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "mx.rpc.AbstractOperation",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "104e63523752d090525a831151a1e065705551047e763a22424126c7e658d673",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.deriveHTTPService",
+      "traitKind": "method",
+      "methodIndex": 52325,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.http.HTTPService",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "17ad349a8586611f8da6da37d8093c03b80cd2dc13ecd0a757d679382e5da8b9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.wsdlFault",
+      "traitKind": "getter",
+      "methodIndex": 52316,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f901621ce05acf371f8e87fc9854570f9499652589c451f3334db028bc6fa3c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.wsdlFaultHandler",
+      "traitKind": "method",
+      "methodIndex": 52323,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "489380644cf4cd2eae9fc43ba55e51bd4163b3e48cfceebccd968e2ad76d9b97",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.wsdlHandler",
+      "traitKind": "method",
+      "methodIndex": 52324,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.WSDLLoadEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 546,
+      "bytecode": {
+        "codeLength": 546,
+        "codeSha256": "fe0c18b018a623e825af61fcd1cb53f642c9e4051a3a5470b4832a222bab46af",
+        "bytecodeLineCount": 35
+      }
+    },
+    {
+      "traitName": "loadWSDL",
+      "traitKind": "method",
+      "methodIndex": 52321,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 331,
+      "bytecode": {
+        "codeLength": 331,
+        "codeSha256": "09667bf76f0d39ad3a6bcc5429a1b6a86c79a91f7cc09d4047aa8ff596bb0152",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "mx.rpc.soap:WebService.initializeOperation",
+      "traitKind": "method",
+      "methodIndex": 52326,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.Operation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "cb25f5751a2a231db759d89321d91dc2390bd120baf407e71d8f23d2b238b144",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.dispatchFault",
+      "traitKind": "method",
+      "methodIndex": 52327,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "c620fda9394223aed87ee25db44ad4cb451623f1e146f225bbad8685022edf33",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 52322,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "d5dd83c7cf2f17be76db51e75b9c7cbf731d3f7a762cb77faae94493f117cf10",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "wsdl",
+      "traitKind": "getter",
+      "methodIndex": 52317,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "cbb6fef0a3cc60b037c1e858ca887e90902f18173332185ea83851af2b6b0b3e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wsdl",
+      "traitKind": "setter",
+      "methodIndex": 52318,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "731d7ba41c785dc7bea91007123560eefbf5d97fa085cb387eda3f6f3aa519d5",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

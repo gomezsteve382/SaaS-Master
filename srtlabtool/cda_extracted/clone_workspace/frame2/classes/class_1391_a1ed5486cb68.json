@@ -1,0 +1,562 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1391,
+  "className": "spark.skins.spark.ScrollBarDownButtonSkin",
+  "classNameNormalized": "spark.skins.spark.ScrollBarDownButtonSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 30400,
+  "cinitMethod": 30399,
+  "iinitBytecode": {
+    "codeLength": 423,
+    "codeSha256": "963db8dcaafa950bc43e6b34dc96b6568f27026a652e63390387119d27172d2e",
+    "bytecodeLineCount": 27
+  },
+  "cinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "651faa3ccc4c0bfe8922dc1c5512587da869db7ce305715ca45c25157178dcf3",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "_ScrollBarDownButtonSkin_GradientEntry1",
+      "traitKind": "getter",
+      "methodIndex": 30419,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "02eb174cad2e40d7719478de08c12ed1c6d3a41ad40edc950edc6885ffb3ad4c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ScrollBarDownButtonSkin_GradientEntry1",
+      "traitKind": "setter",
+      "methodIndex": 30420,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "451b60161172e58430b3bebd46fcfd90fa8394d4baf1b8c526390f78518906b3",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_ScrollBarDownButtonSkin_GradientEntry2",
+      "traitKind": "getter",
+      "methodIndex": 30421,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "dfad3ee5e3e82c4802c5531e4b21b71c0e0ad66e0cac3628f7974f6dacb8fe5e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ScrollBarDownButtonSkin_GradientEntry2",
+      "traitKind": "setter",
+      "methodIndex": 30422,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "17e5f8f7e23afca35a95740a26ece92f99ec2d8fe09998cdb25e36c19b53dadf",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_ScrollBarDownButtonSkin_SolidColor1",
+      "traitKind": "getter",
+      "methodIndex": 30423,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "60369f5462ab70710d5bb5799bdc4c2c82ff97c5ffe52fee9fa0e3fd4f31a679",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ScrollBarDownButtonSkin_SolidColor1",
+      "traitKind": "setter",
+      "methodIndex": 30424,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "eda6f50f546821d7303c481e1f9a10ccdf6fcdf1fc26b836bf2ebc025d7f415f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_ScrollBarDownButtonSkin_SolidColor2",
+      "traitKind": "getter",
+      "methodIndex": 30425,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "039a51a943dda36034cb34c93d4ce2552399f54d915e8b07ae981a6deb70e062",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ScrollBarDownButtonSkin_SolidColor2",
+      "traitKind": "setter",
+      "methodIndex": 30426,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.SolidColor"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "ff2f4a341fffc121521b75833a681bb59fd7daefb658024d9bf09369b64ec855",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "arrow",
+      "traitKind": "getter",
+      "methodIndex": 30427,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "10233e446cb82e32fe14ad336896e7161387c655130b6ec7c2eaf77ec98de9ee",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "arrow",
+      "traitKind": "setter",
+      "methodIndex": 30428,
+      "methodName": "",
+      "paramTypes": [
+        "spark.primitives.Path"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "76137f14b2e9d4fabd038cc28d7aa6c6657e9855588e1ab86e56e3383d329c89",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "arrowFill1",
+      "traitKind": "getter",
+      "methodIndex": 30429,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "22681cb36abfc45516b50c90921df73d931d33c06e111fd5cb3853b2f61de1f1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "arrowFill1",
+      "traitKind": "setter",
+      "methodIndex": 30430,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "32541f8ebf64a79c818217accd2e011a54155be8fa453d94683f5245ed6878ff",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "arrowFill2",
+      "traitKind": "getter",
+      "methodIndex": 30431,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ae952db62a150168f0eba4823da09766e62c81bfc6aa9c2170ae73fd8f55afcb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "arrowFill2",
+      "traitKind": "setter",
+      "methodIndex": 30432,
+      "methodName": "",
+      "paramTypes": [
+        "mx.graphics.GradientEntry"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "ad6e619000ef5705f2b9ab4dce02a6347253c82d48496ae29d3e8d44d6288f36",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "colorizeExclusions",
+      "traitKind": "getter",
+      "methodIndex": 30403,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1145bbc1f0d45e02f38928073757454f2f69d58941540f30bdc57b2c75332d1b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 30433,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a568f516d999f3fae8e0853aabac48bc904fa5468ca34167d792ef800c55484a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 30434,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "7ab46bb0f416b50d1e242da1520bdc407c47e1609c2fb3f303964167d9aa6dd7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 30402,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 30401,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "711ffb1de41450b24818012acdd723cebb22211818362818fae97fb5de579853",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_GradientEntry1_i",
+      "traitKind": "method",
+      "methodIndex": 30411,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "a6dfc7553436ffaaeccc1d8659b56ca4e7be77d666f433ec36b9d13b680170c0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_GradientEntry2_i",
+      "traitKind": "method",
+      "methodIndex": 30412,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "679c689b281a545cc2fc015e7df066c9126e84cbcdabd72b1c8d40c5e2d2dd11",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_GradientEntry3_i",
+      "traitKind": "method",
+      "methodIndex": 30417,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "2018e75d559e1e7ea1ecd7e9c0789d85336c61ab3ef0039fdcdf32382b93a315",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_GradientEntry4_i",
+      "traitKind": "method",
+      "methodIndex": 30418,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "13181020041f6b358d9e214bd81eea6899b929dec4eb929d6fd7aaeb3089c064",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_LinearGradient1_c",
+      "traitKind": "method",
+      "methodIndex": 30410,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "191c4cd8984bd7f1487327b765f0bab99108a8c475cb8df3c3943ee3eaf33409",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_Path1_i",
+      "traitKind": "method",
+      "methodIndex": 30415,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Path",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "9ee1a9f859ce3f237b928b033462e7cabc88e5ae5c6e93c53f6f3b15fbda8b78",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_RadialGradient1_c",
+      "traitKind": "method",
+      "methodIndex": 30416,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.RadialGradient",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "533739411e3db8633f993ab7dc557d75e4e71a292e516c1e6e5315495f9b9673",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_Rect1_c",
+      "traitKind": "method",
+      "methodIndex": 30406,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "062f9b5af93f2d77a3fdd7ddb3f031c248d3303730f8688153429b1753f9fb94",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_Rect2_c",
+      "traitKind": "method",
+      "methodIndex": 30409,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "b0cb62ce08e06b7935282f3763c159bc2c75b2a88a05ce24040c41e4dfc88124",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_Rect3_c",
+      "traitKind": "method",
+      "methodIndex": 30413,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "1f61a5bbba9decaab7347bfd9ee90d16816a56f20edb3a5de7351dab56be1d87",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_SolidColor1_i",
+      "traitKind": "method",
+      "methodIndex": 30408,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "db7d40b9f2125986b6e73e0d0469f14a80b7ed4b91414e08ff1309c67e4e4e0b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_SolidColor2_i",
+      "traitKind": "method",
+      "methodIndex": 30414,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "102b215f529aff8463ea7c804fbe3c76ca6852bed600c25a700cfcf79b870002",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ScrollBarDownButtonSkin_SolidColorStroke1_c",
+      "traitKind": "method",
+      "methodIndex": 30407,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColorStroke",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "4854483f5d63ea58d364ca340bf4fde8f0baf8abf9addc70480d6760f0088e82",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:ScrollBarDownButtonSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 30405,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "symbolItems",
+      "traitKind": "getter",
+      "methodIndex": 30404,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "754a074cd290202e7174e6dcafebf7740c45042f179bf875071f44437e8d54f6",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

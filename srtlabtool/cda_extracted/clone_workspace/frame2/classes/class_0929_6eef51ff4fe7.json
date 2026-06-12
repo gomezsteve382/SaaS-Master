@@ -1,0 +1,49 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 929,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.sessions.DisableDTCSettingCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.sessions.DisableDTCSettingCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 18786,
+  "cinitMethod": 18784,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "a580c57d9ed95f8ffd87b853480689830bbc218552a2d266dc2113314d403d64",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "disableDTCSetting",
+      "traitKind": "method",
+      "methodIndex": 18785,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.sessions.DisableDTCSettingMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "70ba2da376d7fe5815a6617f3027d632fe7ffdb19761f26a77cac4a972ddbf76",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

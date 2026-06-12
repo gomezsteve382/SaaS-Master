@@ -1,0 +1,181 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3018,
+  "className": "com.diagnosticProcedures.StringsManager",
+  "classNameNormalized": "com.diagnosticProcedures.StringsManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 48382,
+  "cinitMethod": 48378,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 34,
+    "codeSha256": "3965a821d0a02a71dff6e7de6db189732a56f5f567131695faad8aa1dc60fe71",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.diagnosticProcedures:StringsManager.createBundleProperties",
+      "traitKind": "method",
+      "methodIndex": 48387,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.IDiagnosticProcedureBundle"
+      ],
+      "returnType": "com.diagnosticProcedures.i18n.IBundleProperties",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "913b5627ffca8d8bd500d498b3aff574e0cf3930f132feaf95c32345f7870cee",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures:StringsManager.resourceManager",
+      "traitKind": "getter",
+      "methodIndex": 48386,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.resources.IResourceManager",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "2e0fda61b49664456b9bee40e1daff102ebec33fa7eb66f7e69fbea71b0c0427",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.diagnosticProcedures.loadStringMap",
+      "traitKind": "method",
+      "methodIndex": 48385,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 392,
+      "bytecode": {
+        "codeLength": 392,
+        "codeSha256": "8db3d5dc9656a9cebd8be3ee1f980f9cd616ec6e3992af70bb7e6000800cfc30",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "loadStrings",
+      "traitKind": "method",
+      "methodIndex": 48383,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.IDiagnosticProcedureBundle"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 309,
+      "bytecode": {
+        "codeLength": 309,
+        "codeSha256": "5331083819644b668415d12a3220ecdbd872c37e3acb8bfb627007826c73b7ce",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "logger",
+      "traitKind": "getter",
+      "methodIndex": 48388,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.logging.ILogger",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "1ed44ad97f3c40c78431dcbfabd6d86714f7f7ac2019917ab08540a1fe5065e0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "unloadStrings",
+      "traitKind": "method",
+      "methodIndex": 48384,
+      "methodName": "",
+      "paramTypes": [
+        "com.diagnosticProcedures.IDiagnosticProcedureBundle"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "bdc259dc900084951d2d40010863aee6d080ae24583a5aaa7a50dfb641f2044c",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "com.diagnosticProcedures.compileStrings",
+      "traitKind": "method",
+      "methodIndex": 48380,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 188,
+      "bytecode": {
+        "codeLength": 188,
+        "codeSha256": "8cdc8dd871f9b5499e7a9e7c3c1ebd285d700a2c08d2ac37e77f300c6eb086d3",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "getInstance",
+      "traitKind": "method",
+      "methodIndex": 48379,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.diagnosticProcedures.StringsManager",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "8d8611b8db32e361172c049a20503857d5988b5442908bc0b8b4e10f2c8a3f30",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.unescapeCharacterSequence",
+      "traitKind": "method",
+      "methodIndex": 48381,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.diagnosticProcedures.properties.UnescapedStringResult",
+      "hasBody": true,
+      "codeLength": 814,
+      "bytecode": {
+        "codeLength": 814,
+        "codeSha256": "abb85240374c1fbadde40ce358385494f828f369b5b115ba825217708111e440",
+        "bytecodeLineCount": 51
+      }
+    }
+  ]
+}

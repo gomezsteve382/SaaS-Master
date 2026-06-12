@@ -1,0 +1,221 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 768,
+  "className": "com.chrysler.cda.presentation.component.reports.ScanReportGeneratorBase",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.reports.ScanReportGeneratorBase",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 14819,
+  "cinitMethod": 14805,
+  "iinitBytecode": {
+    "codeLength": 23,
+    "codeSha256": "d141ef5073346552d1b12a8aefea6e72457e922bf0bdcd2a8c519c45935d3499",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "0e7a72a48efbe37e9ec6255ba7ff936bc993d6de13b22f62304ba2d8870f96ff",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 14814,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "c8419b125de38e3aaaa8b000c72aa79330848a375b2efdef13bf92d9a8b37a08",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "changeReportOptionsToActual",
+      "traitKind": "method",
+      "methodIndex": 14809,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "152f44ce47129551ed90ed3450e6065eb956c59eb3884dbdfefc22e7c848e679",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "getter",
+      "methodIndex": 14810,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportsController",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "53e70807cf1ef24ff90c3ad6c09c751cf1dd526acec31b2115b4c9f46599b784",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "controller",
+      "traitKind": "setter",
+      "methodIndex": 14811,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.reports.ScanReportsController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e0157c2208f07a4044852600f10e2056b8ac4f07ea1ef5a4e73d8598972d80dc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 14815,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "d4dba17ff5f763cc0c8a617a60d262db8b131e9d7f3112c08073f2587c351ca6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 14816,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "f564c14e8826bf195456bc3df3bad9b51b6de9d827c66fae034d588d80b4a40c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 14817,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "57dbe7568b1f4f52941e88a63fe3f2dabd7935b4350072ea6ebea3ab2e74ff10",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "saveReport",
+      "traitKind": "method",
+      "methodIndex": 14808,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.reports.ScanReportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 402,
+      "bytecode": {
+        "codeLength": 402,
+        "codeSha256": "33edba50da75871d9463e25961f122f80e176135608aa0307bfec1034838c9d5",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "scanReportsPM",
+      "traitKind": "getter",
+      "methodIndex": 14812,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportsPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "afcdaf0afc067c8dfdc26b1c4153ea6715f347249120809390a17eace40fda2c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "scanReportsPM",
+      "traitKind": "setter",
+      "methodIndex": 14813,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.reports.ScanReportsPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "e1f690f453770a603a7af418cf098af5237d26ea9cd00d416aeddebacc7b6ff6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 14818,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "b97361fc5ae68f6cf570be2ba45ea5db19bcb330f5e23f4597a5c82c260ecd64",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

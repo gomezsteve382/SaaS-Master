@@ -1,0 +1,102 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3840,
+  "className": "com.hurlant.util.der.PEM",
+  "classNameNormalized": "com.hurlant.util.der.PEM",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56549,
+  "cinitMethod": 56544,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 75,
+    "codeSha256": "0e81b94ca25def40eeb9b641fbb552716c1add734c918288951159ccf3aef1d0",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.extractBinary",
+      "traitKind": "method",
+      "methodIndex": 56548,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 99,
+      "bytecode": {
+        "codeLength": 99,
+        "codeSha256": "a1b3c57fad69f1867be20c4adf06e19289ccbe58124a9f7772e25fde9a3338a9",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "readCertIntoArray",
+      "traitKind": "method",
+      "methodIndex": 56547,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "125bf301c944c189376c5a1ad51f8837e5b15d4fc734371e6bfec6e4567c1901",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readRSAPrivateKey",
+      "traitKind": "method",
+      "methodIndex": 56545,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.hurlant.crypto.rsa.RSAKey",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "cf91843173e5c67b65ba3e2d8aa09dff51c08d62a748f5a730591587e9e7b6d2",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "readRSAPublicKey",
+      "traitKind": "method",
+      "methodIndex": 56546,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "com.hurlant.crypto.rsa.RSAKey",
+      "hasBody": true,
+      "codeLength": 178,
+      "bytecode": {
+        "codeLength": 178,
+        "codeSha256": "7f9d4c960d78be18187a49a6643b840a1e294cf8e2343d20aa659a8ecd38deb3",
+        "bytecodeLineCount": 12
+      }
+    }
+  ]
+}

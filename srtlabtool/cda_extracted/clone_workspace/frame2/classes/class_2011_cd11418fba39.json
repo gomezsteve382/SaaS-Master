@@ -1,0 +1,147 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2011,
+  "className": "com.chrysler.cda.event.message.diagnostic.ProxyComServiceMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ProxyComServiceMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 37167,
+  "cinitMethod": 37159,
+  "iinitBytecode": {
+    "codeLength": 31,
+    "codeSha256": "f3db45abad6e118339a1690a517984b5380cbacb891f4b3c74cb737e76bf8471",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 36,
+    "codeSha256": "9416bb6e5d10af9fc843b6de5ef04aa7c42adedc7a32e4b8b2b09290373d0da9",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "comServiceId",
+      "traitKind": "getter",
+      "methodIndex": 37164,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f7a422b8a6a179526f61a67ccb298dc280335d21cfff76a32041c92d6476fbaa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 37165,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d2e5843b3cfb4e7eaa10c5b01e1fbf50acbe4bbfd3e6faa81175df031a885a8c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "state",
+      "traitKind": "getter",
+      "methodIndex": 37163,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "70a33841b9ef72b1703ae609db3e383b3dc2ae20fd49a3ea4468df3b083aeed0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "values",
+      "traitKind": "getter",
+      "methodIndex": 37166,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "59620c2a92cb371a57e0c2850c9845dc87fd82c434a335146f6b1f890a08de02",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "GetRead102AEOL",
+      "traitKind": "method",
+      "methodIndex": 37162,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ProxyComServiceMessage",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "22d2a4d359ecad8553eca3606ad2e02c10d839350bc77699d34f93a6f463b458",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "GetReadEOL",
+      "traitKind": "method",
+      "methodIndex": 37161,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ProxyComServiceMessage",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "fbc202ebc0581a3db3334e548d2c4c50be9f5aa6d8eceba914a31cc1bf5af469",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "GetReadProxi",
+      "traitKind": "method",
+      "methodIndex": 37160,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ProxyComServiceMessage",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "19907fa70d0076090443feac479158631ff435ae9886ed9e6b362a46671fb9d6",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

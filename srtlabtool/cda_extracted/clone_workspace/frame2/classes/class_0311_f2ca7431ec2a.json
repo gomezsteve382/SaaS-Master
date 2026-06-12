@@ -1,0 +1,146 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 311,
+  "className": "spark.accessibility.PanelAccImpl",
+  "classNameNormalized": "spark.accessibility.PanelAccImpl",
+  "superName": "mx.accessibility.AccImpl",
+  "superNameNormalized": "mx.accessibility.AccImpl",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 6816,
+  "cinitMethod": 6813,
+  "iinitBytecode": {
+    "codeLength": 21,
+    "codeSha256": "1899e155c9e43de222e6b1d0d468e244d62befa0bbe4f3322ae419acf18135ab",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "get_accState",
+      "traitKind": "method",
+      "methodIndex": 6818,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "49cda30d26195c3b7f0a9adcf5838d8b7e4bdc7d735fbe4525502642b09767ee",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.attach",
+      "traitKind": "method",
+      "methodIndex": 6820,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Sprite",
+      "hasBody": true,
+      "codeLength": 124,
+      "bytecode": {
+        "codeLength": 124,
+        "codeSha256": "05e8c69d4c4bf41745feca0ee713ddfd5751d59ef9ddb2a002a2e48bdc6f74ce",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "spark.accessibility:PanelAccImpl.eventHandler",
+      "traitKind": "method",
+      "methodIndex": 6821,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 292,
+      "bytecode": {
+        "codeLength": 292,
+        "codeSha256": "e80d132aadac46bd533985bec037bc5e3f5817cb084c83b4c43bddd5a49cd7fc",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "spark.accessibility:PanelAccImpl.eventsToHandle",
+      "traitKind": "getter",
+      "methodIndex": 6817,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "9d96ed1433b403c93f9429df3f7ea05ec413eab0b7eefc2e3107484c5152d1cf",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "spark.accessibility:PanelAccImpl.getName",
+      "traitKind": "method",
+      "methodIndex": 6819,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "3abe91bcf69ef398e77deca6137d7b61675fa36c1cad59686e4b88e05d1b5c60",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "enableAccessibility",
+      "traitKind": "method",
+      "methodIndex": 6814,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "74d9a91e6f0f91e957b861b84de2364b1b5553d673d23b5f549c7d1ffc5eb577",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createAccessibilityImplementation",
+      "traitKind": "method",
+      "methodIndex": 6815,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.UIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "564d53b7aa1653e906160bacc6901b1061e1670bf31e66eebe176e8dd6183ec4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

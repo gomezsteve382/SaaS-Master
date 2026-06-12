@@ -1,0 +1,134 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1080,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.ComServiceCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.ComServiceCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23444,
+  "cinitMethod": 23437,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "issueComService",
+      "traitKind": "method",
+      "methodIndex": 23438,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "c642bbc541300ed3ada1a55b4a2e3dbc65afed0f6f3521fa793892af275927b9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "issuePeriodicComService",
+      "traitKind": "method",
+      "methodIndex": 23440,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "39e90e49deb38d7ba57f6c2ef8720f4724f7ed6430b8f54233b6edba7c9bc3b4",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "issuePeriodicComServiceRefresh",
+      "traitKind": "method",
+      "methodIndex": 23441,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "71b69535f5b588503e64de063a42a6473e4dd38a69e45b4e9177a774702fd182",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "issuePeriodicComServiceStop",
+      "traitKind": "method",
+      "methodIndex": 23442,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "6b08bb3dff069bb67da79b1b1da86f59148a4392b95e92b61854dc0e4c1297b2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.parameterPreprocesing",
+      "traitKind": "method",
+      "methodIndex": 23443,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.IssueComServiceMessage"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 133,
+      "bytecode": {
+        "codeLength": 133,
+        "codeSha256": "b83b871a676315c04a6cf9d95d6dc1f3e984ee0ba81c073ef2cb466b8d44bca6",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "proxyIssueComService",
+      "traitKind": "method",
+      "methodIndex": 23439,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ProxyComServiceMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "338300ed4547270f7ea9c6eff61ff4eee67a09cbde257b3e48b842251ff4d58e",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

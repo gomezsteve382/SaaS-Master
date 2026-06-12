@@ -1,0 +1,134 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3681,
+  "className": "org.spicefactory.parsley.core.registry.definition.impl.SingletonLifecycleListenerRegistry",
+  "classNameNormalized": "org.spicefactory.parsley.core.registry.definition.impl.SingletonLifecycleListenerRegistry",
+  "superName": "org.spicefactory.parsley.core.registry.definition.impl.DefaultLifecycleListenerRegistry",
+  "superNameNormalized": "org.spicefactory.parsley.core.registry.definition.impl.DefaultLifecycleListenerRegistry",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55151,
+  "cinitMethod": 55150,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "b2957486e8278d694fce2f651836f9396399489d02e1be4af57ca52ef410c2e5",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "PrivateNs.contextDestroyed",
+      "traitKind": "method",
+      "methodIndex": 55154,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "78bf9c8d9c092a49ce195bfae3c215cb51ccf567c9c054b42c1e403bdd3f38ad",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.destroyProvider",
+      "traitKind": "method",
+      "methodIndex": 55157,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "88285ad9410e02539b453fabaed60e7a7a34adc5fd391a05985e3aca2330bd55",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.postDestroy",
+      "traitKind": "method",
+      "methodIndex": 55156,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "org.spicefactory.parsley.core.context.Context"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "77deaf30aa42b5e361f130a0fbf0cd3b6744590073fa679621a838bae5f08666",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.postInit",
+      "traitKind": "method",
+      "methodIndex": 55155,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "org.spicefactory.parsley.core.context.Context"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "dbc77da21fa1f3d264c29ca09170805a5a1cdb190d559f41d6ad08b056b93de7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.registryFrozen",
+      "traitKind": "method",
+      "methodIndex": 55153,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "42057b217a3f73a643b8d0e3567473411d4b510609132ed2d1b77fea2717677f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "synchronizeProvider",
+      "traitKind": "method",
+      "methodIndex": 55152,
+      "methodName": "",
+      "paramTypes": [
+        "Function"
+      ],
+      "returnType": "org.spicefactory.parsley.core.registry.definition.LifecycleListenerRegistry",
+      "hasBody": true,
+      "codeLength": 161,
+      "bytecode": {
+        "codeLength": 161,
+        "codeSha256": "830850e98b9ca3d1b786b7513a1945cc39b418e823dceb3ff0cf96fd45c88bae",
+        "bytecodeLineCount": 11
+      }
+    }
+  ],
+  "staticMembers": []
+}

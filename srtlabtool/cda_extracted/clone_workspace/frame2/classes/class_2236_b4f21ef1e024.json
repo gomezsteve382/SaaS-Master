@@ -1,0 +1,288 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2236,
+  "className": "com.chrysler.cda.presentation.component.ecuconfig.components.ECUConfigsDataGrid",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.ecuconfig.components.ECUConfigsDataGrid",
+  "superName": "com.chrysler.core.component.FilterDataGrid",
+  "superNameNormalized": "com.chrysler.core.component.FilterDataGrid",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 40178,
+  "cinitMethod": 40173,
+  "iinitBytecode": {
+    "codeLength": 407,
+    "codeSha256": "1e424d00404649ad2f33b2a0a1b6d8c5040eb083d95588f88894371e1b5c952e",
+    "bytecodeLineCount": 26
+  },
+  "cinitBytecode": {
+    "codeLength": 17,
+    "codeSha256": "e940ff338988eaedb059a272a9288a66162cace3b965aef9cb4ba170961e77e7",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___ECUConfigsDataGrid_FilterDataGrid1_creationComplete",
+      "traitKind": "method",
+      "methodIndex": 40190,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "ab1add5c5a3e044118d7308bbce21cbae66c085aaddb436dd48abf3b3540fd2f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.ecuconfig.components:ECUConfigsDataGrid.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 40207,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e95bbdd615a6e6f74c918144826c0b3f27b7b8f8d1d7915b62189bc58a835d78",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 40180,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "listItemSelectionChange",
+      "traitKind": "method",
+      "methodIndex": 40182,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.ListEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "63d552e401094fd15cb26290f118b322009d3b89a72dbd0d66cd0b5a556dfc61",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 40179,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "b37b386a07a6f6583ae5569e445333df555e75801c4c331eee0f72069a512b28",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigsDataGrid_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 40206,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 394,
+      "bytecode": {
+        "codeLength": 394,
+        "codeSha256": "d37273fc06a2b4a0481f539c0950032a9feefbf2a15b4361870cb20e84998124",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigsDataGrid_DataGridColumn1_i",
+      "traitKind": "method",
+      "methodIndex": 40183,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "596b7be17b234a796c523a07b3b928c1c03f9956e132f736819784c376469089",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigsDataGrid_DataGridColumn2_i",
+      "traitKind": "method",
+      "methodIndex": 40184,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "d5e2e9b58bf0cfbd6b832349a8903bb3f35701734ec08e7d33b95da658967ea9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigsDataGrid_DataGridColumn3_i",
+      "traitKind": "method",
+      "methodIndex": 40185,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "e0e5d586e5f51f3617acbc2657365b0e196ac30873ac716f6ab4e82ab3dcf13c",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigsDataGrid_DataGridColumn4_i",
+      "traitKind": "method",
+      "methodIndex": 40186,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "b82f21ce7d9eea482747dc4d0dce31c9c72b54eb9fb2e038751d303ec277c1e3",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigsDataGrid_DataGridColumn5_i",
+      "traitKind": "method",
+      "methodIndex": 40187,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "44751f4596a5e846e320ca1716ad69111d5545b03c00a166f5b71dc5b1360fc4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigsDataGrid_DataGridColumn6_i",
+      "traitKind": "method",
+      "methodIndex": 40188,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "49c5d669feb2157b6bd0573e71f490b9b77cc5542b161c91871e2de9a1c3f8c7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ECUConfigsDataGrid_DataGridColumn7_i",
+      "traitKind": "method",
+      "methodIndex": 40189,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.dataGridClasses.DataGridColumn",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "3559052840efa5918f511a2b720927d9c13f731a72d0fe0b111961177d4cf814",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "setItemRenderer",
+      "traitKind": "method",
+      "methodIndex": 40181,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "5e1d1ca442a3d19e5f5ac1c39f97be0345e775bb478866cc267423ccf8afaa80",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "configFilterClosure",
+      "traitKind": "method",
+      "methodIndex": 40174,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.ecuconfig.domain.ECUConfigurationObject",
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "8ce6caa3b1b994264c7807a0ff619252b47bafa361ef76cccf98b942d4858de8",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 40175,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "c5ef939c9572fe5094c0cb205fbc1087d8d77d6d34cee649a52bb0564ecee688",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

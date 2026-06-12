@@ -1,0 +1,85 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1082,
+  "className": "com.chrysler.cda.application.feedback.UploadFeedbackCommand",
+  "classNameNormalized": "com.chrysler.cda.application.feedback.UploadFeedbackCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23456,
+  "cinitMethod": 23450,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "edb832cd9e41b33a4ef1fae1fd8804542b1840bf65c8a18cd4729228ba2dd241",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "uploadFeedbackFaultHandler",
+      "traitKind": "method",
+      "methodIndex": 23455,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent",
+        "com.chrysler.cda.event.message.feedback.FeedbackUploadLogFilesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "96360d184bd624d6eb7486a8f8095803f02826709b5575b1ca33221d4836104b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "uploadFeedbackMessageHandler",
+      "traitKind": "method",
+      "methodIndex": 23451,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.feedback.FeedbackUploadLogFilesMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "757a63f18ffe23d14ca8c64d535ca90ec7497a79cb93296f4d90401f8733a8f4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "uploadFeedbackResultHandler",
+      "traitKind": "method",
+      "methodIndex": 23454,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.ResultEvent",
+        "com.chrysler.cda.event.message.feedback.FeedbackUploadLogFilesMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 382,
+      "bytecode": {
+        "codeLength": 382,
+        "codeSha256": "0e7a429a350559c977d38580700d5dcccb01dd90e8fc12269c40601eb93ff47e",
+        "bytecodeLineCount": 24
+      }
+    }
+  ],
+  "staticMembers": []
+}

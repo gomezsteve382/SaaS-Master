@@ -1,0 +1,181 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3107,
+  "className": "wde.common.services.impl.SOAPService",
+  "classNameNormalized": "wde.common.services.impl.SOAPService",
+  "superName": "wde.common.services.impl.AbstractService",
+  "superNameNormalized": "wde.common.services.impl.AbstractService",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "wde.common.logging.ILoggable"
+  ],
+  "iinitMethod": 49299,
+  "cinitMethod": 49289,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "b171af375b84ba9d8ceb8709ccc9174a5619ff7e171e82e604602860b78b3f85",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "PrivateNs.convertResults",
+      "traitKind": "method",
+      "methodIndex": 49297,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "mx.rpc.AbstractOperation"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "be64fefca3f4fdbe00c1f00c455cfec66610637879d2988f7a5b5b65a89646de",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "send",
+      "traitKind": "method",
+      "methodIndex": 49294,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "83cd0e76d1f681403393d3d729d6d3471f1cdd76f9be81aaee59fd19847abf0c",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl:SOAPService.loadWSDL",
+      "traitKind": "method",
+      "methodIndex": 49295,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "81a0bbd217690ecd69dac309f38ac0d4bb481ce7b13b8b0b3c0d9537e3e6c83d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl.operationFaultHandler",
+      "traitKind": "method",
+      "methodIndex": 49298,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 77,
+      "bytecode": {
+        "codeLength": 77,
+        "codeSha256": "c9a7840fedfdbcbdc3b02b31f526e6c7a16a056e080609d673c1fc0020870592",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "wde.common.services.impl.wsdlLoaded",
+      "traitKind": "method",
+      "methodIndex": 49296,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.LoadEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "610d681a010b19fda5245b1168296786a9b58bc42dafbee3537a3692eea43595",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "webService",
+      "traitKind": "getter",
+      "methodIndex": 49291,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.rpc.soap.WebService",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "8e5b675fdfa4f9d995e1da57dd3b14b0f55847e6276fda6866eae24ce7498961",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "wsdl",
+      "traitKind": "getter",
+      "methodIndex": 49292,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e967ce36102c5c4bd0b5c4947e37ebc29d388d4a6402c9abd0e18f10cbfe982e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "wsdl",
+      "traitKind": "setter",
+      "methodIndex": 49293,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "0d61199fd9cc3750d3327c3e296a776c939012ea30eb59ac55a4b8759af2320c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "wde.common.services.impl.webService",
+      "traitKind": "setter",
+      "methodIndex": 49290,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.soap.WebService"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "2715e8443187b996b6ed6a1246fdbddd036275c6d55957bc7e118d0fc0847bff",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

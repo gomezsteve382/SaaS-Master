@@ -1,0 +1,122 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1757,
+  "className": "PrivateNs.JoinMemento",
+  "classNameNormalized": "PrivateNs.JoinMemento",
+  "superName": "PrivateNs.BaseMemento",
+  "superNameNormalized": "PrivateNs.BaseMemento",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flashx.textLayout.edit.IMemento"
+  ],
+  "iinitMethod": 33908,
+  "cinitMethod": 33904,
+  "iinitBytecode": {
+    "codeLength": 33,
+    "codeSha256": "919114adfec12c19d5ca3cf766ff1ca11de8205a04209697c77be4071d1b2d03",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "redo",
+      "traitKind": "method",
+      "methodIndex": 33910,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "d0c51bebd9070c7a47a5aad5627a73d1ddbed76150a15d9385548d47fe2fd02e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "undo",
+      "traitKind": "method",
+      "methodIndex": 33909,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 95,
+      "bytecode": {
+        "codeLength": 95,
+        "codeSha256": "59686fb7c19b3bc4df7e32f35b653580495eed43d35a3177326192bc3bf19dfc",
+        "bytecodeLineCount": 6
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "perform",
+      "traitKind": "method",
+      "methodIndex": 33905,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.elements.FlowGroupElement",
+        "flashx.textLayout.elements.FlowGroupElement",
+        "Boolean"
+      ],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "eef726d3718e7d115f3a70f67e94363c80f7c909a6b72f7989fd3d1157902c3f",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "performInternal",
+      "traitKind": "method",
+      "methodIndex": 33906,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "flashx.textLayout.edit.ElementMark",
+        "flashx.textLayout.edit.ElementMark"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "efc5d0b32c82612385fe89b828d0f2782da649db27da48499b0c1c0ed9be74f9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.moveChildren",
+      "traitKind": "method",
+      "methodIndex": 33907,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowGroupElement",
+        "flashx.textLayout.elements.FlowGroupElement"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "67daceaa9dffb55469f4816d7a7baf088c689abf92c936c1cf588c329c19d1b0",
+        "bytecodeLineCount": 3
+      }
+    }
+  ]
+}

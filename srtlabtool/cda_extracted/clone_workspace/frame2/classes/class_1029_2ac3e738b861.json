@@ -1,0 +1,147 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1029,
+  "className": "com.chrysler.core.infrastructure.communication.HTTPActionQueue",
+  "classNameNormalized": "com.chrysler.core.infrastructure.communication.HTTPActionQueue",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 21946,
+  "cinitMethod": 21938,
+  "iinitBytecode": {
+    "codeLength": 47,
+    "codeSha256": "63abaf89ee25e8d9e69717f3f1561a9db70fcde7fda87704d716c587b5d79532",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dequeue",
+      "traitKind": "method",
+      "methodIndex": 21942,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.infrastructure.communication.HTTPActionQueueObject",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "92335d08500f8c613350fd1bed135e46ef25773a0e338c78764b8c9c76425f2e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "enqueue",
+      "traitKind": "method",
+      "methodIndex": 21940,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.infrastructure.communication.HTTPActionQueueObject"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "ed0bb2fe084b58990265ff07f18acc48f4e6e124272c4b9f1fc7bba5bc6d84c0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "fastEnqueue",
+      "traitKind": "method",
+      "methodIndex": 21941,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.infrastructure.communication.HTTPActionQueueObject"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "cf2e132924990fc943788a1b9c7c7e7d542242df0219b9f1a97110e10d4e9b3f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "fullDequeue",
+      "traitKind": "method",
+      "methodIndex": 21943,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 61,
+      "bytecode": {
+        "codeLength": 61,
+        "codeSha256": "cda9b81b3e549429c34a6904e21e83a775493f0e4753fdc35cf00a803147d1ed",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getProgressItemIndex",
+      "traitKind": "method",
+      "methodIndex": 21945,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "b59608a86f7a7edbfe84d16f4f54a34de812b210c0970a5da312602595b0bc4f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "heartbeat",
+      "traitKind": "method",
+      "methodIndex": 21944,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.TimerEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "c14af5682d2c5248f486cc61f06929ffe5b7c2616b715f5a3914849ce8239f07",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onInitialization",
+      "traitKind": "method",
+      "methodIndex": 21939,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "7369f9030d3d35eba3243662e0e03e8c489c4548a1497b7f7fc5163fbd9af534",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

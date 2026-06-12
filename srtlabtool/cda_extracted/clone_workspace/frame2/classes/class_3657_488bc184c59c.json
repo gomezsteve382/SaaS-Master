@@ -1,0 +1,104 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3657,
+  "className": "org.spicefactory.parsley.core.state.manager.impl.DefaultGlobalDomainManager",
+  "classNameNormalized": "org.spicefactory.parsley.core.state.manager.impl.DefaultGlobalDomainManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.state.manager.GlobalDomainManager"
+  ],
+  "iinitMethod": 54991,
+  "cinitMethod": 54986,
+  "iinitBytecode": {
+    "codeLength": 54,
+    "codeSha256": "602038bab9516ce8a256842f0fd63f24200fc4815b4e149a83f61ba7e1fe4d3e",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "b18a16ef7532ae521387a64e8ac2e359a059ce96be32728ae4f6fb87f292124c",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addContext",
+      "traitKind": "method",
+      "methodIndex": 54989,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.Context"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "af27b052b83864898b619b65bea68bef685e0e2b31f4efa478a2272666ee78e4",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "addPurgeHandler",
+      "traitKind": "method",
+      "methodIndex": 54987,
+      "methodName": "",
+      "paramTypes": [
+        "flash.system.ApplicationDomain",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "2dab68e83cbd88067d9764970fa7b1c2cabedbe35ac36b3612eca293195d5fe8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.contextDestroyed",
+      "traitKind": "method",
+      "methodIndex": 54990,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.events.ContextEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 306,
+      "bytecode": {
+        "codeLength": 306,
+        "codeSha256": "2ec6fd3a3245bfb48879cfda055fab3c7041c711d5fef39cc38b05e2093db176",
+        "bytecodeLineCount": 20
+      }
+    },
+    {
+      "traitName": "putIfAbsent",
+      "traitKind": "method",
+      "methodIndex": 54988,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "flash.system.ApplicationDomain"
+      ],
+      "returnType": "flash.system.ApplicationDomain",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "2c640106ae3e008756186311741aeabe00f324d96c1d6afdcb87ba3b197db829",
+        "bytecodeLineCount": 5
+      }
+    }
+  ],
+  "staticMembers": []
+}

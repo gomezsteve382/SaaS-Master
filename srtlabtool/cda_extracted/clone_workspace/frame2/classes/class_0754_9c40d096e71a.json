@@ -1,0 +1,102 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 754,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.FindConversionDataCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.FindConversionDataCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 14605,
+  "cinitMethod": 14600,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "9266cbb3f5f7b05fb04be19d18fb78f1b80fa8c6774f4c484a5b848746d1cc39",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.application.diagnostic.ecu.worker",
+      "traitKind": "method",
+      "methodIndex": 14603,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "d0d1b01df7ce5697a722d8147be22b109552c65ae57771c393fd29f0d757c6d5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "getConversionData",
+      "traitKind": "method",
+      "methodIndex": 14604,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.GetComServicesByTypeMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "6290e4925903e75dee1f27fd6395dcabb1a4371171cdd6acd59047d55b4dcc2b",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onFindConversionDataForProxiView",
+      "traitKind": "method",
+      "methodIndex": 14602,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ProxyConversionDataMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 32,
+      "bytecode": {
+        "codeLength": 32,
+        "codeSha256": "613aa9a5c6f7b383695bf95c2e348dc2b859d6eaa71e6baa24c9175ede9dd4f4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onFindConversionDataForReadWrite",
+      "traitKind": "method",
+      "methodIndex": 14601,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.FindConversionDataForReadWriteMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "25339cd8e12ab36c8a850b45362569535549ce14095d310313650334d8788202",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

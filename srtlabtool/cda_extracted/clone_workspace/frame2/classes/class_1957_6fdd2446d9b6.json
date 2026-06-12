@@ -1,0 +1,176 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1957,
+  "className": "com.chrysler.cda.presentation.component.diagnostic.QualSetId",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.diagnostic.QualSetId",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.chrysler.cda.presentation.component.diagnostic.IQualSetId",
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 36553,
+  "cinitMethod": 36544,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "b307b79c4f8a68f35a8298cf038b9bbc80918527969d19fb4b8feef01d3f1690",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 36548,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "15c6607a086ca310fd7a370ee5a88ff0852fd675b115d826c346e45320b09ba3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 36549,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "cb1ee1fd287a0c1d3a8d5f7a7caddf738319317ebadf050ebd8f4afa67e1a8c6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 36550,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "d3be7fb7d567532f48fcee38a40a646e5baf30e66f025b4ea749d021ce7f3732",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "qualSetId",
+      "traitKind": "getter",
+      "methodIndex": 36546,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ed4a30da150635d2f6b182e3acc443e5f12670595551ff7e2bb19bedd7a261e1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "qualSetId",
+      "traitKind": "setter",
+      "methodIndex": 36547,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "a2ad2c435bc4d12beedbf6d9c9b229b28d21cd2988f45ee32cf02b6f16ed9ba9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 36551,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "6634ef8e3dbb76ee9bc621d8af2c74b4741a44e141f37576dad03dc2ed13fcf7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 36552,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "db37e34b4548a55db54ec79766d3ae6306fe9c4f7607528cba0c68d38c4aef54",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "GatherQualSetIds",
+      "traitKind": "method",
+      "methodIndex": 36545,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "fdda2e3e92b24c4a89ee10ef6a0ecd702cdc3893e080e3276769b86299c2756d",
+        "bytecodeLineCount": 7
+      }
+    }
+  ]
+}

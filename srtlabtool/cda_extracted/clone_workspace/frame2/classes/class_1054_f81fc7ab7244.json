@@ -1,0 +1,52 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1054,
+  "className": "com.chrysler.cda.domain.diagnostic.procedures.CDAExclusiveAccessCommand",
+  "classNameNormalized": "com.chrysler.cda.domain.diagnostic.procedures.CDAExclusiveAccessCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.api.ICommand"
+  ],
+  "iinitMethod": 22700,
+  "cinitMethod": 22697,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "createAndExecuteService",
+      "traitKind": "method",
+      "methodIndex": 22699,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.IResponder",
+        "Object"
+      ],
+      "returnType": "wde.common.services.IClosable",
+      "hasBody": true,
+      "codeLength": 52,
+      "bytecode": {
+        "codeLength": 52,
+        "codeSha256": "099c203405004b5a0e812c9703aa7ec37fbc1ef9e3be3aaceb5a69e063b2a374",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

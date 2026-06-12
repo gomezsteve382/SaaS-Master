@@ -1,0 +1,208 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2890,
+  "className": "com.hurlant.crypto.symmetric.AESKey",
+  "classNameNormalized": "com.hurlant.crypto.symmetric.AESKey",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.symmetric.ISymmetricKey"
+  ],
+  "iinitMethod": 47039,
+  "cinitMethod": 47038,
+  "iinitBytecode": {
+    "codeLength": 68,
+    "codeSha256": "4f1676125b145df997c8d6798ba7411266b94373731986e6259cd962d8002310",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 54679,
+    "codeSha256": "68739590b8a1a5bf8c671941da76e655eaa1d96b10573da2ca5e69a5fa9c0085",
+    "bytecodeLineCount": 3418
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.hurlant.crypto.symmetric:AESKey.addRoundKey",
+      "traitKind": "method",
+      "methodIndex": 47049,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "447780e956f8502ddc98b9a4194470b2ada136654c33256124d0f1ce8fbdbcc0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.hurlant.crypto.symmetric:AESKey.invMixSubColumns",
+      "traitKind": "method",
+      "methodIndex": 47048,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1510,
+      "bytecode": {
+        "codeLength": 1510,
+        "codeSha256": "01c27f3819d0897a339b2cd75190b959fa89c1455dcde7b66acb55eca9fc89fa",
+        "bytecodeLineCount": 95
+      }
+    },
+    {
+      "traitName": "com.hurlant.crypto.symmetric:AESKey.invShiftRows",
+      "traitKind": "method",
+      "methodIndex": 47046,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 499,
+      "bytecode": {
+        "codeLength": 499,
+        "codeSha256": "e403da4d33fa20b0f4aa72276e4499b358ad7c344bef5c1f11bcf8a5915baaf0",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "com.hurlant.crypto.symmetric:AESKey.mixSubColumns",
+      "traitKind": "method",
+      "methodIndex": 47047,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 1487,
+      "bytecode": {
+        "codeLength": 1487,
+        "codeSha256": "b80c2090dd598cfa3380385f5cc130e69f7b8ae7eeabece4099f00ccb2af08d3",
+        "bytecodeLineCount": 93
+      }
+    },
+    {
+      "traitName": "com.hurlant.crypto.symmetric:AESKey.shiftRows",
+      "traitKind": "method",
+      "methodIndex": 47045,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 499,
+      "bytecode": {
+        "codeLength": 499,
+        "codeSha256": "9689dd014df18236d867d234cc842820a69146a46111d7f4e8425f8f61f7f574",
+        "bytecodeLineCount": 32
+      }
+    },
+    {
+      "traitName": "decrypt",
+      "traitKind": "method",
+      "methodIndex": 47043,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 135,
+      "bytecode": {
+        "codeLength": 135,
+        "codeSha256": "6e9c8c584b5fd3c61eefd72a396907eda5f0bb4dd8196ec8845de652faa0f699",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 47044,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 226,
+      "bytecode": {
+        "codeLength": 226,
+        "codeSha256": "3a9921b8e709e46903d97da9ff0aec987d04cb6d00dc34b96bb1a54bfa3e1823",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "encrypt",
+      "traitKind": "method",
+      "methodIndex": 47042,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 137,
+      "bytecode": {
+        "codeLength": 137,
+        "codeSha256": "044afb6fe11e9adefc15deada7cf0381d25775faa8c7b87c49131ac73ebf4647",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "getBlockSize",
+      "traitKind": "method",
+      "methodIndex": 47041,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 5,
+      "bytecode": {
+        "codeLength": 5,
+        "codeSha256": "6360c5e57f0850ccc4bea00b6eb42dd1b87442cf662a7e3ee6755c83fe03d1e4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.expandKey",
+      "traitKind": "method",
+      "methodIndex": 47040,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 480,
+      "bytecode": {
+        "codeLength": 480,
+        "codeSha256": "0742791bde270f779b47f6a15df998b048e8a4efccc05fff681692d1bee7eb50",
+        "bytecodeLineCount": 30
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 47050,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "3231a97353e3236095da211886b476e4d21767a21a767cc384d2e68334d82ea1",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

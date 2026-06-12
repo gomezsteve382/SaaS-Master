@@ -1,0 +1,114 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3183,
+  "className": "com.hurlant.crypto.hash.MAC",
+  "classNameNormalized": "com.hurlant.crypto.hash.MAC",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.hurlant.crypto.hash.IHMAC"
+  ],
+  "iinitMethod": 50128,
+  "cinitMethod": 50127,
+  "iinitBytecode": {
+    "codeLength": 153,
+    "codeSha256": "4d293a3a063c259ed7c213c3d90fc22b954f1bd8d76280f7f7a271f14d0cd1a0",
+    "bytecodeLineCount": 10
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "compute",
+      "traitKind": "method",
+      "methodIndex": 50131,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 292,
+      "bytecode": {
+        "codeLength": 292,
+        "codeSha256": "6cae01cee2bdc66d66d8c3a16577d5507e44d8f721347041b9f5e4db22daaced",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 50132,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "85613fc1cab55376a8136616c129903c0dc39a7be62844d04d0410ff0263d45c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getHashSize",
+      "traitKind": "method",
+      "methodIndex": 50130,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "468dad42494522edc5edfd23cac8529737e52a8f2acaedbf1f0d8b6c719f9281",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "setPadSize",
+      "traitKind": "method",
+      "methodIndex": 50129,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 3,
+      "bytecode": {
+        "codeLength": 3,
+        "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 50133,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "19e643567dd576f710a71654e5d4d542e7f55f0a2bf9dadbaffc00cb0c3b3b53",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

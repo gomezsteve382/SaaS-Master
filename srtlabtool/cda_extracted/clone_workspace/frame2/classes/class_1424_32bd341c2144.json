@@ -1,0 +1,263 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1424,
+  "className": "spark.skins.spark.VSliderTrackSkin",
+  "classNameNormalized": "spark.skins.spark.VSliderTrackSkin",
+  "superName": "spark.skins.SparkSkin",
+  "superNameNormalized": "spark.skins.SparkSkin",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 31357,
+  "cinitMethod": 31356,
+  "iinitBytecode": {
+    "codeLength": 148,
+    "codeSha256": "26d272f43854c0d0431a7d3d823a63865c228445d1ac8b82eb05dd728d868714",
+    "bytecodeLineCount": 10
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "hostComponent",
+      "traitKind": "getter",
+      "methodIndex": 31371,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "04693a0157a8428444c18695fca4016b69381e4733f3992b143202c77b582df5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hostComponent",
+      "traitKind": "setter",
+      "methodIndex": 31372,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "113fcde9fc6b66ae6b226249863edbf62ee69654b7f3c0009e7758bd3bf747ef",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 31359,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 31358,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "9c22bcaddcfbcba7c6722dec9355380f8c5f7d465fc96fd564a77493aec39d4a",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_GradientEntry1_c",
+      "traitKind": "method",
+      "methodIndex": 31363,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "e0590137457f0182960ef6892cd899710bdaadac517e7ce5ff472e79bfc4f1a7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_GradientEntry2_c",
+      "traitKind": "method",
+      "methodIndex": 31364,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.GradientEntry",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "25aae65631c5800323f99b5f25af0463c029b38b16c25ca623570724b3cef862",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_LinearGradient1_c",
+      "traitKind": "method",
+      "methodIndex": 31362,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.LinearGradient",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "fdc183d3c4e214270f1793bdd514b13692146e1b22e951f717327fc941a7f959",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_Rect1_c",
+      "traitKind": "method",
+      "methodIndex": 31361,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "5f04f86cec98da206b81e0493948c38a9187f582c99ffe558533fea9594693d6",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_Rect2_c",
+      "traitKind": "method",
+      "methodIndex": 31365,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "7a0dc5470e6108083feb0171e5c3024f808fc94e8f6199f75fb4c6056fb0ea05",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_Rect3_c",
+      "traitKind": "method",
+      "methodIndex": 31367,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "73c3f0684b78f19bf1d712cbda41b21d88e52104f07e0f5294c4fb9099117dad",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_Rect4_c",
+      "traitKind": "method",
+      "methodIndex": 31369,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.primitives.Rect",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "6aeac11dfc85b71e0c32da5cdf45eadb2e3b49b948a98a35c56fd9cdcb86ad0c",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_SolidColor1_c",
+      "traitKind": "method",
+      "methodIndex": 31366,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "1bb3c6c2c0fd5cbfa4f500cfba72bcc450b95ddb118c3503aebeb3f7c0c7dbb7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_SolidColor2_c",
+      "traitKind": "method",
+      "methodIndex": 31368,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "5cf0e8f1685a4a0e7c81983b1f1cf8f256d94041e8364b71a4e118210d6301da",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._VSliderTrackSkin_SolidColor3_c",
+      "traitKind": "method",
+      "methodIndex": 31370,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.graphics.SolidColor",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "e66cf956077cc4fc0ad7161a3b5eec31575515693c5facc0e940a09335f15d96",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "spark.skins.spark:VSliderTrackSkin.initializationComplete",
+      "traitKind": "method",
+      "methodIndex": 31360,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "f516358e6d159d90215b9b443ad6e388459c18bcaa7e40104762a6c11ca039ea",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

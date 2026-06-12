@@ -1,0 +1,135 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 808,
+  "className": "com.chrysler.cda.application.diagnostic.broadcastMessages.BroadcastMessagesCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.broadcastMessages.BroadcastMessagesCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 15839,
+  "cinitMethod": 15832,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "b4d7b97550455343c5a03ec4b6791ee8c3b86a875e8a4950c1bcc316bd9be36d",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onRequestBroadcastCommands",
+      "traitKind": "method",
+      "methodIndex": 15835,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.functionalMessages.RequestBroadcastCommandsMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "30b848005cf32337acadd8fcf4d0077b452b504e5be76a3886355cbeec4cf35c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onRequestBroadcastIdsAndProtocolIds",
+      "traitKind": "method",
+      "methodIndex": 15834,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.functionalMessages.RequestBroadcastIdsAndProtocolIdsMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "9b8f9b42e6b9f095b5ed8822111008aa14b0e858401079a7bcf5acd0466e5fff",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onSendBroadcastMessage",
+      "traitKind": "method",
+      "methodIndex": 15836,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.functionalMessages.SendBroadcastCommandMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "8b6133cf8a7e4d130ddeeb9a07d9aab55b070dd4177becdc771f4552ed0ebd0a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onSendBroadcastMessageCommands",
+      "traitKind": "method",
+      "methodIndex": 15837,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.functionalMessages.SendBroadcastMessageMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "2a9224883d591826433ef3ee11a99f74e748dbfb03efb38c0433e32a567ef4e6",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "onSendTestPresentCommands",
+      "traitKind": "method",
+      "methodIndex": 15838,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.functionalMessages.SendTesterPresentBroadcastCommandMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "8c29f3a8f388ac8ad9f57fe41525d80c966fa3ed09807220649782f6f83c6d5f",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "parameterMaker",
+      "traitKind": "method",
+      "methodIndex": 15833,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.functionalMessages.IBroadcastCommandMessage"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "1a9107601a25950cf4e91d21f1d5dd3341fc44ec3a1139925622eb77e3cda840",
+        "bytecodeLineCount": 4
+      }
+    }
+  ]
+}

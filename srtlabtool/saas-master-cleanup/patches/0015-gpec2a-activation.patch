@@ -1,0 +1,240 @@
+From f1eff85f5e7af3452e3370df8832b3a9c4c6d6cb Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 15:29:34 +0000
+Subject: [PATCH] =?UTF-8?q?Activate=20GPEC2A=20File-Unlock=20=E2=80=94=20r?=
+ =?UTF-8?q?ecover=20real=20patterns=20from=20a=20genuine=20unlock?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The WinLicense-sealed unlock patterns were never statically extractable, so the
+GPEC2A File-Unlock tab was inert (PATTERNS_AVAILABLE=false). Recovered them by
+byte-diffing a real locked/unlocked INT_FLASH pair (derive-gpec-patterns.mjs):
+
+  UNLOCK_TARGET_PATTERN    = [0xE6,0x06,0x65,0xDD]   (byte[match] -> 0xE8)
+  ALREADY_UNLOCKED_PATTERN = [0x06,0x65,0xDD,0xE8]
+  UNLOCK_FLAG_OFFSET       = 0x2FFF0   (CORRECTED — the IL guess 0x2FFFC was
+                                        unchanged in the real unlock)
+
+PROVEN: patchGpec2aFile() applied to the real locked file reproduces the real
+unlocked file BYTE-FOR-BYTE (0 diffs). The pattern occurs exactly once in every
+4 MB INT_FLASH dump in the corpus (universal firmware code, not dump-specific),
+so the fixture test now performs a genuine no-opts unlock and asserts exactly 2
+bytes change + idempotency.
+
+Scope: INT_FLASH only. EXT_EEPROM lacks this pattern (resolves to offset_only) —
+needs its own locked/unlocked pair. GEN_DETECT still null (label only).
+NOTE: these are algorithm constants (firmware search patterns), not vehicle data.
+
+Tests updated for the activated state (PATTERNS_AVAILABLE=true, 0x2FFF0).
+---
+ .../__tests__/gpec2aUnlocker.fixture.test.js  | 42 +++++++++++++----
+ .../src/lib/__tests__/gpec2aUnlocker.test.js  | 45 ++++++++++++++-----
+ artifacts/srt-lab/src/lib/gpec2aUnlocker.js   | 35 +++++++++++----
+ 3 files changed, 93 insertions(+), 29 deletions(-)
+
+diff --git a/artifacts/srt-lab/src/lib/__tests__/gpec2aUnlocker.fixture.test.js b/artifacts/srt-lab/src/lib/__tests__/gpec2aUnlocker.fixture.test.js
+index b8f7b07..992820a 100644
+--- a/artifacts/srt-lab/src/lib/__tests__/gpec2aUnlocker.fixture.test.js
++++ b/artifacts/srt-lab/src/lib/__tests__/gpec2aUnlocker.fixture.test.js
+@@ -64,11 +64,12 @@ describe('gpec2aUnlocker fixture — EXT_EEPROM locked (384 KB)', () => {
+     expect(d.length).toBeGreaterThan(UNLOCK_FLAG_OFFSET);
+   });
+ 
+-  (skip ? it.skip : it)('flag byte at 0x2FFFC is 0x3A (LOCKED state)', () => {
++  (skip ? it.skip : it)('flag byte at 0x2FFF0 is not yet unlocked (≠ 0x96)', () => {
+     const d = readFileSync(EXT_EEPROM_LOCKED);
+-    // Golden assertion: 0x3A is the known locked state of this specific file.
+-    // After unlocking with GPEC_Unlocker.exe the byte becomes 0x96 (UNLOCK_FLAG_BYTE).
+-    expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x3A);
++    // Flag offset corrected to 0x2FFF0 (proven from a real INT_FLASH unlock).
++    // This EXT_EEPROM locked dump reads 0x4A there; the key invariant is it is
++    // NOT the unlocked value 0x96.
++    expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x4A);
+     expect(d[UNLOCK_FLAG_OFFSET]).not.toBe(UNLOCK_FLAG_BYTE);
+   });
+ 
+@@ -86,7 +87,7 @@ describe('gpec2aUnlocker fixture — EXT_EEPROM locked (384 KB)', () => {
+     // File content before the flag offset is unchanged (synthetic pattern not present).
+     expect(r.patched.length).toBe(d.length);
+     // Original is not mutated.
+-    expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x3A);
++    expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x4A);
+   });
+ 
+   (skip ? it.skip : it)('patchGpec2aFile (synthetic opts) returns offset_only (pattern absent)', () => {
+@@ -98,11 +99,15 @@ describe('gpec2aUnlocker fixture — EXT_EEPROM locked (384 KB)', () => {
+     expect(r.matchOffset).toBeNull();
+   });
+ 
+-  (skip ? it.skip : it)('patchGpec2aFile without opts returns PATTERN_MISSING (module not activated)', () => {
++  (skip ? it.skip : it)('module is ACTIVATED; EXT_EEPROM lacks the INT_FLASH pattern → offset_only', () => {
+     const d = new Uint8Array(readFileSync(EXT_EEPROM_LOCKED));
+-    expect(PATTERNS_AVAILABLE).toBe(false);
++    expect(PATTERNS_AVAILABLE).toBe(true);
++    // The recovered UNLOCK_TARGET_PATTERN is INT_FLASH firmware; it is not
++    // present in EXT_EEPROM, so a real (no-opts) run sets the flag but finds no
++    // E8 patch site. EXT_EEPROM needs its own locked/unlocked pair (see header).
+     const r = patchGpec2aFile(d);
+-    expect(r.status).toBe('PATTERN_MISSING');
++    expect(r.status).toBe('offset_only');
++    expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE);
+   });
+ 
+   /*
+@@ -139,7 +144,7 @@ describe('gpec2aUnlocker fixture — INT_FLASH locked (4 MB)', () => {
+     expect(d.length).toBe(4194304);
+   });
+ 
+-  (skip ? it.skip : it)('flag byte at 0x2FFFC is 0x08 (LOCKED state, not 0x96)', () => {
++  (skip ? it.skip : it)('flag byte at 0x2FFF0 is 0x08 (LOCKED state, not 0x96)', () => {
+     const d = readFileSync(INT_FLASH_LOCKED);
+     expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x08);
+     expect(d[UNLOCK_FLAG_OFFSET]).not.toBe(UNLOCK_FLAG_BYTE);
+@@ -157,4 +162,23 @@ describe('gpec2aUnlocker fixture — INT_FLASH locked (4 MB)', () => {
+     expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE);
+     expect(d[UNLOCK_FLAG_OFFSET]).toBe(0x08); // original not mutated
+   });
++
++  /* REAL ACTIVATION — no opts, the module's recovered patterns. The corpus
++   * INT_FLASH carries UNLOCK_TARGET_PATTERN (universal firmware code), so the
++   * production code path performs the genuine unlock. */
++  (skip ? it.skip : it)('REAL unlock (no opts): patches 0xE8 + flag 0x96, idempotent', () => {
++    const d = new Uint8Array(readFileSync(INT_FLASH_LOCKED));
++    expect(PATTERNS_AVAILABLE).toBe(true);
++    const r = patchGpec2aFile(d); // production patterns
++    expect(r.status).toBe('unlocked');
++    expect(r.matchOffset).not.toBeNull();
++    expect(r.patched[r.matchOffset]).toBe(0xE8);
++    expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE);
++    // exactly two bytes changed vs the locked input
++    let diffs = 0; for (let i = 0; i < d.length; i++) if (r.patched[i] !== d[i]) diffs++;
++    expect(diffs).toBe(2);
++    // re-running on the unlocked output is a no-op
++    expect(patchGpec2aFile(r.patched).status).toBe('already_unlocked');
++    expect(isAlreadyUnlocked(r.patched)).toBe(true);
++  });
+ });
+diff --git a/artifacts/srt-lab/src/lib/__tests__/gpec2aUnlocker.test.js b/artifacts/srt-lab/src/lib/__tests__/gpec2aUnlocker.test.js
+index 227cdab..f301f2b 100644
+--- a/artifacts/srt-lab/src/lib/__tests__/gpec2aUnlocker.test.js
++++ b/artifacts/srt-lab/src/lib/__tests__/gpec2aUnlocker.test.js
+@@ -42,18 +42,37 @@ function makeFile(size, opts = {}) {
+  * TEST SUITE
+  * ══════════════════════════════════════════════════════════════════════════ */
+ 
+-describe('gpec2aUnlocker — PATTERN_MISSING guard', () => {
+-  it('module starts with PATTERNS_AVAILABLE = false', () => {
+-    expect(PATTERNS_AVAILABLE).toBe(false);
++describe('gpec2aUnlocker — ACTIVATED (real INT_FLASH patterns)', () => {
++  const REAL_TARGET = [0xE6, 0x06, 0x65, 0xDD];
++
++  it('module is activated (PATTERNS_AVAILABLE = true)', () => {
++    expect(PATTERNS_AVAILABLE).toBe(true);
++  });
++
++  it('unlocks a file containing the real UNLOCK_TARGET_PATTERN — no opts', () => {
++    const file = new Uint8Array(UNLOCK_FLAG_OFFSET + 0x100);
++    const OFF = 0x25DB6;
++    file.set(REAL_TARGET, OFF);
++    const r = patchGpec2aFile(file); // no opts → uses the module's recovered patterns
++    expect(r.status).toBe('unlocked');
++    expect(r.matchOffset).toBe(OFF);
++    expect(r.patched[OFF]).toBe(0xE8);
++    expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE); // 0x96 @0x2FFF0
+   });
+ 
+-  it('returns PATTERN_MISSING when no opts and PATTERNS_AVAILABLE is false', () => {
+-    const file = new Uint8Array(256 * 1024);
++  it('a large file WITHOUT the pattern resolves to offset_only (flag only)', () => {
++    const file = new Uint8Array(UNLOCK_FLAG_OFFSET + 0x100); // zero-filled, pattern absent
+     const r = patchGpec2aFile(file);
+-    expect(r.status).toBe('PATTERN_MISSING');
++    expect(r.status).toBe('offset_only');
+     expect(r.matchOffset).toBeNull();
+-    expect(r.patched).toBeInstanceOf(Uint8Array);
+-    expect(r.patched.length).toBe(file.length);
++    expect(r.patched[UNLOCK_FLAG_OFFSET]).toBe(UNLOCK_FLAG_BYTE);
++  });
++
++  it('an already-unlocked file (flag set) is a no-op', () => {
++    const file = new Uint8Array(UNLOCK_FLAG_OFFSET + 0x100);
++    file[UNLOCK_FLAG_OFFSET] = UNLOCK_FLAG_BYTE;
++    const r = patchGpec2aFile(file);
++    expect(r.status).toBe('already_unlocked');
+   });
+ });
+ 
+@@ -154,7 +173,9 @@ describe('gpec2aUnlocker — pattern-not-found case', () => {
+ });
+ 
+ describe('gpec2aUnlocker — generation detection', () => {
+-  it('returns PATTERN_MISSING when no opts and patterns unavailable', () => {
++  it('returns PATTERN_MISSING when GEN_DETECT_PATTERN is null (no opts)', () => {
++    // gen detection is independent of the unlock: GEN_DETECT_PATTERN is still
++    // null (needs a 2015-vs-2018+ sample) so generation labeling is unavailable.
+     const file = new Uint8Array(1024);
+     expect(detectGeneration(file)).toBe('PATTERN_MISSING');
+   });
+@@ -195,9 +216,9 @@ describe('gpec2aUnlocker — isAlreadyUnlocked', () => {
+ });
+ 
+ describe('gpec2aUnlocker — constants', () => {
+-  it('UNLOCK_FLAG_OFFSET equals 0x2FFFC (196604)', () => {
+-    expect(UNLOCK_FLAG_OFFSET).toBe(196604);
+-    expect(UNLOCK_FLAG_OFFSET).toBe(0x2FFFC);
++  it('UNLOCK_FLAG_OFFSET equals 0x2FFF0 (196592) — corrected from the 0x2FFFC IL guess', () => {
++    expect(UNLOCK_FLAG_OFFSET).toBe(196592);
++    expect(UNLOCK_FLAG_OFFSET).toBe(0x2FFF0);
+   });
+ 
+   it('UNLOCK_FLAG_BYTE equals 0x96 (150)', () => {
+diff --git a/artifacts/srt-lab/src/lib/gpec2aUnlocker.js b/artifacts/srt-lab/src/lib/gpec2aUnlocker.js
+index 4c7601b..a894080 100644
+--- a/artifacts/srt-lab/src/lib/gpec2aUnlocker.js
++++ b/artifacts/srt-lab/src/lib/gpec2aUnlocker.js
+@@ -33,14 +33,33 @@
+  * Set PATTERNS_AVAILABLE = true and populate the three arrays once the
+  * 4-byte values have been recovered (see header comment above).
+  */
+-export const PATTERNS_AVAILABLE = false;
+-
+-export const GEN_DETECT_PATTERN       = null; // [04:0005] — 4 bytes, "2015-2018" marker
+-export const ALREADY_UNLOCKED_PATTERN = null; // [04:0006] — 4 bytes, scanned with look-behind
+-export const UNLOCK_TARGET_PATTERN    = null; // [04:0007] — 4 bytes, byte[match] → 0xE8
+-
+-/* Unlock flag offset — this constant is NOT protected and confirmed from IL */
+-export const UNLOCK_FLAG_OFFSET = 0x2FFFC; // 196604 — only applied when file > this offset
++/* RECOVERED from a real locked/unlocked GPEC2A INT_FLASH (4 MB) pair — the
++ * WinLicense-sealed patterns were never statically extractable, so they were
++ * derived by byte-diffing a genuine unlock (derive-gpec-patterns.mjs).
++ *
++ * PROVEN for INT_FLASH:
++ *   - Applying this algorithm to the locked file reproduces the real unlocked
++ *     file BYTE-FOR-BYTE (0 diffs) through patchGpec2aFile().
++ *   - UNLOCK_TARGET_PATTERN occurs EXACTLY ONCE in every 4 MB INT_FLASH dump in
++ *     the corpus (offset varies per dump — 0x25DB6 / 0x25FD6 — but always
++ *     unique), so it is universal firmware code, not dump-specific.
++ *
++ * SCOPE / still-open:
++ *   - EXT_EEPROM: UNLOCK_TARGET_PATTERN is NOT present in the EXT_EEPROM dumps,
++ *     so those resolve to 'offset_only' (flag set, no E8 patch). A real
++ *     EXT_EEPROM locked/unlocked pair is needed to recover its pattern.
++ *   - GEN_DETECT_PATTERN remains null (needs a 2015-vs-2018+ sample) — only
++ *     affects the generation LABEL, not the unlock. */
++export const PATTERNS_AVAILABLE = true;
++
++export const GEN_DETECT_PATTERN       = null;                       // [04:0005] still unknown — gen label only, not needed to unlock
++export const ALREADY_UNLOCKED_PATTERN = [0x06, 0x65, 0xDD, 0xE8];  // [04:0006] — scanned with 0xE8 look-behind
++export const UNLOCK_TARGET_PATTERN    = [0xE6, 0x06, 0x65, 0xDD];  // [04:0007] — byte[match] → 0xE8
++
++/* Unlock flag. CORRECTED from the prior IL guess of 0x2FFFC: the real unlock
++ * writes 0x96 at 0x2FFF0 (0x2FFFC was unchanged in the genuine unlocked file).
++ * Verified byte-for-byte against the INT_FLASH capture. */
++export const UNLOCK_FLAG_OFFSET = 0x2FFF0; // 196592 — only applied when file > this offset
+ export const UNLOCK_FLAG_BYTE   = 0x96;
+ 
+ /* ── Internal helpers ──────────────────────────────────────────────────────*/
+-- 
+2.43.0
+

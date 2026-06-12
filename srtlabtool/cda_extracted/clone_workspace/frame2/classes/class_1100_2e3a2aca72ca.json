@@ -1,0 +1,101 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1100,
+  "className": "com.chrysler.cda.application.start.StartWDECommand",
+  "classNameNormalized": "com.chrysler.cda.application.start.StartWDECommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23764,
+  "cinitMethod": 23758,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 44,
+    "codeSha256": "07531f49a285447974678a504c814d11aeee60cdab6235b4a3f73fdb30896d53",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "handleStartWDEFailure",
+      "traitKind": "method",
+      "methodIndex": 23762,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartWDEMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "8c82a90249d863cc43569752e7f86df86a3d7324c47cf9b6110ea2a00ef16903",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onStartWDEResult",
+      "traitKind": "method",
+      "methodIndex": 23761,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.start.StartWDEMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 418,
+      "bytecode": {
+        "codeLength": 418,
+        "codeSha256": "38f4d8e6f3be0bdb7f730a1a2e22e81a6c058aa606bf569107cac31f6681deda",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "onSyncComplete",
+      "traitKind": "method",
+      "methodIndex": 23763,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.setup.SyncMonitorMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "9beb0994955b80e3755f91c9188fe3e0d29d0f119462e7da84a8976ab4013d66",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "startWDE",
+      "traitKind": "method",
+      "methodIndex": 23759,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.start.StartWDEMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "e76e0c0c65c154d30fec386031a92dd73229be6b798394d530679822f5171fd8",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

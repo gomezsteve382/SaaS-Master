@@ -1,0 +1,98 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3738,
+  "className": "org.httpclient.io.HttpResponseBuffer",
+  "classNameNormalized": "org.httpclient.io.HttpResponseBuffer",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55782,
+  "cinitMethod": 55781,
+  "iinitBytecode": {
+    "codeLength": 87,
+    "codeSha256": "65bd79e15ddbe15193781a23f995edb92c5e7b083e945ff9e82e2ec3ebaa2474",
+    "bytecodeLineCount": 6
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "header",
+      "traitKind": "getter",
+      "methodIndex": 55784,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.httpclient.HttpResponse",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "a87ede647af0b0cda90019c6d6d7dc470ddca20dbcac3205b3f55e56e33a19ca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "org.httpclient.io:HttpResponseBuffer.parseHeader",
+      "traitKind": "method",
+      "methodIndex": 55786,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "org.httpclient.HttpResponse",
+      "hasBody": true,
+      "codeLength": 249,
+      "bytecode": {
+        "codeLength": 249,
+        "codeSha256": "5920b3bffb61998b8f03341a03c8cc8b1a6f174362c9bd9eab1d75c7942c2f19",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.handlePayload",
+      "traitKind": "method",
+      "methodIndex": 55785,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "8510fcceb145a78f4a01224c935ea73e27557000718a01bd30102a0866ccbd55",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "writeBytes",
+      "traitKind": "method",
+      "methodIndex": 55783,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 368,
+      "bytecode": {
+        "codeLength": 368,
+        "codeSha256": "4e47b73f31faba6df5563014e7fdae0401561583fd1b4daf006c46d48b0501aa",
+        "bytecodeLineCount": 23
+      }
+    }
+  ],
+  "staticMembers": []
+}

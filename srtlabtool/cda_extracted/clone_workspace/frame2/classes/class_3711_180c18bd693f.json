@@ -1,0 +1,99 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3711,
+  "className": "mx.rpc.xml.QualifiedResourceManager",
+  "classNameNormalized": "mx.rpc.xml.QualifiedResourceManager",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55447,
+  "cinitMethod": 55446,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addResource",
+      "traitKind": "method",
+      "methodIndex": 55448,
+      "methodName": "",
+      "paramTypes": [
+        "Namespace",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 113,
+      "bytecode": {
+        "codeLength": 113,
+        "codeSha256": "e87293af85b75a43dc4b4df6915bf652f133e0df577dd326b0fb6a7ff7d23a96",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "getResources",
+      "traitKind": "method",
+      "methodIndex": 55451,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7a050f790a0e4f4a976b617145a9e702958f2b4ede1104c0c1f2342bcfc8dda1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getResourcesForNamespace",
+      "traitKind": "method",
+      "methodIndex": 55449,
+      "methodName": "",
+      "paramTypes": [
+        "Namespace"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "28afa658b97df7de111386a3e4278437b0b823911b0d323003f7d472adf0a723",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getResourcesForURI",
+      "traitKind": "method",
+      "methodIndex": 55450,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 38,
+      "bytecode": {
+        "codeLength": 38,
+        "codeSha256": "861c675acc7a7d0e1b1e22572082e566bec6f6303b2244b7615d6ea2b332abdb",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

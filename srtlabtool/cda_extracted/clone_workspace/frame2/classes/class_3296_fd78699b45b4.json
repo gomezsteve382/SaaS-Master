@@ -1,0 +1,202 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3296,
+  "className": "spark.components.gridClasses.GridRowNode",
+  "classNameNormalized": "spark.components.gridClasses.GridRowNode",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": true,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51028,
+  "cinitMethod": 51027,
+  "iinitBytecode": {
+    "codeLength": 48,
+    "codeSha256": "9b09685f292c3e7ef5f108d44449515437f77c2ebd44408090597fdccd16b7a7",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clearColumns",
+      "traitKind": "method",
+      "methodIndex": 51036,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "5dd5a25522c4d4347a55e10fa1acd80e62a67b988c3c0d6c4cd91189e753f14d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getCellHeight",
+      "traitKind": "method",
+      "methodIndex": 51032,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "7aefff927b056576a66e955ec2e8fb711fbfc6e6af46bbe1314eb80afcf7ef99",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "insertColumns",
+      "traitKind": "method",
+      "methodIndex": 51034,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "a46f72dc200216d1339b4e1486b627c0270d88551502339c0b542fda1675a9dd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "moveColumns",
+      "traitKind": "method",
+      "methodIndex": 51035,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "ba9da6ea7ac716173b9d25d5960d3bab3a42b396d0c7acf7339f807d117cb074",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "numColumns",
+      "traitKind": "getter",
+      "methodIndex": 51029,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d24ceae88c3f45e8bd2313e1172054418af9e132659f6ef8145314b883916917",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "numColumns",
+      "traitKind": "setter",
+      "methodIndex": 51030,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "0f429f9ba89303f7b14af5fdaef9d847032eeaca7ed8f92457416e760674cb09",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateMaxHeight",
+      "traitKind": "method",
+      "methodIndex": 51031,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "6c48f5f365f08655138a3ec2363df63947e2e454be709411ea88aaea271eb358",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "removeColumns",
+      "traitKind": "method",
+      "methodIndex": 51037,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "4ca7a530afbee71ed477159794f9d660baa30008f1a73e699f9415d376c70a23",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setCellHeight",
+      "traitKind": "method",
+      "methodIndex": 51033,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "Number"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "312bff1ae673f4cb6caae48235caf65b2bc2c8d01deadae43f9f59418a383846",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 51038,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 119,
+      "bytecode": {
+        "codeLength": 119,
+        "codeSha256": "6f3795e24e5b733f7fe4a08fc3ed3640ca8ee1b52c069e4dfea0b4dde8532aa0",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

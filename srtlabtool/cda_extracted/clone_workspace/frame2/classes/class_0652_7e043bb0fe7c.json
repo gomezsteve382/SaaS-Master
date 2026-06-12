@@ -1,0 +1,162 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 652,
+  "className": "org.spicefactory.parsley.core.events.ViewConfigurationEvent",
+  "classNameNormalized": "org.spicefactory.parsley.core.events.ViewConfigurationEvent",
+  "superName": "flash.events.Event",
+  "superNameNormalized": "flash.events.Event",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 12308,
+  "cinitMethod": 12304,
+  "iinitBytecode": {
+    "codeLength": 18,
+    "codeSha256": "98210a59283388fe36fec05c5fe2620c1de8b93cb4e014a95f906092967b9389",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "87b17e6b2a1e733757a8e335c5efa4bbe155214e781859e0afe3b44fe91aa482",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 12313,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.Event",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "24e605c186478792ea3933cf940bb6797f6ce2b3005ccbab5c57a44b7e5028f6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "configurations",
+      "traitKind": "getter",
+      "methodIndex": 12309,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "08f89f0f01bd1347b244689e438a038c2aa0ec836a1b1fc36e8c6e4deeb2f158",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "markAsCompleted",
+      "traitKind": "method",
+      "methodIndex": 12312,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "3abfde322ab589608cb7f80d765134f125b0fec7d07174a0c6737793b748b6f4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "markAsReceived",
+      "traitKind": "method",
+      "methodIndex": 12311,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f0e4ce5baad6d83308a78002bce923494e4071473908ea434d1c79855441e22f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "received",
+      "traitKind": "getter",
+      "methodIndex": 12310,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "d65d88336919e3a6c373d783c91ae05c88108dd9cfba06a95976814d83b89c03",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "forAutowiring",
+      "traitKind": "method",
+      "methodIndex": 12305,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "org.spicefactory.parsley.core.events.ViewConfigurationEvent",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "f38cb89faed3c0f6a9303ac7887159b3330bafe8490c4cffd59803d56634ed34",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "forConfigurations",
+      "traitKind": "method",
+      "methodIndex": 12307,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Function"
+      ],
+      "returnType": "org.spicefactory.parsley.core.events.ViewConfigurationEvent",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "5a0b33eba330014f38d9ce07c338c7c4646a78804289a14e400c10309d130355",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "forExplicitTarget",
+      "traitKind": "method",
+      "methodIndex": 12306,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "Object",
+        "String"
+      ],
+      "returnType": "org.spicefactory.parsley.core.events.ViewConfigurationEvent",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "b07b42550793273e3b5f73c44ba8e101109e2ed864853f9dfcddbfe47701d2a4",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

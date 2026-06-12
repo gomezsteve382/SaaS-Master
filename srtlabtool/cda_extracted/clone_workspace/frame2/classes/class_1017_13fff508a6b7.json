@@ -1,0 +1,666 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1017,
+  "className": "com.chrysler.cda.presentation.component.proxi.components.popovers.file.out.ExportFilePopoverImp",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.popovers.file.out.ExportFilePopoverImp",
+  "superName": "com.chrysler.cda.presentation.component.proxi.components.popovers.file.out.ExportFilePopover",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.proxi.components.popovers.file.out.ExportFilePopover",
+  "domainBucket": "proxi",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient",
+    "mx.core.IStateClient2"
+  ],
+  "iinitMethod": 21616,
+  "cinitMethod": 21612,
+  "iinitBytecode": {
+    "codeLength": 1240,
+    "codeSha256": "27b71bd12f5b59f1c23ab6549926a8ec31423c20135c6aadbd8f253c2f8680ba",
+    "bytecodeLineCount": 78
+  },
+  "cinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "f688943cca0b91e9a2037f5c071396e165df0e84a9e351645e92816c2c011af5",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___ExportFilePopoverImp_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 21632,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "90806619283348443a91ea0036c7e799c1b0ae1b1f68f5a8ef59c9c430a033d6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___ExportFilePopoverImp_Button2_click",
+      "traitKind": "method",
+      "methodIndex": 21635,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "d79c9693694e502f1b649500ff8ba9a2697c74c271475d8397c4f656f1d45db5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___ExportFilePopoverImp_Button3_click_fileExists",
+      "traitKind": "method",
+      "methodIndex": 21628,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "502e93a07d9171e198ddd37a0428e9cb94712b97d24e2e0608bd5b61caafcbfb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___ExportFilePopoverImp_Button3_click_fileExportComplete",
+      "traitKind": "method",
+      "methodIndex": 21630,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "24273f740b2573d9e1df706b55460703e65546183cf0ca0117c94b695dd894ca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___ExportFilePopoverImp_Button3_click_fileExportFailed",
+      "traitKind": "method",
+      "methodIndex": 21629,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "90806619283348443a91ea0036c7e799c1b0ae1b1f68f5a8ef59c9c430a033d6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___ExportFilePopoverImp_ExportFilePopover1_effectEnd",
+      "traitKind": "method",
+      "methodIndex": 21649,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "7c174d8eca3743350e28a4bccdcee8a18d9729b508d8fcf69d5b027a1a737f11",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "__nameEntry_change",
+      "traitKind": "method",
+      "methodIndex": 21642,
+      "methodName": "",
+      "paramTypes": [
+        "spark.events.TextOperationEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "6e28035a83da07dd350d6158d79870d8f61cc4b4c1675702116a54cf2b5517a8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ExportFilePopoverImp_Button3",
+      "traitKind": "getter",
+      "methodIndex": 21667,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "85a510f2960a64a0d5e5fcfdb9a0bd53536f2dc29361896602302e8d49ca03e7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ExportFilePopoverImp_Button3",
+      "traitKind": "setter",
+      "methodIndex": 21668,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Button"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "5a3538bd4ab056084313723e2a85458a71592d85759fe55f59eb2f4fd7a15a52",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "_ExportFilePopoverImp_Group1",
+      "traitKind": "getter",
+      "methodIndex": 21669,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a11500e493be4ad3935501cb3432dd06ed087a61c664a12b5f51caefd96d2b22",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "_ExportFilePopoverImp_Group1",
+      "traitKind": "setter",
+      "methodIndex": 21670,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.Group"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "6d1aa6c680b1aeaf815d9af8c5859a77335843d4e3745554763f5cd313511166",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "chooseFile",
+      "traitKind": "method",
+      "methodIndex": 21626,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 35,
+      "bytecode": {
+        "codeLength": 35,
+        "codeSha256": "19aec026ddb9e0e1c2907273618e5c1e3b7cded9fa269cba19e3b927642af0c5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.proxi.components.popovers.file.out:ExportFilePopoverImp.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 21666,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "5518ff6d36ea934c52c417abf6668af253f6537625d17a60c5c1cd63024f77e0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "fileUploadComplete",
+      "traitKind": "method",
+      "methodIndex": 21623,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "2254f4c58a4991e37b4072fdcbb4d2d1a3da8bea74911b7d19d3de869f8e4784",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 21619,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 21618,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "7924ea11584abd542d78881dd7702b1f574c5f9c04ec94f0863d782fe24e7268",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "nameEntry",
+      "traitKind": "getter",
+      "methodIndex": 21671,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "af738425a0c8546967358c67438b9de432294941749396c03e20409b56d0f70d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "nameEntry",
+      "traitKind": "setter",
+      "methodIndex": 21672,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.TextInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "9e8006df95ac2c38f352ec50e4a3d192353c09a3ae26c373473f184b1fcfdb65",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onEffectEndEvent",
+      "traitKind": "method",
+      "methodIndex": 21624,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "b8c1f2fa9bba5a079ff42367fcd3c95a5c763584fa74c4693e3e3d9e65007923",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onFileAlreadyExists",
+      "traitKind": "method",
+      "methodIndex": 21620,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.FileSupportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "787be1b3fb51fccfa36f7a070b97fee73f5dd6b069a0fd45529e79f943a8d0bf",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onFileExportComplete",
+      "traitKind": "method",
+      "methodIndex": 21622,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.FileSupportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "616b4cd38832b30acef8c7a1036dfd9d13aa71b288528287e8557b6da151dc86",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onFileExportFailed",
+      "traitKind": "method",
+      "methodIndex": 21621,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.proxi.messages.FileSupportMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "c1e667aef1b542d2b4ba5a989a1422447c9e63b30affea2955ad2c7fb9f284bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_Array3_c",
+      "traitKind": "method",
+      "methodIndex": 21637,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "5cc8a28ea08e204911c8ac212154017fccddf72fe6e6b93d2d187b482bfc2972",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 21665,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 350,
+      "bytecode": {
+        "codeLength": 350,
+        "codeSha256": "3ff8ce6ae0ae486f9c070f76ee6b4cf732f3a2c618bbfd5299fd86de9addb633",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 21631,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "15fdc2c632137f35a773ad98835c222040e4e23c79f97765944be5ebe0e6d191",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_Button2_i",
+      "traitKind": "method",
+      "methodIndex": 21634,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 81,
+      "bytecode": {
+        "codeLength": 81,
+        "codeSha256": "4e0fd98cd6f301bbde6cf33fbe51f53675e2aae04f949f0ed464145a4a6dffad",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_Button3_i",
+      "traitKind": "method",
+      "methodIndex": 21636,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "c37bf6f8d2c846a660f6aa388a4016004e7d5e7223da74e0ea6219ae76266f1e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_ConfigureTag1_i",
+      "traitKind": "method",
+      "methodIndex": 21627,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.flex.tag.view.ConfigureTag",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "8281b3a9d186208cde7b67ebdbf128d9161dd2c563182427cf4f23d07e4ad28a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_Group1_i",
+      "traitKind": "method",
+      "methodIndex": 21638,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Group",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "b5fca555c9a7649f57c8b4b943f1b4220a94960b64255acdc58af8ed6471a62c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_RichText1_i",
+      "traitKind": "method",
+      "methodIndex": 21640,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "6d06585a1d0e0ee5cdb730f0ba9305631965a967faecc2075bc388e0c092c41a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_RichText2_i",
+      "traitKind": "method",
+      "methodIndex": 21643,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "8feb884f80e6b61b8e1fe0d6af611fba581eea89f549181e566363a3ab2cc817",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_RichText3_i",
+      "traitKind": "method",
+      "methodIndex": 21645,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "dcfd5054dc16f56ff4c5077081b28256a0e1b76b3b806ff7a6d2753384a33f13",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_RichText4_i",
+      "traitKind": "method",
+      "methodIndex": 21646,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "5463c3be4de142d8eb502cd4106842162a7cb2eb5c7e37c1c894658f507609d4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_RichText5_i",
+      "traitKind": "method",
+      "methodIndex": 21647,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "6bf0cd537b3b045109669af3774052bbd19d76860c7503cda011f9652a7e1dd0",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_RichText6_i",
+      "traitKind": "method",
+      "methodIndex": 21648,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "8429008dc63a0b74afc71f6bbafe2c750e17c2971110932acd35d2d7195f5edc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_Spacer1_i",
+      "traitKind": "method",
+      "methodIndex": 21633,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "613fd295fedc92b0c747c8ba79ed00e2899f0ef4affcb9b9b0865aceb6c8e250",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_Spacer2_i",
+      "traitKind": "method",
+      "methodIndex": 21644,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "9d0c66515351f693ed10fd3a13c048215ad16baba422fc16f197129dc3b2305a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_TextInput1_i",
+      "traitKind": "method",
+      "methodIndex": 21641,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "b4c05c060a45320dace1dfb84b36c80498e59b77e17be5ef66eb5d190349bc66",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._ExportFilePopoverImp_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 21639,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "e4e922514b520703b01e05b99971b00247593055bee38cdd1e02c147332d5e95",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 21613,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "087c40e3c002fec5b7597cdf9ebe5efa03f9bc53f72fb10bd317bf7cbace17d9",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

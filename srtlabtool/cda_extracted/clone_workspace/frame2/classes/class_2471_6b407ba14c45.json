@@ -1,0 +1,103 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2471,
+  "className": "mx.rpc.AsyncRequest",
+  "classNameNormalized": "mx.rpc.AsyncRequest",
+  "superName": "mx.messaging.Producer",
+  "superNameNormalized": "mx.messaging.Producer",
+  "domainBucket": "sync",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 42671,
+  "cinitMethod": 42670,
+  "iinitBytecode": {
+    "codeLength": 13,
+    "codeSha256": "eb9af1b5441665261937e989012a17f16c60ccbd550cd7faebb9eab26abbcb9a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "acknowledge",
+      "traitKind": "method",
+      "methodIndex": 42672,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.AcknowledgeMessage",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 112,
+      "bytecode": {
+        "codeLength": 112,
+        "codeSha256": "b200d3ec5d57366340f8a1acb221aa35812b18816e92202f60a6fee80cd6a0b9",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "fault",
+      "traitKind": "method",
+      "methodIndex": 42673,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.ErrorMessage",
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 78,
+      "bytecode": {
+        "codeLength": 78,
+        "codeSha256": "89230789d81a127107a29270a95d9de0d459a0becbe998b5317e17f9b258d27e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "hasPendingRequestForMessage",
+      "traitKind": "method",
+      "methodIndex": 42674,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "830dc31917175731ab8cff1060862e4b7989abf19ea8ec36917910dcd5114195",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "invoke",
+      "traitKind": "method",
+      "methodIndex": 42675,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage",
+        "mx.rpc.IResponder"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "64c42b55f3e722373f77ba2b37dce83257cc8bf396e7333cc8efcfd7e111b1e9",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

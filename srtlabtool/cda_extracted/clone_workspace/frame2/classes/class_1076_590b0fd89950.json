@@ -1,0 +1,286 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1076,
+  "className": "com.chrysler.cda.presentation.component.tools.CustomDisplayWriteBackProgressModel",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.tools.CustomDisplayWriteBackProgressModel",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23419,
+  "cinitMethod": 23402,
+  "iinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "0e85e777d38586b287d8142d508cc34f284e60f807c87724953e7fe722cd0c45",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "areWritesComplete",
+      "traitKind": "method",
+      "methodIndex": 23412,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "8836c601ee5eb423270bd46be7fad119db851b277578dee887575b5e82d6d5bc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "customDisplaysNotAvailable",
+      "traitKind": "getter",
+      "methodIndex": 23413,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b29e26d52c2d55ecee126329cc611cb0a0d82c31b57b72327d379acb2b4b711b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "customDisplaysNotAvailable",
+      "traitKind": "setter",
+      "methodIndex": 23414,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "27392756de0a01a3aec48fef9038451c04b2914154fd4c592b54a6d9fa1bb6bb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ddesAnalyzedProgress",
+      "traitKind": "getter",
+      "methodIndex": 23410,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "64e90ec18b8280bb489c76be880e17810632c5714bc77f0ad74d11d6aa52ad58",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ddesAnalyzedProgress",
+      "traitKind": "setter",
+      "methodIndex": 23411,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "59190f6daa3138c7f109689526f67728494fdc06ae18eb316c905512e966693e",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "ddesToAnalyze",
+      "traitKind": "getter",
+      "methodIndex": 23408,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "b6f709b5ff576250c80e7c6cd243011cfaed7c4c8a2f0afcbb1312b8a937fad4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ddesToAnalyze",
+      "traitKind": "setter",
+      "methodIndex": 23409,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "572de4e3dcd4ef80542d2cba73f31aac3d99ad15c1ede2be981a18cadbf3c083",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "ddesWritten",
+      "traitKind": "getter",
+      "methodIndex": 23417,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d3bc6c7bf77bb06e049c92548d2ebfde9e4ced453dbe3ad091c90ead52c1c6d9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ddesWritten",
+      "traitKind": "setter",
+      "methodIndex": 23418,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "30002ab7c1a8f568555a5091a6baadedffb31ee9f3e43b437cada843ad05a5d5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "failedXMITs",
+      "traitKind": "getter",
+      "methodIndex": 23415,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "551a13276583a7e887a7ff0c2da5d47e36dc9911bed3eff1015d997760a29fab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "failedXMITs",
+      "traitKind": "setter",
+      "methodIndex": 23416,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "9ce6263b5c5fbf76d59ee92f4315be2fbb0f530a8beb9d10dca8886e08c15c1c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "intialize",
+      "traitKind": "method",
+      "methodIndex": 23403,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "4c59ab7b33337267d3b67d8651d593e98bcce63da16d62b4fc75aa1bf1d13cd5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "xmitsToWrite",
+      "traitKind": "getter",
+      "methodIndex": 23404,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "19f47089bbe9264fdecb7bda24e940bb1418179517e979ad1438c7ac9a73c676",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xmitsToWrite",
+      "traitKind": "setter",
+      "methodIndex": 23405,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "91598bd5ca8a3a45ab0e457f73d3696c2a2e8bd40becde096fb55a1a1a9dbd5b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "xmitsWritten",
+      "traitKind": "getter",
+      "methodIndex": 23406,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c4d661a5601967bdf759d72f9c882e167eb44bcf636a2cb2d0acb37ad6144c85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "xmitsWritten",
+      "traitKind": "setter",
+      "methodIndex": 23407,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "23ea2581a8cb420234cd7657f2e85228b34a2c8b9142ba7628b27012dc1f198d",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

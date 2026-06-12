@@ -1,0 +1,103 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1207,
+  "className": "com.chrysler.cda.application.tools.CustomDisplayWriteDDECommand",
+  "classNameNormalized": "com.chrysler.cda.application.tools.CustomDisplayWriteDDECommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 27257,
+  "cinitMethod": 27252,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "f6cdc65f487723283e2f6a8f28784f94527a20cb0b28adee294e55bace0efa88",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onWriteDDE",
+      "traitKind": "method",
+      "methodIndex": 27253,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.tools.WriteCustomDisplayDDEMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 206,
+      "bytecode": {
+        "codeLength": 206,
+        "codeSha256": "2ab12acb5afe7e0c88bf11e49299e9fecc5b7b1dbc0a01145a22f6609958d7dd",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "onWriteDDEError",
+      "traitKind": "method",
+      "methodIndex": 27255,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.tools.WriteCustomDisplayDDEMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 88,
+      "bytecode": {
+        "codeLength": 88,
+        "codeSha256": "f1b9678d9051352701c910196d59cb409eb7eb8a9d0a8eabf82d5600e7cdd4d3",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onWriteDDESuccess",
+      "traitKind": "method",
+      "methodIndex": 27254,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.tools.WriteCustomDisplayDDEMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 653,
+      "bytecode": {
+        "codeLength": 653,
+        "codeSha256": "91381cb3474cff2d2d732e3fa561dd7047b0ad74e672f5335fc324347c3d04ac",
+        "bytecodeLineCount": 41
+      }
+    },
+    {
+      "traitName": "printMsg",
+      "traitKind": "method",
+      "methodIndex": 27256,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "65df8c698f1f3b91604b2c7f81d9e54dd07c5bd8fb1ae4ec8ea8c8198663335b",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,170 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3605,
+  "className": "mx.rpc.wsdl.WSDLLoader",
+  "classNameNormalized": "mx.rpc.wsdl.WSDLLoader",
+  "superName": "mx.rpc.xml.XMLLoader",
+  "superNameNormalized": "mx.rpc.xml.XMLLoader",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 54121,
+  "cinitMethod": 54120,
+  "iinitBytecode": {
+    "codeLength": 62,
+    "codeSha256": "79d3f83be40bddfeab178a21a966247800b37649d0b47b9072b1793c1c1d55fb",
+    "bytecodeLineCount": 4
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "load",
+      "traitKind": "method",
+      "methodIndex": 54122,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "e3b393e5125e183d256ac288ab8302ab9cb68cdf9d969e05c2a8215fe52e3bec",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.rpc.wsdl:WSDLLoader.faultHandler",
+      "traitKind": "method",
+      "methodIndex": 54123,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 134,
+      "bytecode": {
+        "codeLength": 134,
+        "codeSha256": "07d150439a4527496595e963202aa07227dafb5b3fbf9305e4ea7f0cfe266d86",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "mx.rpc.wsdl:WSDLLoader.resultHandler",
+      "traitKind": "method",
+      "methodIndex": 54124,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.ResultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 346,
+      "bytecode": {
+        "codeLength": 346,
+        "codeSha256": "0f93be07705bb9c1a92fdfc6b81ad5a5272706f06b95704f7b39db0f7b622c25",
+        "bytecodeLineCount": 22
+      }
+    },
+    {
+      "traitName": "PrivateNs.checkLoadsOutstanding",
+      "traitKind": "method",
+      "methodIndex": 54126,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "82b194416884de8eaa201d4b4e41a40771e65271d3ee7e12dcb3ebe923428ee4",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.loadWSDL",
+      "traitKind": "method",
+      "methodIndex": 54127,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.rpc.wsdl.WSDL",
+        "Namespace"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "3a9429123c5e90a818ab1cec2dc8075f0abd3f998883810a130cda13d53d4534",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.schemaImports",
+      "traitKind": "method",
+      "methodIndex": 54129,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.wsdl.WSDL",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 157,
+      "bytecode": {
+        "codeLength": 157,
+        "codeSha256": "50a26e80dd4046ddb7af28a4e1edf367298223e8bae4f2a066e88f4950542a1b",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.schemaLoadHandler",
+      "traitKind": "method",
+      "methodIndex": 54125,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.SchemaLoadEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "42c8fcfa33228ce2599926ae7dac035f92b9e420cec01e0fb70f0a99076f9998",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.wsdlImports",
+      "traitKind": "method",
+      "methodIndex": 54128,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.wsdl.WSDL",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 205,
+      "bytecode": {
+        "codeLength": 205,
+        "codeSha256": "5d988f64660a92145adfc9074fe32d0255be921db81c4d52dd3c05f1d99763f7",
+        "bytecodeLineCount": 13
+      }
+    }
+  ],
+  "staticMembers": []
+}

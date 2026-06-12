@@ -1,0 +1,241 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2053,
+  "className": "spark.filters.DropShadowFilter",
+  "classNameNormalized": "spark.filters.DropShadowFilter",
+  "superName": "mx.filters.BaseDimensionFilter",
+  "superNameNormalized": "mx.filters.BaseDimensionFilter",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.filters.IBitmapFilter"
+  ],
+  "iinitMethod": 37870,
+  "cinitMethod": 37869,
+  "iinitBytecode": {
+    "codeLength": 73,
+    "codeSha256": "5e6c1c9a63d1067d470ca7cc6cfcfca8c21a4e180c452ccf69395cc0f0bdaefc",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "alpha",
+      "traitKind": "getter",
+      "methodIndex": 37871,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ca64559f41651cfb42519e2f4145643d87ce2fc9eeb71ed98bf8ffb98a7dac7f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "alpha",
+      "traitKind": "setter",
+      "methodIndex": 37872,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "f17462496361772c67436c12de5b4e00eeb09520ada8e476257e750599d67b22",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "angle",
+      "traitKind": "getter",
+      "methodIndex": 37873,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "30eca4ba06120f0b4187a5d66bb837b9a37f82ec7d639c3d3aedc3e51cde5cac",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "angle",
+      "traitKind": "setter",
+      "methodIndex": 37874,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "37b7a7bee68fc3ddfd0eb507977b687a7acfdee16ff6e8ee0d2a163048658e27",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 37883,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.filters.BitmapFilter",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "d45870ee85567ffcf26ab6a65e366f9248da1bcbf47c447a727f4c593d8a27b6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "color",
+      "traitKind": "getter",
+      "methodIndex": 37875,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "927bca6d18cdd993b2b0e85e8d9fcec2b63734fc33a307a151f28434f2ecf2a0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "color",
+      "traitKind": "setter",
+      "methodIndex": 37876,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "70ad01c29aeb26c6c43a5693e47d7dd5e3ef5a5a1d0cb25b03dc7b9b9e999b56",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "distance",
+      "traitKind": "getter",
+      "methodIndex": 37877,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6a575eb8108f47aea53bd55ec4827e5bae74cce546e5eccd2b94562dec153efd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "distance",
+      "traitKind": "setter",
+      "methodIndex": 37878,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "330589ad2f8e59f9d9043fa3db0526c2c51ae8eb632da25df08797074d635945",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hideObject",
+      "traitKind": "getter",
+      "methodIndex": 37879,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a287acfdb59f096866b5dd68acca9e2173bfae13e9a6e4cdbaa1e8b5e04941b8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hideObject",
+      "traitKind": "setter",
+      "methodIndex": 37880,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "1c617f12e78408fcd39c4557604886395517dc4ff6649685cde6f8dd7d1d0dcf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "inner",
+      "traitKind": "getter",
+      "methodIndex": 37881,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f064fe1b020255c871dec5c22ac41a831eb4ec2640eabdc0f1f144c3ff0bb31d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "inner",
+      "traitKind": "setter",
+      "methodIndex": 37882,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "96251d5d80d3b2cd9c765c1a4e02274fcded4693066d27f5232d4d30b8824aa1",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

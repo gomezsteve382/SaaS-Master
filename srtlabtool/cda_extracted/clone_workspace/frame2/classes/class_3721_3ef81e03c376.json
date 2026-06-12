@@ -1,0 +1,123 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3721,
+  "className": "mx.rpc.xml.SchemaLoader",
+  "classNameNormalized": "mx.rpc.xml.SchemaLoader",
+  "superName": "mx.rpc.xml.XMLLoader",
+  "superNameNormalized": "mx.rpc.xml.XMLLoader",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 55555,
+  "cinitMethod": 55554,
+  "iinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "0ba3d5aac647a4604a0287604e8c52bf9370be661e303c0f88c34cf8db27200a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 26,
+    "codeSha256": "66e70980849cfd0090798b3fafb74e679ad2be212e765020a0494e110e999110",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "load",
+      "traitKind": "method",
+      "methodIndex": 55556,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "7c5f53f8c996f36d0c100a286298ef3e78c0bcf41a4c7bc6a973d38b7f95b55b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "mx.rpc.xml:SchemaLoader.resultHandler",
+      "traitKind": "method",
+      "methodIndex": 55559,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.ResultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 417,
+      "bytecode": {
+        "codeLength": 417,
+        "codeSha256": "1132d0abfff030a0092c7dc4962d01c559ccbf4e089a1e58b0b8e71f88dcda6c",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "PrivateNs.loadSchema",
+      "traitKind": "method",
+      "methodIndex": 55560,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.rpc.xml.Schema",
+        "Namespace",
+        "String"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "d76620ad16c5dbd6a3ec32f5a61ace1592a058f5403768fef27f17c0481b86c0",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "schemaImports",
+      "traitKind": "method",
+      "methodIndex": 55557,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.xml.Schema",
+        "String",
+        "mx.rpc.xml.SchemaManager"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 682,
+      "bytecode": {
+        "codeLength": 682,
+        "codeSha256": "dff27fdd68d6b2d806a69108a4b832be8bd6084ca560596c6111bd38a3adb303",
+        "bytecodeLineCount": 43
+      }
+    },
+    {
+      "traitName": "schemaIncludes",
+      "traitKind": "method",
+      "methodIndex": 55558,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.xml.Schema",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 437,
+      "bytecode": {
+        "codeLength": 437,
+        "codeSha256": "f9a0cc0d452ca633ae564c93f0bac682c865132c4b2f85c8a304f9bc779cdf24",
+        "bytecodeLineCount": 28
+      }
+    }
+  ],
+  "staticMembers": []
+}

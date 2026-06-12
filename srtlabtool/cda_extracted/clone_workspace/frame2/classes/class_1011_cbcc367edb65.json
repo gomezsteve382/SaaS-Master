@@ -1,0 +1,225 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1011,
+  "className": "com.chrysler.cda.presentation.component.devices.controller.UpdateController",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.devices.controller.UpdateController",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 21462,
+  "cinitMethod": 21450,
+  "iinitBytecode": {
+    "codeLength": 24,
+    "codeSha256": "ecd2116e349931bff560b1d9ae0273858471af2cbf94e09244ccb3a96aef44a6",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addEventListener",
+      "traitKind": "method",
+      "methodIndex": 21457,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean",
+        "int",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "9bbaff6ef5b6704231ac7bc5b895ccdd13e89d4e8b4beb81f639cb2942fb544b",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "dispatchEvent",
+      "traitKind": "method",
+      "methodIndex": 21458,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "f8e63a35dd71af92a45d285d546895764de77ee7a5d247224963bf6cb6d0ae62",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getAvailableDeviceUpdates",
+      "traitKind": "method",
+      "methodIndex": 21451,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.devices.messages.GetAvailableDeviceUpdateMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "7cead92585a71fd6180eccb5d07fa0827521da336f688d831cdf303209432833",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getAvailableDeviceUpdatesError",
+      "traitKind": "method",
+      "methodIndex": 21454,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.devices.messages.GetAvailableDeviceUpdateErrorMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ee8cf3b4ac4017f243700c452217ca17da38dab772b92c8163cc30f7aaff9805",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getAvailableDeviceUpdatesResult",
+      "traitKind": "method",
+      "methodIndex": 21452,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.devices.messages.UpdateAvailableMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 323,
+      "bytecode": {
+        "codeLength": 323,
+        "codeSha256": "654f0b98778dea582429676890a6294a56f601327a37f3b0a9a61019d29e9fa4",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "hasEventListener",
+      "traitKind": "method",
+      "methodIndex": 21459,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "ee8d16952e305c7c8a8ae1db03e019d00eafc573176061fe2a2b69edd65837b0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "noUpdatesAvailable",
+      "traitKind": "method",
+      "methodIndex": 21453,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.devices.messages.NoUpdatesAvailableMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "ee8cf3b4ac4017f243700c452217ca17da38dab772b92c8163cc30f7aaff9805",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "removeEventListener",
+      "traitKind": "method",
+      "methodIndex": 21460,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Function",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "da93f58a61ca26ff7df12da1e6c77244beb7b1793858ce49d8084b2a28e7a13f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "updateModel",
+      "traitKind": "getter",
+      "methodIndex": 21455,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.devices.model.UpdateModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "0458b2dac7c77dc2689a84511b14c746c7153d6f79edfc8a12be2fef6e20e60d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "updateModel",
+      "traitKind": "setter",
+      "methodIndex": 21456,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.devices.model.UpdateModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "9096480df8f79b4177a8101aa19e7612d4cea8f6370d7bab8d4d2e9d66f0efd6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "willTrigger",
+      "traitKind": "method",
+      "methodIndex": 21461,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "71b45980eb420c9b7d81b743f871b03028b2e93764b019e57ab4eca9f73564d4",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

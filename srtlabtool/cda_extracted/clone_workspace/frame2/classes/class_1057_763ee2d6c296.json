@@ -1,0 +1,224 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1057,
+  "className": "com.chrysler.core.infrastructure.communication.HTTPActionContext",
+  "classNameNormalized": "com.chrysler.core.infrastructure.communication.HTTPActionContext",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 22798,
+  "cinitMethod": 22785,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 26,
+    "codeSha256": "b845f36a470cab0a6678e93a8b8a1b05bf1993c105a0ddf964f0b466d85478db",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "acceptHeader",
+      "traitKind": "getter",
+      "methodIndex": 22790,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "14b2248084644d0206ba51ac5578c76133aa5b9a51c6321103db077a86299c52",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "acceptHeader",
+      "traitKind": "setter",
+      "methodIndex": 22791,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "8d49fdbc1d00ab984ff5e219888680269ce48ed0544ef898c98e15c6d8f5b1f7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "authenticationMethod",
+      "traitKind": "getter",
+      "methodIndex": 22792,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "ab77a4e3a03dd16b37def6d8b34e2342504e0161f44dfdfc4859ac27a7784d73",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "authenticationMethod",
+      "traitKind": "setter",
+      "methodIndex": 22793,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "46c32f021ff99e2910b676bce2c14fd1032942d2a5ce2ae0f9e1717f53dd0e10",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "idleTimeout",
+      "traitKind": "getter",
+      "methodIndex": 22786,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "70694238396d9996d25e9c549a354f46a65ed00f7a7e4c9cbaf38f5b3f31a793",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "idleTimeout",
+      "traitKind": "setter",
+      "methodIndex": 22787,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "412554a5a519e35be20e0651e338c3b73dd34cecb0cae3485b23f27147acad63",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "method",
+      "traitKind": "getter",
+      "methodIndex": 22788,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "e9a56c23b46438dfa33af0704b19722404efc26d1cc3c2f01bb095ca427c2009",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "method",
+      "traitKind": "setter",
+      "methodIndex": 22789,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "90c579e219175e2bdb90749d5cdf890781d668b202611c9945879b2380c15453",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "password",
+      "traitKind": "getter",
+      "methodIndex": 22794,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d4b177fd4c2c6efa19e5c1ac507dfa6e1b687f1c7b055964ddf961fda83f38d3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "password",
+      "traitKind": "setter",
+      "methodIndex": 22795,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "a76dc53aa3a464a66e1c0dd2f396bf3317b114f927e083841ee1ee18f8283372",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "username",
+      "traitKind": "getter",
+      "methodIndex": 22796,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "80ed31c67f04dc8fe1f1b2ebdafa7a68e4aaaa8afb3795bf3f250fc25204bc42",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "username",
+      "traitKind": "setter",
+      "methodIndex": 22797,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "925115498a439ce2a1751afb12584ad36ba4712179e864d2f57825c0daa959c9",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

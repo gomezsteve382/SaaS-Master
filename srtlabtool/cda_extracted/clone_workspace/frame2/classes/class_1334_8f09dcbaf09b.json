@@ -1,0 +1,235 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1334,
+  "className": "mx.collections.IHierarchicalCollectionView",
+  "classNameNormalized": "mx.collections.IHierarchicalCollectionView",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "mx.collections.ICollectionView"
+  ],
+  "iinitMethod": 29603,
+  "cinitMethod": 29586,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.addChild",
+      "traitKind": "method",
+      "methodIndex": 29597,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.addChildAt",
+      "traitKind": "method",
+      "methodIndex": 29599,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.closeNode",
+      "traitKind": "method",
+      "methodIndex": 29595,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.getChildren",
+      "traitKind": "method",
+      "methodIndex": 29596,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "mx.collections.ICollectionView",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.getNodeDepth",
+      "traitKind": "method",
+      "methodIndex": 29601,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "int",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.getParentItem",
+      "traitKind": "method",
+      "methodIndex": 29602,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "*",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.hasRoot",
+      "traitKind": "getter",
+      "methodIndex": 29589,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.openNode",
+      "traitKind": "method",
+      "methodIndex": 29594,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.openNodes",
+      "traitKind": "getter",
+      "methodIndex": 29587,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.openNodes",
+      "traitKind": "setter",
+      "methodIndex": 29588,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.removeChild",
+      "traitKind": "method",
+      "methodIndex": 29598,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "Object"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.removeChildAt",
+      "traitKind": "method",
+      "methodIndex": 29600,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.showRoot",
+      "traitKind": "getter",
+      "methodIndex": 29590,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.showRoot",
+      "traitKind": "setter",
+      "methodIndex": 29591,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.source",
+      "traitKind": "getter",
+      "methodIndex": 29592,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.IHierarchicalData",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.collections:IHierarchicalCollectionView.source",
+      "traitKind": "setter",
+      "methodIndex": 29593,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.IHierarchicalData"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

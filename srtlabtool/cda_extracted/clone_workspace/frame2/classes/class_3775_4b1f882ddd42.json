@@ -1,0 +1,313 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3775,
+  "className": "memorphic.parser.Tokenizer",
+  "classNameNormalized": "memorphic.parser.Tokenizer",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56063,
+  "cinitMethod": 56059,
+  "iinitBytecode": {
+    "codeLength": 19,
+    "codeSha256": "16cae3cd23bacd8f206a81e6193a62b5306fe10feccc035daa87b7f3fbb22702",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addTokenPattern",
+      "traitKind": "method",
+      "methodIndex": 56064,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.TokenPattern"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "74f6979de91a62d827663de5f8ece33cab40c11e6cd30e896d962cf85be6eb86",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getState",
+      "traitKind": "method",
+      "methodIndex": 56076,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "memorphic.parser.TokenizerState",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "1691068ff5e043e04c49ccf035b86acd08556932d034a306dccea7520a5827c2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getTokenMetrics",
+      "traitKind": "method",
+      "methodIndex": 56075,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.Token"
+      ],
+      "returnType": "memorphic.parser.TokenMetrics",
+      "hasBody": true,
+      "codeLength": 116,
+      "bytecode": {
+        "codeLength": 116,
+        "codeSha256": "55e56757129262ff42bb60e6f9b3d7b434448bd2c25a2bdabae0314376e6903d",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "lookAhead",
+      "traitKind": "method",
+      "methodIndex": 56074,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "memorphic.parser.Token",
+      "hasBody": true,
+      "codeLength": 186,
+      "bytecode": {
+        "codeLength": 186,
+        "codeSha256": "16e44ef9255edab4332a70e47a29e61bac8b7af36abbc618327660360d17948d",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "memorphic.parser:Tokenizer.createToken",
+      "traitKind": "method",
+      "methodIndex": 56067,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.TokenPattern",
+        "String",
+        "int",
+        "memorphic.parser.Token"
+      ],
+      "returnType": "memorphic.parser.Token",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "c39dbb577ad75fa95ce023ee0cbf7eee3e0d7ee494f9c3c4be187bd3d1203299",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memorphic.parser:Tokenizer.parseNextToken",
+      "traitKind": "method",
+      "methodIndex": 56071,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "memorphic.parser.Token",
+      "hasBody": true,
+      "codeLength": 247,
+      "bytecode": {
+        "codeLength": 247,
+        "codeSha256": "1b4f533483baad6ea597c280340ebd54118431ccb972795d4d9517cd67c4de9e",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "memorphic.parser:Tokenizer.skipToken",
+      "traitKind": "method",
+      "methodIndex": 56068,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.Token"
+      ],
+      "returnType": "memorphic.parser.Token",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "308c19c1b5126cf75cd3497dbb727e8d0c0e49692a5c27b69b8b85686de131d6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memorphic.parser:Tokenizer.tokenWasSkipped",
+      "traitKind": "method",
+      "methodIndex": 56069,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.Token"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "5002c0478497990608599ff80307c7639f28af151e0e63c9ad7119485ae2ac4f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "nextToken",
+      "traitKind": "method",
+      "methodIndex": 56070,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "memorphic.parser.Token",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "36786558986e047c27f34ebbcb10255c92542a7297c6280f7eba02e11f8e2be9",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "rawData",
+      "traitKind": "getter",
+      "methodIndex": 56065,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c6e4c6e410f340ef6412e787f3d1271270120a351a0c79d57b94af51c8ee49ba",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "rawData",
+      "traitKind": "setter",
+      "methodIndex": 56066,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "8309db2314536c303180519a48d4ddd1abc07e318f34afcd6b11555f64cf1423",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "reset",
+      "traitKind": "method",
+      "methodIndex": 56072,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "1548edad318d2b7a8ab35e72212016870efc6fba24418109e0fd7916324978b4",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "restoreState",
+      "traitKind": "method",
+      "methodIndex": 56077,
+      "methodName": "",
+      "paramTypes": [
+        "memorphic.parser.TokenizerState"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "89d63a5d4b1b522bb3be134740267d672cd7a62377c202178bcb5489abdf7900",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "skipAhead",
+      "traitKind": "method",
+      "methodIndex": 56073,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 45,
+      "bytecode": {
+        "codeLength": 45,
+        "codeSha256": "532b4f3d64238c4598e906cdfa586225623b04c74079a802f39cbde2af228d50",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "memorphic.parser:Tokenizer.buildRegExpORList",
+      "traitKind": "method",
+      "methodIndex": 56061,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 43,
+      "bytecode": {
+        "codeLength": 43,
+        "codeSha256": "9f22dfc7b513f6dec2211c4fd5b1dba27b48a169dbcfeb3ba1a7f695d58ab2b1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "memorphic.parser:Tokenizer.buildRegExpORList2",
+      "traitKind": "method",
+      "methodIndex": 56060,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "0239d8f051aaf2e21bdfc2b8db9a61b2507eaaf88aadef56b6b2acfc9c260af5",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.regExpEscape",
+      "traitKind": "method",
+      "methodIndex": 56062,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "ccb8295e94e07ee445924dda22d1f094c8eece691b2ada9ec1c4ac40d65c65cf",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

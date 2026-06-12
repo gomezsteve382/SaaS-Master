@@ -1,0 +1,138 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1210,
+  "className": "com.chrysler.cda.presentation.component.ecuconfig.ECUConfigController",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.ecuconfig.ECUConfigController",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "ecu",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 27398,
+  "cinitMethod": 27391,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "changeECUConfig",
+      "traitKind": "method",
+      "methodIndex": 27395,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.ecuconfig.domain.ECUConfigurationObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "5ceea4a610297c6836e888b2fcacb33fef5ade5e86e2062900eea8879700334e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onGetECUConfigsError",
+      "traitKind": "method",
+      "methodIndex": 27394,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.ecuconfig.GetECUConfigsMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 141,
+      "bytecode": {
+        "codeLength": 141,
+        "codeSha256": "b288885e3894c9579e3633c321afec3fdf8fae64c3c788f5d517f05c0922bb62",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "onGetECUConfigsResult",
+      "traitKind": "method",
+      "methodIndex": 27393,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.ecuconfig.GetECUConfigsMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 622,
+      "bytecode": {
+        "codeLength": 622,
+        "codeSha256": "83bf0617ead12eee65b25070183a09fa95f1417ba9a3d1cf2970134133894383",
+        "bytecodeLineCount": 39
+      }
+    },
+    {
+      "traitName": "onSetECUConfigError",
+      "traitKind": "method",
+      "methodIndex": 27397,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.ecuconfig.SetECUConfigsMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 96,
+      "bytecode": {
+        "codeLength": 96,
+        "codeSha256": "1ab3221a20118afc4d776a9316e05315f5db93b5723cf73954c5e723bb487827",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onSetECUConfigResult",
+      "traitKind": "method",
+      "methodIndex": 27396,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "com.chrysler.cda.event.message.ecuconfig.SetECUConfigsMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 126,
+      "bytecode": {
+        "codeLength": 126,
+        "codeSha256": "b5163431deb0997581fbd255a1ef1ceb50783dd37a3e93ccb55098e3e2c8c72c",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "requestConfigs",
+      "traitKind": "method",
+      "methodIndex": 27392,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "bc95ec9d8f51e9e8bcdc4d6e025f3911aedf6a129c52540513bf35d82bec3e41",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

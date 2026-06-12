@@ -1,0 +1,80 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1284,
+  "className": "org.spicefactory.lib.errors.CompoundError",
+  "classNameNormalized": "org.spicefactory.lib.errors.CompoundError",
+  "superName": "Error",
+  "superNameNormalized": "Error",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 28160,
+  "cinitMethod": 28159,
+  "iinitBytecode": {
+    "codeLength": 42,
+    "codeSha256": "b9d87d3317019978b80d0d18e224fbd3d9626ed8127cc4a8036dc26d53f0f13c",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "causes",
+      "traitKind": "getter",
+      "methodIndex": 28162,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3c20e1230b3aaabf9935f7e0ce60b65ebf754574cbda87593c899fd62c6f5d8d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "getStackTrace",
+      "traitKind": "method",
+      "methodIndex": 28163,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 141,
+      "bytecode": {
+        "codeLength": 141,
+        "codeSha256": "c821429b2e2dc4fa7a580c3e742d649e1945b3af81690e2f281b3315e1ace326",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.getMessage",
+      "traitKind": "method",
+      "methodIndex": 28161,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Array"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "fcd8cc7565fcc70e3f7ac4f856fc908623b0c66a62c132dcd6d482c424ed9553",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

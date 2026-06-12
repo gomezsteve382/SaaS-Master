@@ -1,0 +1,99 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3141,
+  "className": "mx.messaging.events.ChannelEvent",
+  "classNameNormalized": "mx.messaging.events.ChannelEvent",
+  "superName": "flash.events.Event",
+  "superNameNormalized": "flash.events.Event",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49744,
+  "cinitMethod": 49742,
+  "iinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "01ad99a0167128909cc77223a4d553737c48e2841ad5393f9b9dcb4a73449713",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "59ab3ac0bc495fa815cdc88098d701012e6d916ddfcc9e6a316c5ae8bb902a7a",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "channelId",
+      "traitKind": "getter",
+      "methodIndex": 49745,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 23,
+      "bytecode": {
+        "codeLength": 23,
+        "codeSha256": "2afe940f801fb80896cf79e36169157bbe9c5ae3a3767053bb7a72d0d3f7ccec",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "clone",
+      "traitKind": "method",
+      "methodIndex": 49746,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.events.Event",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "ce944777c17e67f272099c124eb4aa7edf721786cb0fa367f001170a20f6499b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 49747,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "910559aa9d381ba031183271d7e4ff4d0370e38dab507fe795ab1faba4033f0e",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createEvent",
+      "traitKind": "method",
+      "methodIndex": 49743,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "mx.messaging.Channel",
+        "Boolean",
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "mx.messaging.events.ChannelEvent",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "85c43887279b1df2c4c47a55d833fd8b686dd19cfa01de98701bb09bee617af5",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

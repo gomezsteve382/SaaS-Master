@@ -1,0 +1,71 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2118,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 38652,
+  "cinitMethod": 38649,
+  "iinitBytecode": {
+    "codeLength": 29,
+    "codeSha256": "435c5fa6b12d2c53a808dcf9ebf246c14f374ae9c69b3fd8ef3eb74f26b13f93",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "00872668353208b3b7fbe9bdf033c9547222abeccdb4e4ffe56f8b2a5915435f",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "createBrowse",
+      "traitKind": "method",
+      "methodIndex": 38650,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "int"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "d57f6fc6d1e5af225ef9e7163e3711b9f52aef7f0284541f7ff30eacdfc331f5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "createMakeRequest",
+      "traitKind": "method",
+      "methodIndex": 38651,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "int",
+        "flash.filesystem.File"
+      ],
+      "returnType": "com.chrysler.cda.event.message.diagnostic.ecu.DownloadEngineeringFileMessage",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "9de7ccd30fec7e8b40b23bd91ba0820a817abafe97f1a9a7af6a7a83257d69f8",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

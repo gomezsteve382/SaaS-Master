@@ -1,0 +1,138 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1377,
+  "className": "PrivateNs.PathSegmentsCollection",
+  "classNameNormalized": "PrivateNs.PathSegmentsCollection",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 30239,
+  "cinitMethod": 30238,
+  "iinitBytecode": {
+    "codeLength": 1668,
+    "codeSha256": "5a363fe4ba59586f5758b81cfd1d1a864e7a3057fee7be993f66ac0fae3838a4",
+    "bytecodeLineCount": 105
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "data",
+      "traitKind": "getter",
+      "methodIndex": 30240,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "__AS3__.vec.Vector<PrivateNs.PathSegment>",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "9aac85f665142184e00ea58ca7cac349d5918de17d0a0b8af10726c42300a935",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "generateGraphicsPath",
+      "traitKind": "method",
+      "methodIndex": 30243,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.GraphicsPath",
+        "Number",
+        "Number",
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 102,
+      "bytecode": {
+        "codeLength": 102,
+        "codeSha256": "eb3acb9e36db1290b5047db3678548e419fa52ad88ebb8bcd1a56f3cc6761e5c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "getBoundingBox",
+      "traitKind": "method",
+      "methodIndex": 30242,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "flash.geom.Matrix"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 229,
+      "bytecode": {
+        "codeLength": 229,
+        "codeSha256": "5c2136968a870cc3dbaeb343f0d4ad78c3729f70633130bdbb44bc9f62297ab8",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "getBounds",
+      "traitKind": "method",
+      "methodIndex": 30241,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "5c474292b8a6c5a2d73159b7b2ef5e6c7c439fe3dc2feb37da6bb677a7591d43",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getNumber",
+      "traitKind": "method",
+      "methodIndex": 30245,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "Number",
+        "String"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 602,
+      "bytecode": {
+        "codeLength": 602,
+        "codeSha256": "1f32c1696aa36bd04e8a0eb871a2c7207bb8a6aa03c7e8b7a86ce3b26e6b7e25",
+        "bytecodeLineCount": 38
+      }
+    },
+    {
+      "traitName": "PrivateNs.skipWhiteSpace",
+      "traitKind": "method",
+      "methodIndex": 30244,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 115,
+      "bytecode": {
+        "codeLength": 115,
+        "codeSha256": "796c297f92f1d7e908a37939c43ad085e2d5f7ec4437e9bad301ddb4b91a900e",
+        "bytecodeLineCount": 8
+      }
+    }
+  ],
+  "staticMembers": []
+}

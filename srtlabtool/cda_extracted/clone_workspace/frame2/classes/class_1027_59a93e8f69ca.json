@@ -1,0 +1,135 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1027,
+  "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.AuthenticatedDiagnosticsLoginController",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.AuthenticatedDiagnosticsLoginController",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 21910,
+  "cinitMethod": 21903,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "d7afa1bb837ec12b485f1c75be921a789eb0b82a50154a7da98c79a387921f90",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "engineeringUnlockOffline",
+      "traitKind": "method",
+      "methodIndex": 21906,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String",
+        "String",
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "6a09534df7223d3ff97eb33e5d4485145324701cde275a721bebfcbb4440c44f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "engineeringUnlockOnline",
+      "traitKind": "method",
+      "methodIndex": 21905,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "3f7e35bd0cde255c52a41c842f764d49b8e99884db2792b07a1670a1895320af",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "flashUnlockOnline",
+      "traitKind": "method",
+      "methodIndex": 21907,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "0fcfd91edeec129613bb112ee34b48def374ec997ff60c5be39742720db4d213",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "manufacturingUnlock",
+      "traitKind": "method",
+      "methodIndex": 21908,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "c5757c583ede57609e1fa90669b8fa19fba9171915d701b45c73e60d6f5f8b30",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onSecurityGatewayUnlockComplete",
+      "traitKind": "method",
+      "methodIndex": 21909,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.securitygateway.SecurityGatewayMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "579e77679408dbe2829a010126bdd6db75b348b711b4c71f64d9f1a076cc1873",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "setUserPrincipalWithDongleDetails",
+      "traitKind": "method",
+      "methodIndex": 21904,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext",
+        "String",
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 31,
+      "bytecode": {
+        "codeLength": 31,
+        "codeSha256": "d63ac1a1dc9bff3a49ea4bd3541f2d979979536655415bac625db75b26fb6c60",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

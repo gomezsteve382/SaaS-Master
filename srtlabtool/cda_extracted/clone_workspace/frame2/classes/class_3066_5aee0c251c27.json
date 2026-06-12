@@ -1,0 +1,98 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3066,
+  "className": "mx.binding.RepeaterItemWatcher",
+  "classNameNormalized": "mx.binding.RepeaterItemWatcher",
+  "superName": "mx.binding.Watcher",
+  "superNameNormalized": "mx.binding.Watcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 48917,
+  "cinitMethod": 48916,
+  "iinitBytecode": {
+    "codeLength": 12,
+    "codeSha256": "434499b94eb3d16ed7ff50aedd51a33ee1fe878ac798b03bf7917dbd3d0f8718",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.binding:RepeaterItemWatcher.shallowClone",
+      "traitKind": "method",
+      "methodIndex": 48921,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.binding.Watcher",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "c87f03421bf3669febdcf8e6d6817a6d8c91ce99b855974d140522dcd29029fd",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.changedHandler",
+      "traitKind": "method",
+      "methodIndex": 48920,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.CollectionEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "46fa18b9b5bdaafbf600b6c18cb5e4c06d06063df15c72f37c4e693492da9c03",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.updateClones",
+      "traitKind": "method",
+      "methodIndex": 48922,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ICollectionView"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "585ef1d35177d4abbf445418fac98b6fb12446fc9a594b71d5abd417ed43d1e9",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "updateParent",
+      "traitKind": "method",
+      "methodIndex": 48919,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 187,
+      "bytecode": {
+        "codeLength": 187,
+        "codeSha256": "07b650e55120e6f9faeac5dc5c1fd78c6d0ede57d7fc80ab9221670f92111007",
+        "bytecodeLineCount": 12
+      }
+    }
+  ],
+  "staticMembers": []
+}

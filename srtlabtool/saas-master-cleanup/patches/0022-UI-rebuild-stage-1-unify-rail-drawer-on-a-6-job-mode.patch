@@ -1,0 +1,243 @@
+From e335f5e36abdc7beef15276948e5bc901982f969 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 12 Jun 2026 06:05:34 +0000
+Subject: [PATCH 22/23] UI rebuild stage 1: unify rail + drawer on a 6-job
+ model
+
+Add src/workspaceJobs.js as the single source of truth for back-end nav:
+six job doors (READ/MARRY/KEYS/FLASH/LIVE/REFERENCE), each with a primary
+tab and member modes. Every one of the 49 workspace tabs maps to exactly
+one job (verified 1:1, zero orphans), with a REFERENCE fallback so no tab
+can become unreachable.
+
+CommandShell now derives BOTH the rail (was 8 arbitrary tabs, 2 vocab) and
+the drawer sections from JOBS, so one job wears one name everywhere. Rail
+doors stay lit while on any member tab (BCM keeps READ highlighted).
+---
+ .../srt-lab/src/components/CommandShell.jsx   | 69 ++++++++------
+ artifacts/srt-lab/src/workspaceJobs.js        | 92 +++++++++++++++++++
+ 2 files changed, 135 insertions(+), 26 deletions(-)
+ create mode 100644 artifacts/srt-lab/src/workspaceJobs.js
+
+diff --git a/artifacts/srt-lab/src/components/CommandShell.jsx b/artifacts/srt-lab/src/components/CommandShell.jsx
+index e27d046..b90971f 100644
+--- a/artifacts/srt-lab/src/components/CommandShell.jsx
++++ b/artifacts/srt-lab/src/components/CommandShell.jsx
+@@ -2,8 +2,10 @@ import React, {useState, useEffect, useContext, useMemo} from 'react';
+ import {
+   Stethoscope, Terminal, Fingerprint, DownloadCloud, Bot,
+   ChevronRight, Wrench, Car, ShieldCheck, Search, X, ListChecks, KeyRound, Lock,
++  Cpu, Zap, BookOpen,
+ } from 'lucide-react';
+ import {MasterVinContext} from '../lib/masterVinContext.jsx';
++import {JOBS, JOB_OF} from '../workspaceJobs.js';
+ 
+ /* SRT command-center design tokens (graduated from the approved canvas mockup). */
+ const T = {
+@@ -16,18 +18,28 @@ const T = {
+   good: '#2E7D32',
+ };
+ 
+-/* The five per-vehicle workflow panes. Each maps to an existing workspace
+- * tab id so the battle-tested tab content components keep rendering. */
+-export const PRIMARY_NAV = [
+-  {key: 'dumps',       label: 'Diagnose',      sub: 'Drop \u2192 verdict \u2192 fix', icon: Stethoscope},
+-  {key: 'vinsync',     label: 'VIN \u2192 Sync',    sub: 'Checksums then security',        icon: ListChecks},
+-  {key: 'secsync',     label: 'Security Sync', sub: 'BCM \u00b7 RFHUB \u00b7 PCM side-by-side', icon: Lock},
+-  {key: 'keyxfer',     label: 'Key Program',   sub: 'Add transponder key offline',    icon: KeyRound},
+-  {key: 'uds-console', label: 'UDS Command',   sub: 'Raw ISO 14229 console',          icon: Terminal},
+-  {key: 'vinprog',     label: 'VIN & Checksum', sub: 'Read / write / verify',          icon: Fingerprint},
+-  {key: 'obd',         label: 'OBD Pull',      sub: 'Read bin dumps live',            icon: DownloadCloud},
+-  {key: 'investigation', label: 'AI Copilot',  sub: 'Guided investigation',           icon: Bot},
+-];
++/* The six job doors, derived from the shared JOB MODEL (workspaceJobs.js).
++ * Each door opens its job's `primary` workspace tab, so the battle-tested tab
++ * content components keep rendering \u2014 but the rail, the drawer and the landing
++ * cards now read ONE label per job from the same source. `jobId` lets the rail
++ * stay highlighted while you're on any member tab of that job (e.g. you're on
++ * BCM, which lives under READ, and the READ door stays lit). */
++const JOB_ICON = {
++  read:  Cpu,
++  marry: Lock,
++  keys:  KeyRound,
++  flash: Zap,
++  live:  DownloadCloud,
++  ref:   BookOpen,
++};
++
++export const PRIMARY_NAV = JOBS.map((j) => ({
++  key: j.primary,
++  jobId: j.id,
++  label: j.label,
++  sub: j.sub,
++  icon: JOB_ICON[j.id] || Stethoscope,
++}));
+ 
+ const PRIMARY_KEYS = new Set(PRIMARY_NAV.map(n => n.key));
+ 
+@@ -38,15 +50,13 @@ export const FOOTER_NAV = [
+   {key: 'canuniverse', label: 'CAN Universe \u00b7 Intel', icon: Search},
+ ];
+ 
+-const CATEGORY_META = {
+-  MODULES: {label: 'MODULES',          blurb: 'Read & edit a single module'},
+-  MARRY:   {label: 'MARRY & KEYS',     blurb: 'Pairing, sync, key programming'},
+-  FLASH:   {label: 'FLASH & FIRMWARE', blurb: 'Offline image patch & program'},
+-  LIVE:    {label: 'LIVE & DIAGNOSTICS', blurb: 'Connected OBD / UDS & traces'},
+-  DATA:    {label: 'DATA & WORKFLOW',  blurb: 'Dumps, backups, jobs'},
+-  INTEL:   {label: 'INTEL & REFERENCE', blurb: 'Read-only catalogs & research'},
+-};
+-const SECTION_ORDER = ['MODULES', 'MARRY', 'FLASH', 'LIVE', 'DATA', 'INTEL'];
++/* Drawer sections are the SAME six jobs as the rail (workspaceJobs.js), so a
++ * tool wears one group name whether you reach it from the rail or the drawer.
++ * Keyed by job id; label/blurb come straight from the shared model. */
++const CATEGORY_META = Object.fromEntries(
++  JOBS.map((j) => [j.id, {label: j.label, blurb: j.sub}]),
++);
++const SECTION_ORDER = JOBS.map((j) => j.id);
+ 
+ function matchesQuery(tab, q) {
+   if (!q) return true;
+@@ -62,7 +72,7 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect})
+   // While searching, any section with a match opens automatically.
+   const [expanded, setExpanded] = useState(() => new Set());
+   const toggleSection = (key) => setExpanded((s) => { const n = new Set(s); n.has(key) ? n.delete(key) : n.add(key); return n; });
+-  const sectionOpen = (key, count) => (q ? count > 0 : (expanded.has(key) || key === categories[activeTab]));
++  const sectionOpen = (key, count) => (q ? count > 0 : (expanded.has(key) || key === JOB_OF[activeTab]));
+ 
+   // Everything that isn't one of the five primary panes belongs here.
+   const advancedTabs = useMemo(
+@@ -74,13 +84,16 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect})
+     const g = {};
+     for (const key of SECTION_ORDER) g[key] = [];
+     for (const t of advancedTabs) {
+-      const cat = categories[t.id];
+-      if (!cat || !g[cat]) continue;
++      // Group by the shared job model. Falls back to REFERENCE so a tab that
++      // isn't explicitly placed still appears in the drawer instead of
++      // silently vanishing.
++      const cat = JOB_OF[t.id] || 'ref';
++      if (!g[cat]) continue;
+       if (!matchesQuery(t, q)) continue;
+       g[cat].push(t);
+     }
+     return g;
+-  }, [advancedTabs, categories, q]);
++  }, [advancedTabs, q]);
+ 
+   useEffect(() => {
+     if (!open) return undefined;
+@@ -356,7 +369,11 @@ export default function CommandShell({
+           </div>
+ 
+           {PRIMARY_NAV.map((item) => {
+-            const isActive = item.key === activeTab;
++            // Door lights up when the active tab belongs to this job — so
++            // drilling into a member tab (e.g. BCM under READ) keeps the
++            // parent door highlighted, not just an exact id match.
++            const isActive = (JOB_OF[activeTab] || activeTab) === item.jobId
++              || item.key === activeTab;
+             const Icon = item.icon;
+             return (
+               <button
+diff --git a/artifacts/srt-lab/src/workspaceJobs.js b/artifacts/srt-lab/src/workspaceJobs.js
+new file mode 100644
+index 0000000..4f51f96
+--- /dev/null
++++ b/artifacts/srt-lab/src/workspaceJobs.js
+@@ -0,0 +1,92 @@
++/* ─────────────────────────────────────────────────────────────────────────
++ * Workspace JOB MODEL — single source of truth for the back-end navigation.
++ *
++ * The tool has ~60 workspace tabs. Left on their own they sprawl into three
++ * competing menus (rail / cards / drawer) that each name the same operation
++ * differently. This file collapses them into SIX "job doors" — the things a
++ * tech actually sits down to do:
++ *
++ *     READ · MARRY · KEYS · FLASH · LIVE · REFERENCE
++ *
++ * Every workspace tab id belongs to exactly one job. Opening a door lands you
++ * on its `primary` tab; the door's `members` become the mode-strip at the top
++ * of that workspace. The rail, the landing cards, and the Advanced/Reference
++ * drawer all read their labels from here, so one job wears ONE name everywhere.
++ *
++ * Membership reuses the maintainer's own WORKSPACE_CATEGORIES grouping, with
++ * two adjustments agreed in the UI rebuild: KEYS is split out of MARRY, and the
++ * old DATA + INTEL buckets fold together under REFERENCE (research/catalog
++ * surfaces a bench tech opens rarely).
++ * ──────────────────────────────────────────────────────────────────────── */
++
++export const JOBS = [
++  {
++    id: 'read',
++    label: 'READ MODULE',
++    sub: 'Parse one module image',
++    primary: 'inspector',
++    members: ['inspector', 'bcm', 'rfhub', 'ecm', 'skim', 'skimlive',
++              'smartbox', 'immobcm56xb', 'bcmconfig', 'proxi'],
++  },
++  {
++    id: 'marry',
++    label: 'MARRY / SYNC',
++    sub: 'Pair a module into a set',
++    primary: 'secsync',
++    members: ['secsync', 'vinsync', 'modsync'],
++  },
++  {
++    id: 'keys',
++    label: 'KEYS',
++    sub: 'Program · transfer · PIN',
++    primary: 'keyprog',
++    members: ['keyprog', 'keyxfer', 'keymgr', 'livekey',
++              'keywriter', 'radiocodes', 'seed', 'jailbreak'],
++  },
++  {
++    id: 'flash',
++    label: 'FLASH',
++    sub: 'Patch · program firmware',
++    primary: 'flasher',
++    members: ['flasher', 'cflash', 'gpecunlock', 'efd', 'efd2bin',
++              'fwemul', 'vinprog', 'cdasession'],
++  },
++  {
++    id: 'live',
++    label: 'LIVE OBD',
++    sub: 'Connected UDS sessions',
++    primary: 'obd',
++    members: ['obd', 'uds-console', 'udsanalyzer', 'loganalyser'],
++  },
++  {
++    id: 'ref',
++    label: 'REFERENCE',
++    sub: 'Dumps · catalogs · research',
++    primary: 'dumps',
++    members: ['dumps', 'backups', 'samples', 'workflow', 'investigation',
++              'alfaobd', 'alfaintel', 'binintel', 'dispatchcov', 'unlockcov',
++              'canuniverse', 'patterns', 'kg', 'sigdisc', 'cda6db', 'exttools'],
++  },
++];
++
++/* Rail / drawer order. */
++export const JOB_ORDER = JOBS.map((j) => j.id);
++
++/* tab id → job id. */
++export const JOB_OF = (() => {
++  const m = {};
++  for (const j of JOBS) for (const id of j.members) m[id] = j.id;
++  return m;
++})();
++
++/* job id → its definition. */
++export const JOB_BY_ID = Object.fromEntries(JOBS.map((j) => [j.id, j]));
++
++/* job id → display label (one name per job, used by rail + drawer + cards). */
++export const JOB_LABEL = Object.fromEntries(JOBS.map((j) => [j.id, j.label]));
++
++/* Resolve the job a tab belongs to (falls back to REFERENCE so a newly-added
++ * tab is always reachable instead of silently vanishing from the drawer). */
++export function jobOf(tabId) {
++  return JOB_OF[tabId] || 'ref';
++}
+-- 
+2.43.0
+

@@ -1,0 +1,192 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1999,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.ReadMemoryMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.ReadMemoryMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 37061,
+  "cinitMethod": 37060,
+  "iinitBytecode": {
+    "codeLength": 45,
+    "codeSha256": "afc6531a46c53e7477790357153a2e99039054f66e9fe6b3798b26d66721704a",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 37070,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "82ae01a74974c87f5ecf97495175b0bb9a5058e1689922974fadf1c578610bd7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 37071,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "dc25700159f1963e08b06ed3a54fb2bf0bc2dd1843fa71261ac1a4349ccc61ea",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memoryAddress",
+      "traitKind": "getter",
+      "methodIndex": 37064,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "543f75ca0012892b60112718a93803fe790f64b5bebfd614b4c3d7d3c08378f9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memoryAddress",
+      "traitKind": "setter",
+      "methodIndex": 37065,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "b6dac46fe4d6155e69803f8a7c81946ca7262d7be6a1f62984c13c23e9f05d09",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memoryAddressLength",
+      "traitKind": "getter",
+      "methodIndex": 37066,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a87b51d15f7f0540afba8582b9211470d97c376facc5a0ba5dc503be20b5f2a6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memoryAddressLength",
+      "traitKind": "setter",
+      "methodIndex": 37067,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "5aade63042d2f6e3ca17519f9b35488d222c1e5fa293a122bf58cbfdbfc45440",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memorySize",
+      "traitKind": "getter",
+      "methodIndex": 37062,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f044725287e887b7f8398dfcd31ed4910a956cd7256150e56c3df11b81335045",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memorySize",
+      "traitKind": "setter",
+      "methodIndex": 37063,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "76941149e1720c5d44c961064b486e7c24edec27c176adaf7b52e3f370b58165",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memorySizeLength",
+      "traitKind": "getter",
+      "methodIndex": 37068,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "3d263ba2d99489550db967fefb7a8d1b8ae06cf4cb2bc14162075575c687b17e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "memorySizeLength",
+      "traitKind": "setter",
+      "methodIndex": 37069,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "f175ee96dd85ba005ee956258496ddbeaa87222e3510aa3beab86f2fb9dacda7",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

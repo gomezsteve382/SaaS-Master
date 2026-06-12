@@ -1,0 +1,300 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 905,
+  "className": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification.AuthenticationDialogImplementation",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification.AuthenticationDialogImplementation",
+  "superName": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification.AuthenticationDialog",
+  "superNameNormalized": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification.AuthenticationDialog",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 18070,
+  "cinitMethod": 18066,
+  "iinitBytecode": {
+    "codeLength": 404,
+    "codeSha256": "86e0feb05d4ecaef4d0faa457e4bcc5ba8a0c6ac04de297e4be3ec96066357c2",
+    "bytecodeLineCount": 26
+  },
+  "cinitBytecode": {
+    "codeLength": 37,
+    "codeSha256": "176ec5d95c1ebdfbbafbc42d86ed45cb7a8d65e41efd6f4f88637ac1814157ff",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___AuthenticationDialogImplementation_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 18081,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "62a2a535c3071cf29e11f5027863134371fa775811d0ea8c9626df4ac2acf60c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "closePopover",
+      "traitKind": "method",
+      "methodIndex": 18075,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "b162876a1a2b1aa292711c1041489e5eae0c49b8baef874d0cc12c0f6b7cb35e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification:AuthenticationDialogImplementation.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 18090,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "1809321a3f2342f60127911e601289a8e9822da47d64de58261e822a8dddbd85",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 18073,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 18072,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "a6fc12e2600a006bbaf2e9116b188f18af756cf4885f8c64afb9896c1fbc7af5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "notificationDisable",
+      "traitKind": "getter",
+      "methodIndex": 18091,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.CheckBox",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "ad20a8ef6396fdb590dbff972b7aed1c0a8a4c5a0556717bc809be1ecef12933",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "notificationDisable",
+      "traitKind": "setter",
+      "methodIndex": 18092,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.CheckBox"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "c3bac005c0d07d54496f14b946c6c54d1e1b3b2521bf9d0fda7cb1d70d340a58",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onCloseButtonClick",
+      "traitKind": "method",
+      "methodIndex": 18074,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "62a2a535c3071cf29e11f5027863134371fa775811d0ea8c9626df4ac2acf60c",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogImplementation_Array2_c",
+      "traitKind": "method",
+      "methodIndex": 18082,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "e4b9f2c530ec448034a316e68a44e5d2c5b3a88ca5076ecb5a9b40bb31e06def",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogImplementation_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 18089,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 144,
+      "bytecode": {
+        "codeLength": 144,
+        "codeSha256": "34167069a6f30c059b29c4ff8aa614f0e6fa7b9dcd99dfc68d842bbc71b43cf4",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogImplementation_Button1_i",
+      "traitKind": "method",
+      "methodIndex": 18080,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 67,
+      "bytecode": {
+        "codeLength": 67,
+        "codeSha256": "d14391768208b0d5198e7644c933c572f5a41123dc5a0a9b6b35ac44344c1ab9",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogImplementation_CheckBox1_i",
+      "traitKind": "method",
+      "methodIndex": 18078,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.CheckBox",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "9339d651abeb2c3f962f5fe8ee88360b56948ada65a219340324c338272d75a8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogImplementation_ConfigureTag1_i",
+      "traitKind": "method",
+      "methodIndex": 18076,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.flex.tag.view.ConfigureTag",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "a3502cd0502e5d0c2d83730e3313b97835d6e9924228c0e76f5da141a99797de",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogImplementation_HorizontalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 18077,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.HorizontalLayout",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "d8671711e5f23c636513ce340475ef2f8941f020674758dd53e90732207b299f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogImplementation_RichText1_i",
+      "traitKind": "method",
+      "methodIndex": 18083,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichText",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "e610cb53f0fe6334b8206d70828920d6684a1bbdcb990285b120d7f20a40a41d",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._AuthenticationDialogImplementation_Spacer1_c",
+      "traitKind": "method",
+      "methodIndex": 18079,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.controls.Spacer",
+      "hasBody": true,
+      "codeLength": 34,
+      "bytecode": {
+        "codeLength": 34,
+        "codeSha256": "d189e400ca22c60c05ee5326af50d2ec91a95103db722f432807b64665813edc",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 18067,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "7e7be7d8395b2bf167cdbfd5c3fab3044cfd2ef28ac5e34da226a373383db424",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

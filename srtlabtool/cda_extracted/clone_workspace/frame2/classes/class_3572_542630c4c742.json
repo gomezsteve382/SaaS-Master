@@ -1,0 +1,88 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3572,
+  "className": "com.diagnosticProcedures.util.EncryptionHelper",
+  "classNameNormalized": "com.diagnosticProcedures.util.EncryptionHelper",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 53642,
+  "cinitMethod": 53641,
+  "iinitBytecode": {
+    "codeLength": 71,
+    "codeSha256": "5d616bbdb634d6c93443158ddd64ae91b4920ffe3f1a4775f385d13869ff0686",
+    "bytecodeLineCount": 5
+  },
+  "cinitBytecode": {
+    "codeLength": 27,
+    "codeSha256": "074a98317901afe5b5cc616fa459367239dca4067838dc36914587eb4bed1a55",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "decompressCompareHashAndDecryptData",
+      "traitKind": "method",
+      "methodIndex": 53644,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 106,
+      "bytecode": {
+        "codeLength": 106,
+        "codeSha256": "ff19b3b4597382339b909db99323c5af58b634c8bae140c0a7a5a412ee4765dd",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "encryptHashAndCompressData",
+      "traitKind": "method",
+      "methodIndex": 53643,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 152,
+      "bytecode": {
+        "codeLength": 152,
+        "codeSha256": "405d79041d470c579aa4571d3f3613cb28c482edac57f7a6f9bd9ee3762305ff",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.extractEncryptedFile",
+      "traitKind": "method",
+      "methodIndex": 53645,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "flash.utils.ByteArray",
+        "com.diagnosticProcedures.util.ByteCompressionHelper"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 146,
+      "bytecode": {
+        "codeLength": 146,
+        "codeSha256": "b1ec3ad4f179260bc098e7210d5d1f14845b7f3732826b71894c9cb7bfb96b70",
+        "bytecodeLineCount": 10
+      }
+    }
+  ],
+  "staticMembers": []
+}

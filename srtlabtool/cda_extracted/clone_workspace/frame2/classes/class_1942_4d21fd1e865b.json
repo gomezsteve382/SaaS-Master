@@ -1,0 +1,181 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1942,
+  "className": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 36334,
+  "cinitMethod": 36324,
+  "iinitBytecode": {
+    "codeLength": 11,
+    "codeSha256": "12d28b614c54efac0e36dae0911dedb0f1aad3022172092ad0a688dbffcd1067",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 102,
+    "codeSha256": "d7c6428b1a61743f8de23f8537bd7816d748577a70f2c736d4b1c6a6b80a7e89",
+    "bytecodeLineCount": 7
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "GatherECUInstanceIdsMessage",
+      "traitKind": "method",
+      "methodIndex": 36331,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "054d3dd1c602d1a41887455af7c6a7277fd35207a9f90d3fd79389def6bb7dc3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "InitializeReportMessage",
+      "traitKind": "method",
+      "methodIndex": 36325,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "7f17a168e74b24307cc5cc149b52f9eb939da7a85c0dd4cf51a358e71dadddd4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "MakeReportMessage",
+      "traitKind": "method",
+      "methodIndex": 36333,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "29aa8e850f81a55c29384517f0905d6fc411b3b67b39a53c2d6d397dfc498ef2",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "OpenReportMessage",
+      "traitKind": "method",
+      "methodIndex": 36330,
+      "methodName": "",
+      "paramTypes": [
+        "flash.filesystem.File"
+      ],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "36a23dfb40d308c783d2587cbd840cf778db6671ee149cb7328f9f490d3eaea8",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "ReportTransformationFailedMessage",
+      "traitKind": "method",
+      "methodIndex": 36328,
+      "methodName": "",
+      "paramTypes": [
+        "Error"
+      ],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "65c4deeb4af95c84d3544d8cc5ee50ffde56feb9ed40bcda93e3702f8ec47423",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "RequestOdometerInformationMessage",
+      "traitKind": "method",
+      "methodIndex": 36332,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+      "hasBody": true,
+      "codeLength": 10,
+      "bytecode": {
+        "codeLength": 10,
+        "codeSha256": "980f0f20cb1f581f601b57805802f4942a43ce972f4e75dc16698a189b89c203",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "SaveReportMessage",
+      "traitKind": "method",
+      "methodIndex": 36329,
+      "methodName": "",
+      "paramTypes": [
+        "*",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "ff97564234bf4bd7a1b76ac1cf2c6cde2accd25d5195f965d4d9bb4aaabeed19",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "TransformXMLToCSVMessage",
+      "traitKind": "method",
+      "methodIndex": 36326,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "8a5a310085fb605eacf45ba28767c4387723f3b63de5c222079c58b32608f939",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "TransformXMLToHTMMessage",
+      "traitKind": "method",
+      "methodIndex": 36327,
+      "methodName": "",
+      "paramTypes": [
+        "XML",
+        "String"
+      ],
+      "returnType": "com.chrysler.cda.presentation.component.reports.ScanReportMessage",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "cc6ebfef7b7ca8d410f749c082939f4f0f78432447f322a24321b3b0feb84767",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

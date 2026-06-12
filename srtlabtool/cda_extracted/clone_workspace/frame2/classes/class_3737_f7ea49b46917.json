@@ -1,0 +1,838 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3737,
+  "className": "com.hurlant.crypto.tls.TLSSocket",
+  "classNameNormalized": "com.hurlant.crypto.tls.TLSSocket",
+  "superName": "flash.net.Socket",
+  "superNameNormalized": "flash.net.Socket",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "flash.utils.IDataInput",
+    "flash.utils.IDataOutput"
+  ],
+  "iinitMethod": 55728,
+  "cinitMethod": 55727,
+  "iinitBytecode": {
+    "codeLength": 38,
+    "codeSha256": "d041a9105294993b98a7388e6020973b6e6f5151a83ccc3a33770d9c3042f4a4",
+    "bytecodeLineCount": 3
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "54bab218eebfb5d12acd40bc130f61c6a792a13f28eec8c4818f3cd68190d29d",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "acceptPeerCertificate",
+      "traitKind": "method",
+      "methodIndex": 55778,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "a4bf9ab95d5c627a9d9b582b8b7a928e38367e36817fb1f5b7cff76cd74d9cc3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "bytesAvailable",
+      "traitKind": "getter",
+      "methodIndex": 55729,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "770d806e02e1598c8680dd22c4d6c736c454e14e4eef7f06014b57197b33f562",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "close",
+      "traitKind": "method",
+      "methodIndex": 55740,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 49,
+      "bytecode": {
+        "codeLength": 49,
+        "codeSha256": "9f2cf5a19f843a328ec9f5ed2b713ee1d53cf7bda63eba64305f62900cb7c633",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "connect",
+      "traitKind": "method",
+      "methodIndex": 55742,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "c9a2054812ea535ed97f1bb3d141d9051bb72d8fdec043e9c1f5619380894c04",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "connected",
+      "traitKind": "getter",
+      "methodIndex": 55730,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "12c999d2db081aa16e464e0fb98733b7a7d9603052e74ca006040a84dfea0fa3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "endian",
+      "traitKind": "getter",
+      "methodIndex": 55731,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bb8bc2531a040786114a403557b321bf6745b8de88f0690d0e0b94469254b0e6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "endian",
+      "traitKind": "setter",
+      "methodIndex": 55732,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "02860a5a55e26d68d6b9d36d115b1773d9f01481a3b335aaa569f49dcbc789e3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "flush",
+      "traitKind": "method",
+      "methodIndex": 55749,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "e16204efe6384afcafc6821623779ab2135478843654f863cc27eb69dad230e7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "getPeerCertificate",
+      "traitKind": "method",
+      "methodIndex": 55776,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.hurlant.crypto.cert.X509Certificate",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "fe51088558763b48ad6d886d1d12118ed95b7cb67d85b1056155872f0b34350d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "objectEncoding",
+      "traitKind": "getter",
+      "methodIndex": 55733,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1885693efe2235618f49c71c5e507600c4d51617fb06c9a7f225dda5cf52bb86",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "objectEncoding",
+      "traitKind": "setter",
+      "methodIndex": 55734,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "b5cded50fcaed8206179adbe118ae76fe7e95df9eb9707de53aaaffe7734f21f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onAcceptCert",
+      "traitKind": "method",
+      "methodIndex": 55777,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.tls.TLSEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "f3255330e352d9c44ae93bbfe2d0eb18d96e589ce324eb26df909b3126b353af",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.commitWrite",
+      "traitKind": "method",
+      "methodIndex": 55739,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "13121cb157f1a2fdb56fa2bbc6c06ff5db758d401d34463d9c111c1e470fb2f8",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.init",
+      "traitKind": "method",
+      "methodIndex": 55748,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.Socket",
+        "com.hurlant.crypto.tls.TLSConfig",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 360,
+      "bytecode": {
+        "codeLength": 360,
+        "codeSha256": "8dcc18c195c6653ca1df17dc8d45a6b83fc3a8c1abc5168fe75319a269f9987e",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "PrivateNs.onTLSClose",
+      "traitKind": "method",
+      "methodIndex": 55737,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "ab7dbd2575a70d3a5ca1c89cf10a6fbb8a7c2141612462c513cb96d3b76a5ce9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.onTLSData",
+      "traitKind": "method",
+      "methodIndex": 55735,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.tls.TLSEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 139,
+      "bytecode": {
+        "codeLength": 139,
+        "codeSha256": "4f6fe336a2db40bcbfd919ad6e7eedb62ae7c1735ae3c680f15db60b89db25d2",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.onTLSReady",
+      "traitKind": "method",
+      "methodIndex": 55736,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.tls.TLSEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "9fa96168fdea4e504672b94c5bde4c5d703d7b347cf63d2f7ca873795218e918",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.scheduleWrite",
+      "traitKind": "method",
+      "methodIndex": 55738,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "f743d83d6b69163b91e1d464d11c020ca1ec73e3461554143023448c33f79cde",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "readBoolean",
+      "traitKind": "method",
+      "methodIndex": 55750,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "cc0df332d0e05bcbb2b4a28c64004fe6dd4b13df8f0e1c757983bb01c9229378",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readByte",
+      "traitKind": "method",
+      "methodIndex": 55751,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "6c9c581816a70535075309b583f66085651cf8d624548e6b3478fa4e3a6ee995",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readBytes",
+      "traitKind": "method",
+      "methodIndex": 55752,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "b5c2fdd437efd434b7ca7da871e72efd210dfede6e4d86f5ea46837547205744",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readDouble",
+      "traitKind": "method",
+      "methodIndex": 55753,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "fd065f460b51dd4bbec4f4ce65acb0c634e836631a3e5afe3f809626550a431f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readFloat",
+      "traitKind": "method",
+      "methodIndex": 55754,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "205f7f2928f5d2de0dd5afa2c9ec47702de23a7a3224a4c144d98781f63c373f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readInt",
+      "traitKind": "method",
+      "methodIndex": 55755,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "5de1bc0d7fb21fc153a040c21bf841f1a85e7bd3f93fddcddbeea34e7fd38680",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readMultiByte",
+      "traitKind": "method",
+      "methodIndex": 55756,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "0de77e55cca091d6b2e9bf537509f9ade14dd10cdefc4dd8f52d9038720fb627",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readObject",
+      "traitKind": "method",
+      "methodIndex": 55757,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "*",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "3c36f8c63839b23ec36f541b8ba2e6883e2c2aab8ffe13c19828010b177598aa",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readShort",
+      "traitKind": "method",
+      "methodIndex": 55758,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "981e9c91cc752ac47a64e066d784e80d60bbbd4310b33a14e2dcfceb6deef375",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readUnsignedByte",
+      "traitKind": "method",
+      "methodIndex": 55759,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "69129275cce590e111b3b0c77c751bdd32d59874ed324b98e5889920ae2e2039",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readUnsignedInt",
+      "traitKind": "method",
+      "methodIndex": 55760,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "eb34b157d9ce6169a4e5251ed21b011421d4c5c388c0def909d32b8861cca6c1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readUnsignedShort",
+      "traitKind": "method",
+      "methodIndex": 55761,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "uint",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "2e948351556e4ccfc9ea4bd6b6a106eb7c1b3a482fa5dd08df275a9f3a5ef9ad",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readUTF",
+      "traitKind": "method",
+      "methodIndex": 55762,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "98a04ec345b6ba1e12d837712cd4ae7aaa39f4a8c4ae5166f530f349eb5725c8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "readUTFBytes",
+      "traitKind": "method",
+      "methodIndex": 55763,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "a78f8167f43eabf1cb7293817170708344b5389700019fff16506d585e0496e5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "reinitialize",
+      "traitKind": "method",
+      "methodIndex": 55745,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "com.hurlant.crypto.tls.TLSConfig"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 334,
+      "bytecode": {
+        "codeLength": 334,
+        "codeSha256": "90abb86a7c4eb1daf2dac99a908ef3a48efda2e8acbe73d2e63f60c1e98f6b17",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "rejectPeerCertificate",
+      "traitKind": "method",
+      "methodIndex": 55779,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "803cf63ef4b545da4fb521f6498b760d003bf4495d382bff61a99fb30f1263af",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "releaseSocket",
+      "traitKind": "method",
+      "methodIndex": 55743,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "675aec65e8b8078729fd93f7e3b150536b05b82658fba75a40adb33853a15eed",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "setTLSConfig",
+      "traitKind": "method",
+      "methodIndex": 55741,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.tls.TLSConfig"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "508293194b32b4fb5dd80c9d91c8a2c6eb75f9e4fae471fa1516f736bd013d3e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "startTLS",
+      "traitKind": "method",
+      "methodIndex": 55746,
+      "methodName": "",
+      "paramTypes": [
+        "flash.net.Socket",
+        "String",
+        "com.hurlant.crypto.tls.TLSConfig"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 42,
+      "bytecode": {
+        "codeLength": 42,
+        "codeSha256": "c6fce861fe911abc2e2a1f34dd9973b7ec3565ed1f01580726e8530f3bde80c1",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "writeBoolean",
+      "traitKind": "method",
+      "methodIndex": 55764,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "c77f9cc45683a30dfbff2b5556f76205ec35054f54d8b5a12e0e9972f3d14409",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeByte",
+      "traitKind": "method",
+      "methodIndex": 55765,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "783674e47e79424b64350653ef6d50e961291ac0dd09cf5376a068d7f677a9da",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeBytes",
+      "traitKind": "method",
+      "methodIndex": 55766,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "80d22d2eef99fe14264b63c5ddf45e541f8cc36f551101fe57dffb876c840b1c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeDouble",
+      "traitKind": "method",
+      "methodIndex": 55767,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "b2580be06129501d443825fcd72229b799ebd5a6649837681fc634eb25c67dc2",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeFloat",
+      "traitKind": "method",
+      "methodIndex": 55768,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "68ee9c17d40bd72bf1766aba1d0e99a2b19d7d084f26a9aebf741fe7ebc4a1ce",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeInt",
+      "traitKind": "method",
+      "methodIndex": 55769,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "fc9549489ce1f262da03f6e3026c16b6c838c04eb71f243bc7398bf2a4d5bbc6",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeMultiByte",
+      "traitKind": "method",
+      "methodIndex": 55770,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "8ad67b85c15f7697ea7e0a3a779fb96fc92f2af89f8968755d6cd6c74d585eed",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeObject",
+      "traitKind": "method",
+      "methodIndex": 55771,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "1505758168f709db67e751377e71321b57f8933ef85aac492dd7b5a3e205b806",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeShort",
+      "traitKind": "method",
+      "methodIndex": 55772,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "3a1c79d8841349916ed1d18c1e8ad3d28022af40e432d45d97f151b8ba71fec4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeUnsignedInt",
+      "traitKind": "method",
+      "methodIndex": 55773,
+      "methodName": "",
+      "paramTypes": [
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "532ba795730165b501cb88c05c4e4143ae713e0bcc0e16c3f8910e95e88e9304",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeUTF",
+      "traitKind": "method",
+      "methodIndex": 55774,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "1a5f39db0642557c922cc78288a1dc448025131e00f0f25ba636a91336dfbf04",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "writeUTFBytes",
+      "traitKind": "method",
+      "methodIndex": 55775,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "32bd2143ab40453048cc36303d603261968d91513eb7a8f2cc7569b852154754",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

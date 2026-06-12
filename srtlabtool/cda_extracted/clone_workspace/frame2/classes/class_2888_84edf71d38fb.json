@@ -1,0 +1,127 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2888,
+  "className": "com.hurlant.crypto.prng.Random",
+  "classNameNormalized": "com.hurlant.crypto.prng.Random",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 47025,
+  "cinitMethod": 47024,
+  "iinitBytecode": {
+    "codeLength": 200,
+    "codeSha256": "9266f54fadcc574a87901dbbfc253d9fc2477e994961cd7cba0c356273074044",
+    "bytecodeLineCount": 13
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "autoSeed",
+      "traitKind": "method",
+      "methodIndex": 47027,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 193,
+      "bytecode": {
+        "codeLength": 193,
+        "codeSha256": "846303940432e3224648416e48559a1b2b5ca328588d9c6cec9c9b523d7771b3",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 47030,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 107,
+      "bytecode": {
+        "codeLength": 107,
+        "codeSha256": "4233e02a14507ae3549c85c6ab23af92c7ef7c7701bad7b59c3f706a389eb110",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "nextByte",
+      "traitKind": "method",
+      "methodIndex": 47029,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "ce6424573331e6553058bad9d7cfcc7af747cebfea721ea94eb30cfaca6f0990",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "nextBytes",
+      "traitKind": "method",
+      "methodIndex": 47028,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "323ba9989c7d6fdc6ad725fd484a31d64ec8f826ec61b0e501a333f617b361e0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "seed",
+      "traitKind": "method",
+      "methodIndex": 47026,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 261,
+      "bytecode": {
+        "codeLength": 261,
+        "codeSha256": "b827b1c90b1ea8f4d62fa9f9c80331029d0c62d8c0b688295e325e963e99334b",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "toString",
+      "traitKind": "method",
+      "methodIndex": 47031,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "0d12f02c25045a0a5e40b370abed57c97722d7ed0c323b65bec20fd67033eb80",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

@@ -1,0 +1,317 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3145,
+  "className": "mx.messaging.messages.MessagePerformanceUtils",
+  "classNameNormalized": "mx.messaging.messages.MessagePerformanceUtils",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 49786,
+  "cinitMethod": 49785,
+  "iinitBytecode": {
+    "codeLength": 138,
+    "codeSha256": "cfe14c8be70d2b63321bcaa7e123074b03b575b238de7f275d147c1c2e3389ef",
+    "bytecodeLineCount": 9
+  },
+  "cinitBytecode": {
+    "codeLength": 39,
+    "codeSha256": "60290f08901aa79ee3c7e366dd3bcb28dbe69ef03e04fb76235f79b130d337e6",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "clientReceiveTime",
+      "traitKind": "getter",
+      "methodIndex": 49796,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "36bccdac266241a52ac5e60bacc4c40a068b865e53c829a73a1007635c3265e8",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "messageSize",
+      "traitKind": "getter",
+      "methodIndex": 49797,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "27c1bef2ef9e07ff8f88bf5299bc3ab764c4e2bbd60dabee58c3b155eb6b5c18",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "networkRTT",
+      "traitKind": "getter",
+      "methodIndex": 49794,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "bc96ed3ecb5d852b4c1fcaf3f34d3c2c22de14ddff259489e441b9fc7519c1c7",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "originatingMessageSentTime",
+      "traitKind": "getter",
+      "methodIndex": 49802,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "b34abc5a70a5fbfae55fb6399c3ce7615b8682a05f283f4eda245dcdc16a85f5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "originatingMessageSize",
+      "traitKind": "getter",
+      "methodIndex": 49803,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "35a6ce8aaee2021fb96c0557f4556871a6e10cf5fb5ef6a14a9943a25daf4ffc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "prettyPrint",
+      "traitKind": "method",
+      "methodIndex": 49804,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 411,
+      "bytecode": {
+        "codeLength": 411,
+        "codeSha256": "9d6efc24a1e84eaa38f5d5940566fc8895789770bde1ac2fcaa6e511646a8f5d",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "PrivateNs.pushedOverheadTime",
+      "traitKind": "getter",
+      "methodIndex": 49805,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "44a5730406fbe1544ea512b6f9b8efe4189babf5d002edd95831f5c90e4970b4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pushedMessageFlag",
+      "traitKind": "getter",
+      "methodIndex": 49799,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "55c15d4c1b503b98ee8de06307ec07f5846d34f58a7959025036de4aa7a8d297",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "pushOneWayTime",
+      "traitKind": "getter",
+      "methodIndex": 49801,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "081375dd568eaa4de4462a7d6cf7e7d2754f426ce7847e8b72125302ad7153ce",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "responseMessageSize",
+      "traitKind": "getter",
+      "methodIndex": 49798,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "aa939f47867f7e84761b42276f11f2ab17f041f5a9643b84a6788949f6422db7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serverAdapterExternalTime",
+      "traitKind": "getter",
+      "methodIndex": 49791,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "95cbdce998ebb926003e43962208cefc64e52d429ec8574db9ca6a3ae63dfea1",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "serverAdapterTime",
+      "traitKind": "getter",
+      "methodIndex": 49790,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 147,
+      "bytecode": {
+        "codeLength": 147,
+        "codeSha256": "33c14e04670b4dbc07ca3f82a17c96a4200de686be01a87cee7c66071dbb8c50",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "serverNonAdapterTime",
+      "traitKind": "getter",
+      "methodIndex": 49793,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "92f29b78168378fa58cf3749e73e12679181488bd7df03c54161e0d48ea4ec9e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "serverPollDelay",
+      "traitKind": "getter",
+      "methodIndex": 49792,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "f51577b03e1c9e7366207d834d8a3ebbee3ade56e5b69a35dab1d7c1a65a74eb",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "serverPrePushTime",
+      "traitKind": "getter",
+      "methodIndex": 49789,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "2c5621045c4bb2a75f93268b3e6899689dcd212a50986eaccba05fcc98037288",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "serverProcessingTime",
+      "traitKind": "getter",
+      "methodIndex": 49788,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 47,
+      "bytecode": {
+        "codeLength": 47,
+        "codeSha256": "bacf700fb23f9057575f26673ce1cd8ba083228f929ff8bf6ace7da13597b3b7",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "serverSendTime",
+      "traitKind": "getter",
+      "methodIndex": 49795,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "08cd3a81ecf3c7b1aaa88784e65874ab6f64db545567d3742184c0cd3c4c950f",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "totalPushTime",
+      "traitKind": "getter",
+      "methodIndex": 49800,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "ebdac0960ae3eba60be46545d827e1241da7bdb2320f0d96baa4627d8a3e36b5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "totalTime",
+      "traitKind": "getter",
+      "methodIndex": 49787,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 33,
+      "bytecode": {
+        "codeLength": 33,
+        "codeSha256": "e2eceecbcbe526431e6ec1d695cdd4350396ee6b42ac2c4d3407386704ec0479",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

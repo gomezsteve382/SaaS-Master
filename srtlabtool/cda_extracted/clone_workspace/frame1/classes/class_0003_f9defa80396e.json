@@ -1,0 +1,683 @@
+{
+  "frame": "frame1",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3,
+  "className": "mx.core.IFlexDisplayObject",
+  "classNameNormalized": "mx.core.IFlexDisplayObject",
+  "superName": "*",
+  "superNameNormalized": "",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": true,
+    "protectedNs": false
+  },
+  "interfaces": [
+    "flash.display.IBitmapDrawable",
+    "flash.events.IEventDispatcher"
+  ],
+  "iinitMethod": 113,
+  "cinitMethod": 58,
+  "iinitBytecode": null,
+  "cinitBytecode": {
+    "codeLength": 1,
+    "codeSha256": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "mx.core:IFlexDisplayObject.accessibilityProperties",
+      "traitKind": "getter",
+      "methodIndex": 107,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.accessibility.AccessibilityProperties",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.accessibilityProperties",
+      "traitKind": "setter",
+      "methodIndex": 108,
+      "methodName": "",
+      "paramTypes": [
+        "flash.accessibility.AccessibilityProperties"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.alpha",
+      "traitKind": "getter",
+      "methodIndex": 80,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.alpha",
+      "traitKind": "setter",
+      "methodIndex": 81,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.blendMode",
+      "traitKind": "getter",
+      "methodIndex": 94,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.blendMode",
+      "traitKind": "setter",
+      "methodIndex": 95,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.cacheAsBitmap",
+      "traitKind": "getter",
+      "methodIndex": 86,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.cacheAsBitmap",
+      "traitKind": "setter",
+      "methodIndex": 87,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.filters",
+      "traitKind": "getter",
+      "methodIndex": 92,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.filters",
+      "traitKind": "setter",
+      "methodIndex": 93,
+      "methodName": "",
+      "paramTypes": [
+        "Array"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.getBounds",
+      "traitKind": "method",
+      "methodIndex": 102,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.getRect",
+      "traitKind": "method",
+      "methodIndex": 103,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.globalToLocal",
+      "traitKind": "method",
+      "methodIndex": 100,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Point"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.height",
+      "traitKind": "getter",
+      "methodIndex": 84,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.height",
+      "traitKind": "setter",
+      "methodIndex": 85,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.hitTestObject",
+      "traitKind": "method",
+      "methodIndex": 105,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.hitTestPoint",
+      "traitKind": "method",
+      "methodIndex": 106,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.loaderInfo",
+      "traitKind": "getter",
+      "methodIndex": 104,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.LoaderInfo",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.localToGlobal",
+      "traitKind": "method",
+      "methodIndex": 101,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Point"
+      ],
+      "returnType": "flash.geom.Point",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.mask",
+      "traitKind": "getter",
+      "methodIndex": 64,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.mask",
+      "traitKind": "setter",
+      "methodIndex": 65,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.measuredHeight",
+      "traitKind": "getter",
+      "methodIndex": 109,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.measuredWidth",
+      "traitKind": "getter",
+      "methodIndex": 110,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.mouseX",
+      "traitKind": "getter",
+      "methodIndex": 76,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.mouseY",
+      "traitKind": "getter",
+      "methodIndex": 77,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.move",
+      "traitKind": "method",
+      "methodIndex": 111,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.name",
+      "traitKind": "getter",
+      "methodIndex": 61,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.name",
+      "traitKind": "setter",
+      "methodIndex": 62,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.opaqueBackground",
+      "traitKind": "getter",
+      "methodIndex": 88,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.opaqueBackground",
+      "traitKind": "setter",
+      "methodIndex": 89,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.parent",
+      "traitKind": "getter",
+      "methodIndex": 63,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObjectContainer",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.root",
+      "traitKind": "getter",
+      "methodIndex": 59,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.DisplayObject",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.rotation",
+      "traitKind": "getter",
+      "methodIndex": 78,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.rotation",
+      "traitKind": "setter",
+      "methodIndex": 79,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.scale9Grid",
+      "traitKind": "getter",
+      "methodIndex": 98,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.scale9Grid",
+      "traitKind": "setter",
+      "methodIndex": 99,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.scaleX",
+      "traitKind": "getter",
+      "methodIndex": 72,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.scaleX",
+      "traitKind": "setter",
+      "methodIndex": 73,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.scaleY",
+      "traitKind": "getter",
+      "methodIndex": 74,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.scaleY",
+      "traitKind": "setter",
+      "methodIndex": 75,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.scrollRect",
+      "traitKind": "getter",
+      "methodIndex": 90,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Rectangle",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.scrollRect",
+      "traitKind": "setter",
+      "methodIndex": 91,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Rectangle"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.setActualSize",
+      "traitKind": "method",
+      "methodIndex": 112,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.stage",
+      "traitKind": "getter",
+      "methodIndex": 60,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.display.Stage",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.transform",
+      "traitKind": "getter",
+      "methodIndex": 96,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.geom.Transform",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.transform",
+      "traitKind": "setter",
+      "methodIndex": 97,
+      "methodName": "",
+      "paramTypes": [
+        "flash.geom.Transform"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.visible",
+      "traitKind": "getter",
+      "methodIndex": 66,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.visible",
+      "traitKind": "setter",
+      "methodIndex": 67,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.width",
+      "traitKind": "getter",
+      "methodIndex": 82,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.width",
+      "traitKind": "setter",
+      "methodIndex": 83,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.x",
+      "traitKind": "getter",
+      "methodIndex": 68,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.x",
+      "traitKind": "setter",
+      "methodIndex": 69,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.y",
+      "traitKind": "getter",
+      "methodIndex": 70,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    },
+    {
+      "traitName": "mx.core:IFlexDisplayObject.y",
+      "traitKind": "setter",
+      "methodIndex": 71,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": false,
+      "codeLength": 0,
+      "bytecode": null
+    }
+  ],
+  "staticMembers": []
+}

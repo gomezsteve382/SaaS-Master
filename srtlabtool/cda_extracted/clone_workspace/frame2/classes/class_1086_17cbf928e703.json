@@ -1,0 +1,185 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1086,
+  "className": "com.chrysler.cda.domain.witech.WiTECHServiceLoader",
+  "classNameNormalized": "com.chrysler.cda.domain.witech.WiTECHServiceLoader",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23520,
+  "cinitMethod": 23510,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "com.chrysler.cda.domain.witech:WiTECHServiceLoader.clearDPLoadState",
+      "traitKind": "method",
+      "methodIndex": 23519,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "06a91c91327fc8ca16fb6ceda76057d323b7e4f695402764dc37fd0700a81546",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.domain.witech.wdeLegacyServicesLoaded",
+      "traitKind": "method",
+      "methodIndex": 23517,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "998eb482ae48c4d6d6c50dbbb5f8c5fe2e99aab85b633f785f697a4d07da52e2",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.domain.witech.wdeLegacyServicesNotLoaded",
+      "traitKind": "method",
+      "methodIndex": 23518,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "73779096cf7f652c419c93d775164814a89135ddba30ee9d86d63dc86e98e9e9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "dpServicesLoaded",
+      "traitKind": "getter",
+      "methodIndex": 23515,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "6a640997005b65078a48b2caeab0c711bb3ce578ece364d1768fe62f82b5a61d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "loadDPServices",
+      "traitKind": "method",
+      "methodIndex": 23516,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "2664ab32e4c3641e987063969ac1e1b7a0930933fada278b69422e1e6fabedf1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "onParsleyInitialization",
+      "traitKind": "method",
+      "methodIndex": 23514,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "de5f23d7faa60ef9e11659bf14fe7a22e11de1b835623c15e7e9e211e5605570",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "PrivateNs.addEvents",
+      "traitKind": "method",
+      "methodIndex": 23513,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.impl.ServicesDescriptor",
+        "Function",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "443bca352028ebdacd35bb97453be1ab5acbb722631438b634de7cf984f38394",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.getTarget",
+      "traitKind": "method",
+      "methodIndex": 23511,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "wde.common.services.impl.ServicesDescriptor",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "293125066e84a48c6d61cb3b631cda9f396674dc35f36a6d70bb6fb8217edaa1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.removeEvents",
+      "traitKind": "method",
+      "methodIndex": 23512,
+      "methodName": "",
+      "paramTypes": [
+        "wde.common.services.impl.ServicesDescriptor",
+        "Function",
+        "Function"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "ce42658252bd3d6ca1c728710184bc4dbb615969c9d0472f90aebea878a15677",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

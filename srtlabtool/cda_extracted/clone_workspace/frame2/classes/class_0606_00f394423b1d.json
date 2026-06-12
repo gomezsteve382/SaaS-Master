@@ -1,0 +1,177 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 606,
+  "className": "mx.rpc.AsyncToken",
+  "classNameNormalized": "mx.rpc.AsyncToken",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "sync",
+  "flags": {
+    "sealed": false,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 11588,
+  "cinitMethod": 11587,
+  "iinitBytecode": {
+    "codeLength": 11,
+    "codeSha256": "f5a32ba063530a6a71eda08518860ce019566490202e378e72cfb16bc027c25d",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addResponder",
+      "traitKind": "method",
+      "methodIndex": 11593,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.IResponder"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 28,
+      "bytecode": {
+        "codeLength": 28,
+        "codeSha256": "1d8d58f150fd31bf5c51d5d24d39aab50f8e3338a98e85fa0979fa44580c1fd4",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "hasResponder",
+      "traitKind": "method",
+      "methodIndex": 11594,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "40d8b501562d1a80e03427fe37abeae271f8838b1e84cb88cfda0fbe866ed09f",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.applyFault",
+      "traitKind": "method",
+      "methodIndex": 11595,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.FaultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 71,
+      "bytecode": {
+        "codeLength": 71,
+        "codeSha256": "8050ec2ae63726200a8b311968e99c0df69077178338bb8144d27ef7a2333408",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.applyResult",
+      "traitKind": "method",
+      "methodIndex": 11596,
+      "methodName": "",
+      "paramTypes": [
+        "mx.rpc.events.ResultEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "a0e9aa063be852f1a1070216da8d8f00a56297a78ad9f3366a3d78e2c8e05f91",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setMessage",
+      "traitKind": "method",
+      "methodIndex": 11590,
+      "methodName": "",
+      "paramTypes": [
+        "mx.messaging.messages.IMessage"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "67731afd169e6686fca7469c3cf24b81b798c6bd48b0b2b641bbbe7e8b58d30a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setResult",
+      "traitKind": "method",
+      "methodIndex": 11597,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "8559af71ac115c99259cbd445dd69ca348f18f002f92ac2c73435d523d6d7287",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "message",
+      "traitKind": "getter",
+      "methodIndex": 11589,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.messages.IMessage",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "86bbbaf17f389cf0f82d9d92d6cd8dd9742214d85cdb24a480b300536847fc78",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "responders",
+      "traitKind": "getter",
+      "methodIndex": 11591,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "47a806f2430fccf5c1c9b38bb9b4617e1c1962b7c13b1b285c58b0cefb4bf630",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "result",
+      "traitKind": "getter",
+      "methodIndex": 11592,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "8ba2708991311064a285c5987f30e3d1f17d4a87ccad8269fb99552ad3ffe1ce",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

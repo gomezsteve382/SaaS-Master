@@ -1,0 +1,280 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1851,
+  "className": "flashx.textLayout.compose.ComposeState",
+  "classNameNormalized": "flashx.textLayout.compose.ComposeState",
+  "superName": "flashx.textLayout.compose.BaseCompose",
+  "superNameNormalized": "flashx.textLayout.compose.BaseCompose",
+  "domainBucket": "flash",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 35053,
+  "cinitMethod": 35038,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "composeTextFlow",
+      "traitKind": "method",
+      "methodIndex": 35043,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.TextFlow",
+        "int",
+        "int"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "bc8ffcb7a27ac7371acf668079010c6285348036fc7db20b816091e439a12b26",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.applyVerticalAlignmentToColumn",
+      "traitKind": "method",
+      "methodIndex": 35047,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController",
+        "String",
+        "Array",
+        "int",
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "8b851fa59e12338d6bdc3e47c81de88e606dd6aaf1896e0cdc7831b8de03f54c",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.composeInternal",
+      "traitKind": "method",
+      "methodIndex": 35045,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.FlowGroupElement",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 66,
+      "bytecode": {
+        "codeLength": 66,
+        "codeSha256": "ba4b67daf6baef27a8ea2971ac260f2d3d8b02162ff2b6a1f3967ac7f9d83a5e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.composeNextLine",
+      "traitKind": "method",
+      "methodIndex": 35051,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flash.text.engine.TextLine",
+      "hasBody": true,
+      "codeLength": 768,
+      "bytecode": {
+        "codeLength": 768,
+        "codeSha256": "832afced89d9cd791734ee68ad45b2bbf29c7b341413c839364e2f55bdaf43d9",
+        "bytecodeLineCount": 48
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.composeParagraphElement",
+      "traitKind": "method",
+      "methodIndex": 35050,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.elements.ParagraphElement",
+        "int"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 44,
+      "bytecode": {
+        "codeLength": 44,
+        "codeSha256": "0e491de1c834b87c830d774441bcb087a126c843534b2476462e32e3847885eb",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.createParcelList",
+      "traitKind": "method",
+      "methodIndex": 35041,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.compose.ParcelList",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "1f94d618b89470ff1e37b0706a98fc08ad97071a0833e0c577933e369b8084c9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.createTextLine",
+      "traitKind": "method",
+      "methodIndex": 35052,
+      "methodName": "",
+      "paramTypes": [
+        "Number",
+        "Boolean"
+      ],
+      "returnType": "flash.text.engine.TextLine",
+      "hasBody": true,
+      "codeLength": 56,
+      "bytecode": {
+        "codeLength": 56,
+        "codeSha256": "3a05140aaf6dd0f8374dee1bf5b396ac44947a05c0abee6a962eb3d2462c1896",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.doVerticalAlignment",
+      "traitKind": "method",
+      "methodIndex": 35046,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean",
+        "flashx.textLayout.compose.Parcel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 362,
+      "bytecode": {
+        "codeLength": 362,
+        "codeSha256": "da9bb1fb0c180ebf3b30315d927ffa4592234fca09b5db878d00e45a1cfbc80f",
+        "bytecodeLineCount": 23
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.endLine",
+      "traitKind": "method",
+      "methodIndex": 35049,
+      "methodName": "",
+      "paramTypes": [
+        "flash.text.engine.TextLine"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "ee540a68531520387b7ea558045821e2d2aecc93d3e73fdb58778f4c1840fdf5",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.finalParcelAdjustment",
+      "traitKind": "method",
+      "methodIndex": 35048,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.container.ContainerController"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 588,
+      "bytecode": {
+        "codeLength": 588,
+        "codeSha256": "00c7def69c04277a6760799dc2228dee24bd2f98e3195856cc659ea938faba52",
+        "bytecodeLineCount": 37
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.initializeForComposer",
+      "traitKind": "method",
+      "methodIndex": 35044,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.IFlowComposer",
+        "int",
+        "int",
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "ef27c18b888edb369f0c2909389abead608a42d2c08d02159d8444234bfe24c8",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "flashx.textLayout.compose:ComposeState.releaseParcelList",
+      "traitKind": "method",
+      "methodIndex": 35042,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.ParcelList"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "08a259d4d1d956a24f74abfc6eb970b221af8ba1d4eb810480485264a14194d1",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.getComposeState",
+      "traitKind": "method",
+      "methodIndex": 35039,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "flashx.textLayout.compose.ComposeState",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "caeb5d130602691673fabd71ee577486f72d48dee3e08a27c3d42530f53a1231",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://ns.adobe.com/textLayout/internal/2008.releaseComposeState",
+      "traitKind": "method",
+      "methodIndex": 35040,
+      "methodName": "",
+      "paramTypes": [
+        "flashx.textLayout.compose.ComposeState"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "48a67251ceb0514f829ff816b8772bb6c5f015d77e5ed934eb2b000535f767b2",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

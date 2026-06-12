@@ -1,0 +1,322 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3576,
+  "className": "com.diagnosticProcedures.view.components.TextFieldComponent",
+  "classNameNormalized": "com.diagnosticProcedures.view.components.TextFieldComponent",
+  "superName": "spark.components.VGroup",
+  "superNameNormalized": "spark.components.VGroup",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "com.diagnosticProcedures.view.IScreenComponent",
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 53675,
+  "cinitMethod": 53671,
+  "iinitBytecode": {
+    "codeLength": 368,
+    "codeSha256": "7baa6ed246dcf6e3e053f76ac725ec0dadb2a1af902fd28056f74b4ae2f4f787",
+    "bytecodeLineCount": 23
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "__textInput_enter",
+      "traitKind": "method",
+      "methodIndex": 53683,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "1a94ea07ab42a70d15f31b8fca3256fe15e240e5a050286638d353bb1f3ef111",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 53677,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 53676,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "e71fd4ba88a76246cdaedb2dd5383db2ce6d81efa297fa8c6a29680374032077",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "nameField",
+      "traitKind": "getter",
+      "methodIndex": 53691,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "86e7550218d638938ecb3ad9e4c08eea786d94ac6d8db4dd91032030af3e96e0",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "nameField",
+      "traitKind": "setter",
+      "methodIndex": 53692,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.RichEditableText"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "bb98c087221c02988caa24b87e99a6e515378d219ef6c46d487dbaebfde2a858",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._TextFieldComponent_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 53690,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 125,
+      "bytecode": {
+        "codeLength": 125,
+        "codeSha256": "51c845b6659be1b877c35b040ca10ed5f26494e462e950f21521186c9366e936",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs._TextFieldComponent_RichEditableText1_i",
+      "traitKind": "method",
+      "methodIndex": 53681,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.RichEditableText",
+      "hasBody": true,
+      "codeLength": 91,
+      "bytecode": {
+        "codeLength": 91,
+        "codeSha256": "7e62068d3ddd9d92c763b1dc64373f8e5578adb777db51e5214c8ebf2660fad1",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs._TextFieldComponent_TextInput1_i",
+      "traitKind": "method",
+      "methodIndex": 53682,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 82,
+      "bytecode": {
+        "codeLength": 82,
+        "codeSha256": "bab609f36c5fab9074846a42e8f00d1fd692bcbc9e419f941c3e7c22e85d0714",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.initialText",
+      "traitKind": "getter",
+      "methodIndex": 53697,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "60c5581fb949178acc3992f419d71c4291f23be5f3258db27a6b1969b350c52b",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.initialText",
+      "traitKind": "setter",
+      "methodIndex": 53698,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "d2f7421fd3be076f69a7b393aa9cad0e9377ef08034ed051adaf724e2249c2f4",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.nameText",
+      "traitKind": "getter",
+      "methodIndex": 53695,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "aa8258525a17fc259f17002a7935ee428ad35954e01d61610ef47b00f1d01678",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.nameText",
+      "traitKind": "setter",
+      "methodIndex": 53696,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "f5127e61578afaf45777fd3ad87a3dd8d4c8c9cc469d3c3e2f8e245301f2bd78",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.onEnter",
+      "traitKind": "method",
+      "methodIndex": 53680,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "812dcb8fce7b6d9c03a3d40a3a2107b69254ee2832fe5506eb7c5d8d95a08dbc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "textInput",
+      "traitKind": "getter",
+      "methodIndex": 53693,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextInput",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "48c38e77186e2e3932c446a9e4fc3ff474ea4874e2b479cd0401f5b92d12ab4a",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "textInput",
+      "traitKind": "setter",
+      "methodIndex": 53694,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.TextInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "f3cd24d8dd5e42bb1c09a373310e5e98b8d9748bad09195df7f01e70310ce66e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "xml",
+      "traitKind": "getter",
+      "methodIndex": 53679,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 26,
+      "bytecode": {
+        "codeLength": 26,
+        "codeSha256": "50aafa791f178d66a1f1accf0e9fa8e56658c0bf71d7d43d43b61eb7eb11afdb",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "xml",
+      "traitKind": "setter",
+      "methodIndex": 53678,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "eeadc7d2f68a383674bff772bcf1cc0fc41c9d849c933255f6c6f7d847d4820b",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 53672,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "9f3b145ffc93bf474e7935c9ea3b6812dce126729a4a8765033342480835d23c",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

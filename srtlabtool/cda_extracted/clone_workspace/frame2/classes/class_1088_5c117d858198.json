@@ -1,0 +1,346 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1088,
+  "className": "com.chrysler.cda.presentation.component.util.LogViewer",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.util.LogViewer",
+  "superName": "com.chrysler.core.window.AbstractWindow",
+  "superNameNormalized": "com.chrysler.core.window.AbstractWindow",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 23535,
+  "cinitMethod": 23534,
+  "iinitBytecode": {
+    "codeLength": 97,
+    "codeSha256": "f269f09d26b3b98187cba3c34efe21e880033a64684b03c49937b0c6b4dc5f31",
+    "bytecodeLineCount": 7
+  },
+  "cinitBytecode": {
+    "codeLength": 65,
+    "codeSha256": "6ad082c1d3e89c35b0996df81766de7392e42284bd925426aff045130d2e9fe1",
+    "bytecodeLineCount": 5
+  },
+  "instanceMembers": [
+    {
+      "traitName": "___LogViewer_AbstractWindow1_contentCreationComplete",
+      "traitKind": "method",
+      "methodIndex": 23546,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.FlexEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "f9891e8f3af8d692579136a96ad070621cc5896756994c9bd89f8163230264bb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "___LogViewer_Button1_click",
+      "traitKind": "method",
+      "methodIndex": 23544,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "fe761ca26f8f1246ae367f3dbcec325746417d338fee0bbff54f72ed7daca419",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "getter",
+      "methodIndex": 23552,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.CDAContext",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "bc4e398e65904eb7edde59f5fa6de90c2eb09ccecd96569726d8c03c3604d560",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "cdaContext",
+      "traitKind": "setter",
+      "methodIndex": 23553,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.CDAContext"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "f48b2a8e53a90dff54e0242c3143a14a735eb095826a8288560b42ba4e227c12",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "com.chrysler.cda.presentation.component.util:LogViewer.skinParts",
+      "traitKind": "getter",
+      "methodIndex": 23547,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "e4e1beea9b5c6e9426a62d11e44f449177f4c7927edcdd966a21ab7cec0314e6",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18NResourceModel",
+      "traitKind": "getter",
+      "methodIndex": 23554,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.locale.I18NResourceModel",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d7e8221778d07665ccd8a16eb5460fb1ceb95204de57d9e4ec065a1a7fee015e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "i18NResourceModel",
+      "traitKind": "setter",
+      "methodIndex": 23555,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.locale.I18NResourceModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "0d60792ba352c12e14a51740e764d748445f878c26a459759a2055ea1c0dc8fa",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 23537,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "logContainer",
+      "traitKind": "getter",
+      "methodIndex": 23548,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextArea",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "5328f5a50fdd3b84c34bc193dfd1f9c551176876bbf5dffc0cdca9bed6c99bc1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "logContainer",
+      "traitKind": "setter",
+      "methodIndex": 23549,
+      "methodName": "",
+      "paramTypes": [
+        "spark.components.TextArea"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "2e9e6980423d5c38517e88bed5f3ca9d3d866c0deba2fc5f2afe637ef5f34907",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "logViewerPM",
+      "traitKind": "getter",
+      "methodIndex": 23550,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.util.LogViewerPM",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fc4cd2424ec6e05a2bdf2a9cf1edcc7284f92604697ac4bd5f06f109aa418da4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "logViewerPM",
+      "traitKind": "setter",
+      "methodIndex": 23551,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.util.LogViewerPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "7a51e43a53efcc4c025226e8a434f38fbd2095d5c0723fb0cad6517fdaad39c5",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 23536,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "3f4a57bd3a5b583b362dd1998da3972d3105889757dbfdc812f1a937d096f5d3",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "onDestroy",
+      "traitKind": "method",
+      "methodIndex": 23539,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "2d8ad61049d8223bccbb1d062d81d69efadb2f3d2b9e50e6c2f6577043b30b9d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "onInit",
+      "traitKind": "method",
+      "methodIndex": 23538,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 17,
+      "bytecode": {
+        "codeLength": 17,
+        "codeSha256": "642fb5c1ddce607561fdf2975fe8439b7552cf12759caa0514b23eaf464d830d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LogViewer_Array1_c",
+      "traitKind": "method",
+      "methodIndex": 23541,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "92a955a4961f0904b7ab6efed4aba5f1d8a370f68bbb180ca45fb48af8170688",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._LogViewer_Button1_c",
+      "traitKind": "method",
+      "methodIndex": 23543,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.Button",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "6841f1478cd96f4db22efb14f206cf58cdd89b0e2919558f1daa43a89bccdb2b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._LogViewer_HorizontalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 23540,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.HorizontalLayout",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "d030c817b2515d87f57bab055145f4a1d13930cbea9d8259d9a970919cff8bda",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._LogViewer_TextArea1_i",
+      "traitKind": "method",
+      "methodIndex": 23545,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.TextArea",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "d35d219ca30500dd06d6b10005dfe34356782d1c36c208c4b2981cb0697396c7",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._LogViewer_VGroup1_c",
+      "traitKind": "method",
+      "methodIndex": 23542,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.components.VGroup",
+      "hasBody": true,
+      "codeLength": 37,
+      "bytecode": {
+        "codeLength": 37,
+        "codeSha256": "f1a5c9755257f1b19560151bea6dc5afd0939b10c7b450b13ab2deb5abde66cd",
+        "bytecodeLineCount": 3
+      }
+    }
+  ],
+  "staticMembers": []
+}

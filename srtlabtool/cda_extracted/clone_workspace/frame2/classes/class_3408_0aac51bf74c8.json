@@ -1,0 +1,113 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3408,
+  "className": "wde.common.domain.impl.ClassDefinition",
+  "classNameNormalized": "wde.common.domain.impl.ClassDefinition",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "wde.common.framework.IDisposable"
+  ],
+  "iinitMethod": 52083,
+  "cinitMethod": 52082,
+  "iinitBytecode": {
+    "codeLength": 248,
+    "codeSha256": "cf81ca18c93efab994d1adf165d083e32c4250adc0d411f2fe2cf2228486b9fc",
+    "bytecodeLineCount": 16
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "dispose",
+      "traitKind": "method",
+      "methodIndex": 52088,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "085cbb548657d8fb4de6f04d2f7181fe1ffa63dd0d49e66a81f6d2c43ab4f42a",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.addProperty",
+      "traitKind": "method",
+      "methodIndex": 52086,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "082f361ee212a675fa0368f14f603373f7e1e7b6701f8a51f256ae10a0a9415c",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.buildProperties",
+      "traitKind": "method",
+      "methodIndex": 52085,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 130,
+      "bytecode": {
+        "codeLength": 130,
+        "codeSha256": "9aa5c29ac154686776bb7a11217b457b589b1f7ab8b428160caa8e8288445d18",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.getDescription",
+      "traitKind": "method",
+      "methodIndex": 52084,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "0b2bb66043e3bca58d66ab15062304640c37f468470133b5d82d68562873d93e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.processPropertyXML",
+      "traitKind": "method",
+      "methodIndex": 52087,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "wde.common.domain.impl.PropertyDefinition",
+      "hasBody": true,
+      "codeLength": 684,
+      "bytecode": {
+        "codeLength": 684,
+        "codeSha256": "d6a725f66cbb5cc1940a751347f6199b092b3350ca8f1f3c7d71cc7bc75386e8",
+        "bytecodeLineCount": 43
+      }
+    }
+  ],
+  "staticMembers": []
+}

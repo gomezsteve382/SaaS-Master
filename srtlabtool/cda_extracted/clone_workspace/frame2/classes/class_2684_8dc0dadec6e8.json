@@ -1,0 +1,288 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 2684,
+  "className": "org.spicefactory.parsley.core.view.handler.ViewConfigurationHandler",
+  "classNameNormalized": "org.spicefactory.parsley.core.view.handler.ViewConfigurationHandler",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "org.spicefactory.parsley.core.view.ViewRootHandler"
+  ],
+  "iinitMethod": 45178,
+  "cinitMethod": 45162,
+  "iinitBytecode": {
+    "codeLength": 16,
+    "codeSha256": "f2224317e6bb70a548018f392bbfa224704b328643a9944b97c4f5287849c0ea",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 32,
+    "codeSha256": "41a860d98a01e024e858d161675ab4b067c37149f510ac271a8c9d224eab6857",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addViewRoot",
+      "traitKind": "method",
+      "methodIndex": 45165,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "0d177d08a835e7a81b8cdd2897feec5020a86248fc2d4d0de82e2b120af6680c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "destroy",
+      "traitKind": "method",
+      "methodIndex": 45164,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "e09840cb991475b79b1477e5e75fed970b0d8a512d3d24ecc070f0265dcda1bf",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "init",
+      "traitKind": "method",
+      "methodIndex": 45163,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.context.Context",
+        "org.spicefactory.parsley.core.view.ViewSettings"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "64f1b20cf6ebc7112228b8fca51cbbcbddf5bfd6c21e27a409103385004e189d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.disposeLifecycle",
+      "traitKind": "method",
+      "methodIndex": 45176,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.view.ViewConfiguration"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 62,
+      "bytecode": {
+        "codeLength": 62,
+        "codeSha256": "ad7b1991f01c9521b1493f60411999a30298ade806ac355f0b0291c99a6ed1b7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.getLifecycle",
+      "traitKind": "method",
+      "methodIndex": 45177,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.view.ViewConfiguration"
+      ],
+      "returnType": "org.spicefactory.parsley.core.view.ViewLifecycle",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "83fbd74faf92708fa9cfda53e17373ab35e8934245c4c2e76aa7d28bcaaf1e38",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleAutowireEvent",
+      "traitKind": "method",
+      "methodIndex": 45168,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "66b624b975b09ea29fbb24c4d7028cb9cb95a60f157ba16b5d203da7433dd3d5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleExplicitEvent",
+      "traitKind": "method",
+      "methodIndex": 45169,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 40,
+      "bytecode": {
+        "codeLength": 40,
+        "codeSha256": "1bdfe04d24e134882d64bf4805bacc37b712115171e80aefecb83e6d59392e2b",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.prefilterView",
+      "traitKind": "method",
+      "methodIndex": 45167,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 60,
+      "bytecode": {
+        "codeLength": 60,
+        "codeSha256": "c81dc322f035768d1c7cafdfeda632f47ca505450ad64a3c537a40682071ea17",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.processAutowireEvent",
+      "traitKind": "method",
+      "methodIndex": 45170,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.events.ViewConfigurationEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 159,
+      "bytecode": {
+        "codeLength": 159,
+        "codeSha256": "d47b3dbcd4cf0cb5b4086cf1880d7d06de750dbba0a05f7dbdf623f7ffe2cf6a",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.processConfiguration",
+      "traitKind": "method",
+      "methodIndex": 45173,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.view.ViewConfiguration"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 171,
+      "bytecode": {
+        "codeLength": 171,
+        "codeSha256": "07ab300b93c0b764841e3729884b4776786a96bd5509d8b8c58e9bef6f98d7a9",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.processExplicitEvent",
+      "traitKind": "method",
+      "methodIndex": 45172,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 118,
+      "bytecode": {
+        "codeLength": 118,
+        "codeSha256": "ec2d20b1c119416046eaa15163030235d15227d63b5092b67fc0a95f40483151",
+        "bytecodeLineCount": 8
+      }
+    },
+    {
+      "traitName": "PrivateNs.setAutoremoveFromMetadata",
+      "traitKind": "method",
+      "methodIndex": 45171,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.view.ViewConfiguration"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 76,
+      "bytecode": {
+        "codeLength": 76,
+        "codeSha256": "8a6a1665240a18ad513151442777a2ca086311718fdae5bbe49c607b1f4551af",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.viewDestroyed",
+      "traitKind": "method",
+      "methodIndex": 45174,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.events.ViewLifecycleEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "617f7ff61ccbe4365bc4dbc64ec27dfcde25a881a16376a2446610a734235d3e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.viewInitialized",
+      "traitKind": "method",
+      "methodIndex": 45175,
+      "methodName": "",
+      "paramTypes": [
+        "org.spicefactory.parsley.core.events.ViewLifecycleEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "1ecf4423723e84a14e81711a1b175cb333f57d3c7ae64cbac73e4230f5273cbf",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "removeViewRoot",
+      "traitKind": "method",
+      "methodIndex": 45166,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 108,
+      "bytecode": {
+        "codeLength": 108,
+        "codeSha256": "ba725af24729353155f4f7e8b10e35be914987f1a7533bfc7faf3938a32bc564",
+        "bytecodeLineCount": 7
+      }
+    }
+  ],
+  "staticMembers": []
+}

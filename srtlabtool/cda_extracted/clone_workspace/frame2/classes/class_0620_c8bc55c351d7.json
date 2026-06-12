@@ -1,0 +1,398 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 620,
+  "className": "com.chrysler.cda.presentation.component.Desktop",
+  "classNameNormalized": "com.chrysler.cda.presentation.component.Desktop",
+  "superName": "spark.components.Group",
+  "superNameNormalized": "spark.components.Group",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 11955,
+  "cinitMethod": 11951,
+  "iinitBytecode": {
+    "codeLength": 364,
+    "codeSha256": "45cd850e7703173763b776221772b87c8e6e17991a6ca41b197189dbdb9795d9",
+    "bytecodeLineCount": 23
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "addElement",
+      "traitKind": "method",
+      "methodIndex": 11958,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IVisualElement"
+      ],
+      "returnType": "mx.core.IVisualElement",
+      "hasBody": true,
+      "codeLength": 103,
+      "bytecode": {
+        "codeLength": 103,
+        "codeSha256": "833cd622df2bfcfe1e05094e138c7c137e3b29366a12e5844bfed59fa1865f8c",
+        "bytecodeLineCount": 7
+      }
+    },
+    {
+      "traitName": "desktopPM",
+      "traitKind": "getter",
+      "methodIndex": 11986,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.DesktopPM",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "3f8eb28262c8a5b31b20442da6df719ed1328bdd0452c687b28f7ed2e0cb6216",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "desktopPM",
+      "traitKind": "setter",
+      "methodIndex": 11987,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.DesktopPM"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "a080ab129a3e9982e32d530f512a84dd4f17d8ca4b9e8fbdaa32de2e9ca85057",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "getWindows",
+      "traitKind": "method",
+      "methodIndex": 11959,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "10f9e5abc8537bb02bd4512d13576a62e5901b5a1ab88a5d8f1e282629d50fb1",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "hideSpecialAnimation",
+      "traitKind": "getter",
+      "methodIndex": 11976,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.Fade",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "db51c21cf736bc4651f4a4ae49429df82bc03b1205ebcb34349a008cc4730346",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "hideSpecialAnimation",
+      "traitKind": "setter",
+      "methodIndex": 11977,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.Fade"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "f5e2ef1a5cdf87c21fbab72c1f74d0af2e31e6127d12378e9770bd52156e5dc6",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 11957,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 11956,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 22,
+      "bytecode": {
+        "codeLength": 22,
+        "codeSha256": "9f3d8577f4424821e77a8b1b856a54f4ad895d254f04ab082558f2ee011cfe23",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._Desktop_AuthenticationDialogImplementation1_i",
+      "traitKind": "method",
+      "methodIndex": 11963,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification.AuthenticationDialogImplementation",
+      "hasBody": true,
+      "codeLength": 74,
+      "bytecode": {
+        "codeLength": 74,
+        "codeSha256": "519614ce0258b18e4aeea7b650f90cabdaf8949b85d3d21bc37518b3cbac872f",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._Desktop_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 11975,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 271,
+      "bytecode": {
+        "codeLength": 271,
+        "codeSha256": "c0db5ea6e224e3ea19c8d9e2df1bd735bac6f4bf3dea1bafc844be6655047053",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "PrivateNs._Desktop_ConfigureTag1_i",
+      "traitKind": "method",
+      "methodIndex": 11960,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "org.spicefactory.parsley.flex.tag.view.ConfigureTag",
+      "hasBody": true,
+      "codeLength": 41,
+      "bytecode": {
+        "codeLength": 41,
+        "codeSha256": "c7ea910d1fd1b2d94202c699a768c04f082dc53b664e43831ce78d301f4c98ab",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs._Desktop_Fade1_i",
+      "traitKind": "method",
+      "methodIndex": 11962,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.Fade",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "ed2420346f005954a2bbca7df55601c3dbc9b476cac84a4f4ff63aeb9ea96737",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._Desktop_Fade2_i",
+      "traitKind": "method",
+      "methodIndex": 11961,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.Fade",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "6d9c63f3701bb3820ec2be5a2acf33afb66d9be6e4b7b75fe7ebf7d902061cc0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs._Desktop_UpliftLoginImplementation1_i",
+      "traitKind": "method",
+      "methodIndex": 11964,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.uplift.UpliftLoginImplementation",
+      "hasBody": true,
+      "codeLength": 75,
+      "bytecode": {
+        "codeLength": 75,
+        "codeSha256": "3c2eeb39659180a0031ea65dab1b6ffc14fe5a2f9874f84451d9925e0efae676",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "showSpecialAnimation",
+      "traitKind": "getter",
+      "methodIndex": 11978,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.effects.Fade",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "c37ef37955708cd1238de3d01e381245df5bc620f80e9f8b6c154d7a91c0b2e5",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "showSpecialAnimation",
+      "traitKind": "setter",
+      "methodIndex": 11979,
+      "methodName": "",
+      "paramTypes": [
+        "spark.effects.Fade"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "09b9148d83423976286478b6e1f29ff4e431eea245f05b1d693432fc9e5f1c88",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "topLevelNotice",
+      "traitKind": "getter",
+      "methodIndex": 11980,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification.AuthenticationDialogImplementation",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "b9e42d6040e6f75cfe774ac588a987b3b2f92597ff4dc33a514d424ebbc4c3fb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "topLevelNotice",
+      "traitKind": "setter",
+      "methodIndex": 11981,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.notification.AuthenticationDialogImplementation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "3e6e6936dc10c60e3fed49ff9b71b76bfdb7447bc826afe358d28ea62be508dc",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "topLevelUpliftLogin",
+      "traitKind": "getter",
+      "methodIndex": 11982,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.uplift.UpliftLoginImplementation",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "fe0f997d88c4cd0ab1152cadc15f772197137b77d0cc038a4e895256e47abe37",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "topLevelUpliftLogin",
+      "traitKind": "setter",
+      "methodIndex": 11983,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.uplift.UpliftLoginImplementation"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "fd17cbd583b1e6b926c7de3a368cdba2ede8e900a3ddf511367624225d46e508",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "upliftModel",
+      "traitKind": "getter",
+      "methodIndex": 11984,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.UpliftModel",
+      "hasBody": true,
+      "codeLength": 7,
+      "bytecode": {
+        "codeLength": 7,
+        "codeSha256": "06b1caadae23530f7672ea51daca553e46c2fe5fb4b60894eb359eb330d02b72",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "upliftModel",
+      "traitKind": "setter",
+      "methodIndex": 11985,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.presentation.component.authenticatedDiagnostics.authentication.model.UpliftModel"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 51,
+      "bytecode": {
+        "codeLength": 51,
+        "codeSha256": "2c2900904c3c48230b6c383aab936e6fb6f0097f3f80e8e6a28e493afd9fba1b",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 11952,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "3b845ff7f64e1522b7fe8c19f10135d7f5a6285f8ecf2b182aa603b957cf3e6a",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

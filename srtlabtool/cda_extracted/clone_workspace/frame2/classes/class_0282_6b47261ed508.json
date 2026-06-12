@@ -1,0 +1,83 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 282,
+  "className": "mx.messaging.messages.AcknowledgeMessage",
+  "classNameNormalized": "mx.messaging.messages.AcknowledgeMessage",
+  "superName": "mx.messaging.messages.AsyncMessage",
+  "superNameNormalized": "mx.messaging.messages.AsyncMessage",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.messaging.messages.ISmallMessage"
+  ],
+  "iinitMethod": 6490,
+  "cinitMethod": 6489,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "c0f9be0e71b5dab9b64b80f5863dd34fbf62176501aaed4307f2628007065b12",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "getSmallMessage",
+      "traitKind": "method",
+      "methodIndex": 6491,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.messaging.messages.IMessage",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "73280326a56239f29a8326e4f3ee7225529759f579e0b19c2f616156e10fb1ba",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "readExternal",
+      "traitKind": "method",
+      "methodIndex": 6492,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 129,
+      "bytecode": {
+        "codeLength": 129,
+        "codeSha256": "ca828a4aea5335d594a96414fb48b808a9911044a4ee52555d1a6d5159a112d6",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "writeExternal",
+      "traitKind": "method",
+      "methodIndex": 6493,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataOutput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 20,
+      "bytecode": {
+        "codeLength": 20,
+        "codeSha256": "7872cef6296a67534377b34535a9d2fe27262709d63be1b12548112eb1951bc1",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

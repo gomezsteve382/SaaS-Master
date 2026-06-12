@@ -1,0 +1,424 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 62,
+  "className": "mx.effects.EffectManager",
+  "classNameNormalized": "mx.effects.EffectManager",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 1631,
+  "cinitMethod": 1607,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 81,
+    "codeSha256": "4a3d563dca6756ef521df58c3654886fb8dff1601a06780513a91ba8e22f9730",
+    "bytecodeLineCount": 6
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "endEffectsForTarget",
+      "traitKind": "method",
+      "methodIndex": 1613,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "179c890d54ccaa677dd1dc2f036fccee255c1a956ccf7672091cef41088f3d3b",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.createEffectForType",
+      "traitKind": "method",
+      "methodIndex": 1615,
+      "methodName": "",
+      "paramTypes": [
+        "Object",
+        "String"
+      ],
+      "returnType": "mx.effects.Effect",
+      "hasBody": true,
+      "codeLength": 326,
+      "bytecode": {
+        "codeLength": 326,
+        "codeSha256": "b8a4bc4e45b2b545515e0bf3ec84411dcbf522a4c13a32152ccf7ab0319e36f8",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.effectEndHandler",
+      "traitKind": "method",
+      "methodIndex": 1627,
+      "methodName": "",
+      "paramTypes": [
+        "mx.events.EffectEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 287,
+      "bytecode": {
+        "codeLength": 287,
+        "codeSha256": "5fc723c93cc0b1fb9587b8fdc2f96ce6cb7367e18879848aa0cd6ad17e231594",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.effectFinished",
+      "traitKind": "method",
+      "methodIndex": 1629,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.EffectInstance"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 13,
+      "bytecode": {
+        "codeLength": 13,
+        "codeSha256": "ba12703f479af4c00cd3e523f623deebed063042784822a4fda713916f1db2c4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.effectsInEffect",
+      "traitKind": "method",
+      "methodIndex": 1630,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "f30dbc2d934ad2612d3e71161931d1095734aa2ffb5efa63784666ea25dd9f05",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.effectStarted",
+      "traitKind": "method",
+      "methodIndex": 1628,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.EffectInstance"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 14,
+      "bytecode": {
+        "codeLength": 14,
+        "codeSha256": "64e3dc135bebac5a023781f3cd08f856fc464551e6d3e0395e3bf524c5cb61ee",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.endBitmapEffect",
+      "traitKind": "method",
+      "methodIndex": 1618,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "54d9f56519c6799f8cb77c641234308b7d9755c4f6d38f887207455727156e93",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.endVectorEffect",
+      "traitKind": "method",
+      "methodIndex": 1620,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "b19d2d8764e1396ded7f86bb12cff78609e81783b3ac2aaa44b04213ad9717f3",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.eventHandler",
+      "traitKind": "method",
+      "methodIndex": 1624,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 421,
+      "bytecode": {
+        "codeLength": 421,
+        "codeSha256": "502f8ed4c43f869fe0252ccf608879a3e47332c193b699443cc0a4a11eb7ebd9",
+        "bytecodeLineCount": 27
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.getEventForEffectTrigger",
+      "traitKind": "method",
+      "methodIndex": 1623,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "731d1f55dfddedde1bb5083e35bcae70fab3bcbff915c9459fa09cd1c9908b52",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.lastEffectCreated",
+      "traitKind": "getter",
+      "methodIndex": 1609,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.effects.Effect",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "307d41ac2e431517fe442de3c2365e69be68f4f093f1e024a41e31a955a1cd43",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.lastEffectCreated",
+      "traitKind": "setter",
+      "methodIndex": 1608,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.Effect"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "88cc90e30286e766a7d1bb7757933443dc303bd62aa6ba9a4a6446fa8a665d93",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.registerEffectTrigger",
+      "traitKind": "method",
+      "methodIndex": 1622,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 94,
+      "bytecode": {
+        "codeLength": 94,
+        "codeSha256": "257a748e70b69e8684790e9130baf2e20071eddef5dbc479b35a48e568a504bf",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.setStyle",
+      "traitKind": "method",
+      "methodIndex": 1614,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "48ec244db9b56b162cec92d4c794b9848021873e2741191a8c07af6ea3c7fc96",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.startBitmapEffect",
+      "traitKind": "method",
+      "methodIndex": 1617,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "2bbf6880c404bd0a901dfdfd33e763ec852006a6d70260484950176a99f4b606",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "http://www.adobe.com/2006/flex/mx/internal.startVectorEffect",
+      "traitKind": "method",
+      "methodIndex": 1619,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 15,
+      "bytecode": {
+        "codeLength": 15,
+        "codeSha256": "06be9aa8cda72fbaf726242d4004877fec2f6abbbcd2989b116551bf3a911dcc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.animateSameProperty",
+      "traitKind": "method",
+      "methodIndex": 1616,
+      "methodName": "",
+      "paramTypes": [
+        "mx.effects.Effect",
+        "mx.effects.Effect",
+        "mx.effects.EffectInstance"
+      ],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 136,
+      "bytecode": {
+        "codeLength": 136,
+        "codeSha256": "84dccf1851f220c1f48bd63fa6fbf567779b0426b0a4caec55f6d828d93508f7",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.cacheOrUncacheTargetAsBitmap",
+      "traitKind": "method",
+      "methodIndex": 1621,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IUIComponent",
+        "Boolean",
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 542,
+      "bytecode": {
+        "codeLength": 542,
+        "codeSha256": "271bcbc353e493850981f2ebb005ac2baa47afc90cd846ba9ee8ad44bee42ec8",
+        "bytecodeLineCount": 34
+      }
+    },
+    {
+      "traitName": "PrivateNs.createAndPlayEffect",
+      "traitKind": "method",
+      "methodIndex": 1625,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.Event",
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 668,
+      "bytecode": {
+        "codeLength": 668,
+        "codeSha256": "a31532cc546fce83f344aa03c38834fe695bdcec3b731d0bcaa6002f4d8a428a",
+        "bytecodeLineCount": 42
+      }
+    },
+    {
+      "traitName": "PrivateNs.removedEffectHandler",
+      "traitKind": "method",
+      "methodIndex": 1626,
+      "methodName": "",
+      "paramTypes": [
+        "flash.display.DisplayObject",
+        "flash.display.DisplayObjectContainer",
+        "int",
+        "flash.events.Event"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 80,
+      "bytecode": {
+        "codeLength": 80,
+        "codeSha256": "e72fe770a33528cc6d177ea16e5e4cf6bbe1da2664aad9351bc25d629ad0a577",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.resourceManager",
+      "traitKind": "getter",
+      "methodIndex": 1610,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.resources.IResourceManager",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "2d719eda678e3fa9902209e4ad5dec71ac54b8c06f3fe6bc500ec95d585294cc",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "resumeEventHandling",
+      "traitKind": "method",
+      "methodIndex": 1612,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "d328220a23bb90363135941f7c809088729f2d7cdbad3bdee2aa4a22e8a365ca",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "suspendEventHandling",
+      "traitKind": "method",
+      "methodIndex": 1611,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 25,
+      "bytecode": {
+        "codeLength": 25,
+        "codeSha256": "2c3b57ec1b893a8d69ba2013c228baa029c09e196ed3f20f0d1b8e4e3064cae9",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

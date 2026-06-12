@@ -1,0 +1,677 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3812,
+  "className": "com.hurlant.crypto.tls.TLSEngine",
+  "classNameNormalized": "com.hurlant.crypto.tls.TLSEngine",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 56323,
+  "cinitMethod": 56321,
+  "iinitBytecode": {
+    "codeLength": 469,
+    "codeSha256": "5acdbf832a8004f9d7f8f9a4729d785924dc9b22dfb0e3ef7e974600deb97c88",
+    "bytecodeLineCount": 30
+  },
+  "cinitBytecode": {
+    "codeLength": 203,
+    "codeSha256": "5d46baac7bad85a9a7597a5ebc193c1804cff69dc99df0721321aeeebe119e4c",
+    "bytecodeLineCount": 13
+  },
+  "instanceMembers": [
+    {
+      "traitName": "acceptPeerCertificate",
+      "traitKind": "method",
+      "methodIndex": 56356,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 16,
+      "bytecode": {
+        "codeLength": 16,
+        "codeSha256": "4fb7d99405930d8bbe432e9a09ed25b4d81cb3e524dd77eaf825587040cb4119",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "close",
+      "traitKind": "method",
+      "methodIndex": 56326,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.tls.TLSError"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 182,
+      "bytecode": {
+        "codeLength": 182,
+        "codeSha256": "388de770333074d7cf4c19de73806e1fbc3b54e8cdd8fd7a5a738b044b684d5b",
+        "bytecodeLineCount": 12
+      }
+    },
+    {
+      "traitName": "dataAvailable",
+      "traitKind": "method",
+      "methodIndex": 56325,
+      "methodName": "",
+      "paramTypes": [
+        "*"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 70,
+      "bytecode": {
+        "codeLength": 70,
+        "codeSha256": "64855f85d23adee8036c98fde28d7bbb23e7e20bfe9cf1b6f696f29ec21fe44e",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "peerCertificate",
+      "traitKind": "getter",
+      "methodIndex": 56322,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.hurlant.crypto.cert.X509Certificate",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "c6fd537ece94a2dcf96b6540091070ad0206a3cff2efd7118ea5ebd517ea88e9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.commitWrite",
+      "traitKind": "method",
+      "methodIndex": 56353,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 58,
+      "bytecode": {
+        "codeLength": 58,
+        "codeSha256": "fe3f70f0b5c7b4a864fdac606b42637652042f2eefcd5e9f396052f49bafb107",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.findMatch",
+      "traitKind": "method",
+      "methodIndex": 56340,
+      "methodName": "",
+      "paramTypes": [
+        "Array",
+        "Array"
+      ],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "ff230c9b0b03df20148da47fec55eccff410e79de21f773dcf8b26cce54816e7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.handleTLSError",
+      "traitKind": "method",
+      "methodIndex": 56361,
+      "methodName": "",
+      "paramTypes": [
+        "com.hurlant.crypto.tls.TLSError"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "fa36edb6bfe6c61c05418bb5c352b00bfb020f7aba2efe19ee211118a5c5d40e",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.loadCertificates",
+      "traitKind": "method",
+      "methodIndex": 56355,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 579,
+      "bytecode": {
+        "codeLength": 579,
+        "codeSha256": "0b7786e220a9af7f21f892cb65b5b1a607f86f2ad67d0bca076665083eb6fa4e",
+        "bytecodeLineCount": 37
+      }
+    },
+    {
+      "traitName": "PrivateNs.notifyStateError",
+      "traitKind": "method",
+      "methodIndex": 56331,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "588ff1653204f9c2cbbe692b2d21b337ebc50e4155abbcf9298cc21df92427c5",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseAlert",
+      "traitKind": "method",
+      "methodIndex": 56358,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 27,
+      "bytecode": {
+        "codeLength": 27,
+        "codeSha256": "4507a1525574f5b8817d1b77ecf79e9ea1ffa130df1057749b3c0aea8c715c7d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseApplicationData",
+      "traitKind": "method",
+      "methodIndex": 56360,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 57,
+      "bytecode": {
+        "codeLength": 57,
+        "codeSha256": "bbffa9492d4354d83406b579d5f56352a1782362358b9761d263312aa1371567",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseChangeCipherSpec",
+      "traitKind": "method",
+      "methodIndex": 56359,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "4f80529dc903136e511a4b8da8d0e26cec3710fedb8a4db64cf558e83ae1b412",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseClientKeyExchange",
+      "traitKind": "method",
+      "methodIndex": 56332,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "2520f0ee7e9d7acc0fd7bcf8239abbb040e5e2864390fc4f5494b4d93ec6b061",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseHandshake",
+      "traitKind": "method",
+      "methodIndex": 56330,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "flash.utils.ByteArray",
+      "hasBody": true,
+      "codeLength": 253,
+      "bytecode": {
+        "codeLength": 253,
+        "codeSha256": "d85fdbdbbec2ae051ca67c71128367823000bafb4c01d58c1d19d6fe6f32b581",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseHandshakeClientHello",
+      "traitKind": "method",
+      "methodIndex": 56338,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 445,
+      "bytecode": {
+        "codeLength": 445,
+        "codeSha256": "80e79590c4b0dc7e3c029ebbbac1343cc894bf2630e90230485953d90813ee9b",
+        "bytecodeLineCount": 28
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseHandshakeClientKeyExchange",
+      "traitKind": "method",
+      "methodIndex": 56336,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 166,
+      "bytecode": {
+        "codeLength": 166,
+        "codeSha256": "5caa47fd442a4d2727d93040bf722afd36182d5381d4820304d22f644ff83bf9",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseHandshakeHello",
+      "traitKind": "method",
+      "methodIndex": 56335,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 46,
+      "bytecode": {
+        "codeLength": 46,
+        "codeSha256": "1ed666d8b919abfbb39d04fff69994136c4f74d36edbc4a07b3f59aede5135ec",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseHandshakeServerHello",
+      "traitKind": "method",
+      "methodIndex": 56337,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 159,
+      "bytecode": {
+        "codeLength": 159,
+        "codeSha256": "e5d3feb1fcc99ca1da2913d473d21be76a6082b069163ed4d5201b618d88a152",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseOneRecord",
+      "traitKind": "method",
+      "methodIndex": 56328,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 138,
+      "bytecode": {
+        "codeLength": 138,
+        "codeSha256": "808f9b17b7040512a29cb5468386453c4502d0f16a000019a5c06948fe0c42cf",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseRecord",
+      "traitKind": "method",
+      "methodIndex": 56327,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 396,
+      "bytecode": {
+        "codeLength": 396,
+        "codeSha256": "7f3401178fccbb08b129dc79b28f0916dce72be6c12ab1493d83b98576e10d46",
+        "bytecodeLineCount": 25
+      }
+    },
+    {
+      "traitName": "PrivateNs.parseServerKeyExchange",
+      "traitKind": "method",
+      "methodIndex": 56333,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "9f96f6ab8b9d1b0a9241521d68f05ba3eb6a524881b3b064f246e05fa78a6900",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.scheduleWrite",
+      "traitKind": "method",
+      "methodIndex": 56352,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 36,
+      "bytecode": {
+        "codeLength": 36,
+        "codeSha256": "0578f947c003008c2267a8ce9ba2da66af4ac2e308ec68cbbc18c23473a2fbd9",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendCertificate",
+      "traitKind": "method",
+      "methodIndex": 56343,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 161,
+      "bytecode": {
+        "codeLength": 161,
+        "codeSha256": "ecd08bf94c2f0973b1db1be3b91fbe0520ffad7e74a9c2dd814ca0a2b5f354d8",
+        "bytecodeLineCount": 11
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendCertificateVerify",
+      "traitKind": "method",
+      "methodIndex": 56344,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "9fac90e63fc4c4b13047cf202539f58ee064a2db636a3083fc793d58c9dcfc1f",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendChangeCipherSpec",
+      "traitKind": "method",
+      "methodIndex": 56349,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 50,
+      "bytecode": {
+        "codeLength": 50,
+        "codeSha256": "ab8d7929350bee0b124710e7dda85fd7afccfcf46e3cf704154364c6ed172550",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendClientAck",
+      "traitKind": "method",
+      "methodIndex": 56354,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 65,
+      "bytecode": {
+        "codeLength": 65,
+        "codeSha256": "6a99c68446753d7529435736e2bf5c57541eb2b5ed2a714090f6d6c553754ec8",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendClientHello",
+      "traitKind": "method",
+      "methodIndex": 56339,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 243,
+      "bytecode": {
+        "codeLength": 243,
+        "codeSha256": "a5736214dda128d3168de38149a59267f5de2486dba969bc984f68e9ec6f4279",
+        "bytecodeLineCount": 16
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendClientKeyExchange",
+      "traitKind": "method",
+      "methodIndex": 56346,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 321,
+      "bytecode": {
+        "codeLength": 321,
+        "codeSha256": "dca6daaf73ef36bd3e9541d2e05ca0298919c1e5d648ef464970093a4349ed64",
+        "bytecodeLineCount": 21
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendFinished",
+      "traitKind": "method",
+      "methodIndex": 56347,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 48,
+      "bytecode": {
+        "codeLength": 48,
+        "codeSha256": "77b4526026d1e74c4dd0bae8e05cfc62577c96c18a9e1a536e243b7afb221803",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendHandshake",
+      "traitKind": "method",
+      "methodIndex": 56348,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "uint",
+        "flash.utils.IDataInput"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 84,
+      "bytecode": {
+        "codeLength": 84,
+        "codeSha256": "d70e1d3cab92725032a14b6792a6083118977272bda31b3415146c09d1d1b8e0",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendRecord",
+      "traitKind": "method",
+      "methodIndex": 56351,
+      "methodName": "",
+      "paramTypes": [
+        "uint",
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 86,
+      "bytecode": {
+        "codeLength": 86,
+        "codeSha256": "d43d3da4402a0b2f597a2945cbdba18acb6252250b9225dc197fbf5649b2121d",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendServerHello",
+      "traitKind": "method",
+      "methodIndex": 56341,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 303,
+      "bytecode": {
+        "codeLength": 303,
+        "codeSha256": "1ce6ad60ec3ced1be83b9066f585ada252136cae900551ada27cd81d21603e74",
+        "bytecodeLineCount": 19
+      }
+    },
+    {
+      "traitName": "PrivateNs.sendServerHelloDone",
+      "traitKind": "method",
+      "methodIndex": 56345,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 29,
+      "bytecode": {
+        "codeLength": 29,
+        "codeSha256": "d95f4db2daf6b4b3fa8e6e731eb969b007ab5ad02c23c3c80300faaa07c8450d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.setStateRespondWithCertificate",
+      "traitKind": "method",
+      "methodIndex": 56342,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "c5173ac5a945516792d821dd6a89250a66340ca0d7c415f2836d3500d45d4efc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "PrivateNs.startHandshake",
+      "traitKind": "method",
+      "methodIndex": 56329,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "bf950b1fe922137da24bf03af372ff4853d28e6ef61fcd7b10ab461a043ae0e0",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs.verifyHandshake",
+      "traitKind": "method",
+      "methodIndex": 56334,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 156,
+      "bytecode": {
+        "codeLength": 156,
+        "codeSha256": "72a58da97e82be9ba32daa95869a68bdafff4c1c6e133c54af489269fe4bfa33",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "rejectPeerCertificate",
+      "traitKind": "method",
+      "methodIndex": 56357,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "33144ede012fad37c1955bd4095035ada049092a730439e3431d013be1f7f62d",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "sendApplicationData",
+      "traitKind": "method",
+      "methodIndex": 56350,
+      "methodName": "",
+      "paramTypes": [
+        "flash.utils.ByteArray",
+        "uint",
+        "uint"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 142,
+      "bytecode": {
+        "codeLength": 142,
+        "codeSha256": "7ad9ed4dc02288b2ec29b0abb3b13bfdf8de3cfc919ad1d6b2e93302a101e248",
+        "bytecodeLineCount": 9
+      }
+    },
+    {
+      "traitName": "start",
+      "traitKind": "method",
+      "methodIndex": 56324,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 59,
+      "bytecode": {
+        "codeLength": 59,
+        "codeSha256": "7c34f37bcabca4e15a61a02968331320a4c05ba4bcecf705a4f286e5e5a18bf3",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": []
+}

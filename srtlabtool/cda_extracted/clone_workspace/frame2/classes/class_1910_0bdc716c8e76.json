@@ -1,0 +1,96 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1910,
+  "className": "com.chrysler.cda.event.message.diagnostic.ecu.FindConversionDataForReadWriteMessage",
+  "classNameNormalized": "com.chrysler.cda.event.message.diagnostic.ecu.FindConversionDataForReadWriteMessage",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 35876,
+  "cinitMethod": 35875,
+  "iinitBytecode": {
+    "codeLength": 29,
+    "codeSha256": "d7e52a315e66bff3801f76d554c2402c7c36deaa0558cfcad0f9e638705e1ed4",
+    "bytecodeLineCount": 2
+  },
+  "cinitBytecode": {
+    "codeLength": 25,
+    "codeSha256": "29154f2ac3fa905db0c3fbaab2765c7c1db0cff3f5d576d09ef5bbf60e25283a",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "comServiceValueVO",
+      "traitKind": "getter",
+      "methodIndex": 35877,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a00aa984c3beb3e9cda1536c27994bb6844bb33d6779dbce19de96a5d8339b83",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "comServiceValueVO",
+      "traitKind": "setter",
+      "methodIndex": 35878,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.domain.diagnostics.ecu.DataDisplayDDEVO"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "1f7c1f73b7d2146d7a91b19d89d09818f2ef6af42397cdc93c49e14ba9ff78c7",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 35879,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "15b4fb838396319270b8783135020ec8ae3dd8c0d504a8756c79676d93344bd4",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 35880,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 9,
+      "bytecode": {
+        "codeLength": 9,
+        "codeSha256": "c503e3efe345b51a116e319eba7562c2dc2babe7848801908f90877ae4b6f624",
+        "bytecodeLineCount": 1
+      }
+    }
+  ],
+  "staticMembers": []
+}

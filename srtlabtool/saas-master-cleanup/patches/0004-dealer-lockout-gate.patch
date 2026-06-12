@@ -1,0 +1,160 @@
+From 8014cdb1df71c78c300a5a8b55bd368b3677e0cd Mon Sep 17 00:00:00 2001
+From: srtlab <gomezsteve1379@gmail.com>
+Date: Thu, 11 Jun 2026 04:34:02 +0000
+Subject: [PATCH] Safety gate: dealer-lockout 0xFF00 erase RID can't fire by
+ accident
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+0xFF00 is the generic ISO-14229 firmware-erase RoutineIdentifier relabeled
+'clear lockout counter', with an invented A5 5A C3 3C payload — neither
+grounded in any extraction or bench capture. On a module where 0xFF00 means
+erase, running it can brick the RFHUB.
+
+The clear-lockout step now refuses to transmit unless the caller passes
+acknowledgeEraseRisk:true; the harmless session/SA probe steps still run so
+the operator still gets a diagnosis. RfhubTab gates the flag behind an explicit
+window.confirm. Runtime-verified: without ack the 0x31/0xFF00 routine is never
+sent; with ack it runs. Test updated to encode the contract + a refusal test.
+---
+ .../lib/__tests__/dealerLockoutBypass.test.js | 21 +++++++++++++
+ .../srt-lab/src/lib/dealerLockoutBypass.js    | 30 +++++++++++++++++--
+ artifacts/srt-lab/src/tabs/RfhubTab.jsx       | 12 ++++++++
+ 3 files changed, 60 insertions(+), 3 deletions(-)
+
+diff --git a/artifacts/srt-lab/src/lib/__tests__/dealerLockoutBypass.test.js b/artifacts/srt-lab/src/lib/__tests__/dealerLockoutBypass.test.js
+index 150ea9f..459cd14 100644
+--- a/artifacts/srt-lab/src/lib/__tests__/dealerLockoutBypass.test.js
++++ b/artifacts/srt-lab/src/lib/__tests__/dealerLockoutBypass.test.js
+@@ -48,6 +48,7 @@ describe('dealerLockoutBypass — happy path', () => {
+     });
+     const r = await runDealerLockoutBypass({
+       tx: 0x6FF, rx: 0x707, uds, securityAccess: sa, delay: async () => {},
++      acknowledgeEraseRisk: true,
+     });
+     expect(r.ok).toBe(true);
+     expect(r.cleared).toBe(true);
+@@ -66,6 +67,7 @@ describe('dealerLockoutBypass — happy path', () => {
+     const sa = FakeSecurityAccessSource({ default: { ok: true } });
+     await runDealerLockoutBypass({
+       tx: 0x6FF, rx: 0x707, uds, securityAccess: sa, delay: async () => {},
++      acknowledgeEraseRisk: true,
+     });
+     // 0x10 0x03 — extended session
+     expect(uds.calls[0].bytes).toEqual([0x10, 0x03]);
+@@ -110,6 +112,7 @@ describe('dealerLockoutBypass — failure paths', () => {
+     const sa = FakeSecurityAccessSource({ default: { ok: true } });
+     const r = await runDealerLockoutBypass({
+       tx: 0x6FF, rx: 0x707, uds, securityAccess: sa, delay: async () => {},
++      acknowledgeEraseRisk: true,
+     });
+     expect(r.cleared).toBe(false);
+     const reprobe = r.steps.find((s) => s.id === 're-probe');
+@@ -117,6 +120,24 @@ describe('dealerLockoutBypass — failure paths', () => {
+     expect(reprobe.reason).toMatch(/Still locked/i);
+   });
+ 
++  it('REFUSES the destructive 0xFF00 step unless acknowledgeEraseRisk is set', async () => {
++    const uds = makeStubUds({
++      0x10: posResp(0x10, 0x03),
++      0x31: posResp(0x31, 0x01, 0xFF, 0x00, 0x00), // would succeed IF it were sent
++      0x11: posResp(0x11, 0x01),
++      0x27: posResp(0x27, 0x01, 0x11, 0x22, 0x33, 0x44),
++    });
++    const sa = FakeSecurityAccessSource({ default: { ok: true } });
++    const r = await runDealerLockoutBypass({ tx: 0x6FF, rx: 0x707, uds, securityAccess: sa });
++    expect(r.refused).toBe(true);
++    expect(r.cleared).toBe(false);
++    const clear = r.steps.find((s) => s.id === 'clear');
++    expect(clear.refused).toBe(true);
++    expect(clear.reason).toMatch(/erase|UNVERIFIED/i);
++    // the destructive 0x31 0xFF00 routine must NOT have been transmitted
++    expect(uds.calls.some((c) => c.bytes[0] === 0x31)).toBe(false);
++  });
++
+   it('rejects missing callbacks / ids', async () => {
+     expect((await runDealerLockoutBypass({})).reason).toMatch(/uds/);
+     expect((await runDealerLockoutBypass({ uds: () => {} })).reason).toMatch(/securityAccess/);
+diff --git a/artifacts/srt-lab/src/lib/dealerLockoutBypass.js b/artifacts/srt-lab/src/lib/dealerLockoutBypass.js
+index 5cf5a2c..418e086 100644
+--- a/artifacts/srt-lab/src/lib/dealerLockoutBypass.js
++++ b/artifacts/srt-lab/src/lib/dealerLockoutBypass.js
+@@ -30,9 +30,16 @@
+ import { build } from '@workspace/uds';
+ 
+ export const BYPASS_LEVEL = 0x0B;          // alternate SA sub-function level
+-export const BYPASS_ROUTINE_ID = 0xFF00;   // clear-lockout routine identifier
++/* ⚠ UNVERIFIED + DANGEROUS: 0xFF00 is the GENERIC ISO-14229 firmware-erase
++ * RoutineIdentifier (the same eraseRid the flasher uses), here relabeled
++ * "clear lockout counter", and the A5 5A C3 3C payload is invented — neither
++ * is grounded in any extraction or bench capture (see algoProvenance.js
++ * WRITER_GROUNDING.dealerLockoutBypass). On a module where 0xFF00 means
++ * "erase", running this can brick the RFHUB. The clear-lockout step will not
++ * transmit unless the caller passes acknowledgeEraseRisk:true. */
++export const BYPASS_ROUTINE_ID = 0xFF00;   // clear-lockout routine identifier (GENERIC ERASE RID)
+ export const BYPASS_RESET_TYPE = 0x01;     // hard reset after clearing
+-export const BYPASS_PAYLOAD = new Uint8Array([0xA5, 0x5A, 0xC3, 0x3C]);
++export const BYPASS_PAYLOAD = new Uint8Array([0xA5, 0x5A, 0xC3, 0x3C]); // UNVERIFIED payload
+ 
+ function hex(arr) {
+   return Array.from(arr || []).map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
+@@ -124,7 +131,24 @@ export async function runDealerLockoutBypass(cfg) {
+     if (!ok) return finish(false);
+   }
+ 
+-  /* 3. Clear-lockout routine ───────────────────────────────────────────── */
++  /* 3. Clear-lockout routine — DESTRUCTIVE-CAPABLE, gated ──────────────────
++   * 0xFF00 is the generic firmware-erase RID and the payload is UNVERIFIED.
++   * Refuse to transmit it unless the caller explicitly acknowledged the risk
++   * (the UI must gate this behind a confirmation). The harmless session + SA
++   * probe steps above already ran, so the operator still gets a diagnosis. */
++  if (cfg.acknowledgeEraseRisk !== true) {
++    steps.push({
++      id: 'clear',
++      title: 'RoutineControl 0xFF00 — clear lockout counter',
++      ok: false,
++      refused: true,
++      reason: 'REFUSED: 0xFF00 is the generic ISO-14229 firmware-erase routine and the A5 5A C3 3C '
++        + 'payload is UNVERIFIED. Set acknowledgeEraseRisk:true only after confirming on THIS module '
++        + 'that 0xFF00 clears the lockout counter rather than erasing flash — otherwise it can brick the RFHUB.',
++    });
++    log('✋ clear-lockout REFUSED — 0xFF00 is the generic erase RID; acknowledgeEraseRisk not set', 'warn');
++    return { ...finish(false), refused: true };
++  }
+   {
+     const req = build.routineControl({
+       type: 0x01,                          // startRoutine
+diff --git a/artifacts/srt-lab/src/tabs/RfhubTab.jsx b/artifacts/srt-lab/src/tabs/RfhubTab.jsx
+index 9095477..e25ae1f 100644
+--- a/artifacts/srt-lab/src/tabs/RfhubTab.jsx
++++ b/artifacts/srt-lab/src/tabs/RfhubTab.jsx
+@@ -899,6 +899,17 @@ function DealerLockoutBypassCard({ conn, addr, eng, addLog, busy, setBusy, locko
+ 
+   const onRun = useCallback(async () => {
+     if (!eng.current) { addLog('Connect first', 'error'); return; }
++    // 0xFF00 is the generic ISO-14229 firmware-ERASE RID with an UNVERIFIED
++    // payload — require an explicit, informed acknowledgement before the
++    // destructive clear-lockout step can transmit. Declining still runs the
++    // harmless session/SA probe steps (the engine refuses only step 3).
++    const acknowledgeEraseRisk = window.confirm(
++      'DEALER LOCKOUT BYPASS uses RoutineControl 0xFF00 — the GENERIC ISO-14229 firmware-ERASE '
++      + 'routine — with an UNVERIFIED payload. On a module where 0xFF00 means "erase", this can '
++      + 'BRICK the RFHUB.\n\nOnly proceed if you have confirmed on THIS module that 0xFF00 clears the '
++      + 'lockout counter rather than erasing flash.\n\nTransmit the clear-lockout routine?'
++    );
++    if (!acknowledgeEraseRisk) addLog('Erase-risk not acknowledged — clear-lockout step will be skipped (probe only)', 'warn');
+     setBusy('Running dealer lockout bypass…');
+     setReport(null);
+     try {
+@@ -908,6 +919,7 @@ function DealerLockoutBypassCard({ conn, addr, eng, addLog, busy, setBusy, locko
+         tx: addr.tx, rx: addr.rx, uds, securityAccess: sa,
+         delay: (ms) => new Promise((res) => setTimeout(res, ms)),
+         addLog,
++        acknowledgeEraseRisk,
+       });
+       setReport(r);
+       if (r.cleared && typeof onCleared === 'function') onCleared();
+-- 
+2.43.0
+

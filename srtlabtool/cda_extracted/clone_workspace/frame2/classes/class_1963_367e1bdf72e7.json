@@ -1,0 +1,622 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1963,
+  "className": "com.chrysler.cda.domain.diagnostics.ecu.DtcObject",
+  "classNameNormalized": "com.chrysler.cda.domain.diagnostics.ecu.DtcObject",
+  "superName": "flash.events.EventDispatcher",
+  "superNameNormalized": "flash.events.EventDispatcher",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 36624,
+  "cinitMethod": 36617,
+  "iinitBytecode": {
+    "codeLength": 116,
+    "codeSha256": "b6dfab349f5e78e7a69868e74fcf22fc13254b7fe6527cceeac2d5a368dd6b21",
+    "bytecodeLineCount": 8
+  },
+  "cinitBytecode": {
+    "codeLength": 14,
+    "codeSha256": "df202becb14b7daf1b6bfa6547d83ce232a9035ca3a4d495db8c851e793800d7",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "code",
+      "traitKind": "getter",
+      "methodIndex": 36635,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fb2037bfea96ccf52d31ad9157b2c6f7782c3dfe893be95e8cef2cc25278aac9",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "code",
+      "traitKind": "setter",
+      "methodIndex": 36636,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "5f6ac9337a2e8ebc5b877d61275963e497518e1643d5674905f718cee60c0f00",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "description",
+      "traitKind": "getter",
+      "methodIndex": 36637,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d7030bbe217182f3e715f3645d43fb17529f34bcce81d3142c67bfdeecbed555",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "description",
+      "traitKind": "setter",
+      "methodIndex": 36638,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "358e7f13d430c8d5ac399958d723e2de920fdcfadd67c166de50a56b5e64152d",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ecuAcronym",
+      "traitKind": "getter",
+      "methodIndex": 36631,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "fb99c89275931ce3d65915ecc89c2b73fbdc0e1bd6e3acb18f19adbe885fd4ab",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuAcronym",
+      "traitKind": "setter",
+      "methodIndex": 36632,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "3eeff30f6c41b9156b1facf93835b5da91e7a44a12b52b4b97b538ac0a746940",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "getter",
+      "methodIndex": 36627,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "int",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "36bdf0388bd10137a6d17ef55bbb76dd9019dfbaf794e9c8bfa965dbead4fce1",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuId",
+      "traitKind": "setter",
+      "methodIndex": 36628,
+      "methodName": "",
+      "paramTypes": [
+        "int"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "8936b4e21061ae2f0cad6ed02c6b8aa3a860e256b67d6df8c7bd453893d21d71",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "getter",
+      "methodIndex": 36629,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2bd83bb6016051db21acad5c30f8a3e1b4382811bb45e498d88a213eab69ec6d",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ecuInstanceId",
+      "traitKind": "setter",
+      "methodIndex": 36630,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "3c4ab212a535db04951d20b6b9c9d0daeafb114086e6f7824e2319a518fa286a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "environmentalData",
+      "traitKind": "getter",
+      "methodIndex": 36649,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "83ed7d6219f6eb16812a4ff8eb6de035db412a02dc3bd2eb7d6e222bf7228c60",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "environmentalData",
+      "traitKind": "setter",
+      "methodIndex": 36650,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "5ada6b0cba88fa5b6179c902308a69be68ff2a8ab8138f6447057f08f4ab7dd9",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "environmentalDataRequestFailed",
+      "traitKind": "getter",
+      "methodIndex": 36653,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1493161dddee011be023da3bacacc877e545f2201c9cca6922adb36e2628d2fc",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "environmentalDataRequestFailed",
+      "traitKind": "setter",
+      "methodIndex": 36654,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "bd573a7cfade2d25798dd8131166300a004a9f9c85b7bc2ea1eced0109bc0400",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "event_data_available",
+      "traitKind": "getter",
+      "methodIndex": 36639,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d2fe8f4d9387e8cc34c7da4c763d96a6919348457c60a1c98f12df51d5244635",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "event_data_available",
+      "traitKind": "setter",
+      "methodIndex": 36640,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "ab5ec30105b46baf3550aed9efeda57fb46fdba89be436b22bf337fff1616dba",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "ff_available",
+      "traitKind": "getter",
+      "methodIndex": 36641,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "80985bd7c7e6641f9c446f6e6224c85fb1cecf1e147bd476c67c099ce64acdca",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "ff_available",
+      "traitKind": "setter",
+      "methodIndex": 36642,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "fb82bef97dea91f2946070fae54b01322c9182b56694cdb59c0a08942a6640ed",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "id",
+      "traitKind": "getter",
+      "methodIndex": 36643,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "1ee18f88aa05eddc37c4392174e21554a4a66075ed10637d8b87263e67f25def",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "id",
+      "traitKind": "setter",
+      "methodIndex": 36644,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "409c49f8a4b4a00242f0d2937bbfa7cd4eb12cdad15b8d3849533f9ff0883365",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "mil",
+      "traitKind": "getter",
+      "methodIndex": 36647,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "2efa8e20228919431f5aaf75c3de28e813c7d2040c326ef3a8ff80cacf57f4fb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "mil",
+      "traitKind": "setter",
+      "methodIndex": 36648,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "7a96e4d6d4d2e97238a5b784d71a2d93f37cc95ed58d7c16be0417241860bf2e",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "notifyInterestedContainersOfDemise",
+      "traitKind": "method",
+      "methodIndex": 36625,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 18,
+      "bytecode": {
+        "codeLength": 18,
+        "codeSha256": "b500741e999af14048d55acc88ecb9aca12624a16ea6015f845c6e5b01df2644",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "setSnapshotData",
+      "traitKind": "method",
+      "methodIndex": 36626,
+      "methodName": "",
+      "paramTypes": [
+        "Object"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 30,
+      "bytecode": {
+        "codeLength": 30,
+        "codeSha256": "76eb51cdde7a144887b4d8b03549b2b14c359be4b62ecf89376c43047d278681",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "snapshotData",
+      "traitKind": "getter",
+      "methodIndex": 36651,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.collections.ArrayCollection",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "81bd78829c5ed542aa7284acc75100e22461d5584d7063ef75a84768157a5f07",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "snapshotData",
+      "traitKind": "setter",
+      "methodIndex": 36652,
+      "methodName": "",
+      "paramTypes": [
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "20e27699955641d1f774d02eb4b3b08c25560e2ce9871823a9e994a631a1b60a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "snapshotDataRequestFailed",
+      "traitKind": "getter",
+      "methodIndex": 36655,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Boolean",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "a9b773ed9cb284bbed58bbd635ba86e6a29dffa3b4cce87d47cf2e308c4b1f53",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "snapshotDataRequestFailed",
+      "traitKind": "setter",
+      "methodIndex": 36656,
+      "methodName": "",
+      "paramTypes": [
+        "Boolean"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "e91987c2ba383331df16dd01ec41fb4ce974a90251f71592819fc8f4bbce297b",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "status",
+      "traitKind": "getter",
+      "methodIndex": 36645,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "String",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d000ee15120c958a69a87bd9c008a8bea8f08fc35fd62cdc5b0de400f5378242",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "status",
+      "traitKind": "setter",
+      "methodIndex": 36646,
+      "methodName": "",
+      "paramTypes": [
+        "String"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 53,
+      "bytecode": {
+        "codeLength": 53,
+        "codeSha256": "17f89b85daec4d31bb493edabefe50fecdf914c86bb78b66d4c83ec183b47b4a",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "tokenId",
+      "traitKind": "getter",
+      "methodIndex": 36633,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "7871d22cac8933abb5a94b87c098c0026c1834dc0325472658480d4509825478",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "tokenId",
+      "traitKind": "setter",
+      "methodIndex": 36634,
+      "methodName": "",
+      "paramTypes": [
+        "Number"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "c0cd0fb6eceabbed31efd7e86d8ffeee4c93bfa0ee84e3991f8b985cd818d41c",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "asVehicleWideDtcObjectDictionary",
+      "traitKind": "method",
+      "methodIndex": 36619,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "String",
+        "String",
+        "Array"
+      ],
+      "returnType": "flash.utils.Dictionary",
+      "hasBody": true,
+      "codeLength": 90,
+      "bytecode": {
+        "codeLength": 90,
+        "codeSha256": "4fde098230d3e00a3460b3e94526ef66057059bcc829986a0a90a65abc6d68e8",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "mergeDtcResultsWithDisplayList",
+      "traitKind": "method",
+      "methodIndex": 36618,
+      "methodName": "",
+      "paramTypes": [
+        "int",
+        "String",
+        "String",
+        "Array",
+        "mx.collections.ArrayCollection"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 260,
+      "bytecode": {
+        "codeLength": 260,
+        "codeSha256": "e65471184ae98ede04adb9f51f34f6ed98cea000e428443ccc2174aed279244d",
+        "bytecodeLineCount": 17
+      }
+    },
+    {
+      "traitName": "MilStatus",
+      "traitKind": "method",
+      "methodIndex": 36621,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "566cafa2b7c46ae968b2e3b7a18990a8a8d334a956a472240418f1a88ad63b99",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "MilStatusWDE",
+      "traitKind": "method",
+      "methodIndex": 36623,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "String"
+      ],
+      "returnType": "Function",
+      "hasBody": true,
+      "codeLength": 21,
+      "bytecode": {
+        "codeLength": 21,
+        "codeSha256": "cae1cf14f1b71d4e0c4cd5d3917405278d52b31b4c2ba3fe2817405250b56354",
+        "bytecodeLineCount": 2
+      }
+    }
+  ]
+}

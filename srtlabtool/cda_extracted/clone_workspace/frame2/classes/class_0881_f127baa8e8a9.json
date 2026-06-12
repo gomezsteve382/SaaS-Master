@@ -1,0 +1,118 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 881,
+  "className": "com.chrysler.cda.application.diagnostic.ecu.FindDDEDataCommand",
+  "classNameNormalized": "com.chrysler.cda.application.diagnostic.ecu.FindDDEDataCommand",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 17481,
+  "cinitMethod": 17475,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 20,
+    "codeSha256": "38950f28c0af2ce6be5bd3335405839de08db4644c92ff17aa8951a1807043de",
+    "bytecodeLineCount": 2
+  },
+  "instanceMembers": [
+    {
+      "traitName": "onFindDdeData",
+      "traitKind": "method",
+      "methodIndex": 17477,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.FindDDEDataMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 63,
+      "bytecode": {
+        "codeLength": 63,
+        "codeSha256": "74abcb2ca6cd51ca3b0e64e7a65a3104d02bb58b8a9787e697e8b8640b7a72d0",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindDDEDataForComService",
+      "traitKind": "method",
+      "methodIndex": 17480,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.ConsolidatedDDEMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 79,
+      "bytecode": {
+        "codeLength": 79,
+        "codeSha256": "f19dbf14f001136c22f11ddbc38a1a44881fc9e0ef22a84d27d4f2d8ca281017",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "onFindDDEMetaDataForComService",
+      "traitKind": "method",
+      "methodIndex": 17479,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.GetComServicesByTypeMessage"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 55,
+      "bytecode": {
+        "codeLength": 55,
+        "codeSha256": "e30f510b3b7b9a6529c8d2fd02af14550a1b6aa576bafb1c14c0eaa97b61f4a7",
+        "bytecodeLineCount": 4
+      }
+    },
+    {
+      "traitName": "onFindProxiDDEData",
+      "traitKind": "method",
+      "methodIndex": 17478,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.proxi.GetProxiComServiceMetaData"
+      ],
+      "returnType": "mx.rpc.AsyncToken",
+      "hasBody": true,
+      "codeLength": 64,
+      "bytecode": {
+        "codeLength": 64,
+        "codeSha256": "a976475f8c3a222d7e73041104055913c8a4fe8b5fc743cae56ef320cda0904c",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "createParameters",
+      "traitKind": "method",
+      "methodIndex": 17476,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.cda.event.message.diagnostic.ecu.FindDDEDataMessage"
+      ],
+      "returnType": "Object",
+      "hasBody": true,
+      "codeLength": 68,
+      "bytecode": {
+        "codeLength": 68,
+        "codeSha256": "e2a6d0b29b7bb0281a10625339db62ad45a385d15ff25594976e85acba43b671",
+        "bytecodeLineCount": 5
+      }
+    }
+  ]
+}

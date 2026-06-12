@@ -1,0 +1,101 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 3338,
+  "className": "com.diagnosticProcedures.node.StoredDataNode",
+  "classNameNormalized": "com.diagnosticProcedures.node.StoredDataNode",
+  "superName": "com.diagnosticProcedures.node.ProcedureNode",
+  "superNameNormalized": "com.diagnosticProcedures.node.ProcedureNode",
+  "domainBucket": "diagnostic",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 51532,
+  "cinitMethod": 51531,
+  "iinitBytecode": {
+    "codeLength": 8,
+    "codeSha256": "759834360b3138b4f9f149bb91b34cde0e9d339d5cd03f58962655320a4089b4",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 39,
+    "codeSha256": "2b470b725c70167c390c3cb5bc77294628a9f0e5b4ca0adbcf2d99ce664221ca",
+    "bytecodeLineCount": 3
+  },
+  "instanceMembers": [
+    {
+      "traitName": "PrivateNs.retrieveData",
+      "traitKind": "method",
+      "methodIndex": 51534,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "XML"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 205,
+      "bytecode": {
+        "codeLength": 205,
+        "codeSha256": "c0e98cc9f789c89c27079acc152181f15cf656226f19553d075a1a52cd984633",
+        "bytecodeLineCount": 13
+      }
+    },
+    {
+      "traitName": "PrivateNs.storeData",
+      "traitKind": "method",
+      "methodIndex": 51535,
+      "methodName": "",
+      "paramTypes": [
+        "String",
+        "XMLList",
+        "XML"
+      ],
+      "returnType": "XML",
+      "hasBody": true,
+      "codeLength": 228,
+      "bytecode": {
+        "codeLength": 228,
+        "codeSha256": "c5d9a29245f4b51c8b4d3223fa1e9b35b07674fd6fe5d44aae7756734cb8e8c0",
+        "bytecodeLineCount": 15
+      }
+    },
+    {
+      "traitName": "process",
+      "traitKind": "method",
+      "methodIndex": 51533,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 276,
+      "bytecode": {
+        "codeLength": 276,
+        "codeSha256": "b2d6f1258fc6f2d705942309ebd3b794ed3ada9658b4b5fe775607aabfad413a",
+        "bytecodeLineCount": 18
+      }
+    },
+    {
+      "traitName": "processResult",
+      "traitKind": "method",
+      "methodIndex": 51536,
+      "methodName": "",
+      "paramTypes": [
+        "XML"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 19,
+      "bytecode": {
+        "codeLength": 19,
+        "codeSha256": "283cf4206231718736b269320627e3d6b485359b264593c42d5a6d1603573294",
+        "bytecodeLineCount": 2
+      }
+    }
+  ],
+  "staticMembers": []
+}

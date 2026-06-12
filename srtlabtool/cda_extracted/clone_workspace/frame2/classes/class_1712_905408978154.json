@@ -1,0 +1,178 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 1712,
+  "className": "com.chrysler.core.component.QuickBarButtonFacade",
+  "classNameNormalized": "com.chrysler.core.component.QuickBarButtonFacade",
+  "superName": "com.chrysler.core.component.QuickBarButtonFacadeBase",
+  "superNameNormalized": "com.chrysler.core.component.QuickBarButtonFacadeBase",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [
+    "mx.binding.IBindingClient"
+  ],
+  "iinitMethod": 33601,
+  "cinitMethod": 33597,
+  "iinitBytecode": {
+    "codeLength": 358,
+    "codeSha256": "371feae444a4974a3137dd961b4c08602f1443e0c74ee84862929b4a87fbbe88",
+    "bytecodeLineCount": 23
+  },
+  "cinitBytecode": {
+    "codeLength": 3,
+    "codeSha256": "a968960b201420953c59656517f78c74a88e3e2aebf37839d8e70f6e531134c4",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [
+    {
+      "traitName": "__theButton_click",
+      "traitKind": "method",
+      "methodIndex": 33606,
+      "methodName": "",
+      "paramTypes": [
+        "flash.events.MouseEvent"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 12,
+      "bytecode": {
+        "codeLength": 12,
+        "codeSha256": "0b1c517ecfe6710fb73f7ace3d555cf0042eaeb5339e651696e0dcc8732f2fbd",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "initialize",
+      "traitKind": "method",
+      "methodIndex": 33603,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "d72619080fb43ac86421d013df7b88a8a0f6f068e9457b5bee96826061428977",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "moduleFactory",
+      "traitKind": "setter",
+      "methodIndex": 33602,
+      "methodName": "",
+      "paramTypes": [
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 24,
+      "bytecode": {
+        "codeLength": 24,
+        "codeSha256": "0bedab64dd66c828c0db206ad0c87eea108d11d1d3963c0a0fa6e96abf9a8f8e",
+        "bytecodeLineCount": 2
+      }
+    },
+    {
+      "traitName": "PrivateNs._QuickBarButtonFacade_bindingsSetup",
+      "traitKind": "method",
+      "methodIndex": 33611,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "Array",
+      "hasBody": true,
+      "codeLength": 145,
+      "bytecode": {
+        "codeLength": 145,
+        "codeSha256": "0016a245d909d660f4fc316da5fc15a88e95fca8a7325450e613bb9d26df5745",
+        "bytecodeLineCount": 10
+      }
+    },
+    {
+      "traitName": "PrivateNs._QuickBarButtonFacade_QuickBarButton1_i",
+      "traitKind": "method",
+      "methodIndex": 33605,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 72,
+      "bytecode": {
+        "codeLength": 72,
+        "codeSha256": "2b8570cbb0cd157237e58b5b805222b56c8aefdb070596500c3f92b2549158b3",
+        "bytecodeLineCount": 5
+      }
+    },
+    {
+      "traitName": "PrivateNs._QuickBarButtonFacade_VerticalLayout1_c",
+      "traitKind": "method",
+      "methodIndex": 33604,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "spark.layouts.VerticalLayout",
+      "hasBody": true,
+      "codeLength": 39,
+      "bytecode": {
+        "codeLength": 39,
+        "codeSha256": "c80206e539ed9fe6ffeef24882020bd2322ead1aee8cfa575204e4b514e8e2bd",
+        "bytecodeLineCount": 3
+      }
+    },
+    {
+      "traitName": "theButton",
+      "traitKind": "getter",
+      "methodIndex": 33612,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "com.chrysler.core.component.QuickBarButton",
+      "hasBody": true,
+      "codeLength": 8,
+      "bytecode": {
+        "codeLength": 8,
+        "codeSha256": "111c5e2c632ec42a652eea0fc6c52926959aef40029402ca4ef678d329c250bb",
+        "bytecodeLineCount": 1
+      }
+    },
+    {
+      "traitName": "theButton",
+      "traitKind": "setter",
+      "methodIndex": 33613,
+      "methodName": "",
+      "paramTypes": [
+        "com.chrysler.core.component.QuickBarButton"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 54,
+      "bytecode": {
+        "codeLength": 54,
+        "codeSha256": "76d8cdf99dc644569f6b43f9bc112afffbf009a11aab978435276061840b1607",
+        "bytecodeLineCount": 4
+      }
+    }
+  ],
+  "staticMembers": [
+    {
+      "traitName": "watcherSetupUtil",
+      "traitKind": "setter",
+      "methodIndex": 33598,
+      "methodName": "",
+      "paramTypes": [
+        "mx.binding.IWatcherSetupUtil2"
+      ],
+      "returnType": "void",
+      "hasBody": true,
+      "codeLength": 11,
+      "bytecode": {
+        "codeLength": 11,
+        "codeSha256": "a68f07eef2db1ab1b285240c04af918c2d0ceb3ce416d66ce4920fab8855b140",
+        "bytecodeLineCount": 1
+      }
+    }
+  ]
+}

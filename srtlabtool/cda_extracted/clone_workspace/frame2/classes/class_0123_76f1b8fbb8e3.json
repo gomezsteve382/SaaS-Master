@@ -1,0 +1,84 @@
+{
+  "frame": "frame2",
+  "generatedBy": "build-cda-clone-workspace.mjs",
+  "classIndex": 123,
+  "className": "spark.utils.FTETextUtil",
+  "classNameNormalized": "spark.utils.FTETextUtil",
+  "superName": "Object",
+  "superNameNormalized": "Object",
+  "domainBucket": "other",
+  "flags": {
+    "sealed": true,
+    "final": false,
+    "interface": false,
+    "protectedNs": true
+  },
+  "interfaces": [],
+  "iinitMethod": 2370,
+  "cinitMethod": 2366,
+  "iinitBytecode": {
+    "codeLength": 6,
+    "codeSha256": "8ff32749a852a1d83829c6a3fac8ec00822f06b5c7177f9ebb43a09287b2101a",
+    "bytecodeLineCount": 1
+  },
+  "cinitBytecode": {
+    "codeLength": 15,
+    "codeSha256": "f0c032384e2ae9ba661b8814d63b2f98ca2701821750329204fe02d857f26430",
+    "bytecodeLineCount": 1
+  },
+  "instanceMembers": [],
+  "staticMembers": [
+    {
+      "traitName": "calculateFontBaseline",
+      "traitKind": "method",
+      "methodIndex": 2368,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.IStyleClient",
+        "Number",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "Number",
+      "hasBody": true,
+      "codeLength": 402,
+      "bytecode": {
+        "codeLength": 402,
+        "codeSha256": "43300cf80d7165cbae810c93fcb2302df62e5376fbd7b5614f6f002dc81f2a0e",
+        "bytecodeLineCount": 26
+      }
+    },
+    {
+      "traitName": "PrivateNs.embeddedFontRegistry",
+      "traitKind": "getter",
+      "methodIndex": 2367,
+      "methodName": "",
+      "paramTypes": [],
+      "returnType": "mx.core.IEmbeddedFontRegistry",
+      "hasBody": true,
+      "codeLength": 85,
+      "bytecode": {
+        "codeLength": 85,
+        "codeSha256": "ddd351c2b79dadd948fbc95bb397e3533d58a8f02e61a4c53d6dd3de6b8d0dd5",
+        "bytecodeLineCount": 6
+      }
+    },
+    {
+      "traitName": "PrivateNs.getEmbeddedFontContext",
+      "traitKind": "method",
+      "methodIndex": 2369,
+      "methodName": "",
+      "paramTypes": [
+        "mx.styles.IStyleClient",
+        "mx.core.IFlexModuleFactory"
+      ],
+      "returnType": "mx.core.IFlexModuleFactory",
+      "hasBody": true,
+      "codeLength": 221,
+      "bytecode": {
+        "codeLength": 221,
+        "codeSha256": "1320d08193956e0ef4873a71910dd2a9d74fb8e218df2c48978de7456f55329c",
+        "bytecodeLineCount": 14
+      }
+    }
+  ]
+}
