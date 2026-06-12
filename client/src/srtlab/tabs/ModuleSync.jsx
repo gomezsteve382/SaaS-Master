@@ -8,7 +8,8 @@ import PairingRepairPanel from "../components/PairingRepairPanel.jsx";
 import ProgrammerSizeHelp from "../components/ProgrammerSizeHelp.jsx";
 import { engParseBcm } from '../lib/engBcmParse.js';
 import { marryModule, marryAll } from '../lib/marryModule.js';
-import { algoProvenance } from '../lib/algoProvenance.js';
+
+import { writeBcmSec16Gen2, writePcmSec6 } from "../lib/securityBytes.js";
 import { writerGrounding, GROUNDING } from "../lib/algoProvenance.js";
 import { isXc2268Rfhub } from "../lib/xc2268Rfhub.js";
 import { rekeyVirginBcmFromRfhub } from "../lib/mpc5606bBcm.js";
