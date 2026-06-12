@@ -57,6 +57,12 @@ function matchesQuery(tab, q) {
 function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) {
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
+  // Collapsible groups: by default only the section the active tab lives in is
+  // open (so the 52-item list reads as a ~6-row index, not a 5-screen scroll).
+  // While searching, any section with a match opens automatically.
+  const [expanded, setExpanded] = useState(() => new Set());
+  const toggleSection = (key) => setExpanded((s) => { const n = new Set(s); n.has(key) ? n.delete(key) : n.add(key); return n; });
+  const sectionOpen = (key, count) => (q ? count > 0 : (expanded.has(key) || key === categories[activeTab]));
 
   // Everything that isn't one of the five primary panes belongs here.
   const advancedTabs = useMemo(
@@ -142,44 +148,80 @@ function AdvancedDrawer({open, onClose, tabs, categories, activeTab, onSelect}) 
           </div>
         </div>
 
-        <div style={{flex: 1, overflowY: 'auto', padding: '8px 12px 40px'}}>
+        <div style={{flex: 1, overflowY: 'auto', padding: '6px 10px 40px'}}>
           {SECTION_ORDER.map((key) => {
             const items = grouped[key] || [];
             if (items.length === 0) return null;
             const meta = CATEGORY_META[key];
+            const isOpen = sectionOpen(key, items.length);
+            const hasActive = items.some((t) => t.id === activeTab);
             return (
-              <div key={key} style={{marginBottom: 14}}>
-                <div style={{
-                  fontFamily: "'Righteous',sans-serif", fontSize: 11, letterSpacing: 2,
-                  color: T.muted, padding: '8px 8px 6px',
-                }} title={meta.blurb}>{meta.label}</div>
-                {items.map((t) => {
-                  const active = activeTab === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      type="button"
-                      data-testid={`drawer-tab-${t.id}`}
-                      onClick={() => { onSelect(t.id); onClose(); }}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 11, width: '100%',
-                        background: active ? T.red : T.panel,
-                        color: active ? '#fff' : T.ink,
-                        border: `1px solid ${active ? T.red : T.line}`,
-                        borderRadius: 9, padding: '9px 11px', marginBottom: 6, cursor: 'pointer',
-                        textAlign: 'left', fontFamily: "'Nunito',sans-serif",
-                      }}
-                      onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#fff7f5'; }}
-                      onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = T.panel; }}
-                    >
-                      <span style={{fontSize: 17, lineHeight: 1, flexShrink: 0}}>{t.i}</span>
-                      <span style={{display: 'flex', flexDirection: 'column', minWidth: 0}}>
-                        <span style={{fontWeight: 800, fontSize: 12.5, letterSpacing: 0.5, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{t.l}</span>
-                        <span style={{fontSize: 11, opacity: active ? 0.85 : 0.6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{t.s}</span>
-                      </span>
-                    </button>
-                  );
-                })}
+              <div key={key} style={{marginBottom: 6}}>
+                <button
+                  type="button"
+                  onClick={() => toggleSection(key)}
+                  title={meta.blurb}
+                  data-testid={`drawer-section-${key}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 9, width: '100%',
+                    background: isOpen ? T.panel : 'transparent',
+                    border: `1px solid ${isOpen ? T.line : 'transparent'}`,
+                    borderRadius: 9, padding: '9px 10px', cursor: 'pointer',
+                    textAlign: 'left', fontFamily: "'Righteous',sans-serif",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = T.panel; }}
+                  onMouseLeave={(e) => { if (!isOpen) e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <ChevronRight
+                    size={15}
+                    style={{
+                      color: hasActive ? T.red : T.muted, flexShrink: 0,
+                      transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s ease',
+                    }}
+                  />
+                  <span style={{flex: 1, fontSize: 11.5, letterSpacing: 1.5, color: hasActive ? T.red : T.ink}}>{meta.label}</span>
+                  <span style={{
+                    fontFamily: "'Nunito',sans-serif", fontSize: 11, fontWeight: 800,
+                    color: T.muted, background: T.base, border: `1px solid ${T.line}`,
+                    borderRadius: 20, minWidth: 20, textAlign: 'center', padding: '1px 7px',
+                  }}>{items.length}</span>
+                </button>
+
+                {isOpen && (
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6,
+                    padding: '7px 2px 4px', alignItems: 'stretch',
+                  }}>
+                    {items.map((t) => {
+                      const active = activeTab === t.id;
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          data-testid={`drawer-tab-${t.id}`}
+                          title={t.s}
+                          onClick={() => { onSelect(t.id); onClose(); }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                            background: active ? T.red : T.panel,
+                            color: active ? '#fff' : T.ink,
+                            border: `1px solid ${active ? T.red : T.line}`,
+                            borderRadius: 9, padding: '8px 9px', cursor: 'pointer',
+                            textAlign: 'left', fontFamily: "'Nunito',sans-serif", minWidth: 0,
+                          }}
+                          onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = '#fff7f5'; }}
+                          onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = T.panel; }}
+                        >
+                          <span style={{fontSize: 15, lineHeight: 1, flexShrink: 0}}>{t.i}</span>
+                          <span style={{
+                            fontWeight: 800, fontSize: 11, letterSpacing: 0.3, textTransform: 'uppercase',
+                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0,
+                          }}>{t.l}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
