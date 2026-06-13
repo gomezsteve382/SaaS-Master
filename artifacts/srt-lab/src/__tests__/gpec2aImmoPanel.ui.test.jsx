@@ -146,6 +146,13 @@ describe("Gpec2aImmoPanel via EcmTab — apply form", () => {
     });
     expect(vinInput.value).toBe("2C3CDXL92KH000001");
 
+    // Supply the matching donor SEC6 so the export guard (resulting SEC6 must
+    // equal the BCM-derived secret) is satisfied. Without it the panel CORRECTLY
+    // refuses — that safety guard is covered by gpec2aImmoExportGuard.test.js.
+    await act(async () => {
+      fireEvent.click(panel.getByRole("button", { name: /use donor/i }));
+    });
+
     await act(async () => {
       fireEvent.click(panel.getByRole("button", { name: /APPLY CHANGES AND DOWNLOAD/i }));
     });

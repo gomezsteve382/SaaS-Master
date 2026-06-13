@@ -7,10 +7,15 @@ import {writeModuleVIN,virginizeModule} from "../lib/fileUtils.js";
 import {crossValidate,computeDiff,compareGpecBcmKey} from "../lib/crossValidate.js";
 import {crc16} from "../lib/crc.js";
 import {applyPcmSec6FromRfh, applyPcmFromRfhWithVin} from "../lib/bcmPcmSync.js";
+import {writeBcm95640Sec16} from "../lib/securityBytes.js";
+import {fixChecksumsAfterEdit} from "../lib/vinChecksumWrite.js";
 import MismatchWizard from "../components/MismatchWizard.jsx";
 import {statusBanner, loadAdvanced, saveAdvanced, Tip} from "../lib/plainEnglish.jsx";
 import SamplePicker from "../lib/SamplePicker.jsx";
 const hxb=d=>Array.from(d).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+// After a VIN/immo edit, recompute whole-image firmware CRCs it invalidated and
+// summarize for the status line (no-op when the module carries no such CRC).
+const ckNote=s=>{const n=[];if(s.fixedCount)n.push(s.fixedCount+' firmware CRC'+(s.fixedCount>1?'s':'')+' recomputed');if(s.manualReview.length)n.push('⚠ '+s.manualReview.length+' non-CRC checksum'+(s.manualReview.length>1?'s':'')+' to review');return n.length?' · '+n.join(' · '):'';};
 
 function SecurityTab(){
   const[mods,setMods]=useState([]);const[sub,setSub]=useState('overview');const[tv,setTv]=useState('');
@@ -72,8 +77,8 @@ function SecurityTab(){
 
   function patchModVIN(i){
     if(tv.length!==17)return;const m=mods[i];
-    const patched=writeModuleVIN(m.data,m.type,tv,m.vins);
-    if(patched){const fn=m.filename.replace(/\./,'_VIN_'+tv+'.');dl(patched,fn);setMods(p=>{const u=[...p];u[i]=parseModule(patched,m.filename);return u;});setMsg('Patched '+m.name+' → '+tv);}
+    const edited=writeModuleVIN(m.data,m.type,tv,m.vins);
+    if(edited){const sw=fixChecksumsAfterEdit(m.data,edited);const patched=sw.data;const fn=m.filename.replace(/\./,'_VIN_'+tv+'.');dl(patched,fn);setMods(p=>{const u=[...p];u[i]=parseModule(patched,m.filename);return u;});setMsg('Patched '+m.name+' → '+tv+ckNote(sw));}
   }
 
   function matchAll(){
@@ -114,6 +119,8 @@ function SecurityTab(){
         }
         patched=w.bytes;
       }
+      // Repair any whole-image firmware CRC the VIN/key/SEC6 edits invalidated.
+      patched=fixChecksumsAfterEdit(m.data,patched).data;
       const fn='MATCHED_'+tv+'_'+m.filename;
       const flashNote=m.type==='BCM'?'Flash this BCM D-FLASH file':m.type==='RFHUB'?'Write this RFHUB to EEE chip':m.type==='GPEC2A'?'Write this GPEC2A to 95320 SPI chip':m.type==='95640'?'Write this 95640 EEPROM':'Flash this file';
       results.push({data:patched,fn,type:m.type,name:m.name,note:flashNote,original:m.filename});
@@ -154,19 +161,15 @@ function SecurityTab(){
     else if(action==='rfhBcmSync'&&m.type==='95640'){
       const rfh=mods.find(mn=>mn.type==='RFHUB');
       if(rfh&&rfh.sec16valid&&rfh.sec16s?.length){
-        const d=new Uint8Array(m.data);
-        if(d.length>=0x84A){
-          /* Byte-reverse RFH SEC16 slot 1 → write to 95640 @ 0x838 */
-          const s16=rfh.sec16s[0].raw;
-          const rev=new Uint8Array(16);for(let i=0;i<16;i++)rev[i]=s16[15-i];
-          for(let i=0;i<16;i++)d[0x838+i]=rev[i];
-          /* CRC16 of the 16 reversed bytes → write big-endian @ 0x848 */
-          const cs=crc16(rev);d[0x848]=(cs>>8)&0xFF;d[0x849]=cs&0xFF;
-          const revHex=Array.from(rev).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
-          res={data:d,desc:'95640 BCM-SEC16 @ 0x838 ← RFH SEC16 (byte-reversed): '+revHex+' CRC16='+cs.toString(16).toUpperCase().padStart(4,'0')};
+        /* Byte-reverse RFH SEC16 slot 1 → 95640 @ 0x838 + CRC16 BE @ 0x848. */
+        const w=writeBcm95640Sec16(m.data,rfh.sec16s[0].raw);
+        if(w.ok){
+          const revHex=w.sec16Hex.toUpperCase().replace(/(..)/g,'$1 ').trim();
+          res={data:w.bytes,desc:'95640 BCM-SEC16 @ 0x838 ← RFH SEC16 (byte-reversed): '+revHex+' CRC16='+w.crc.toString(16).toUpperCase().padStart(4,'0')};
         }else res={desc:'95640 file too small (need ≥0x84A bytes)'};
       }else res={desc:'RFHUB must be loaded with valid (non-blank, matching) SEC16 slots.'};
     }
+    if(res?.data){const sw=fixChecksumsAfterEdit(m.data,res.data);res.data=sw.data;if(sw.fixedCount||sw.manualReview.length)res.desc=(res.desc||'')+ckNote(sw);}
     setTr(res);
     if(res?.data)setMods(prev=>{const u=[...prev];u[tt]=parseModule(res.data,m.filename);return u;});
   }
@@ -189,10 +192,10 @@ function SecurityTab(){
       setMsg('GPEC2A+RFHUB sync refused — non-canonical PCM size '+gm.data.length+' B (expected 4096 or 8192). No files produced.');
       return;
     }
-    const gd=w.bytes;
+    const swG=fixChecksumsAfterEdit(gm.data,w.bytes);const gd=swG.data;
     const sec6hex=Array.from(s16.slice(0,6)).map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
     /* 3. Patch RFHUB VINs (mirrored + CRC8RF per slot — writeModuleVIN handles this) */
-    const rd=writeModuleVIN(rm.data,'RFHUB',tv,rm.vins)||new Uint8Array(rm.data);
+    const swR=fixChecksumsAfterEdit(rm.data,writeModuleVIN(rm.data,'RFHUB',tv,rm.vins)||new Uint8Array(rm.data));const rd=swR.data;
     /* 4. Update both modules in state immediately */
     setMods(prev=>{
       const u=[...prev];
@@ -205,7 +208,7 @@ function SecurityTab(){
     /* 5. Download both patched files */
     dl(gd,gm.filename.replace(/\./,'_SYNCED.'));
     dl(rd,rm.filename.replace(/\./,'_SYNCED.'));
-    setMsg('✓ GPEC2A + RFHUB synced → '+tv+' | PCM SEC6: '+sec6hex+' | VINs patched + CRC updated');
+    setMsg('✓ GPEC2A + RFHUB synced → '+tv+' | PCM SEC6: '+sec6hex+' | VINs patched + CRC updated'+ckNote(swG)+ckNote(swR));
   }
 
   const SUBS=[{id:'overview',l:'Overview'},{id:'security',l:'Security'},{id:'diff',l:'Diff'},{id:'tools',l:'Tools'}];

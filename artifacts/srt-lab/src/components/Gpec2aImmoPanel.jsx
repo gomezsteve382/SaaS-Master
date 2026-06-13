@@ -10,9 +10,20 @@ import {
   isCanonicalGpec2a,
 } from "../lib/gpec2aPcmAnalyzer.js";
 import {scanChecksums, fixChecksum} from "../lib/checksumScanner.js";
+import {fixChecksumsAfterEdit} from "../lib/vinChecksumWrite.js";
 import ImmoChecksumPanel, {StatBadge, dl, parseHexBytes} from "./ImmoChecksumPanel.jsx";
 
 const mono = "'JetBrains Mono'";
+
+// Summarize a fixChecksumsAfterEdit() result for the status line. Empty when the
+// edit invalidated no whole-image CRC and left no non-CRC checksum to review.
+function checksumNote(swept) {
+  const n = [];
+  if (swept.fixedCount) n.push(swept.fixedCount + " firmware CRC" + (swept.fixedCount > 1 ? "s" : "") + " recomputed");
+  if (swept.manualReview.length)
+    n.push("⚠ " + swept.manualReview.length + " non-CRC checksum" + (swept.manualReview.length > 1 ? "s" : "") + " to review");
+  return n.length ? " · " + n.join(" · ") : "";
+}
 
 export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null}) {
   const bytes = mod?.data || null;
@@ -66,10 +77,13 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
       setErr(guard.error);
       return;
     }
+    // Auto-repair any whole-image firmware CRC the VIN/SEC6 edit invalidated, so
+    // the exported dump is fully valid — not just its per-slot VIN/SEC6 CRCs.
+    const swept = fixChecksumsAfterEdit(bytes, res.bytes);
     const fname = baseName + "_patched.bin";
-    dl(res.bytes, fname);
-    setPatched({bytes: res.bytes, filename: fname, summary: res.changes.join(" · ")});
-    setMsg("Applied: " + res.changes.join(" · ") + " → downloaded.");
+    dl(swept.data, fname);
+    setPatched({bytes: swept.data, filename: fname, summary: res.changes.join(" · ")});
+    setMsg("Applied: " + res.changes.join(" · ") + checksumNote(swept) + " → downloaded.");
   }, [bytes, newVin, alsoWriteCe0, sec6Hex, fixImmo, baseName, donorMods]);
 
   const onJustFix = useCallback(() => {
@@ -91,14 +105,16 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
       setErr(guard.error);
       return;
     }
+    const swept = fixChecksumsAfterEdit(bytes, res.bytes);
     const fname = baseName + "_immoFix.bin";
-    dl(res.bytes, fname);
-    setPatched({bytes: res.bytes, filename: fname, summary: "IMMO marker + SEC6 " + res.sec6Hex});
+    dl(swept.data, fname);
+    setPatched({bytes: swept.data, filename: fname, summary: "IMMO marker + SEC6 " + res.sec6Hex});
     setMsg(
       "IMMO repaired (" +
         (manual ? "manual SEC6" : "from " + (donor?.source || "donor")) +
         "): marker FF FF FF AA + SEC6 " +
         res.sec6Hex +
+        checksumNote(swept) +
         " → downloaded."
     );
   }, [bytes, sec6Hex, donor, baseName, donorMods]);

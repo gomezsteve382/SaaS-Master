@@ -473,6 +473,33 @@ export function writeRfhSec16FromBcm(bytes, bcmSec16) {
 }
 
 /* ----------------------------------------------------------------------------
+ * writeBcm95640Sec16(bytes, rfhSec16)
+ *
+ * Writes the vehicle secret into a 95640 BCM-backup EEPROM. The 95640 stores
+ * SEC16 byte-reversed relative to the RFHUB (the convention parseModule.js
+ * reads) at 0x838..0x847, with a CRC-16/CCITT-FALSE over those 16 bytes stored
+ * big-endian at 0x848/0x849. Pass the RFHUB SEC16 (RFH form, 16 bytes).
+ *
+ * Byte-identical to the inline SecurityTab `rfhBcmSync` path it replaces
+ * (crc16ccitt === lib/crc.js#crc16). Returns {ok:false} — no throw — when the
+ * buffer is too small to hold the slot.
+ * ---------------------------------------------------------------------------- */
+export function writeBcm95640Sec16(bytes, rfhSec16) {
+  if (!rfhSec16 || rfhSec16.length !== 16) throw new Error('RFHUB SEC16 must be 16 bytes');
+  const out = new Uint8Array(bytes);
+  if (out.length < 0x84A) {
+    return { bytes: out, patched: 0, ok: false, reason: `95640 too small (need ≥ 0x84A bytes, got ${out.length})` };
+  }
+  const rev = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) rev[i] = rfhSec16[15 - i];
+  for (let i = 0; i < 16; i++) out[0x838 + i] = rev[i];
+  const cs = crc16ccitt(rev);
+  out[0x848] = (cs >> 8) & 0xFF;
+  out[0x849] = cs & 0xFF;
+  return { bytes: out, patched: 1, ok: true, sec16Hex: hexStr(rev), crc: cs };
+}
+
+/* ----------------------------------------------------------------------------
  * writeRfhSec16Gen1(bytes, bcmSec16)
  *
  * Writes BCM secret → Gen1 RFHUB (Yazaki 24C16, 2 KB) SEC16 slots.

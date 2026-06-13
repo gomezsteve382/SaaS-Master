@@ -1379,6 +1379,54 @@ const MANIFEST = [
     file:  path.join(FIXTURES, 'SAMPLE_GEN1_RFHUB_24C16_CARTMAN_SEC16.bin'),
     type: 'RFHUB', size: 2048,
   },
+
+  /* ── VIN_CRC sample dumps — registered & field-verified (parseModule:
+   *    VIN matches filename, every BCM/RFHUB VIN slot CRC validates; GPEC2A
+   *    slots are plaintext so carry no per-slot CRC). ──────────────────── */
+  {
+    label: 'SAMPLE BCM 18TH DK0G (fixtures/) — mirror1 SEC16',
+    file:  path.join(FIXTURES, 'SAMPLE_BCM_DFLASH_18TH_DK0G_VIN_CRC_1C4RJFN9XJC100007.bin'),
+    type: 'BCM', size: 65536, vinCount: 4, vin: '1C4RJFN9XJC100007', vinCrcOk: true,
+    sec16source: 'mirror1', sec16blank: false,
+  },
+  {
+    label: 'SAMPLE BCM 18TH SINCERE (fixtures/) — mirror1 SEC16',
+    file:  path.join(FIXTURES, 'SAMPLE_BCM_DFLASH_18TH_SINCERE_VIN_CRC_1C4RJFN95JC100001.bin'),
+    type: 'BCM', size: 65536, vinCount: 4, vin: '1C4RJFN95JC100001', vinCrcOk: true,
+    sec16source: 'mirror1', sec16blank: false,
+  },
+  {
+    label: 'SAMPLE BCM Charger ALEXTORRES (fixtures/) — split SEC16',
+    file:  path.join(FIXTURES, 'SAMPLE_BCM_DFLASH_CHARGER_ALEXTORRES_VIN_CRC_2C3CDXKT3FH100006.bin'),
+    type: 'BCM', size: 65536, vinCount: 4, vin: '2C3CDXKT3FH100006', vinCrcOk: true,
+    sec16source: 'split', sec16blank: false,
+  },
+  {
+    label: 'SAMPLE BCM Charger BLAWSON (fixtures/) — split SEC16',
+    file:  path.join(FIXTURES, 'SAMPLE_BCM_DFLASH_CHARGER_BLAWSON_VIN_CRC_2C3CDXHG8GH100005.bin'),
+    type: 'BCM', size: 65536, vinCount: 4, vin: '2C3CDXHG8GH100005', vinCrcOk: true,
+    sec16source: 'split', sec16blank: false,
+  },
+  {
+    label: 'SAMPLE GPEC2A 4KB CONTINENTAL (fixtures/) — plaintext VIN slots',
+    file:  path.join(FIXTURES, 'SAMPLE_GPEC2A_EXT_EEPROM_4KB_CONTINENTAL_VIN_CRC_1C4RJFDJ7DC100003.bin'),
+    type: 'GPEC2A', size: 4096, vinCount: 4, vin: '1C4RJFDJ7DC100003',
+  },
+  {
+    label: 'SAMPLE GPEC2A 4KB CONTINENTAL (fixtures/) — plaintext VIN slots',
+    file:  path.join(FIXTURES, 'SAMPLE_GPEC2A_EXT_EEPROM_4KB_CONTINENTAL_VIN_CRC_1C4RJFN92JC100002.bin'),
+    type: 'GPEC2A', size: 4096, vinCount: 4, vin: '1C4RJFN92JC100002',
+  },
+  {
+    label: 'SAMPLE GPEC2A 4KB SINCERE (fixtures/) — plaintext VIN slots',
+    file:  path.join(FIXTURES, 'SAMPLE_GPEC2A_EXT_EEPROM_4KB_SINCERE_VIN_CRC_1C4RJFN95JC100001.bin'),
+    type: 'GPEC2A', size: 4096, vinCount: 4, vin: '1C4RJFN95JC100001',
+  },
+  {
+    label: 'SAMPLE RFHUB EEE BRANDON (fixtures/) — 4 VIN slots, CRC ok',
+    file:  path.join(FIXTURES, 'SAMPLE_RFHUB_EEE_BRANDON_VIN_CRC_2B3CJ4DV6AH100004.bin'),
+    type: 'RFHUB', size: 4096, vinCount: 4, vin: '2B3CJ4DV6AH100004', vinCrcOk: true,
+  },
 ];
 
 /* Pre-load every manifest entry at module scope (hard-fail if missing). */
