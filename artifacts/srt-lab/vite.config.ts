@@ -26,6 +26,13 @@ if (rawPort && (Number.isNaN(port) || port <= 0)) {
 
 const basePath = process.env.BASE_PATH ?? "/";
 
+/* In local dev the SPA calls relative `/api/*`, while the API server runs as a
+ * separate process (default http://localhost:3001). Proxy those calls to it so
+ * the frontend and backend behave as one origin — matching how you'd front them
+ * with nginx/caddy on a VPS. This is dev-server-only and does NOT affect
+ * `vite build`. Override the target with API_PROXY_TARGET. */
+const apiProxyTarget = process.env.API_PROXY_TARGET ?? "http://localhost:3001";
+
 export default defineConfig({
   base: basePath,
   plugins: [
@@ -62,6 +69,12 @@ export default defineConfig({
     port,
     host: "0.0.0.0",
     allowedHosts: true,
+    proxy: {
+      "/api": {
+        target: apiProxyTarget,
+        changeOrigin: true,
+      },
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],
