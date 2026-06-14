@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /* ============================================================================
  * anonymize-real-dump.mjs — one-shot helper for committing a fresh real ECU
  * dump as a fixture under `src/lib/__fixtures__/realDumps/`.

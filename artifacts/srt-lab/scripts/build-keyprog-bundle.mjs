@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /* ============================================================================
  * build-keyprog-bundle.mjs — Task #366 KEYPROG bundler.
  *
@@ -44,7 +43,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { parseModule, pcmChipFromKey, pcmChipFromSize, PCM_CHIPS } from '../src/lib/parseModule.js';
 import { crc16 } from '../src/lib/crc.js';
@@ -143,7 +142,10 @@ export function evaluateFilenameGuard(role, name, { allowMislabeled = false } = 
 // The rest of this file only runs when the script is the entrypoint
 // (so importing it from a test doesn't trigger the bundler).
 const IS_ENTRYPOINT = (() => {
-  try { return import.meta.url === 'file://' + process.argv[1]; }
+  // pathToFileURL handles Windows drive letters / backslashes / URL-encoding;
+  // the old `'file://' + process.argv[1]` never matched on Windows, so the
+  // bundler silently exited 0 doing nothing when spawned there.
+  try { return !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href; }
   catch { return false; }
 })();
 if (!IS_ENTRYPOINT) {
