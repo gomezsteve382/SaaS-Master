@@ -11,7 +11,13 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-import { UNLOCKS, unlockByModule, type UnlockFn } from '../seedkey.js';
+import {
+  UNLOCKS,
+  unlockByModule,
+  unlockKeyBytesByModule,
+  VERIFIED_BY_CODE,
+  type UnlockFn,
+} from '../seedkey.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const golden = JSON.parse(
@@ -45,4 +51,29 @@ describe('anchored factory-DLL self-test vectors', () => {
   it('lear_wcm self-test = 0x57D0B3AC', () =>
     expect(unlockByModule('WCM_LEAR', 0xf5377b24, 0xf5377b4b)).toBe(0x57d0b3ac));
   it('unknown module returns null', () => expect(unlockByModule('NOPE', 1)).toBeNull());
+});
+
+describe('unlockKeyBytesByModule — wire-byte framing (seed-width = key-width, BE)', () => {
+  it('huntsville_bcm 2-byte seed 12 34 → key 52 6C', () =>
+    expect(unlockKeyBytesByModule('huntsville_bcm', [0x12, 0x34])).toEqual([0x52, 0x6c]));
+  it('BCM (logical) matches the DLL name', () =>
+    expect(unlockKeyBytesByModule('BCM', [0x12, 0x34])).toEqual([0x52, 0x6c]));
+  it('trw_abs 2-byte seed 01 01 → key 2A D4', () =>
+    expect(unlockKeyBytesByModule('trw_abs', [0x01, 0x01])).toEqual([0x2a, 0xd4]));
+  it('gpec 4-byte seed 12 34 56 78 → key 01 C4 28 92', () =>
+    expect(unlockKeyBytesByModule('gpec', [0x12, 0x34, 0x56, 0x78])).toEqual([0x01, 0xc4, 0x28, 0x92]));
+  it('lear_wcm 8-byte seed (two 32-bit halves) → 4-byte key (self-test vector)', () =>
+    expect(unlockKeyBytesByModule('WCM_LEAR', [0xf5, 0x37, 0x7b, 0x24, 0xf5, 0x37, 0x7b, 0x4b])).toEqual([
+      0x57, 0xd0, 0xb3, 0xac,
+    ]));
+  it('unknown module → null', () => expect(unlockKeyBytesByModule('NOPE', [0x12, 0x34])).toBeNull());
+  it('empty seed → null', () => expect(unlockKeyBytesByModule('BCM', [])).toBeNull());
+
+  it('VERIFIED_BY_CODE entries all resolve to real algorithms', () => {
+    for (const [code, names] of Object.entries(VERIFIED_BY_CODE)) {
+      for (const n of names) {
+        expect(UNLOCKS[n], `${code} → ${n} missing from UNLOCKS`).toBeTypeOf('function');
+      }
+    }
+  });
 });

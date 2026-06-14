@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { programVin } from '../vinProgrammer.js';
 import { getRow } from '../moduleRegistry.js';
-import { encodeDid, vinWriteDids, unlockKey } from '../algos.js';
+import { encodeDid, vinWriteDids, unlockKey, pickUnlockChain } from '../algos.js';
 
 // Minimal scripted UDS mock — same pattern as unlockAndDids.test.js.
 function mockUds(script) {
@@ -113,12 +113,10 @@ describe('programVin', () => {
       { req: [0x10, 0x03], resp: { ok: true, d: new Uint8Array([0x50, 0x03]) } },
     ];
     // tryUnlock walks the entire chain — every key is rejected with NRC 0x35.
-    // pickUnlockChain('BCM',0x750) under the engine's MOD_UNLOCK override is
-    // [cda6, alfa_ao, gpec2, gpec2_q2, gpec3, gpec3_q2, gpec2a, gpec2a_q2,
-    //  gpec15, gpec15_q2, gpec2e, gpec2e_q2, gpec2e_q3, gpec2e_q4,
-    //  gpec2f, gpec2f_q2, t80, t36, t81, t3c, t3608, tc605,
-    //  alfa_w6_tt, alfa_w6_tu, alfa_w6_tv, alfa_w6_ez] — 26 attempts.
-    const chainLen = 26;
+    // The BCM chain now leads with the factory-verified algorithms
+    // (verified:huntsville_bcm, verified:yazaki_fcm) before the cda6 + gpec2 +
+    // t80 + alfa_w6 fallbacks. Derive the length so it can't drift again.
+    const chainLen = pickUnlockChain(0x750, 'BCM').length;
     for (let i = 0; i < chainLen; i++) {
       script.push({ req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seedBytes]) } });
       // We don't validate the key bytes — the loop must just walk all of them.

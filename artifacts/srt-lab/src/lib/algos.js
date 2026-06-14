@@ -143,6 +143,10 @@ function alfaAo(seedBytes){
 // generated module isn't pulled into the algos.js import graph for
 // callers that only need the SGW XTEA bits.
 import { AOBD_W6 } from "./alfaobdAlgorithms.generated.js";
+// Factory-verified FCA seed/key (byte-verified vs the unlock DLLs in
+// tools/python-bridge/.../canflash_seedkey.py). Preferred over the ad-hoc
+// sxor/cda6 guesses below for module families that have a verified algorithm.
+import { unlockKeyBytesByModule, VERIFIED_BY_CODE } from "@workspace/uds";
 
 function alfaW6By(seedBytes,name){
   const rs=AOBD_W6[name];
@@ -396,6 +400,12 @@ function unlockKey(unlockId, seedU32){
 // 4-byte response. All other algorithms remain 4-byte in / 4-byte out.
 // Returns null on unknown algorithm or insufficient seed bytes.
 function unlockKeyBytes(unlockId, seedBytes){
+  // `verified:<dll>` chain entries resolve to the factory-verified seed/key in
+  // @workspace/uds (handles its own 2-/4-/8-byte wire framing, incl. <4-byte
+  // seeds the legacy path below rejects).
+  if(unlockId && unlockId.startsWith('verified:')){
+    return unlockKeyBytesByModule(unlockId.slice('verified:'.length), seedBytes);
+  }
   const sb=Array.from(seedBytes||[]);
   if(sb.length<4) return null;
   if(unlockId==='xtea_sgw' && sb.length>=8){
@@ -545,8 +555,13 @@ function isBodyBusTx(tx){ return tx !== 0x74F; }
 // wrapper. Non-body-bus tx ids stay on the legacy chain.
 function pickUnlockChain(tx, code){
   if(tx===0x74F) return ['xtea_sgw'];
+  // Prefer factory-verified algorithms for known families, tried before the
+  // ad-hoc sxor/cda6 chain so the correct key lands first (fewest 27 attempts,
+  // lowest lockout risk). A wrong family/framing falls through on NRC 0x35.
+  const verified = (code && VERIFIED_BY_CODE[code]) ? VERIFIED_BY_CODE[code].map(n=>'verified:'+n) : [];
   const pref = (code && MOD_UNLOCK[code]) || unlockIdForTx(tx);
-  const out = [pref];
+  const out = [...verified];
+  if(!out.includes(pref)) out.push(pref);
   if(!isBodyBusTx(tx)){
     // Non body-bus: legacy chain only, drop the alfa_* tails.
     for(const id of UNLOCK_FALLBACK){

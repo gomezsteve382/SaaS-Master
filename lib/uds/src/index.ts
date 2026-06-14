@@ -167,6 +167,18 @@ export {
 /** Convenience namespace: `isotp.segmentPayload(...)` etc. */
 export * as isotp from './isotp.js';
 
+// ── SecurityAccess seed→key (verified FCA factory algorithms) ────────
+export type { UnlockFn } from './seedkey.js';
+export {
+  unlockByModule,
+  unlockKeyBytesByModule,
+  isTwoArgModule,
+  UNLOCKS,
+  LOGICAL_TO_DLL,
+  VERIFIED_BY_CODE,
+} from './seedkey.js';
+export * as seedkey from './seedkey.js';
+
 // ── Re-export NRC table as `nrc` namespace ───────────────────────────
 export * as nrc from './nrc.js';
 

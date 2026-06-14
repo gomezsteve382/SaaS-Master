@@ -12,6 +12,7 @@ import {
   vinReadbackOk,
   VIN_TAIL8_DIDS,
 } from '../algos.js';
+import { unlockKeyBytesByModule } from '@workspace/uds';
 
 describe('encodeDid', () => {
   it('encodes 16-bit DIDs as 2 bytes', () => {
@@ -59,25 +60,31 @@ describe('pickUnlockChain', () => {
     expect(pickUnlockChain(0x74F, 'SGW')).toEqual(['xtea_sgw']);
     expect(pickUnlockChain(0x74F, null)).toEqual(['xtea_sgw']);
   });
-  it('uses MOD_UNLOCK preference and appends UNLOCK_FALLBACK', () => {
+  it('prefers verified algorithms, then MOD_UNLOCK pref, then UNLOCK_FALLBACK', () => {
     const chain = pickUnlockChain(0x7E0, 'ECM');
-    expect(chain[0]).toBe('gpec2');
-    // UNLOCK_FALLBACK has cda6, gpec2, gpec3, gpec2a, gpec15.
-    // gpec2 is the preferred so it's not duplicated; cda6/gpec3/... follow.
+    // Factory-verified PCM algorithms are tried first (prefer-verified-by-code).
+    expect(chain[0]).toBe('verified:ngc_engine');
+    expect(chain).toContain('verified:gpec');
+    // MOD_UNLOCK preference (gpec2) and every UNLOCK_FALLBACK id still present.
+    expect(chain).toContain('gpec2');
     for (const id of UNLOCK_FALLBACK) expect(chain).toContain(id);
     // No duplicates.
     expect(new Set(chain).size).toBe(chain.length);
   });
-  it('BCM picks cda6 first', () => {
-    expect(pickUnlockChain(0x750, 'BCM')[0]).toBe('cda6');
+  it('BCM picks verified:huntsville_bcm first, cda6 still in the chain', () => {
+    const chain = pickUnlockChain(0x750, 'BCM');
+    expect(chain[0]).toBe('verified:huntsville_bcm');
+    expect(chain).toContain('cda6');
   });
   it('falls through to unlockIdForTx when module code unknown', () => {
     const chain = pickUnlockChain(0x7E0, 'XYZ');
     expect(chain[0]).toBe('cda6'); // unlockIdForTx returns cda6 for non-0x74F
   });
-  it('TIPM picks t80 first', () => {
+  it('TIPM picks verified:motorola_tipm7 first, t80 still in the chain', () => {
     expect(MOD_UNLOCK.TIPM).toBe('t80');
-    expect(pickUnlockChain(0x74C, 'TIPM')[0]).toBe('t80');
+    const chain = pickUnlockChain(0x74C, 'TIPM');
+    expect(chain[0]).toBe('verified:motorola_tipm7');
+    expect(chain).toContain('t80');
   });
 });
 
@@ -128,8 +135,24 @@ describe('tryUnlock', () => {
       { req: [0x27, 0x02, ...keyBytesFor('gpec2')], resp: { ok: true, d: new Uint8Array([0x67, 0x02]) } },
     ]);
 
-    const result = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
+    const result = await tryUnlock(m.uds, 0x750, 0x758, 'IPC', null, 'IPC');
     expect(result).toBe('gpec2');
+  });
+
+  it('unlocks a BCM with the factory-verified huntsville_bcm key on the first try', async () => {
+    // The prefer-verified-by-code wiring puts verified:huntsville_bcm first. The
+    // wire carries a 4-byte seed (low 16 bits = the DLL seed 0x1234 → key 0x526C);
+    // the adapter zero-extends the 16-bit key to the seed width, big-endian.
+    const seed4 = [0x00, 0x00, 0x12, 0x34];
+    const key4 = unlockKeyBytesByModule('huntsville_bcm', seed4); // [0x00,0x00,0x52,0x6C]
+    expect(key4).toEqual([0x00, 0x00, 0x52, 0x6c]);
+    const m = mockUds([
+      { req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed4]) } },
+      { req: [0x27, 0x02, ...key4], resp: { ok: true, d: new Uint8Array([0x67, 0x02]) } },
+    ]);
+    const result = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
+    expect(result).toBe('verified:huntsville_bcm'); // unlocked via the verified algo
+    expect(m.calls.length).toBe(2); // first (verified) algo succeeded — no wasted attempts
   });
 
   it('returns true on already-unlocked (zero seed) without sending key', async () => {
@@ -158,7 +181,7 @@ describe('tryUnlock', () => {
       const k = unlockKey(aid, seedU32);
       return [(k >>> 24) & 0xFF, (k >>> 16) & 0xFF, (k >>> 8) & 0xFF, k & 0xFF];
     };
-    const chain = pickUnlockChain(0x750, 'BCM');
+    const chain = pickUnlockChain(0x750, 'IPC');
     const nrcs  = [0x35, 0x33, 0x31, 0x12, 0x35];
     const script = [];
     chain.forEach((aid, i) => {
@@ -170,7 +193,7 @@ describe('tryUnlock', () => {
     // the loop falls through to the regular "exhausted" failure.
     script.push({ req: [0x29, 0x00], resp: { ok: true, d: new Uint8Array([0x7F, 0x29, 0x11]) } });
     const m = mockUds(script);
-    const result = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
+    const result = await tryUnlock(m.uds, 0x750, 0x758, 'IPC', null, 'IPC');
     expect(result).toBe(false);
     // chain.length * 2 (seed+key per algo) + 1 post-exhaustion 0x29 probe.
     expect(m.calls.length).toBe(chain.length * 2 + 1);
@@ -188,7 +211,7 @@ describe('tryUnlock', () => {
       { req: [0x27, 0x02, ...cda6Bytes], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x35]) } },
       { req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x7F, 0x27, 0x36]) } },
     ]);
-    const ur = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
+    const ur = await tryUnlock(m.uds, 0x750, 0x758, 'IPC', null, 'IPC');
     expect(ur).toBe(false);
     let wroteAnything = false;
     if (ur !== false) {
@@ -211,7 +234,7 @@ describe('tryUnlock', () => {
       const k = unlockKey(aid, seedU32);
       return [(k >>> 24) & 0xFF, (k >>> 16) & 0xFF, (k >>> 8) & 0xFF, k & 0xFF];
     };
-    const chain = pickUnlockChain(0x750, 'BCM');
+    const chain = pickUnlockChain(0x750, 'IPC');
     const script = [];
     chain.forEach((aid) => {
       script.push({ req: [0x27, 0x01], resp: { ok: true, d: new Uint8Array([0x67, 0x01, ...seed]) } });
@@ -220,7 +243,7 @@ describe('tryUnlock', () => {
     // Module supports 0x29 (positive echo).
     script.push({ req: [0x29, 0x00], resp: { ok: true, d: new Uint8Array([0x69, 0x00]) } });
     const m = mockUds(script);
-    const ur = await tryUnlock(m.uds, 0x750, 0x758, 'BCM', null, 'BCM');
+    const ur = await tryUnlock(m.uds, 0x750, 0x758, 'IPC', null, 'IPC');
     expect(ur).toBe(false);              // STRICT — not an object
     expect(ur).not.toBe(true);
     // Mirror the writer-side gating — `if (ur !== false)` MUST skip writes.

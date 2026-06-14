@@ -801,3 +801,62 @@ export function unlockByModule(name: string, seed: number, seedHi = 0): number |
 export function isTwoArgModule(name: string): boolean {
   return TWO_ARG_MODULES.has(name) || TWO_ARG_MODULES.has(LOGICAL_TO_DLL[name] ?? '');
 }
+
+/**
+ * Compute the SecurityAccess key as WIRE BYTES for a module from the raw seed
+ * bytes of a `67 0x` response — ready to send back in `27 0x <key>`.
+ *
+ * Framing: seed and key are big-endian integers of the seed's byte width (the
+ * dominant FCA convention, key width == seed width). So 16-bit-key modules
+ * (BCM/ABS/ITM/…) sending a 2-byte seed get a 2-byte key; 32-bit modules
+ * (GPEC/EDC16/LCG-pair) sending 4 bytes get 4. Two-arg modules (RAK, lear_wcm)
+ * consume an 8-byte seed as two 32-bit halves and return 4 bytes.
+ *
+ * The MATH is byte-verified against the factory DLLs; the seed/key WIRE WIDTH
+ * follows the standard FCA convention — confirm on the first bench unlock.
+ *
+ * @param name        logical ('BCM') or DLL ('huntsville_bcm') module name
+ * @param seedBytes   the seed bytes (everything after `67 <sf>`)
+ * @returns key bytes, or null when the module has no verified algorithm / seed is empty
+ */
+export function unlockKeyBytesByModule(name: string, seedBytes: ArrayLike<number>): number[] | null {
+  const sb = Array.from(seedBytes ?? []);
+  const dll = LOGICAL_TO_DLL[name] ?? name;
+  const fn = UNLOCKS[dll];
+  if (!fn || sb.length === 0) return null;
+
+  if (isTwoArgModule(name) && sb.length >= 8) {
+    const lo = ((sb[0] << 24) | (sb[1] << 16) | (sb[2] << 8) | sb[3]) >>> 0;
+    const hi = ((sb[4] << 24) | (sb[5] << 16) | (sb[6] << 8) | sb[7]) >>> 0;
+    const k = fn(lo, hi) >>> 0;
+    return [(k >>> 24) & 0xff, (k >>> 16) & 0xff, (k >>> 8) & 0xff, k & 0xff];
+  }
+
+  const width = Math.min(sb.length, 4);
+  let seed = 0;
+  for (let i = 0; i < sb.length; i++) seed = ((seed << 8) | sb[i]) >>> 0;
+  const k = fn(seed) >>> 0;
+  const out = new Array<number>(width);
+  for (let i = 0; i < width; i++) out[width - 1 - i] = (k >>> (i * 8)) & 0xff;
+  return out;
+}
+
+/**
+ * Module scan-code → ordered list of DLL-verified unlock algorithm names. Lets
+ * the live SecurityAccess chain prefer factory-verified seed/key over the
+ * ad-hoc `cda6`/`sxor` guesses. Codes match the SRT-lab `MOD_UNLOCK` keys.
+ * Only families with a byte-verified DLL algorithm are listed; everything else
+ * keeps its existing behavior. Multiple entries = try in order (e.g. a 0x620
+ * module may be a Huntsville BCM or a Yazaki FCM).
+ */
+export const VERIFIED_BY_CODE: Record<string, string[]> = {
+  BCM: ['huntsville_bcm', 'yazaki_fcm'],
+  ECM: ['ngc_engine', 'gpec', 'venom_pcm'],
+  TCM: ['ngc_transmission'],
+  ABS: ['trw_abs', 'bosch_abs'],
+  TIPM: ['motorola_tipm7'],
+  RADIO: ['huntsville_radio'],
+  ORC: ['trw_orc'],
+  HVAC: ['hvac', 'trw_hvac'],
+  DDM: ['ddm', 'bosch_ddm'],
+};
