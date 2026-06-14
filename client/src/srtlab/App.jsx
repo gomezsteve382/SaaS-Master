@@ -40,6 +40,7 @@ import { writePcmSec6, writeRfhSec16FromBcm, writeRfhSec16Gen1, writeRfhSec16Gen
 import EcmTab from "./tabs/EcmTab";
 import SmartBoxTab from "./tabs/SmartBoxTab";
 import KeyProgTab from "./tabs/KeyProgTab";
+import KeyWorkflowTab from "./tabs/KeyWorkflowTab.jsx";
 import KeyTransferTab from "./tabs/KeyTransferTab.jsx";
 import KeyManagerTab from "./tabs/KeyManagerTab";
 import CFlashTab from "./tabs/CFlashTab.jsx";
@@ -842,99 +843,157 @@ const C2 = {
 };
 
 /* ═══ VEHICLE LANDING ═══ */
+/* ═══ VIN INPUT + HEADING FOR LANDING ═══ */
+function VinAndHeading({initialVin, onSelect}){
+  const [vin, setVin] = useState(initialVin||'');
+  const valid = /^[12345][A-HJ-NPR-Z0-9]{16}$/.test(vin.trim().toUpperCase());
+  // Store VIN in a window global so VehicleCard onClick can read it
+  useEffect(()=>{ window.__srtVin = vin.trim().toUpperCase(); },[vin]);
+  return (
+    <div style={{marginBottom:40}}>
+      <div style={{
+        display:'inline-flex', alignItems:'center', gap:8,
+        background:'rgba(229,57,53,0.1)', border:'1px solid rgba(229,57,53,0.2)',
+        borderRadius:20, padding:'4px 12px', marginBottom:16,
+      }}>
+        <span style={{width:6,height:6,borderRadius:'50%',background:'#e53935',display:'inline-block',animation:'srtPulse 2s infinite'}}/>
+        <span style={{fontSize:11,fontWeight:700,color:'#e53935',letterSpacing:'0.1em',textTransform:'uppercase'}}>Bench Ready</span>
+      </div>
+      <h1 style={{margin:0,fontSize:32,fontWeight:800,color:'#f0f0f0',letterSpacing:'-0.5px',lineHeight:1.1}}>Select a vehicle</h1>
+      <p style={{margin:'10px 0 20px',fontSize:14,color:'#6b6b6b',lineHeight:1.5}}>Choose the platform you're working on to open the workspace.</p>
+      {/* VIN input */}
+      <div style={{display:'flex',alignItems:'center',gap:10,maxWidth:480}}>
+        <div style={{position:'relative',flex:1}}>
+          <input
+            value={vin}
+            onChange={e=>{const v=e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g,'').slice(0,17);setVin(v);}}
+            placeholder="Enter VIN (optional)"
+            maxLength={17}
+            spellCheck={false}
+            style={{
+              width:'100%', boxSizing:'border-box',
+              background:'#1c1c1c', border:'1px solid '+(valid?'#00695C':'#2e2e2e'),
+              borderRadius:10, padding:'10px 44px 10px 14px',
+              fontFamily:"'JetBrains Mono',monospace", fontSize:13,
+              color: valid?'#4CAF8A':'#f0f0f0', letterSpacing:'0.08em',
+              outline:'none', transition:'border-color .2s',
+            }}
+            onFocus={e=>{ if(!valid) e.target.style.borderColor='#444'; }}
+            onBlur={e=>{ if(!valid) e.target.style.borderColor='#2e2e2e'; }}
+          />
+          {vin && <button
+            onClick={()=>setVin('')}
+            style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'#555',cursor:'pointer',fontSize:16,lineHeight:1,padding:'2px 4px'}}
+          >×</button>}
+        </div>
+        <div style={{
+          fontSize:10,fontFamily:"'JetBrains Mono',monospace",
+          color: vin.length===0?'#3a3a3a': valid?'#4CAF8A':'#e53935',
+          minWidth:28, textAlign:'center', fontWeight:700,
+        }}>{vin.length}/17</div>
+      </div>
+      {valid && <div style={{marginTop:8,fontSize:11,color:'#4CAF8A',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.06em'}}>
+        ✓ Valid VIN — will be pre-loaded into the workspace
+      </div>}
+    </div>
+  );
+}
+
 function VehicleCard({vehicle, delay, onClick}){
   const [h, setH] = useState(false);
-  const accent = vehicle.accent;
+  const accent = vehicle.accent || '#e53935';
   return (
     <div
       onClick={onClick}
       onMouseEnter={()=>setH(true)}
       onMouseLeave={()=>setH(false)}
       style={{
-        position:'relative',
-        aspectRatio:'1 / 1.15',
-        borderRadius:18,
-        overflow:'hidden',
+        borderRadius:14,
         cursor:'pointer',
-        background:C2.darkCard,
-        border:`1px solid ${h ? accent+'99' : C2.darkBorder}`,
-        transition:'border-color 0.3s, box-shadow 0.3s',
-        boxShadow: h ? `0 20px 60px ${accent}40, 0 0 0 1px ${accent}55` : 'none',
-        animationName: h ? 'none' : 'srtFloat',
-        animationDuration: '4s',
-        animationTimingFunction: 'ease-in-out',
-        animationIterationCount: 'infinite',
-        animationDelay: `${delay}s`,
+        background: h ? '#222' : '#1c1c1c',
+        border:`1px solid ${h ? accent+'55' : '#2a2a2a'}`,
+        transition:'all 180ms cubic-bezier(0.23,1,0.32,1)',
+        boxShadow: h ? `0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px ${accent}33` : '0 2px 8px rgba(0,0,0,0.3)',
+        padding:'22px 20px 20px',
+        display:'flex', flexDirection:'column', gap:8,
+        transform: h ? 'translateY(-2px)' : 'none',
       }}
     >
+      <div style={{fontSize:9,fontWeight:700,letterSpacing:'0.14em',color:'#555',textTransform:'uppercase',fontFamily:"'JetBrains Mono',monospace"}}>{vehicle.body}</div>
+      <div style={{fontSize:22,fontWeight:800,color:'#f0f0f0',letterSpacing:'-0.3px',lineHeight:1.1}}>{vehicle.name}</div>
+      <div style={{fontSize:10,color:'#4a4a4a',fontFamily:"'JetBrains Mono',monospace",marginTop:2}}>
+        {vehicle.generations.length} gen · {vehicle.bcmFamilies[0]}{vehicle.bcmFamilies.length>1?'→'+vehicle.bcmFamilies[vehicle.bcmFamilies.length-1]:''}
+      </div>
       <div style={{
-        position:'absolute', inset:0,
-        backgroundImage:`url('${vehicle.img}')`,
-        backgroundSize:'cover',
-        backgroundPosition:'center',
-        transition:'transform 0.6s cubic-bezier(0.2,0.8,0.2,1)',
-        transform: h ? 'scale(1.08)' : 'none',
-      }}/>
-      <div style={{
-        position:'absolute', inset:0, zIndex:1,
-        background:'linear-gradient(180deg, transparent 0%, transparent 40%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.95) 100%)',
-      }}/>
-      <div style={{
-        position:'absolute', top:16, right:16, zIndex:2,
-        width:32, height:32, borderRadius:'50%',
-        background: h ? accent : 'rgba(0,0,0,0.55)',
-        border: `1px solid ${h ? accent : 'rgba(255,255,255,0.15)'}`,
-        display:'flex', alignItems:'center', justifyContent:'center',
-        color:'#fff', fontSize:14,
-        transform: h ? 'rotate(-45deg)' : 'none',
-        transition:'all 0.3s',
-        backdropFilter:'blur(8px)',
-      }}>→</div>
-      <div style={{position:'absolute', bottom:20, left:20, right:20, zIndex:2}}>
-        <div style={{fontFamily:'JetBrains Mono',fontSize:9,letterSpacing:3,color:'rgba(255,255,255,0.55)',marginBottom:6,fontWeight:700}}>{vehicle.body}</div>
-        <div style={{fontFamily:"'Righteous'",fontSize:26,letterSpacing:2,color:'#fff',lineHeight:1,textShadow:'0 2px 12px rgba(0,0,0,0.6)'}}>{vehicle.name}</div>
-        <div style={{fontFamily:'JetBrains Mono',fontSize:9.5,color:'rgba(255,255,255,0.5)',marginTop:8,letterSpacing:1}}>{vehicle.generations.length} GEN · {vehicle.bcmFamilies[0]}{vehicle.bcmFamilies.length>1?'→'+vehicle.bcmFamilies[vehicle.bcmFamilies.length-1]:''}</div>
+        marginTop:12, paddingTop:14,
+        borderTop:`1px solid ${h ? accent+'33' : '#252525'}`,
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+        transition:'border-color 180ms',
+      }}>
+        <span style={{fontSize:11,color: h ? accent : '#4a4a4a',fontWeight:700,letterSpacing:'0.06em',transition:'color 180ms'}}>Open →</span>
+        <div style={{
+          width:24,height:24,borderRadius:6,
+          background: h ? accent : '#252525',
+          display:'grid',placeItems:'center',
+          transition:'background 180ms',
+          fontSize:12,color:'#fff',
+        }}>→</div>
       </div>
     </div>
   );
 }
-
-function VehicleLanding({onSelect}){
+function VehicleLanding({onSelect, initialVin}){
   return (
-    <div style={{minHeight:'100vh',background:C2.dark,color:C2.darkText,fontFamily:"'Nunito',sans-serif",position:'relative',overflow:'hidden'}}>
+    <div style={{
+      minHeight:'100vh', background:'#141414', color:'#f0f0f0',
+      fontFamily:"'Inter',system-ui,sans-serif",
+      display:'flex', flexDirection:'column',
+    }}>
       <style>{`
-        @keyframes srtFloat {
-          0%,100% { transform: translateY(0px); }
-          50%     { transform: translateY(-10px); }
-        }
-        @keyframes srtPulse {
-          0%,100% { opacity: 1; }
-          50%     { opacity: 0.4; }
-        }
+        @keyframes srtPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
       `}</style>
-      <div style={{position:'fixed',inset:0,zIndex:0,background:'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(211,47,47,0.15), transparent 60%), radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,109,0,0.08), transparent 60%), radial-gradient(ellipse 50% 40% at 90% 30%, rgba(41,121,255,0.06), transparent 60%), #0A0A0A'}}/>
-      <div style={{position:'fixed',inset:0,zIndex:1,pointerEvents:'none',opacity:0.35,mixBlendMode:'overlay',backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)' opacity='0.5'/%3E%3C/svg%3E\")"}}/>
-      <div style={{position:'relative',zIndex:2,maxWidth:1440,margin:'0 auto',padding:'60px 40px 80px'}}>
-        <header style={{display:'flex',alignItems:'center',gap:20,marginBottom:80}}>
-          <div style={{width:64,height:64,borderRadius:16,background:'linear-gradient(135deg, #FF5252 0%, #D32F2F 60%, #8B0000 100%)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Righteous'",fontSize:36,color:'#fff',boxShadow:'0 8px 32px rgba(211,47,47,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',transform:'rotate(-2deg)'}}>S</div>
-          <div>
-            <div style={{fontFamily:"'Righteous'",fontSize:40,letterSpacing:4,color:'#fff',lineHeight:1,textShadow:'0 2px 20px rgba(211,47,47,0.4)'}}>SRT LAB</div>
-            <div style={{fontFamily:'JetBrains Mono',fontSize:10,letterSpacing:8,color:'rgba(255,255,255,0.35)',fontWeight:700,marginTop:6}}>BENCH · OBD · DUMPS</div>
-          </div>
-        </header>
-        <div style={{display:'flex',alignItems:'baseline',gap:16,marginBottom:48}}>
-          <span style={{fontFamily:'JetBrains Mono',fontSize:11,letterSpacing:4,color:'#D32F2F',fontWeight:700}}>01 / SELECT</span>
-          <span style={{fontFamily:"'Righteous'",fontSize:28,letterSpacing:2,color:'#fff'}}>VEHICLE</span>
-          <span style={{flex:1,height:1,background:'linear-gradient(to right, rgba(211,47,47,0.6), transparent)'}}/>
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(5, 1fr)',gap:20}}>
-          {VEHICLE_LIST.map((v,i)=><VehicleCard key={v.id} vehicle={v} delay={i*0.6} onClick={()=>onSelect(v.id)}/>)}
-        </div>
-        <div style={{marginTop:80,paddingTop:32,borderTop:'1px solid rgba(255,255,255,0.05)',display:'flex',justifyContent:'space-between',alignItems:'center',fontFamily:'JetBrains Mono',fontSize:10,color:'rgba(255,255,255,0.35)',letterSpacing:2}}>
-          <div><span style={{display:'inline-block',width:6,height:6,background:'#00C853',borderRadius:'50%',marginRight:8,boxShadow:'0 0 8px #00C853',animation:'srtPulse 2s infinite'}}/>BENCH READY</div>
-          <div>v2.0.0 · JAILBREAK EDITION</div>
+
+      {/* Header */}
+      <header style={{
+        display:'flex', alignItems:'center', gap:12,
+        padding:'0 40px', height:56,
+        borderBottom:'1px solid #222', flexShrink:0,
+      }}>
+        <div style={{
+          width:32, height:32, borderRadius:9,
+          background:'linear-gradient(135deg,#e53935,#b71c1c)',
+          display:'grid', placeItems:'center',
+          fontSize:15, fontWeight:900, color:'#fff',
+          boxShadow:'0 2px 10px rgba(229,57,53,0.4)',
+        }}>S</div>
+        <span style={{fontSize:15,fontWeight:700,letterSpacing:'0.04em',color:'#f0f0f0'}}>SRT LAB</span>
+        <div style={{flex:1}}/>
+        <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#3a3a3a',letterSpacing:'0.08em'}}>v2.0.0 · JAILBREAK EDITION</span>
+      </header>
+
+      {/* Main content */}
+      <div style={{
+        flex:1, display:'flex', flexDirection:'column',
+        maxWidth:960, margin:'0 auto', width:'100%',
+        padding:'72px 40px 48px',
+      }}>
+        {/* Heading + VIN input */}
+        <VinAndHeading initialVin={initialVin} onSelect={onSelect}/>
+
+        {/* Vehicle grid */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:14}}>
+          {VEHICLE_LIST.map((v,i)=><VehicleCard key={v.id} vehicle={v} delay={i*0.6} onClick={()=>onSelect(v.id, window.__srtVin||'')}/>)}
         </div>
       </div>
+
+      {/* Footer */}
+      <footer style={{
+        display:'flex', alignItems:'center', gap:8,
+        padding:'0 40px', height:44,
+        borderTop:'1px solid #1e1e1e', flexShrink:0,
+      }}>
+        <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#3a3a3a',letterSpacing:'0.06em'}}>SRT LAB · Stellantis Module Workbench</span>
+      </footer>
     </div>
   );
 }
@@ -945,6 +1004,7 @@ const WORKSPACE_TABS = [
   {id:'vinsync',    i:'🪪', l:'VIN → SYNC',       s:'Step 1 VIN+CRC · Step 2 security'},
   {id:'secsync',    i:'🔐', l:'SECURITY SYNC',    s:'BCM · RFHUB · PCM · SEC16/SEC6 side-by-side'},
   {id:'modsync',    i:'🔄', l:'MODULE SYNC',      s:'BCM · RFHUB · PCM · SEC16'},
+  {id:'keyworkflow',i:'🔑', l:'KEY WORKFLOW',     s:'SKC · Transponder pairing · Seed key sync · Guided 4-step'},
   {id:'keyprog',    i:'🔑', l:'KEY PROG',         s:'Stamp VIN to module set'},
   {id:'keyxfer',    i:'🔑', l:'KEY PROGRAM',      s:'Offline transponder-key transfer · no OBD'},
   {id:'keymgr',     i:'🗝️', l:'KEY MGR',          s:'Dual-file RFHUB fob transfer'},
@@ -1021,7 +1081,7 @@ const WORKSPACE_TABS = [
  * INFO is intentionally absent — it lives in the reference panel. */
 const WORKSPACE_CATEGORIES = {
   // PROGRAM — anything that writes to a module / produces a flashable file.
-  jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM',   keytransplant:'PROGRAM', quickclone:'PROGRAM', keyimporter:'PROGRAM', livekey:'PROGRAM',
+  jailbreak:'PROGRAM', keyworkflow:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM',   keytransplant:'PROGRAM', quickclone:'PROGRAM', keyimporter:'PROGRAM', livekey:'PROGRAM',
   vinprog:'PROGRAM',   marrymodule:'PROGRAM',
   vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
@@ -1263,6 +1323,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
         {tab==='secsync'   && <SecuritySyncTab/>}
         {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
+        {tab==='keyworkflow' && <KeyWorkflowTab vehicle={vehicle}/>}
         {tab==='keyprog'   && <KeyProgTab vehicle={vehicle}/>}
         {tab==='keyxfer'   && <KeyTransferTab vehicle={vehicle}/>}
         {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
@@ -1360,7 +1421,10 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
 
 /* ═══ DUMPS TAB v2 — vehicle-aware ═══ */
 export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
-  const [tv, setTv] = useState('');
+  const {vin: ctxVin} = useContext(MasterVinContext);
+  const [tv, setTv] = useState(()=>ctxVin||'');
+  // Sync context VIN into local tv on first non-empty context VIN
+  useEffect(()=>{ if(ctxVin && !tv) setTv(ctxVin); },[ctxVin]);
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [rejected, setRejected] = useState([]);
@@ -1453,6 +1517,9 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
   },[setFiles]);
   const removeFile = useCallback((fileIndex)=>{
     setFiles(p=>p.filter((_,i)=>i!==fileIndex));
+  },[setFiles]);
+  const clearSlot = useCallback((slotType)=>{
+    setFiles(p=>p.filter(f=>!f || f.type!==slotType && !(slotType==='PCM' && (f.type==='GPEC2A'||f.type==='PCM'))));
   },[setFiles]);
   const bcm = files.find(f=>f && f.type==='BCM');
   const rfh = files.find(f=>f && f.type==='RFHUB');
@@ -1833,9 +1900,9 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
     <Card>
       <div style={{fontSize:11,fontWeight:800,color:C.ts,letterSpacing:2,marginBottom:12}}>MODULE DUMPS</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:10}}>
-        <UploadSlot label="BCM" slotType="BCM" file={bcm} onLoad={gatedLoadF}/>
-        <UploadSlot label="RFHUB" slotType="RFHUB" file={rfh} onLoad={gatedLoadF}/>
-        <UploadSlot label="PCM / GPEC2A" slotType="PCM" file={pcm} onLoad={gatedLoadF} badge={pcmBadge}/>
+        <UploadSlot label="BCM" slotType="BCM" file={bcm} onLoad={gatedLoadF} onClear={clearSlot}/>
+        <UploadSlot label="RFHUB" slotType="RFHUB" file={rfh} onLoad={gatedLoadF} onClear={clearSlot}/>
+        <UploadSlot label="PCM / GPEC2A" slotType="PCM" file={pcm} onLoad={gatedLoadF} onClear={clearSlot} badge={pcmBadge}/>
       </div>
       {/* Task #481 — always-on programmer-error help blurb. Mirrors the
           wording used in the Module Sync workspace and the OBD wizard
@@ -1986,10 +2053,13 @@ export function DumpsTabV2({vehicle, files, setFiles, loadF, onGoSync}){
  * Both steps emit downloadable .bin buffers from local state — no auto-clicks.
  */
 function VinThenSyncTab({vehicle}){
+  const {vin: ctxVin} = useContext(MasterVinContext);
   const [bcm, setBcm] = useState(null);
   const [rfh, setRfh] = useState(null);
   const [pcm, setPcm] = useState(null);
-  const [tv, setTv] = useState('');
+  const [tv, setTv] = useState(()=>ctxVin||'');
+  // Sync context VIN into local tv on first non-empty context VIN
+  useEffect(()=>{ if(ctxVin && !tv) setTv(ctxVin); },[ctxVin]);
   const [targetPcmChip, setTargetPcmChip] = useState('4kb');
   const [step1, setStep1] = useState(null); // {bcmBytes,rfhBytes,pcmBytes,log[]}
   const [step2, setStep2] = useState(null); // {files:[{label,name,bytes}],log[]}
@@ -2015,6 +2085,12 @@ function VinThenSyncTab({vehicle}){
     };
     rd.readAsArrayBuffer(f);
   };
+  const clearVinSlot = useCallback((slotType)=>{
+    if(slotType==='BCM') setBcm(null);
+    else if(slotType==='RFHUB') setRfh(null);
+    else if(slotType==='PCM') setPcm(null);
+    setStep1(null); setStep2(null); setMsg(''); setErr('');
+  },[]);
 
   const downloadBin = (bytes, name) => {
     const blob = new Blob([bytes],{type:'application/octet-stream'});
@@ -2122,9 +2198,9 @@ function VinThenSyncTab({vehicle}){
     <Card>
       <div style={{fontSize:11,fontWeight:800,color:C.ts,letterSpacing:2,marginBottom:12}}>MODULE DUMPS</div>
       <div data-testid="vinsync-slots" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:10}}>
-        <UploadSlot label="BCM" slotType="BCM" file={bcm} onLoad={loadSlot}/>
-        <UploadSlot label="RFHUB" slotType="RFHUB" file={rfh} onLoad={loadSlot}/>
-        <UploadSlot label="PCM / GPEC2A" slotType="PCM" file={pcm} onLoad={loadSlot}/>
+        <UploadSlot label="BCM" slotType="BCM" file={bcm} onLoad={loadSlot} onClear={clearVinSlot}/>
+        <UploadSlot label="RFHUB" slotType="RFHUB" file={rfh} onLoad={loadSlot} onClear={clearVinSlot}/>
+        <UploadSlot label="PCM / GPEC2A" slotType="PCM" file={pcm} onLoad={loadSlot} onClear={clearVinSlot}/>
       </div>
     </Card>
 
@@ -2193,19 +2269,25 @@ function VinThenSyncTab({vehicle}){
   </div>;
 }
 
-function UploadSlot({label, slotType, file, onLoad, badge}){
-  return <div style={{padding:12,borderRadius:12,background:C.c2,border:'1.5px dashed '+C.bd,textAlign:'center',cursor:'pointer',transition:'all .2s'}} onClick={()=>document.getElementById('u-'+label).click()}>
-    <div style={{fontSize:11,fontWeight:900,color:C.ts,letterSpacing:2,marginBottom:6}}>{label}</div>
-    {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:11,fontWeight:700,color:'#00695C',wordBreak:'break-all'}}>
+function UploadSlot({label, slotType, file, onLoad, onClear, badge}){
+  const inputRef = useRef(null);
+  return <div
+    style={{padding:12,borderRadius:12,background:C.c2,border:'1.5px dashed '+(file?'#00695C':C.bd),textAlign:'center',cursor:file?'default':'pointer',transition:'all .2s',position:'relative'}}
+    onClick={()=>!file && inputRef.current&&inputRef.current.click()}
+    onDragOver={e=>e.preventDefault()}
+    onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files;if(f&&f.length)onLoad(f,slotType);}}
+  >
+    {file && onClear && <button
+      onClick={e=>{e.stopPropagation();if(inputRef.current)inputRef.current.value='';onClear(slotType);}}
+      style={{position:'absolute',top:6,right:6,background:'rgba(255,255,255,0.07)',border:'none',borderRadius:6,color:C.ts,cursor:'pointer',fontSize:14,fontWeight:700,lineHeight:1,padding:'2px 7px',transition:'background .15s'}}
+      title="Remove file"
+      onMouseEnter={e=>e.currentTarget.style.background='rgba(220,50,50,0.22)'}
+      onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,0.07)'}
+    >×</button>}
+    <div style={{fontSize:11,fontWeight:900,color:file?'#4CAF8A':C.ts,letterSpacing:2,marginBottom:6}}>{label}</div>
+    {file ? <div style={{fontFamily:'JetBrains Mono',fontSize:11,fontWeight:700,color:'#4CAF8A',wordBreak:'break-all'}}>
       {file.name}
       <div style={{color:C.ts,fontSize:11,fontWeight:600,marginTop:2}}>{file.size.toLocaleString()} bytes</div>
-      {/* Task #485 — chip badge for the loaded PCM. Shows the same
-          canonical 95320 · 4 KB / 95640 · 8 KB chip label that the
-          bench-resize selector + Module Sync inspector use, or an
-          amber "UNKNOWN CHIP" badge with the raw byte count when the
-          source size doesn't match a chip in PCM_CHIPS. Lets the tech
-          confirm the source dump matches the target-chip pick before
-          clicking SYNC ALL MODULES. */}
       {badge && <div data-testid={`dumps-${slotType.toLowerCase()}-size-badge`}
         data-size-key={badge.dataKey}
         data-size-canonical={badge.canonical?'1':'0'}
@@ -2213,8 +2295,9 @@ function UploadSlot({label, slotType, file, onLoad, badge}){
         {badge.label}
       </div>}
       {file.pnOverride && <div data-testid="pn-override-pill" style={{display:'inline-block',marginTop:6,padding:'3px 10px',borderRadius:999,background:'#FFE8B0',border:'1px solid #8A5300',color:'#5C3700',fontSize:11,fontWeight:800,letterSpacing:0.5}}>P/N OVERRIDE — NOT IN REGISTRY</div>}
+      <div onClick={e=>{e.stopPropagation();inputRef.current&&inputRef.current.click();}} style={{marginTop:8,fontSize:10,color:C.ts,opacity:0.55,cursor:'pointer'}}>click to replace</div>
     </div> : <div style={{fontSize:11,color:C.ts,fontWeight:600}}>drop / click to upload</div>}
-    <input id={'u-'+label} type="file" style={{display:'none'}} onChange={e=>onLoad(e.target.files, slotType)}/>
+    <input ref={inputRef} type="file" style={{display:'none'}} onChange={e=>{onLoad(e.target.files, slotType);if(inputRef.current)inputRef.current.value='';}}/>
   </div>;
 }
 
@@ -2548,25 +2631,38 @@ function CopilotFab({onOpen}){
 
 /* ═══ APP ═══ */
 export default function App(){
-  const [vehicleId, setVehicleId] = useState(null);
+  const [vehicleId, setVehicleId] = useState(()=>{
+    try { return window.localStorage.getItem('srtlab:lastVehicle') || null; } catch { return null; }
+  });
+  const [initialVin, setInitialVin] = useState(()=>{
+    try { return window.localStorage.getItem('srtlab:lastVin') || ''; } catch { return ''; }
+  });
   const [copilotOpen, setCopilotOpen] = useState(false);
   const openCopilot = useCallback(()=>setCopilotOpen(true),[]);
+  const selectVehicle = useCallback((id, vin='')=>{
+    try { window.localStorage.setItem('srtlab:lastVehicle', id); } catch {}
+    if(vin) { try { window.localStorage.setItem('srtlab:lastVin', vin); } catch {} }
+    setVehicleId(id);
+  },[]);
+  const goBack = useCallback(()=>{
+    try { window.localStorage.removeItem('srtlab:lastVehicle'); } catch {}
+    setVehicleId(null);
+  },[]);
   return (
     <>
       {!vehicleId ? (
         <>
-          <VehicleLanding onSelect={setVehicleId}/>
+          <VehicleLanding onSelect={selectVehicle} initialVin={initialVin}/>
           {/* Landing screen has no top bar, so the floating launcher covers it.
            * No MasterVinProvider here means the Co-pilot sees no bench context
            * (nothing is loaded yet), which is the correct general-purpose state. */}
-          {!copilotOpen && <CopilotFab onOpen={openCopilot}/>}
           <CopilotPanel open={copilotOpen} onClose={()=>setCopilotOpen(false)}/>
         </>
       ) : (
-        <MasterVinProvider>
+        <MasterVinProvider initialVin={window.__srtVin||initialVin}>
           <VehicleWorkspace
             vehicleId={vehicleId}
-            onBack={()=>setVehicleId(null)}
+            onBack={goBack}
             onOpenCopilot={openCopilot}
           />
           {/* Rendered INSIDE the provider so the Co-pilot can read the active

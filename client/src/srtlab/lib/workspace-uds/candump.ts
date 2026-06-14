@@ -283,7 +283,7 @@ export function iddiff(a: readonly CandumpFrame[], b: readonly CandumpFrame[]): 
   const onlyInA: IddiffEntry[] = [];
   const onlyInB: IddiffEntry[] = [];
   const common: IddiffEntry[] = [];
-  for (const e of counts.values()) {
+  for (const e of Array.from(counts.values())) {
     if (e.countA && !e.countB) onlyInA.push(e);
     else if (e.countB && !e.countA) onlyInB.push(e);
     else common.push(e);

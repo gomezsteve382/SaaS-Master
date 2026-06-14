@@ -1,16 +1,32 @@
 import React, {useState, useMemo, useCallback, useRef} from "react";
 import {Card, Btn} from "../lib/ui.jsx";
-import {C} from "../lib/constants.js";
+import {C, TR, WT} from "../lib/constants.js";
 import {resolveBcmSec16, classifyPcmSec6, corruptFillError, parseModule, pcmChipFromSize} from "../lib/parseModule.js";
-import {engParseBcm, engParseRfh, engParsePcm} from "./ModuleSync.jsx";
+import {engParseBcm, engParseRfh, engParsePcm, engWriteBcmVin, engWriteRfhVin} from "./ModuleSync.jsx";
+import {analyzeFile, patchFile} from "../lib/fileUtils.js";
 import Gpec2aImmoPanel from "../components/Gpec2aImmoPanel.jsx";
-import {StatBadge} from "../components/ImmoChecksumPanel.jsx";
+import {StatBadge, dl} from "../components/ImmoChecksumPanel.jsx";
 import {writeRfhSec16FromBcm, writeRfhSec16Gen1, writeRfhSec16Gen2Slots, writeXc2268Sec16, writePcmSec6, PCM_SEC6_MARKER_OFFSET, PCM_SEC6_OFFSET} from "../lib/securityBytes.js";
 import {isXc2268Rfhub} from "../lib/xc2268Rfhub.js";
 import {ASSET_IDS, trackDownload} from "../lib/downloadAssets.js";
 import {RfhubKeyTypeBanner} from "../components/RfhubKeyTypeBanner.jsx";
+import {useMasterVin} from "../lib/masterVinContext.jsx";
 
 const mono = "'JetBrains Mono'";
+
+const VIN_RE = /^[1-9A-HJ-NPR-Z][A-HJ-NPR-Z0-9]{16}$/;
+const checkVinDigit = (vin) => {
+  if (!VIN_RE.test(vin)) return false;
+  let sum = 0;
+  for (let i = 0; i < 17; i++) {
+    const c = vin[i];
+    const v = TR[c] !== undefined ? TR[c] : parseInt(c, 10);
+    sum += v * WT[i];
+  }
+  const rem = sum % 11;
+  const check = rem === 10 ? 'X' : String(rem);
+  return vin[8] === check;
+};
 
 const hex2 = (b) => (b == null ? "?" : (b & 0xff).toString(16).toUpperCase().padStart(2, "0"));
 const bytesHex = (arr) => (arr ? Array.from(arr).map(hex2).join(" ") : "—");
@@ -125,11 +141,16 @@ function ByteRow({label, sub, bytes, expected, accent = C.tx, testid}) {
 }
 
 export default function SecuritySyncTab() {
+  const { vin: masterVin, setVin: setMasterVin, vinValid: masterVinValid } = useMasterVin();
   const [bcm, setBcm] = useState(null);
   const [rfh, setRfh] = useState(null);
   const [pcm, setPcm] = useState(null);
   const [err, setErr] = useState("");
   const [showFixAnyway, setShowFixAnyway] = useState(false);
+  // ── VIN + Security combined workflow state ──
+  const [comboVin, setComboVin] = useState('');
+  const [comboBusy, setComboBusy] = useState(false);
+  const [comboResult, setComboResult] = useState(null); // {ok, steps, errors}
 
   // ── Originals for rollback/undo ──
   // Store the original file bytes as loaded from disk so the user can revert
@@ -310,6 +331,151 @@ export default function SecuritySyncTab() {
   const pcmNeedsFix = !!(bcmSec16 && pcm && !pcm.parsed.tooSmall && !sec6Verdict.good);
   const wizardCanRun = rfhNeedsFix || pcmNeedsFix;
 
+  // ── VIN match status across modules ──
+  const bcmVin = bcm && !bcm.parsed.tooSmall ? (bcm.parsed.vin || null) : null;
+  const rfhVin = rfh && !rfh.parsed.tooSmall ? (rfh.parsed.vin || null) : null;
+  const pcmVin = pcm && !pcm.parsed.tooSmall ? (pcm.parsed.vin || null) : null;
+  const vinConsensus = useMemo(() => {
+    const vins = [bcmVin, rfhVin, pcmVin].filter(Boolean);
+    if (!vins.length) return null;
+    const first = vins[0];
+    return vins.every(v => v === first) ? first : null;
+  }, [bcmVin, rfhVin, pcmVin]);
+  const vinAllMatch = !!(vinConsensus && [bcmVin, rfhVin, pcmVin].filter(Boolean).length >= 2);
+  const vinHasMismatch = useMemo(() => {
+    const vins = [bcmVin, rfhVin, pcmVin].filter(Boolean);
+    if (vins.length < 2) return false;
+    return !vins.every(v => v === vins[0]);
+  }, [bcmVin, rfhVin, pcmVin]);
+
+  // ── Combo VIN + Security fix ──
+  // Derives the effective target VIN: typed input > master VIN > consensus from loaded modules
+  const effectiveVin = useMemo(() => {
+    const v = comboVin.trim().toUpperCase();
+    if (VIN_RE.test(v)) return v;
+    if (masterVinValid) return masterVin;
+    if (vinConsensus && VIN_RE.test(vinConsensus)) return vinConsensus;
+    return null;
+  }, [comboVin, masterVin, masterVinValid, vinConsensus]);
+
+  const applyComboFix = useCallback(async () => {
+    const targetVin = effectiveVin;
+    if (!targetVin) return;
+    if (!bcm && !rfh && !pcm) return;
+    if (comboBusy) return;
+    setComboBusy(true);
+    setComboResult(null);
+    const steps = [];
+    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+
+    // Track live patched bytes locally (React state updates are async)
+    let liveBcmBytes = bcm ? new Uint8Array(bcm.bytes) : null;
+    let liveRfhBytes = rfh ? new Uint8Array(rfh.bytes) : null;
+    let livePcmBytes = pcm ? new Uint8Array(pcm.bytes) : null;
+    let liveRfhFormat = rfh ? rfh.parsed.format : null;
+
+    // ── Step 1: Write VIN + checksum to BCM ──
+    if (bcm && !bcm.parsed.tooSmall) {
+      try {
+        const af = analyzeFile(liveBcmBytes, bcm.file.name);
+        const pf = patchFile(af, targetVin);
+        const fname = `BCM_VIN_${targetVin}_${ts}.bin`;
+        dl(pf.data, fname);
+        liveBcmBytes = pf.data;
+        setBcm({ file: { name: fname }, bytes: pf.data, parsed: engParseBcm(pf.data, fname) });
+        steps.push({ mod: 'BCM', ok: true, fname, log: pf.log });
+      } catch (e) {
+        steps.push({ mod: 'BCM', ok: false, error: e.message });
+      }
+    }
+
+    // ── Step 2: Write VIN + checksum to RFHUB ──
+    if (rfh && !rfh.parsed.tooSmall) {
+      try {
+        const af = analyzeFile(liveRfhBytes, rfh.file.name);
+        const pf = patchFile(af, targetVin);
+        const fname = `RFHUB_VIN_${targetVin}_${ts}.bin`;
+        dl(pf.data, fname);
+        liveRfhBytes = pf.data;
+        const newRfhParsed = engParseRfh(pf.data, fname);
+        liveRfhFormat = newRfhParsed.format;
+        setRfh({ file: { name: fname }, bytes: pf.data, parsed: newRfhParsed });
+        steps.push({ mod: 'RFHUB', ok: true, fname, log: pf.log });
+      } catch (e) {
+        steps.push({ mod: 'RFHUB', ok: false, error: e.message });
+      }
+    }
+
+    // ── Step 3: Write VIN + checksum to PCM (GPEC2A) ──
+    if (pcm && !pcm.parsed.tooSmall) {
+      try {
+        const af = analyzeFile(livePcmBytes, pcm.file.name);
+        const pf = patchFile(af, targetVin);
+        const fname = `PCM_VIN_${targetVin}_${ts}.bin`;
+        dl(pf.data, fname);
+        livePcmBytes = pf.data;
+        setPcm({ file: { name: fname }, bytes: pf.data, parsed: engParsePcm(pf.data, fname) });
+        steps.push({ mod: 'PCM', ok: true, fname, log: pf.log });
+      } catch (e) {
+        steps.push({ mod: 'PCM', ok: false, error: e.message });
+      }
+    }
+
+    // ── Step 4: Sync security bytes (RFHUB SEC16 + PCM SEC6) from BCM ──
+    // Use the live (freshly-patched) BCM bytes — not the async React state
+    if (liveBcmBytes) {
+      const freshBcmRes = resolveBcmSec16(liveBcmBytes);
+      const freshSec16 = freshBcmRes && !freshBcmRes.blank ? freshBcmRes.bytes : null;
+      if (freshSec16 && freshSec16.length === 16) {
+        const freshExpectedRfh = reverseBytes(freshSec16);
+        // Fix RFHUB SEC16
+        if (rfh && !rfh.parsed.tooSmall && liveRfhBytes) {
+          try {
+            let res;
+            if (isXc2268Rfhub(liveRfhBytes)) {
+              res = writeXc2268Sec16(liveRfhBytes, freshSec16);
+            } else if (liveRfhFormat === 'gen1') {
+              res = writeRfhSec16Gen1(liveRfhBytes, freshSec16);
+            } else if (liveRfhFormat === 'gen2-hybrid') {
+              res = writeRfhSec16Gen2Slots(liveRfhBytes, freshSec16);
+            } else {
+              res = writeRfhSec16FromBcm(liveRfhBytes, freshSec16);
+            }
+            const fname = `RFHUB_VIN_SEC16_${targetVin}_${ts}.bin`;
+            dl(res.bytes, fname);
+            liveRfhBytes = res.bytes;
+            setRfh({ file: { name: fname }, bytes: res.bytes, parsed: engParseRfh(res.bytes, fname) });
+            steps.push({ mod: 'RFHUB SEC16', ok: true, fname });
+          } catch (e) {
+            steps.push({ mod: 'RFHUB SEC16', ok: false, error: e.message });
+          }
+        }
+        // Fix PCM SEC6
+        if (pcm && !pcm.parsed.tooSmall && livePcmBytes) {
+          try {
+            const res = writePcmSec6(livePcmBytes, freshExpectedRfh);
+            if (!res.ok) throw new Error('writePcmSec6 returned 0 patches');
+            const fname = `PCM_VIN_SEC6_${targetVin}_${ts}.bin`;
+            dl(res.bytes, fname);
+            livePcmBytes = res.bytes;
+            setPcm({ file: { name: fname }, bytes: res.bytes, parsed: engParsePcm(res.bytes, fname) });
+            steps.push({ mod: 'PCM SEC6', ok: true, fname });
+          } catch (e) {
+            steps.push({ mod: 'PCM SEC6', ok: false, error: e.message });
+          }
+        }
+      } else if (bcm) {
+        steps.push({ mod: 'SECURITY BYTES', ok: false, error: 'BCM SEC16 not available or insufficient — security bytes not synced (VIN was still written)' });
+      }
+    }
+
+    // Publish VIN to master context
+    setMasterVin(targetVin);
+    const allOk = steps.every(s => s.ok);
+    setComboResult({ ok: allOk, steps });
+    setComboBusy(false);
+  }, [effectiveVin, bcm, rfh, pcm, comboBusy, setMasterVin]);
+
   const applyAllFixes = useCallback(async () => {
     if (!wizardCanRun || wizardBusy) return;
     // Pre-repair validation gate: block if BCM SEC16 source is insufficient
@@ -406,9 +572,10 @@ export default function SecuritySyncTab() {
       <Card style={{marginBottom: 16, borderTop: "3px solid " + C.sr}}>
         <div style={{fontFamily: "'Righteous'", fontSize: 22, color: C.sr, letterSpacing: 1}}>🔐 SECURITY SYNC</div>
         <div style={{fontSize: 11, color: C.tm, marginTop: 4, lineHeight: 1.5}}>
-          Security-only workbench. Load a <strong>BCM</strong>, <strong>RFHUB</strong> and <strong>PCM (GPEC2A)</strong> dump and see, byte-by-byte, whether their immobiliser
-          secrets are paired. Relationship rules (verified): <span style={{fontFamily: mono, color: C.ts}}>RFHUB SEC16 = reverse(BCM SEC16)</span> ·{" "}
-          <span style={{fontFamily: mono, color: C.ts}}>PCM SEC6 = reverse(BCM SEC16)[0:6]</span>. No VIN / CRC / patch tools live here.
+          Load a <strong>BCM</strong>, <strong>RFHUB</strong> and <strong>PCM (GPEC2A)</strong> dump. This workbench checks and fixes:
+          (1) <strong>VIN match</strong> across all three modules, (2) <strong>VIN + checksum write</strong> to all modules in one click, and
+          (3) <strong>Security byte pairing</strong> — <span style={{fontFamily: mono, color: C.ts}}>RFHUB SEC16 = reverse(BCM SEC16)</span> ·{" "}
+          <span style={{fontFamily: mono, color: C.ts}}>PCM SEC6 = reverse(BCM SEC16)[0:6]</span>. All writes are verified against the canonical algorithms.
         </div>
       </Card>
 
@@ -670,6 +837,140 @@ export default function SecuritySyncTab() {
           })()}
         />
       </div>
+
+      {/* ── VIN MATCH STATUS CARD ── */}
+      {anyLoaded && (
+        <Card style={{marginBottom: 16, borderLeft: `5px solid ${vinHasMismatch ? C.er : vinAllMatch ? C.gn : C.wn}`}} data-testid="secsync-vin-match">
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 10}}>
+            <div style={{fontFamily: "'Righteous'", fontSize: 15, color: vinHasMismatch ? C.er : vinAllMatch ? C.gn : C.wn, letterSpacing: 1}}>
+              {vinHasMismatch ? '⛔ VIN MISMATCH' : vinAllMatch ? '✅ VIN MATCH' : '⚠ VIN STATUS'}
+            </div>
+            {vinConsensus && <span style={{fontFamily: mono, fontSize: 13, color: C.tx, fontWeight: 800}}>{vinConsensus}</span>}
+          </div>
+          <div style={{display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8}}>
+            {[
+              {label: 'BCM', vin: bcmVin, accent: C.sr},
+              {label: 'RFHUB', vin: rfhVin, accent: C.a2},
+              {label: 'PCM', vin: pcmVin, accent: C.a4 || C.wn},
+            ].map(({label, vin, accent}) => {
+              const match = vin && vinConsensus ? vin === vinConsensus : null;
+              const col = vin ? (match === false ? C.er : match === true ? C.gn : C.ts) : C.tm;
+              return (
+                <div key={label} style={{padding: '8px 10px', borderRadius: 7, background: C.c2, border: `1px solid ${accent}44`}}>
+                  <div style={{fontSize: 9, fontWeight: 800, color: accent, letterSpacing: 1, marginBottom: 4}}>{label}</div>
+                  <div style={{fontFamily: mono, fontSize: 11, color: col, fontWeight: 700, wordBreak: 'break-all'}}>
+                    {vin || <span style={{color: C.tm, fontStyle: 'italic'}}>not loaded</span>}
+                  </div>
+                  {vin && vinConsensus && (
+                    <div style={{fontSize: 9, marginTop: 3, color: col, fontWeight: 800}}>
+                      {vin === vinConsensus ? '✓ MATCH' : '✗ MISMATCH'}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {vinHasMismatch && (
+            <div style={{marginTop: 8, fontSize: 10, color: C.er, fontWeight: 700}}>
+              ⚠ VINs do not match across modules — use the WRITE VIN + FIX SECURITY card below to align all three.
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* ── WRITE VIN + FIX SECURITY (combined workflow) ── */}
+      {anyLoaded && (
+        <Card style={{marginBottom: 16, borderLeft: `5px solid ${C.sr}`, background: C.sr + '06'}} data-testid="secsync-combo-fix">
+          <div style={{fontFamily: "'Righteous'", fontSize: 16, color: C.sr, letterSpacing: 1, marginBottom: 6}}>🔑 WRITE VIN + FIX SECURITY — ALL MODULES</div>
+          <div style={{fontSize: 10, color: C.tm, marginBottom: 12, lineHeight: 1.5}}>
+            One-click: writes the target VIN + checksums to every loaded module, then syncs RFHUB SEC16 and PCM SEC6 from the BCM.
+            All three patched files are downloaded automatically. The BCM must be loaded and have a valid SEC16 for security byte sync.
+          </div>
+          {/* VIN input */}
+          <div style={{display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10}}>
+            <div style={{flex: 1, minWidth: 200}}>
+              <input
+                type="text"
+                value={comboVin}
+                onChange={e => setComboVin(e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, 17))}
+                placeholder={effectiveVin || 'Enter 17-char VIN (or use Master VIN)'}
+                maxLength={17}
+                data-testid="secsync-combo-vin-input"
+                style={{
+                  width: '100%', padding: '9px 12px', borderRadius: 7,
+                  border: `1px solid ${effectiveVin ? (checkVinDigit(effectiveVin) ? C.gn + '88' : C.wn + '88') : C.bd}`,
+                  background: C.c2, color: C.tx, fontFamily: mono, fontSize: 13, fontWeight: 800,
+                  letterSpacing: 1, outline: 'none',
+                }}
+              />
+            </div>
+            {effectiveVin && (
+              <div style={{fontSize: 10, color: checkVinDigit(effectiveVin) ? C.gn : C.wn, fontWeight: 700}}>
+                {checkVinDigit(effectiveVin) ? '✓ check digit OK' : '⚠ check digit FAIL'}
+              </div>
+            )}
+          </div>
+          {/* Source hint */}
+          {!comboVin && masterVinValid && (
+            <div style={{fontSize: 10, color: C.ts, marginBottom: 8}}>
+              Using Master VIN: <span style={{fontFamily: mono, color: C.tx}}>{masterVin}</span>
+            </div>
+          )}
+          {!comboVin && !masterVinValid && vinConsensus && (
+            <div style={{fontSize: 10, color: C.ts, marginBottom: 8}}>
+              Using consensus VIN from loaded modules: <span style={{fontFamily: mono, color: C.tx}}>{vinConsensus}</span>
+            </div>
+          )}
+          {/* Modules that will be patched */}
+          <div style={{display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12}}>
+            {[
+              {label: 'BCM', loaded: !!(bcm && !bcm.parsed.tooSmall), accent: C.sr},
+              {label: 'RFHUB', loaded: !!(rfh && !rfh.parsed.tooSmall), accent: C.a2},
+              {label: 'PCM', loaded: !!(pcm && !pcm.parsed.tooSmall), accent: C.a4 || C.wn},
+            ].map(({label, loaded, accent}) => (
+              <span key={label} style={{
+                fontFamily: mono, fontSize: 10, fontWeight: 800, padding: '3px 9px', borderRadius: 5,
+                background: loaded ? accent + '22' : C.c2,
+                color: loaded ? accent : C.tm,
+                border: `1px solid ${loaded ? accent + '55' : C.bd}`,
+                opacity: loaded ? 1 : 0.5,
+              }}>{label} {loaded ? '✓' : '—'}</span>
+            ))}
+            {bcmSec16 && <span style={{fontFamily: mono, fontSize: 10, fontWeight: 800, padding: '3px 9px', borderRadius: 5, background: C.gn + '22', color: C.gn, border: `1px solid ${C.gn}55`}}>SEC16 ✓</span>}
+            {!bcmSec16 && bcm && <span style={{fontFamily: mono, fontSize: 10, fontWeight: 800, padding: '3px 9px', borderRadius: 5, background: C.wn + '22', color: C.wn, border: `1px solid ${C.wn}55`}}>NO SEC16 ⚠</span>}
+          </div>
+          {/* Apply button */}
+          <button
+            onClick={applyComboFix}
+            disabled={comboBusy || !effectiveVin}
+            data-testid="secsync-combo-apply-btn"
+            style={{
+              width: '100%', padding: '13px 0', borderRadius: 8, border: 'none',
+              cursor: (comboBusy || !effectiveVin) ? 'not-allowed' : 'pointer',
+              background: (comboBusy || !effectiveVin) ? C.bd : C.sr,
+              color: '#fff', fontFamily: "'Righteous'", fontSize: 15, fontWeight: 800, letterSpacing: 1,
+              opacity: (comboBusy || !effectiveVin) ? 0.6 : 1, transition: 'opacity 0.15s',
+            }}
+          >
+            {comboBusy ? '⏳ WRITING ALL MODULES…' : effectiveVin ? `⚡ WRITE VIN ${effectiveVin} + FIX SECURITY → DOWNLOAD ALL` : '⚠ ENTER OR SET A VIN FIRST'}
+          </button>
+          {/* Results */}
+          {comboResult && (
+            <div style={{marginTop: 12}}>
+              {comboResult.steps.map((s, i) => (
+                <div key={i} style={{display: 'flex', gap: 8, alignItems: 'flex-start', padding: '4px 0', fontSize: 10}}>
+                  <span style={{color: s.ok ? C.gn : C.er, fontWeight: 800, minWidth: 16}}>{s.ok ? '✓' : '✗'}</span>
+                  <span style={{fontWeight: 800, color: C.ts, minWidth: 80}}>{s.mod}</span>
+                  <span style={{color: s.ok ? C.ts : C.er, flex: 1}}>{s.ok ? s.fname : s.error}</span>
+                </div>
+              ))}
+              <div style={{marginTop: 8, fontSize: 11, fontWeight: 800, color: comboResult.ok ? C.gn : C.wn}}>
+                {comboResult.ok ? '✅ All modules patched and downloaded.' : '⚠ Some steps had errors — check above.'}
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* ── Overall GO / NO-GO banner ── */}
       {/* ── RFHUB key type detector banner ── */}

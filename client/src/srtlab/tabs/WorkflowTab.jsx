@@ -625,6 +625,74 @@ export default function WorkflowTab({ onOpenTab } = {}) {
         )}
       </Card>
 
+      {/* ── VIN + SECURITY READINESS CARD ── */}
+      {hasFiles && (() => {
+        const bcmDump = loadedDumps.find(d => d.type === 'BCM');
+        const rfhDump = loadedDumps.find(d => d.type === 'RFHUB' || d.type === 'XC2268_RFHUB');
+        const pcmDump = loadedDumps.find(d => d.type === 'GPEC2A');
+        const bcmMod = bcmDump?.mod;
+        const rfhMod = rfhDump?.mod;
+        const pcmMod = pcmDump?.mod;
+        const bcmVin = bcmMod?.vin || null;
+        const rfhVin = rfhMod?.vin || null;
+        const pcmVin = pcmMod?.vin || null;
+        const loadedVins = [bcmVin, rfhVin, pcmVin].filter(Boolean);
+        const vinConsensus = loadedVins.length > 0 && loadedVins.every(v => v === loadedVins[0]) ? loadedVins[0] : null;
+        const vinHasMismatch = loadedVins.length >= 2 && !loadedVins.every(v => v === loadedVins[0]);
+        const vinMatchesTarget = vinReady && vinConsensus && vinConsensus === vin;
+        const vinBorderColor = vinHasMismatch ? C.er : vinMatchesTarget ? C.gn : C.wn;
+        const modules = [
+          {label: 'BCM', mod: bcmMod, vin: bcmVin, accent: C.sr},
+          {label: 'RFHUB', mod: rfhMod, vin: rfhVin, accent: C.a2},
+          {label: 'PCM', mod: pcmMod, vin: pcmVin, accent: C.a4 || C.wn},
+        ];
+        return (
+          <Card data-testid="workflow-vin-security-card" style={{borderLeft: `5px solid ${vinBorderColor}`}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 10}}>
+              <div style={{fontFamily: "'Righteous'", fontSize: 14, color: vinBorderColor, letterSpacing: 1}}>
+                {vinHasMismatch ? '⛔ VIN MISMATCH ACROSS MODULES' : vinMatchesTarget ? '✅ VIN MATCH — ALL MODULES' : '⚠ VIN STATUS'}
+              </div>
+              {vinConsensus && (
+                <span style={{fontFamily: "'JetBrains Mono'", fontSize: 12, color: '#fff', fontWeight: 800}}>{vinConsensus}</span>
+              )}
+              {vinReady && !vinMatchesTarget && vinConsensus && (
+                <span style={{fontSize: 10, color: C.wn, fontWeight: 700}}>Target: {vin}</span>
+              )}
+            </div>
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 8}}>
+              {modules.map(({label, mod, vin: mVin, accent}) => {
+                const loaded = !!mod;
+                const vinMatch = mVin && vinConsensus ? mVin === vinConsensus : null;
+                const col = mVin ? (vinMatch === false ? C.er : vinMatch === true ? C.gn : C.ts) : C.tm;
+                return (
+                  <div key={label} style={{padding: '7px 9px', borderRadius: 7, background: '#1a1a1a', border: `1px solid ${accent}33`}}>
+                    <div style={{fontSize: 9, fontWeight: 800, color: accent, letterSpacing: 1, marginBottom: 3}}>{label}</div>
+                    <div style={{fontFamily: "'JetBrains Mono'", fontSize: 10, color: col, fontWeight: 700, wordBreak: 'break-all'}}>
+                      {mVin || <span style={{color: C.tm, fontStyle: 'italic'}}>{loaded ? 'no VIN' : 'not loaded'}</span>}
+                    </div>
+                    {mVin && vinConsensus && (
+                      <div style={{fontSize: 8, marginTop: 2, color: col, fontWeight: 800}}>
+                        {mVin === vinConsensus ? '✓ MATCH' : '✗ MISMATCH'}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {vinHasMismatch && (
+              <div style={{marginTop: 8, fontSize: 10, color: C.er, fontWeight: 700}}>
+                ⚠ VINs do not match — open <strong>SECURITY SYNC</strong> tab to write VIN + fix security bytes in one click.
+              </div>
+            )}
+            {!vinHasMismatch && !vinMatchesTarget && vinReady && loadedVins.length > 0 && (
+              <div style={{marginTop: 8, fontSize: 10, color: C.wn, fontWeight: 700}}>
+                ⚠ Loaded module VINs differ from target VIN ({vin}) — open <strong>VIN PROGRAMMER</strong> to write the target VIN.
+              </div>
+            )}
+          </Card>
+        );
+      })()}
+
       {/* ── MODULE CENSUS — always live ── */}
       <Card>
         <div

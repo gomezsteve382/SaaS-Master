@@ -8,6 +8,7 @@
  *   PROGRESS: Animated status messages during marryAll() and zip generation
  */
 import React, { useState, useRef } from 'react';
+import { zipSync } from 'fflate';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -171,6 +172,24 @@ const WORKFLOWS = {
     icon: '⚙️',
   },
 };
+
+// Reusable drop zone with click-to-browse support
+function DropSlot({ label, info, bytes, onDrop, onFile, accentClass }) {
+  const inputRef = useRef(null);
+  return (
+    <div
+      onClick={() => inputRef.current && inputRef.current.click()}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) onFile(f); }}
+      className={`bg-gray-900/50 border-2 border-dashed ${accentClass} p-6 text-center cursor-pointer transition-colors rounded-lg`}
+    >
+      <p className="text-sm text-gray-400 mb-1">{info ? '✓ ' + info.type : '📂 ' + label}</p>
+      {info && <p className="text-xs text-green-400">{bytes?.length?.toLocaleString()} bytes</p>}
+      {!info && <p className="text-xs text-gray-600 mt-1">click or drag &amp; drop</p>}
+      <input ref={inputRef} type="file" accept=".bin,.BIN" hidden onChange={e => e.target.files[0] && onFile(e.target.files[0])} />
+    </div>
+  );
+}
 
 export default function MarryModuleTab() {
   const [workflow, setWorkflow] = useState('modsync');
@@ -404,7 +423,7 @@ export default function MarryModuleTab() {
     if (result.files && result.files.length > 0) {
       // Zip download for marryAll
       try {
-        const { zipSync } = require('fflate');
+        // zipSync imported at top of file
         const fileObj = {};
         result.files.forEach(f => {
           fileObj[f.name] = new Uint8Array(f.bytes);
@@ -473,52 +492,14 @@ export default function MarryModuleTab() {
           {/* Upload areas */}
           {workflow === 'marryall' ? (
             <>
-              <Card
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleSourceDrop}
-                className="bg-gray-900/50 border-2 border-dashed border-blue-500/30 hover:border-blue-500/60 p-6 text-center cursor-pointer transition-colors"
-              >
-                <p className="text-sm text-gray-400 mb-2">📥 Drop BCM (Source)</p>
-                {sourceInfo && <p className="text-xs text-green-400">{sourceInfo.type} - {sourceFile?.length} bytes</p>}
-              </Card>
-
-              <Card
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleRfhubDrop}
-                className="bg-gray-900/50 border-2 border-dashed border-purple-500/30 hover:border-purple-500/60 p-6 text-center cursor-pointer transition-colors"
-              >
-                <p className="text-sm text-gray-400 mb-2">📥 Drop RFHUB (Optional)</p>
-                {rfhubInfo && <p className="text-xs text-green-400">{rfhubInfo.type} - {rfhubFile?.length} bytes</p>}
-              </Card>
-
-              <Card
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handlePcmDrop}
-                className="bg-gray-900/50 border-2 border-dashed border-emerald-500/30 hover:border-emerald-500/60 p-6 text-center cursor-pointer transition-colors"
-              >
-                <p className="text-sm text-gray-400 mb-2">📥 Drop PCM (Optional)</p>
-                {pcmInfo && <p className="text-xs text-green-400">{pcmInfo.type} - {pcmFile?.length} bytes</p>}
-              </Card>
+              <DropSlot label="BCM (Source)" info={sourceInfo} bytes={sourceFile} onDrop={handleSourceDrop} onFile={f=>{const rd=new FileReader();rd.onload=e=>{const d=new Uint8Array(e.target.result);setSourceFile(d);setSourceInfo(parseModule(d,f.name));setError(null);};rd.readAsArrayBuffer(f);}} accentClass="border-blue-500/40 hover:border-blue-500/70"/>
+              <DropSlot label="RFHUB (Optional)" info={rfhubInfo} bytes={rfhubFile} onDrop={handleRfhubDrop} onFile={f=>{const rd=new FileReader();rd.onload=e=>{const d=new Uint8Array(e.target.result);setRfhubFile(d);setRfhubInfo(parseModule(d,f.name));setError(null);};rd.readAsArrayBuffer(f);}} accentClass="border-purple-500/40 hover:border-purple-500/70"/>
+              <DropSlot label="PCM (Optional)" info={pcmInfo} bytes={pcmFile} onDrop={handlePcmDrop} onFile={f=>{const rd=new FileReader();rd.onload=e=>{const d=new Uint8Array(e.target.result);setPcmFile(d);setPcmInfo(parseModule(d,f.name));setError(null);};rd.readAsArrayBuffer(f);}} accentClass="border-emerald-500/40 hover:border-emerald-500/70"/>
             </>
           ) : (
             <>
-              <Card
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleSourceDrop}
-                className="bg-gray-900/50 border-2 border-dashed border-blue-500/30 hover:border-blue-500/60 p-6 text-center cursor-pointer transition-colors"
-              >
-                <p className="text-sm text-gray-400 mb-2">📥 Drop Source Module</p>
-                {sourceInfo && <p className="text-xs text-green-400">{sourceInfo.type} - {sourceFile?.length} bytes</p>}
-              </Card>
-
-              <Card
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleTargetDrop}
-                className="bg-gray-900/50 border-2 border-dashed border-purple-500/30 hover:border-purple-500/60 p-6 text-center cursor-pointer transition-colors"
-              >
-                <p className="text-sm text-gray-400 mb-2">📥 Drop Target Module</p>
-                {targetInfo && <p className="text-xs text-green-400">{targetInfo.type} - {targetFile?.length} bytes</p>}
-              </Card>
+              <DropSlot label="Source Module" info={sourceInfo} bytes={sourceFile} onDrop={handleSourceDrop} onFile={f=>{const rd=new FileReader();rd.onload=e=>{const d=new Uint8Array(e.target.result);setSourceFile(d);setSourceInfo(parseModule(d,f.name));setError(null);};rd.readAsArrayBuffer(f);}} accentClass="border-blue-500/40 hover:border-blue-500/70"/>
+              <DropSlot label="Target Module" info={targetInfo} bytes={targetFile} onDrop={handleTargetDrop} onFile={f=>{const rd=new FileReader();rd.onload=e=>{const d=new Uint8Array(e.target.result);setTargetFile(d);setTargetInfo(parseModule(d,f.name));setError(null);};rd.readAsArrayBuffer(f);}} accentClass="border-purple-500/40 hover:border-purple-500/70"/>
             </>
           )}
 

@@ -66,8 +66,8 @@ export const MasterVinContext=createContext({
 
 export function useMasterVin(){return useContext(MasterVinContext);}
 
-export function MasterVinProvider({setPg,children}){
-  const[vin,setVinRaw]=useState('');
+export function MasterVinProvider({setPg,children,initialVin}){
+  const[vin,setVinRaw]=useState(()=>{const v=(initialVin||'').toUpperCase().replace(/\s/g,'').slice(0,17);return v;});
   const[moduleStatus,setModuleStatus]=useState({BCM:'pending',RFHUB:'pending',ECM:'pending',ADCM:'pending'});
   const[loadedDumps,setLoadedDumps]=useState([]);
   const[jobId,setJobIdRaw]=useState(null);

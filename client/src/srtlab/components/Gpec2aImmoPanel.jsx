@@ -393,21 +393,86 @@ export default function Gpec2aImmoPanel({mod, donorMods = [], onPatched = null})
     </>
   );
 
+  // ── Quick-status summary card ──
+  // Shows the 3 most critical status items at a glance before the full analysis
+  const vinOk = a.vinRows.some(r => r.state === 'WIN_OK');
+  const vinAllOk = a.vinRows.filter(r => r.vin).every(r => r.state === 'WIN_OK');
+  const sec6Ok = !!(a.sec6 && a.sec6.populated);
+  const immoOk = !!(a.immo && a.immo.synced);
+  const overallReady = vinOk && sec6Ok && immoOk;
+  const overallBorderColor = overallReady ? C.gn : (!vinOk || !sec6Ok) ? C.er : C.wn;
+
+  const quickStatusCard = (
+    <div
+      data-testid="gpec2a-quick-status"
+      style={{
+        display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))',
+        gap: 8, marginBottom: 14, padding: '10px 12px', borderRadius: 10,
+        border: `2px solid ${overallBorderColor}44`,
+        background: overallBorderColor + '08',
+      }}
+    >
+      {/* VIN status */}
+      <div style={{padding: '8px 10px', borderRadius: 7, background: C.c1 || '#fff', border: `1px solid ${vinOk ? C.gn : C.er}44`}}>
+        <div style={{fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1, marginBottom: 4}}>VIN</div>
+        <div style={{fontFamily: mono, fontSize: 11, fontWeight: 800, color: vinOk ? C.gn : C.er}}>
+          {consensusVin || '—'}
+        </div>
+        <div style={{fontSize: 9, marginTop: 3, color: vinOk ? C.gn : C.er, fontWeight: 700}}>
+          {vinAllOk ? '✓ ALL SLOTS OK' : vinOk ? '⚠ SOME SLOTS OK' : '✗ NO VALID VIN'}
+        </div>
+      </div>
+      {/* SEC6 status */}
+      <div style={{padding: '8px 10px', borderRadius: 7, background: C.c1 || '#fff', border: `1px solid ${sec6Ok ? C.gn : C.er}44`}}>
+        <div style={{fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1, marginBottom: 4}}>SEC6 @ 0x3C8</div>
+        <div style={{fontFamily: mono, fontSize: 11, fontWeight: 800, color: sec6Ok ? C.gn : C.er}}>
+          {a.sec6 ? a.sec6.hex : '—'}
+        </div>
+        <div style={{fontSize: 9, marginTop: 3, color: sec6Ok ? C.gn : C.er, fontWeight: 700}}>
+          {sec6Ok ? '✓ POPULATED' : '✗ BLANK / VIRGIN'}
+        </div>
+      </div>
+      {/* IMMO marker status */}
+      <div style={{padding: '8px 10px', borderRadius: 7, background: C.c1 || '#fff', border: `1px solid ${immoOk ? C.gn : C.wn}44`}}>
+        <div style={{fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1, marginBottom: 4}}>IMMO MARKER @ 0x3C4</div>
+        <div style={{fontFamily: mono, fontSize: 11, fontWeight: 800, color: immoOk ? C.gn : C.wn}}>
+          {a.immo ? a.immo.currentHex : '—'}
+        </div>
+        <div style={{fontSize: 9, marginTop: 3, color: immoOk ? C.gn : C.wn, fontWeight: 700}}>
+          {immoOk ? '✓ IMMO SYNC' : '✗ NOT SYNCED'}
+        </div>
+      </div>
+      {/* Overall verdict */}
+      <div style={{padding: '8px 10px', borderRadius: 7, background: overallBorderColor + '14', border: `1px solid ${overallBorderColor}55`}}>
+        <div style={{fontSize: 9, fontWeight: 800, color: C.ts, letterSpacing: 1, marginBottom: 4}}>OVERALL</div>
+        <div style={{fontSize: 14, fontWeight: 800, color: overallBorderColor}}>
+          {overallReady ? '✅ READY' : (!vinOk || !sec6Ok) ? '⛔ NOT READY' : '⚠ NEEDS FIX'}
+        </div>
+        <div style={{fontSize: 9, marginTop: 3, color: overallBorderColor, fontWeight: 700}}>
+          {overallReady ? 'VIN + SEC6 + IMMO OK' : !vinOk ? 'VIN missing' : !sec6Ok ? 'SEC6 blank' : 'IMMO not synced'}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <ImmoChecksumPanel
-      testid="gpec2a-immo-panel"
-      title="PCM GPEC2A IMMO ANALYZER"
-      subtitle="OFFLINE DUMP · ANALYZE · VIN / SEC6 EDIT · ONE-CLICK IMMO FIX"
-      accent={C.sr}
-      headerBadges={headerBadges}
-      analysis={analysisModel}
-      afterAnalysis={checksumCard}
-      vinSection={vinModel}
-      afterVin={idsCard}
-      securitySection={securityModel}
-      editing={editingModel}
-      extraAfterEditing={justFixAndPushback}
-      status={{testid: "gpec2a-immo-status", msg, err}}
-    />
+    <>
+      {quickStatusCard}
+      <ImmoChecksumPanel
+        testid="gpec2a-immo-panel"
+        title="PCM GPEC2A IMMO ANALYZER"
+        subtitle="OFFLINE DUMP · ANALYZE · VIN / SEC6 EDIT · ONE-CLICK IMMO FIX"
+        accent={C.sr}
+        headerBadges={headerBadges}
+        analysis={analysisModel}
+        afterAnalysis={checksumCard}
+        vinSection={vinModel}
+        afterVin={idsCard}
+        securitySection={securityModel}
+        editing={editingModel}
+        extraAfterEditing={justFixAndPushback}
+        status={{testid: "gpec2a-immo-status", msg, err}}
+      />
+    </>
   );
 }

@@ -358,7 +358,7 @@ export function bcmDiffToProposals(
   const before = lastWriteByDid(beforeEvents);
   const after = lastWriteByDid(afterEvents);
   const out: BcmProposal[] = [];
-  const dids = new Set<number>([...before.keys(), ...after.keys()]);
+  const dids = new Set<number>([...Array.from(before.keys()), ...Array.from(after.keys())]);
   for (const did of Array.from(dids).sort((a, b) => a - b)) {
     const b = before.get(did) ?? new Uint8Array(0);
     const a = after.get(did) ?? new Uint8Array(0);

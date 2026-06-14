@@ -13,7 +13,7 @@ import {
   scrubSensitiveFromText,
   SENSITIVE_CATEGORY_LABELS,
 } from '../lib/udsSessionAnalyzer/shareLink.js';
-import exampleLog from '../lib/udsSessionAnalyzer/fixtures/example_session.log?raw';
+import exampleLog from '../lib/udsSessionAnalyzer/fixtures/example_session_log.js';
 
 const ACCEPT = '.log,.txt,.asc,.trc';
 

@@ -62,7 +62,7 @@ function decodeBcd(d: Uint8Array | number[]): string {
 function decodeUint(d: Uint8Array | number[]): string {
   const bytes = asBytes(d);
   let v = 0;
-  for (const b of bytes) v = (v * 256 + b) >>> 0;
+  for (const b of Array.from(bytes)) v = (v * 256 + b) >>> 0;
   return String(v);
 }
 
