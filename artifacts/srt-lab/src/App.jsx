@@ -73,6 +73,7 @@ import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
 import TopologyTab from "./tabs/TopologyTab.jsx";
+import AklWizardTab from "./tabs/AklWizardTab.jsx";
 import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
@@ -932,6 +933,7 @@ const WORKSPACE_TABS = [
   {id:'keyxfer',   i:'🔑', l:'KEY PROGRAM',  s:'Offline transponder-key transfer · no OBD'},
   {id:'keymgr',    i:'🗝️', l:'KEY MGR',      s:'Dual-file RFHUB fob transfer'},
   {id:'livekey',   i:'🔑', l:'LIVE KEYS',    s:'OBD PIN extract · key prog · SKREEM'},
+  {id:'akl',       i:'🔐', l:'ALL-KEYS-LOST', s:'PIN extract · first-key program · gated'},
   {id:'jailbreak', i:'💀', l:'JAILBREAK',    s:'SRT · Demon · Hellcat · Redeye'},
   {id:'seed',      i:'🔑', l:'SEED→KEY',     s:'14 Algorithms'},
   {id:'bcm',       i:'🧠', l:'BCM',          s:'VIN · CRC · Features'},
@@ -991,7 +993,7 @@ const WORKSPACE_TABS = [
 const WORKSPACE_CATEGORIES = {
   // PROGRAM — anything that writes to a module / produces a flashable file.
   jailbreak:'PROGRAM', keyprog:'PROGRAM', keyxfer:'PROGRAM', keymgr:'PROGRAM', livekey:'PROGRAM',
-  vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM',
+  vinprog:'PROGRAM', vinsync:'PROGRAM', secsync:'PROGRAM', bcm:'PROGRAM', bcmconfig:'PROGRAM', rfhub:'PROGRAM', akl:'PROGRAM',
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
@@ -1243,6 +1245,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle} onOpenTab={setTab}/>}
         {tab==='topology'  && <TopologyTab/>}
+        {tab==='akl'       && <AklWizardTab/>}
         {tab==='uds-console' && <J2534UdsConsoleTab/>}
         {tab==='skim'      && <SkimSecurityTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}
