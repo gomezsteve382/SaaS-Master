@@ -74,6 +74,9 @@ import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
 import TopologyTab from "./tabs/TopologyTab.jsx";
 import AklWizardTab from "./tabs/AklWizardTab.jsx";
+import Workbench, { ROUTE } from "./components/Workbench.jsx";
+import JobLauncher from "./components/JobLauncher.jsx";
+import { JOB_KINDS } from "./lib/jobLauncher.js";
 import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
@@ -1026,6 +1029,16 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
     if (next === 'info') { setReferenceOpen(true); return; }
     setTabRaw(VALID_TAB_IDS.has(next) ? next : 'dumps');
   },[VALID_TAB_IDS]);
+  // ── Rebuilt back-side IA: a job launcher -> one of four workbenches.
+  // wbInitial = null shows the launcher; {wb,sub} opens that workbench location.
+  const mv = useContext(MasterVinContext);
+  const [wbInitial, setWbInitial] = useState(null);
+  const handleStart = useCallback((kind, opts = {})=>{
+    const k = JOB_KINDS.find(j => j.key === kind);
+    const route = k ? ROUTE[k.targetTab] : null;
+    if (opts.vin && mv && typeof mv.setVin === 'function') mv.setVin(opts.vin);
+    setWbInitial(route || { wb: 'live', sub: 'topology' });
+  },[mv]);
   /* Window-level "open this tab" channel so deeply-nested components
    * (e.g. the inline CAN Universe panel rendered on tabs that don't
    * thread an onOpenTab prop) can request a tab switch without us
@@ -1217,81 +1230,22 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         </div>
       )}
 
-      <CommandShell
-        vehicle={vehicle}
-        onBack={onBack}
-        onOpenWizard={()=>setWorkspaceWizardOpen(true)}
-        onOpenCopilot={onOpenCopilot}
-        tabs={WORKSPACE_TABS}
-        categories={WORKSPACE_CATEGORIES}
-        activeTab={tab}
-        onSelect={setTab}
-      >
-        {tab==='dumps'     && <DumpsTabV2 vehicle={vehicle} files={files} setFiles={setFiles} loadF={loadF} onGoSync={()=>setTab('modsync')}/>}
-        {tab==='vinsync'   && <VinThenSyncTab vehicle={vehicle}/>}
-        {tab==='secsync'   && <SecuritySyncTab/>}
-        {tab==='modsync'   && <ModuleSync vehicleId={vehicle.id} files={files}/>}
-        {tab==='keyprog'   && <KeyProgTab/>}
-        {tab==='keyxfer'   && <KeyTransferTab/>}
-        {tab==='jailbreak' && <JailbreakTab vehicle={vehicle}/>}
-        {tab==='seed'      && <SeedTab/>}
-        {tab==='bcm'       && <BcmTab vehicle={vehicle}/>}
-        {tab==='skimlive'  && <SkimTab/>}
-        {tab==='rfhub'     && <RfhubTab vehicle={vehicle}/>}
-        {tab==='keymgr'    && <KeyManagerTab vehicle={vehicle}/>}
-        {tab==='livekey'   && <LiveKeyTab/>}
-        {tab==='ecm'       && <EcmTab vehicle={vehicle}/>}
-        {tab==='smartbox'  && <SmartBoxTab/>}
-        {tab==='backups'   && <BackupsTab/>}
-        {tab==='obd'       && <LiveObdTab vehicle={vehicle} onOpenTab={setTab}/>}
-        {tab==='topology'  && <TopologyTab/>}
-        {tab==='akl'       && <AklWizardTab/>}
-        {tab==='uds-console' && <J2534UdsConsoleTab/>}
-        {tab==='skim'      && <SkimSecurityTab vehicle={vehicle}/>}
-        {tab==='info'      && <InfoTab vehicle={vehicle}/>}
-        {tab==='cflash'    && <CFlashTab files={files.filter(f=>f && (f.type==='CFLASH'||f.type==='FW'))} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
-        {tab==='efd'       && <EfdInspectorTab efdFile={efdFile} files={files} onLoad={loadF} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
-        {tab==='efd2bin'   && <EfdToBinTab efdFile={efdFile} onFlash={(f)=>{setSelectedCflash(f); setTab('flasher');}}/>}
-        {tab==='flasher'   && <EcmFlasherTab selectedFile={selectedCflash} files={files} onSelectFile={setSelectedCflash}/>}
-        {tab==='cdasession'&& <Cda6SessionTab/>}
-        {tab==='cda6db'   && <Cda6DatabaseToolsTab/>}
-        {tab==='vinprog'   && <VinProgrammerTab/>}
-        {tab==='proxi'     && <ProxiTab/>}
-        {tab==='immobcm56xb' && <ImmoBcm56xbTab/>}
-        {tab==='bcmpcmpair' && <BcmPcmPairingTab/>}
-        {tab==='bcmconfig' && <BcmConfigTab vehicle={vehicle}/>}
-        {tab==='inspector' && <FcaModuleInspector onOpenTab={setTab}/>}
-        {tab==='unlockcov' && <UnlockCoverageTab/>}
-        {tab==='alfaobd'   && <AlfaObdTablesTab/>}
-        {tab==='workflow'  && <WorkflowTab onOpenTab={setTab}/>}
-        {tab==='gpecunlock'&& <Gpec2aUnlockTab/>}
-        {tab==='exttools'  && <ExternalToolsTab onOpenTab={setTab}/>}
-        {tab==='radiocodes'&& <RadioCodesTab/>}
-        {tab==='keywriter' && <KeyWriterTab onOpenTab={setTab}/>}
-        {tab==='binintel'  && <BinaryIntelTab/>}
-        {tab==='dispatchcov' && <DispatchCoverageTab/>}
-        {tab==='alfaintel' && <AlfaObdIntelTab/>}
-        {tab==='udsanalyzer' && <UdsAnalyzerTab/>}
-        {tab==='patterns'  && <PatternLibraryTab/>}
-        {tab==='kg'        && <KnowledgeGraphTab/>}
-        {tab==='investigation' && <InvestigationTab onOpenTab={setTab}/>}
-        {tab==='sigdisc'   && <SignalDiscoveryTab/>}
-        {tab==='canuniverse' && <CanUniverseTab/>}
-        {tab==='loganalyser' && <LogAnalyserTab/>}
-        {tab==='fwemul'     && <FirmwareEmulationTab/>}
-        {tab==='samples'   && <SampleLibraryTab onPreview={async (file, targetTab)=>{
-          // Funnel through the shared workspace `loadF` so the same
-          // upload-time size guard that protects the Dumps tab also
-          // catches undersized fixtures here (Task #376). Only switch
-          // tabs when the fixture actually made it into the workspace —
-          // otherwise stay on the Samples Library so the user sees the
-          // structured rejection feedback inline.
-          const result = await loadF([file], undefined, 'Samples');
-          if (result.rejected && result.rejected.length) return result;
-          setTab(targetTab || 'dumps');
-          return result;
-        }}/>}
-      </CommandShell>
+      {/* ── Rebuilt back-side IA (replaces the 50-tab CommandShell drawer) ──
+          A job-first launcher routes into one of four focused workbenches
+          (LIVE / KEYS / BENCH / GPEC), each composing the existing tab
+          internals. wbInitial===null shows the launcher. */}
+      {!wbInitial ? (
+        <JobLauncher vin={mv?.vin || ''} onVin={mv?.setVin} onStart={handleStart} onBack={onBack}/>
+      ) : (
+        <Workbench
+          vehicle={vehicle}
+          files={files}
+          selectedCflash={selectedCflash}
+          setSelectedCflash={setSelectedCflash}
+          onBack={()=>setWbInitial(null)}
+          initial={wbInitial}
+        />
+      )}
 
       <ReferencePanelTrigger onOpen={()=>setReferenceOpen(true)}/>
       <ReferencePanel open={referenceOpen} onClose={()=>setReferenceOpen(false)} vehicle={vehicle}>
