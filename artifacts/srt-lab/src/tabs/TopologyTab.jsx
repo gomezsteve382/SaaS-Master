@@ -101,6 +101,8 @@ export default function TopologyTab() {
   const [vinInput, setVinInput] = useState("");
   const [vins, setVins] = useState({});           // code → {current, original, reprogrammed}
   const [pendingWrite, setPendingWrite] = useState(null);
+  const [pendingBatch, setPendingBatch] = useState(null);
+  const [batchRes, setBatchRes] = useState({});   // code -> 'ok'|'fail'|'skip' during Program-All
 
   const engineRef = useRef(null);
   const stateRef = useRef({});                     // code → 'idle'|'probing'|'live'|'busy'
@@ -266,6 +268,46 @@ export default function TopologyTab() {
     } finally { setBusy(false); }
   }, [pendingWrite, sel, addLog, makeBackup]);
 
+  /* ── Program ALL: write ONE VIN to every LIVE VIN-bearing module ────────
+     Modules with no VIN slot fail programVin's preflight read and are counted
+     as 'no-VIN-slot' (skipped) rather than errors. BCM + RFHUB go first (VIN
+     master). One voltage gate up front; each module still snapshots + verifies. */
+  const requestBatch = useCallback(() => {
+    const vin = vinInput.trim().toUpperCase();
+    if (vin.length !== 17) { addLog("VIN must be exactly 17 characters.", "error"); return; }
+    const live = ALL.filter(m => stateRef.current[m.code] === "live");
+    if (!live.length) { addLog("Scan first — no live modules to program.", "error"); return; }
+    setPendingBatch({ vin, count: live.length });
+  }, [vinInput, addLog]);
+
+  const confirmBatch = useCallback(async () => {
+    const pend = pendingBatch; setPendingBatch(null);
+    const eng = engineRef.current; if (!eng || !pend) return;
+    setBusy(true); setBatchRes({});
+    addLog(`══ PROGRAM ALL → ${pend.vin} ══`, "header");
+    try {
+      let voltage = null; try { voltage = await eng.readVoltage?.(); } catch {}
+      if (typeof voltage === "number") {
+        addLog(`Battery: ${voltage.toFixed(1)} V`, voltage < 12 ? "warn" : "info");
+        if (voltage < 11.0) { addLog(`✗ Voltage ${voltage.toFixed(1)} V too low — aborting batch.`, "error"); return; }
+      }
+      const pri = c => (c === "BCM" ? 0 : c === "RFHUB" ? 1 : 2);   // VIN-master order
+      const live = ALL.filter(m => stateRef.current[m.code] === "live").sort((a, b) => pri(a.code) - pri(b.code));
+      let ok = 0, fail = 0, skip = 0;
+      for (const m of live) {
+        setMState(m.code, "busy");
+        addLog(`── ${m.code} (${hx3(m.tx)}) ──`, "info");
+        const row = { tx: m.tx, rx: m.rx, code: m.code, vinDids: vinWriteDids(m.code) };
+        const r = await programVin({ eng, row, vin: pend.vin, addLog, makeBackup });
+        const status = r.ok ? "ok" : (r.reason === "preflight" ? "skip" : "fail");
+        if (status === "ok") ok++; else if (status === "skip") skip++; else fail++;
+        setBatchRes(p => ({ ...p, [m.code]: status }));
+        setMState(m.code, r.ok ? "live" : "idle");
+      }
+      addLog(`══ DONE — ${ok} ok · ${fail} fail · ${skip} no-VIN-slot ══`, fail ? "warn" : "success");
+    } finally { setBusy(false); }
+  }, [pendingBatch, addLog, makeBackup]);
+
   /* ── module box ────────────────────────────────────────────────────────── */
   const ModBox = ({ m, gw }) => {
     const st = stateRef.current[m.code] || "idle";
@@ -379,6 +421,28 @@ export default function TopologyTab() {
             <div style={{ fontSize: 9.5, color: S.dim, marginTop: 8 }}>
               Writes every VIN DID for {sel?.code || "the module"} ({(sel ? vinWriteDids(sel.code) : []).map(d => d.toString(16).toUpperCase()).join(", ") || "—"}); unlock → 2E → read-back verify.
             </div>
+
+            {/* ── Program ALL live modules to this VIN ── */}
+            <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${S.border}` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ flex: 1, fontSize: 10, color: S.dim }}>
+                  Write this VIN to <b style={{ color: S.text }}>every live module</b> ({ALL.filter(m => stateRef.current[m.code] === "live").length} live · BCM/RFHUB first).
+                </div>
+                <Btn onClick={requestBatch} disabled={!connected || busy || vinInput.trim().length !== 17} color={S.purple}>Program ALL →</Btn>
+              </div>
+              {Object.keys(batchRes).length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8 }}>
+                  {Object.entries(batchRes).map(([code, st]) => (
+                    <span key={code} style={{ fontFamily: S.mono, fontSize: 9.5, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
+                      background: st === "ok" ? "#06160c" : st === "skip" ? "#14141e" : "#1a0606",
+                      color: st === "ok" ? S.green : st === "skip" ? S.dim : S.red,
+                      border: `1px solid ${st === "ok" ? "#0a4020" : st === "skip" ? S.border : "#4a1010"}` }}>
+                      {code} {st === "ok" ? "✓" : st === "skip" ? "—" : "✗"}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -417,6 +481,28 @@ export default function TopologyTab() {
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
               <Btn onClick={() => setPendingWrite(null)} color="#333" small>Cancel</Btn>
               <Btn onClick={confirmWrite} color={S.red}>Write VIN now</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Program-ALL confirm gate ──────────────────────────────────────── */}
+      {pendingBatch && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.72)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: S.card, border: `1px solid ${S.purple}`, borderRadius: 12, padding: 24, maxWidth: 460, width: "90%" }}>
+            <div style={{ fontSize: 16, fontWeight: 900, color: S.purple, marginBottom: 10 }}>⚠ Program ALL live modules</div>
+            <div style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>
+              Write this VIN to <b style={{ color: "#fff" }}>{pendingBatch.count}</b> live module{pendingBatch.count === 1 ? "" : "s"} on the bus (BCM + RFHUB first):
+            </div>
+            <div style={{ fontFamily: S.mono, fontSize: 15, fontWeight: 800, color: "#69F0AE", background: "#0A0A0F", border: `1px solid ${S.border}`, borderRadius: 6, padding: "8px 10px", textAlign: "center", marginBottom: 12 }}>
+              {pendingBatch.vin}
+            </div>
+            <div style={{ fontSize: 11, color: S.dim, marginBottom: 16 }}>
+              Each module is snapshotted, unlocked, written and verified independently. A module with no VIN slot is skipped (not an error); a module that rejects a write aborts only itself. Battery voltage is checked once up front.
+            </div>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <Btn onClick={() => setPendingBatch(null)} color="#333" small>Cancel</Btn>
+              <Btn onClick={confirmBatch} color={S.purple}>Program all now</Btn>
             </div>
           </div>
         </div>

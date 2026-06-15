@@ -334,6 +334,10 @@ const ALGOS=[
   {id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},
   {id:'gpec2a_q2',n:'GPEC2A EPROM q2',h:'0x3BA8FDC7 (VILLAIN q2)',fn:s=>sxor(s,0x3BA8FDC7)},
   {id:'gpec2a_w6',n:'GPEC2A W6',h:'AlfaOBD W6 r=234521F9 s=19390673 (byte-verified)',fn:s=>gpec2a_w6(s)},
+  // EPS (electric power steering) — VILLAIN dump-verified sxor constants, SA level
+  // 0x60. EPS previously fell back to cda6, which is the WRONG family.
+  {id:'eps',   n:'EPS',   h:'VILLAIN sxor 0xCD6BDBF5 (SA 60)',fn:s=>sxor(s,0xCD6BDBF5)},
+  {id:'eps_v2',n:'EPS v2',h:'VILLAIN sxor 0xEC377DF3 (SA 60 alt)',fn:s=>sxor(s,0xEC377DF3)},
   {id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},
   {id:'gpec15_q2',n:'GPEC2 2015 q2',h:'0xCFB81A2E (VILLAIN q2)',fn:s=>sxor(s,0xCFB81A2E)},
   {id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},
@@ -455,7 +459,7 @@ function unlockIdForTx(tx){
 const MOD_UNLOCK = {
   ECM:'gpec2', TCM:'gpec2', DAMP:'gpec2', ADCM:'gpec2',
   BCM:'cda6', RFHUB:'cda6', ABS:'cda6', IPC:'cda6',
-  EPS:'cda6', RADIO:'cda6', ORC:'cda6', HVAC:'cda6',
+  EPS:'eps', RADIO:'cda6', ORC:'cda6', HVAC:'cda6',
   DTCM:'cda6', SCCM:'cda6', DDM:'cda6',
   TIPM:'t80',
   SGW:'xtea_sgw',
@@ -470,6 +474,7 @@ const UNLOCK_FALLBACK = [
   'gpec2','gpec2_q2',
   'gpec3','gpec3_q2',
   'gpec2a','gpec2a_q2','gpec2a_w6',
+  'eps','eps_v2',
   'gpec15','gpec15_q2',
   'gpec2e','gpec2e_q2','gpec2e_q3','gpec2e_q4',
   'gpec2f','gpec2f_q2',
