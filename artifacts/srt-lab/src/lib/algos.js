@@ -1,6 +1,11 @@
 const u32=n=>n>>>0;
 function sxor(s,c){let k=u32(s);for(let i=0;i<5;i++)k=k&0x80000000?u32((k<<1)^u32(c)):u32(k<<1);return k;}
 function cda6(s){let k=u32(s);k=u32(k^0x4B129F);k=u32((k<<3)|(k>>>29));k=u32(k+0x1234);k=u32(k^0xABCD);return u32((k>>>5)|(k<<27));}
+// GPEC2A W6 (AlfaOBD) — byte-verified from the user's RE workspace:
+// seed 0xC1FFCBC1 -> key 0x162C124F. key = swap_words((seed*r + s) & 0xFFFFFFFF)
+// with r=0x234521F9, s=0x19390673. BigInt for the 32x32 multiply (it exceeds the
+// JS safe-integer range, so a plain `seed*r` would silently lose low bits).
+function gpec2a_w6(s){const p=(BigInt(u32(s))*0x234521F9n+0x19390673n)&0xFFFFFFFFn;const k=Number(p)>>>0;return u32(((k&0xFFFF)<<16)|(k>>>16));}
 const NT=[0x44,0x41,0x49,0x4D,0x4C,0x45,0x52,0x43,0x48,0x52,0x59,0x53,0x4C,0x45,0x52,0x31],NS=[0x9D9F,0xCE48,0xB0F3,0xD99B,0xA720,0xFDD6,0x836D,0x6F8E];
 // NGC 14×32-bit pre-computation table — extracted from VILLAIN memory dump
 // (VILLAIN_COMPLETE_EXTRACTION.md §"NGC Pre-Computation Table"). Used by the
@@ -328,6 +333,7 @@ const ALGOS=[
   {id:'gpec3_q2',n:'GPEC3 EPROM q2',h:'0xD0726B89 (VILLAIN q2)',fn:s=>sxor(s,0xD0726B89)},
   {id:'gpec2a',n:'GPEC2A',h:'GPEC2A',fn:s=>sxor(s,0xCE853A6F)},
   {id:'gpec2a_q2',n:'GPEC2A EPROM q2',h:'0x3BA8FDC7 (VILLAIN q2)',fn:s=>sxor(s,0x3BA8FDC7)},
+  {id:'gpec2a_w6',n:'GPEC2A W6',h:'AlfaOBD W6 r=234521F9 s=19390673 (byte-verified)',fn:s=>gpec2a_w6(s)},
   {id:'gpec15',n:'GPEC2 2015',h:'2015-18',fn:s=>sxor(s,0x47EC21F8)},
   {id:'gpec15_q2',n:'GPEC2 2015 q2',h:'0xCFB81A2E (VILLAIN q2)',fn:s=>sxor(s,0xCFB81A2E)},
   {id:'ngc',n:'NGC',h:'DAIMLERCHRYSLER',fn:s=>ngc(s)},
@@ -463,7 +469,7 @@ const UNLOCK_FALLBACK = [
   'cda6','alfa_ao',
   'gpec2','gpec2_q2',
   'gpec3','gpec3_q2',
-  'gpec2a','gpec2a_q2',
+  'gpec2a','gpec2a_q2','gpec2a_w6',
   'gpec15','gpec15_q2',
   'gpec2e','gpec2e_q2','gpec2e_q3','gpec2e_q4',
   'gpec2f','gpec2f_q2',
