@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<title>SRT Lab — Live Diagnostics</title>
+<style>
+  :root{
+    --bg:#0a0d14; --panel:#111722; --panel2:#0d121b; --line:#1d2634; --line2:#26334a;
+    --tx:#e6edf3; --dim:#8b97a7; --mut:#5b6573;
+    --cyan:#22d3ee; --green:#43dc84; --amber:#ffc043; --red:#ff5d73; --blue:#4a9eff; --purple:#a472ff;
+    --mono:'JetBrains Mono','Consolas',monospace; --sans:'Segoe UI',Roboto,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:13px;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+  /* top bar */
+  .topbar{display:flex;align-items:center;gap:13px;padding:9px 15px;background:linear-gradient(180deg,#131b28,#0c111a);border-bottom:1px solid var(--line);flex-shrink:0}
+  .brand{font-weight:800;letter-spacing:.5px;font-size:15px}
+  .brand b{color:var(--cyan)}
+  .brand .sub{color:var(--dim);font-weight:600;font-size:10px;margin-left:6px;letter-spacing:1px}
+  .stat{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--dim);padding:4px 9px;border:1px solid var(--line);border-radius:6px;background:#0c111a}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--mut)}
+  .dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
+  .dot.warn{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+  .dot.off{background:var(--red)}
+  .spacer{flex:1}
+  button{font-family:var(--sans);font-weight:700;font-size:12px;border:none;border-radius:7px;padding:8px 13px;cursor:pointer;color:#06121a;background:var(--cyan);transition:.15s}
+  button:hover{filter:brightness(1.08)} button:disabled{opacity:.4;cursor:not-allowed}
+  button.ghost{background:#192233;color:var(--tx);border:1px solid var(--line2)}
+  button.amber{background:var(--amber);color:#221700} button.green{background:var(--green);color:#06210f}
+  label.chk{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;font-size:11px;color:var(--dim)}
+
+  /* vehicle bar */
+  .vehbar{display:flex;align-items:center;gap:14px;padding:8px 16px;border-bottom:1px solid var(--line);background:#0c121b;flex-shrink:0}
+  .vehbar .title{font-size:15px;font-weight:800}
+  .vehbar .title span{color:var(--cyan)}
+  .legend{display:flex;gap:14px;margin-left:auto;font-size:11px}
+  .legend i{font-style:normal;display:flex;align-items:center;gap:5px;color:var(--dim)}
+  .legend i::before{content:'';width:9px;height:9px;border-radius:50%;background:var(--c)}
+
+  /* body split */
+  .split{display:flex;flex:1;min-height:0}
+  .topo{flex:1;overflow:auto;padding:18px 20px}
+  .side{width:330px;flex-shrink:0;border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+
+  /* gateway */
+  .gw-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:6px}
+  .gw{min-width:170px;text-align:center;border:2px solid var(--amber);border-radius:10px;padding:9px 16px;background:linear-gradient(180deg,#241d09,#16130a);cursor:pointer}
+  .gw .c{font-weight:800;font-size:14px;color:var(--amber)}
+  .gw .t{font-size:10px;color:var(--dim);letter-spacing:1.5px;margin-top:1px}
+  .gw .a{font-family:var(--mono);font-size:9px;color:var(--mut);margin-top:2px}
+  .gw.live{border-color:var(--green)} .gw.live .c{color:var(--green)}
+  .stem{width:2px;height:18px;background:var(--line2)}
+
+  /* bus rails */
+  .rail{display:flex;align-items:stretch;margin-bottom:11px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);overflow:hidden}
+  .rail-h{width:118px;flex-shrink:0;padding:11px 12px;background:#0f1622;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+  .rail-h .n{font-weight:800;font-size:12px}
+  .rail-h .s{font-size:10px;color:var(--mut);font-family:var(--mono);margin-top:2px}
+  .rail-h .sp{font-size:9px;color:var(--cyan);font-weight:700;margin-top:3px;letter-spacing:.5px}
+  .rail-m{flex:1;display:flex;flex-wrap:wrap;gap:7px;padding:10px}
+
+  /* module box */
+  .mod{min-width:86px;border:1.5px solid var(--line2);border-radius:7px;padding:6px 9px;background:#0c1119;cursor:pointer;position:relative;transition:.12s}
+  .mod:hover{border-color:var(--cyan)}
+  .mod.sel{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan)}
+  .mod .c{font-weight:800;font-size:12px}
+  .mod .a{font-family:var(--mono);font-size:8.5px;color:var(--mut);margin-top:1px}
+  .mod .pip{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--blue)}
+  .mod.idle .pip{background:#3a4658}
+  .mod.live{border-color:#1f6e44;background:#0c1c14} .mod.live .pip{background:var(--green);box-shadow:0 0 7px var(--green)} .mod.live .c{color:var(--green)}
+  .mod.dead{opacity:.55} .mod.dead .pip{background:var(--red)}
+  .mod.busy .pip{background:var(--amber);box-shadow:0 0 7px var(--amber);animation:pulse 1s infinite alternate}
+  @keyframes pulse{from{opacity:.35}to{opacity:1}}
+
+  /* side command panel */
+  .side h3{margin:0;padding:11px 14px;font-size:11px;letter-spacing:1.4px;color:var(--dim);border-bottom:1px solid var(--line);text-transform:uppercase;font-weight:800}
+  .modhead{padding:13px 14px;border-bottom:1px solid var(--line)}
+  .modhead .t{font-size:17px;font-weight:800} .modhead .t.gw{color:var(--amber)}
+  .modhead .a{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:3px}
+  .chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .chip{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;border:1px solid var(--line2);color:var(--dim)}
+  .chip.ok{color:var(--green);border-color:#1d4d33;background:#0e2017}
+  .cmds{padding:11px 12px;overflow:auto;flex:1;min-height:0}
+  .cmd{display:block;width:100%;text-align:left;margin-bottom:7px;background:#16202e;color:var(--tx);border:1px solid var(--line2);padding:10px 11px;border-radius:8px;font-weight:700}
+  .cmd:hover{border-color:var(--cyan);background:#13202b}
+  .cmd small{display:block;color:var(--mut);font-weight:600;font-size:10px;margin-top:1px;font-family:var(--mono)}
+  .resp{margin-top:10px;padding:11px;background:#0a0f17;border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:11.5px;min-height:60px;white-space:pre-wrap;word-break:break-all;color:#cfe9ff}
+  .resp .ok{color:var(--green)} .resp .err{color:var(--red)} .resp .lbl{color:var(--mut)}
+  .row2{display:flex;gap:6px;margin-top:9px}
+  .row2 input,.cmds select{background:#0a0f17;border:1px solid var(--line2);border-radius:6px;color:var(--tx);font-family:var(--mono);font-size:12px;padding:8px 9px;outline:none}
+  .row2 input{flex:1} .row2 input:focus{border-color:var(--cyan)}
+  .cmds select{width:100%;margin-top:8px}
+
+  /* log */
+  .logwrap{height:150px;background:var(--panel);border-top:1px solid var(--line);display:flex;flex-direction:column;flex-shrink:0}
+  .logwrap .hd{display:flex;align-items:center;padding:6px 14px;border-bottom:1px solid var(--line);gap:10px}
+  .logwrap .hd b{font-size:10px;letter-spacing:1.4px;color:var(--dim)}
+  .log{flex:1;overflow:auto;padding:5px 12px;font-family:var(--mono);font-size:11px;line-height:1.6}
+  .log .l{display:flex;gap:9px}
+  .log .ts{color:var(--mut);flex-shrink:0}
+  .log .tx{color:var(--cyan)} .log .rx{color:var(--green)} .log .er{color:var(--red)} .log .in{color:var(--dim)} .log .hl{color:var(--amber)}
+  .note{color:var(--mut);font-size:10px;margin-left:auto;font-family:var(--mono)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">SRT&nbsp;<b>LAB</b><span class="sub">LIVE DIAGNOSTICS · TOPDON J2534 · <b style="color:var(--green)">v3</b></span></div>
+  <div class="stat"><span class="dot" id="d-bridge"></span><span id="s-bridge">bridge?</span></div>
+  <div class="stat"><span id="s-vendor">—</span></div>
+  <div class="stat">⚡ <span id="s-volt">—</span></div>
+  <div class="spacer"></div>
+  <label class="chk"><input type="checkbox" id="benchchk" checked style="accent-color:var(--cyan);margin:0"> BENCH (no SGW)</label>
+  <button id="btn-connect">CONNECT</button>
+  <button id="btn-sgw" class="amber" disabled>🔓 SGW</button>
+  <button id="btn-scan" class="green" disabled>SCAN ALL</button>
+</div>
+
+<div class="vehbar">
+  <div class="title">Charger / 300 <span>(LD)</span> 2016</div>
+  <div class="legend">
+    <i style="--c:var(--green)">Responding</i>
+    <i style="--c:var(--red)">No response</i>
+    <i style="--c:var(--amber)">Probing</i>
+    <i style="--c:var(--blue)">Not scanned</i>
+  </div>
+</div>
+
+<div class="split">
+  <div class="topo" id="topo"></div>
+  <div class="side">
+    <h3>Module</h3>
+    <div class="modhead">
+      <div class="t" id="m-name">Select a module</div>
+      <div class="a" id="m-addr">click any box in the topology</div>
+      <div class="chips"><span class="chip" id="c-state">idle</span><span class="chip" id="c-link">Link: idle</span></div>
+    </div>
+    <div class="cmds" id="cmds-wrap">
+      <button class="cmd" data-cmd="vin">Read VIN<small>22 F1 90 (current)</small></button>
+      <button class="cmd" data-cmd="vins">Read VINs · current + original<small>F190 · 7B90 · 7B88</small></button>
+      <button class="cmd" data-cmd="dtc">Read DTCs<small>19 02 FF</small></button>
+      <button class="cmd" data-cmd="cleardtc">Clear DTCs<small>14 FF FF FF</small></button>
+      <button class="cmd" data-cmd="tp">Tester Present<small>3E 00</small></button>
+      <button class="cmd" data-cmd="ext">Extended Session<small>10 03</small></button>
+      <button class="cmd" data-cmd="reset">ECU Reset<small>11 01</small></button>
+      <select id="didsel">
+        <option value="F190">F190 · VIN (current)</option>
+        <option value="7B88">7B88 · Original VIN</option>
+        <option value="7B90">7B90 · Current VIN copy</option>
+        <option value="F18C">F18C · ECU Serial</option>
+        <option value="F1A0">F1A0 · FCA App Info</option>
+        <option value="F187">F187 · Spare Part No</option>
+        <option value="F132">F132 · Soft Part No</option>
+        <option value="F150">F150 · Build Spec</option>
+      </select>
+      <button class="cmd" data-cmd="did" style="margin-top:7px">Read selected DID<small>22 &lt;did&gt;</small></button>
+      <div class="row2"><input id="raw" placeholder="raw hex e.g. 22 F1 90"><button class="ghost" id="btn-send" style="padding:8px 12px">SEND</button></div>
+      <div class="resp" id="resp"><span class="lbl">Responses appear here.</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="logwrap">
+  <div class="hd"><b>LOG</b><span class="note" id="urlnote"></span></div>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+/* ===================================================================
+   SRT Lab — standalone live diagnostics (no build step).
+   Talks to the J2534 bridge daemon over HTTP; sincro-verified address
+   map + SGW XTEA. Bench-ready bus topology for Charger/300 (LD).
+=================================================================== */
+const BRIDGE=(location.port==='8765')?location.origin:'http://localhost:8765';
+document.getElementById('urlnote').textContent='bridge '+BRIDGE;
+
+/* ---- SGW XTEA (verbatim from algos.js) ---- */
+const SGW_KEY=[0xBC474048,0xA33B483A,0x63687279,0x73313372];
+const u32=n=>n>>>0;
+function xteaEnc(v0,v1,k){v0=u32(v0);v1=u32(v1);let s=0;for(let i=0;i<32;i++){v0=u32(v0+((((v1<<4)^(v1>>>5))>>>0)+v1^(s+k[s&3])));s=u32(s+0x9E3779B9);v1=u32(v1+((((v0<<4)^(v0>>>5))>>>0)+v0^(s+k[(s>>>11)&3])));}return [u32(v0),u32(v1)];}
+function xtea_sgw(seed){return xteaEnc(u32(seed),u32(~seed),SGW_KEY)[0];}
+
+/* ---- helpers ---- */
+const hx2=b=>b.toString(16).toUpperCase().padStart(2,'0');
+const hx3=n=>n.toString(16).toUpperCase().padStart(3,'0');
+const bytesHex=a=>Array.from(a).map(hx2).join(' ');
+function hexToBytes(s){if(!s)return [];s=String(s).replace(/[^0-9a-fA-F]/g,'');const o=[];for(let i=0;i+1<s.length;i+=2)o.push(parseInt(s.substr(i,2),16));return o;}
+const $=id=>document.getElementById(id);
+function log(cls,msg){const el=$('log');const ts=new Date().toLocaleTimeString('en-US',{hour12:false});const d=document.createElement('div');d.className='l';d.innerHTML='<span class="ts">'+ts+'</span><span class="'+cls+'">'+msg+'</span>';el.appendChild(d);el.scrollTop=el.scrollHeight;while(el.children.length>500)el.removeChild(el.firstChild);}
+
+/* ---- bridge HTTP ---- */
+async function bridge(path,body,timeoutMs=9000){
+  const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),timeoutMs);
+  try{const res=await fetch(BRIDGE+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,signal:ctl.signal});
+    const t=await res.text();let j;try{j=t?JSON.parse(t):{};}catch{j={ok:false,error:'bad json'};}if(!res.ok&&j.ok!==false)j.ok=false;return j;
+  }catch(e){return {ok:false,error:e.name==='AbortError'?'timeout':(e.message||String(e))};}finally{clearTimeout(tm);}
+}
+/* one UDS request (bridge does send+receive incl. flow control in /sendmsg) */
+let lastTx=-1,lastRx=-1;
+async function uds(tx,rx,bytes,timeoutMs=4000){
+  if(tx!==lastTx||rx!==lastRx){const f=await bridge('/setfilter',{txId:tx,rxId:rx});if(!f.ok)return {ok:false,err:'filter:'+(f.error||'')};lastTx=tx;lastRx=rx;}
+  const recvMs=Math.min(Math.max(timeoutMs,1200),6000);
+  const sm=await bridge('/sendmsg',{txId:tx,data:bytes.map(hx2).join(''),flags:0,timeoutMs:recvMs},recvMs+2500);
+  if(!sm.ok)return {ok:false,err:'send:'+(sm.error||'')};
+  const deadline=Date.now()+timeoutMs;
+  while(Date.now()<deadline){const r=await bridge('/readmsg',{timeoutMs:1000},3000);const m=r&&r.msg;if(!m||!m.data)continue;if(typeof m.canId==='number'&&rx&&m.canId!==rx)continue;const d=hexToBytes(m.data);if(!d.length)continue;if(d.length>=3&&d[0]===0x7F&&d[2]===0x78)continue;return {ok:true,d,raw:m.data};}
+  return {ok:false,err:'timeout'};
+}
+
+/* ---- module / bus topology (sincro ecu_addressing.json, 2019_LD) ---- */
+const GW={code:'BCM',name:'Body Control Module',tx:0x620,rx:0x504,gw:true};
+const BUSES=[
+  {n:'CAN-C',seg:'seg 1',sp:'500K',mods:[
+    {code:'PCM',name:'Powertrain Control',tx:0x7E0,rx:0x7E8},
+    {code:'TCM',name:'Transmission',tx:0x7E1,rx:0x7E9},
+    {code:'ABS',name:'Anti-lock Brakes',tx:0x747,rx:0x4C7},
+    {code:'ORC',name:'Occupant Restraint',tx:0x744,rx:0x4C4},
+    {code:'RFH',name:'RF Hub / Keyless',tx:0x740,rx:0x4C0},
+    {code:'ESM',name:'Electronic Shift',tx:0x749,rx:0x4C9},
+    {code:'ACC',name:'Adaptive Cruise',tx:0x753,rx:0x4D3},
+    {code:'ADCM',name:'Active Damping',tx:0x757,rx:0x4D7},
+    {code:'DTCM',name:'Drivetrain Ctrl',tx:0x74B,rx:0x4CB},
+    {code:'TPM',name:'Tire Pressure',tx:0x743,rx:0x4C3},
+  ]},
+  {n:'CAN-C',seg:'seg 2',sp:'500K',mods:[
+    {code:'IPC',name:'Instrument Cluster',tx:0x742,rx:0x4C2},
+    {code:'EPS',name:'Power Steering',tx:0x75A,rx:0x4DA},
+    {code:'SCCM',name:'Steering Column',tx:0x763,rx:0x4E3},
+    {code:'PTS',name:'Park Assist',tx:0x762,rx:0x4E2},
+    {code:'VSIM',name:'Veh Sys Interface',tx:0x771,rx:0x4F1},
+    {code:'HALF',name:'Fwd Facing Cam',tx:0x764,rx:0x4E4},
+  ]},
+  {n:'CAN-IHS',seg:'seg 1',sp:'125K',mods:[
+    {code:'HVAC',name:'Climate Control',tx:0x783,rx:0x503},
+    {code:'ICS',name:'Center Stack',tx:0x7BC,rx:0x53C},
+    {code:'AMP',name:'Audio Amplifier',tx:0x7BE,rx:0x53E},
+    {code:'DDM',name:'Driver Door',tx:0x784,rx:0x504},
+    {code:'PDM',name:'Passenger Door',tx:0x785,rx:0x505},
+    {code:'MSM',name:'Memory Seat',tx:0x78A,rx:0x50A},
+    {code:'ITM',name:'Intrusion',tx:0x78F,rx:0x50F},
+  ]},
+  {n:'CAN-IHS',seg:'seg 2',sp:'125K',mods:[
+    {code:'CMCM',name:'Radio / Media',tx:0x7BF,rx:0x53F},
+    {code:'DCSD',name:'Driver Seat',tx:0x7AC,rx:0x52C},
+    {code:'HSM',name:'Heated Seat',tx:0x792,rx:0x512},
+    {code:'LBSS',name:'L Blind Spot',tx:0x791,rx:0x511},
+    {code:'RBSS',name:'R Blind Spot',tx:0x799,rx:0x519},
+  ]},
+];
+const ALL=[GW];BUSES.forEach(b=>b.mods.forEach(m=>ALL.push(m)));
+ALL.forEach(m=>{m.state='idle';});
+let sel=null,connected=false,sgwUnlocked=false;
+const benchMode=()=>$('benchchk').checked;
+
+/* ---- render topology ---- */
+function modBox(m){
+  const e=document.createElement('div');
+  e.className='mod '+(m.state||'idle')+(sel===m?' sel':'');
+  e.innerHTML='<span class="pip"></span><div class="c">'+m.code+'</div><div class="a">'+hx3(m.tx)+'/'+hx3(m.rx)+'</div>';
+  e.onclick=()=>{sel=m;render();};
+  return e;
+}
+function render(){
+  const root=$('topo');root.innerHTML='';
+  // gateway
+  const gwWrap=document.createElement('div');gwWrap.className='gw-wrap';
+  const gw=document.createElement('div');gw.className='gw '+(GW.state==='live'?'live':'')+(sel===GW?' sel':'');
+  gw.innerHTML='<div class="c">'+GW.code+'</div><div class="t">GATEWAY</div><div class="a">'+hx3(GW.tx)+' / '+hx3(GW.rx)+'</div>';
+  gw.onclick=()=>{sel=GW;render();};
+  gwWrap.appendChild(gw);const stem=document.createElement('div');stem.className='stem';gwWrap.appendChild(stem);
+  root.appendChild(gwWrap);
+  // rails
+  BUSES.forEach(b=>{
+    const rail=document.createElement('div');rail.className='rail';
+    const h=document.createElement('div');h.className='rail-h';
+    h.innerHTML='<div class="n">'+b.n+'</div><div class="s">'+b.seg+'</div><div class="sp">'+b.sp+'</div>';
+    const mw=document.createElement('div');mw.className='rail-m';
+    b.mods.forEach(m=>mw.appendChild(modBox(m)));
+    rail.appendChild(h);rail.appendChild(mw);root.appendChild(rail);
+  });
+  renderSide();
+}
+function renderSide(){
+  if(!sel){$('m-name').textContent='Select a module';$('m-name').className='t';$('m-addr').textContent='click any box in the topology';$('c-state').textContent='idle';$('c-state').className='chip';return;}
+  $('m-name').textContent=sel.name+' ('+sel.code+')';$('m-name').className='t'+(sel.gw?' gw':'');
+  $('m-addr').textContent='TX 0x'+hx3(sel.tx)+'  ·  RX 0x'+hx3(sel.rx)+(sel.gw?'  ·  Gateway':'');
+  const st=sel.state||'idle';$('c-state').textContent=st==='live'?'responding':st==='dead'?'no response':st;
+  $('c-state').className='chip'+(st==='live'?' ok':'');
+}
+
+/* ---- status ---- */
+function setBridge(s,l){$('d-bridge').className='dot '+(s||'');$('s-bridge').textContent=l;}
+async function refreshStatus(){
+  const st=await bridge('/status',null,4000);
+  if(!st.ok){setBridge('off','bridge down');connected=false;return st;}
+  $('s-vendor').textContent=st.vendor||'—';$('s-volt').textContent=(typeof st.voltage==='number')?st.voltage.toFixed(1)+' V':'—';
+  if(st.channelConnected){setBridge('on','CAN live');connected=true;}else if(st.deviceOpen){setBridge('warn','device open');}else{setBridge('warn','daemon ok');}
+  return st;
+}
+
+/* ---- connect ---- */
+$('btn-connect').onclick=async()=>{
+  setBridge('warn','connecting…');log('in','Connecting to bridge '+BRIDGE+' …');
+  let st=await refreshStatus();
+  if(!st.ok){log('er','Bridge not reachable — is the launcher / bridge window running?');return;}
+  if(!st.deviceOpen){const o=await bridge('/open',{},20000);if(!o.ok){log('er','PassThruOpen failed: '+(o.error||'')+'  (RLink plugged into the laptop? Topdon software closed?)');return;}log('rx','PassThruOpen OK');}
+  st=await refreshStatus();
+  if(!st.channelConnected){const c=await bridge('/connect',{protocol:6,baudrate:500000},9000);if(!c.ok){log('er','Connect (CAN) failed: '+(c.error||''));return;}log('rx','Raw-CAN channel up @ 500k');}
+  await refreshStatus();connected=true;$('btn-sgw').disabled=false;$('btn-scan').disabled=false;
+  log('rx','✓ Ready. SCAN ALL to map the network.');
+};
+
+/* ---- SGW unlock (sincro sequence) ---- */
+$('btn-sgw').onclick=()=>unlockSgw(true);
+async function unlockSgw(v){
+  const TX=0x74F,RX=0x76F;if(v)log('hl','Unlocking Secure Gateway 0x74F/0x76F (XTEA)…');
+  await uds(TX,RX,[0x10,0x03],3000);const s=await uds(TX,RX,[0x27,0x01],3000);
+  if(!s.ok){if(v)log('er','SGW seed failed: '+(s.err||''));return false;}
+  if(s.d[0]===0x7F){if(v)log('er','SGW seed NRC 0x'+hx2(s.d[2]||0)+' — no SGW, or needs PIN/AutoAuth');return false;}
+  if(s.d.length<6){if(v)log('er','SGW seed short');return false;}
+  const sb=s.d.slice(-4),seed=u32((sb[0]<<24)|(sb[1]<<16)|(sb[2]<<8)|sb[3]),key=u32(xtea_sgw(seed));
+  if(v)log('in','SGW seed 0x'+seed.toString(16).toUpperCase().padStart(8,'0')+' → key 0x'+key.toString(16).toUpperCase().padStart(8,'0'));
+  const r=await uds(TX,RX,[0x27,0x02,(key>>>24)&0xFF,(key>>>16)&0xFF,(key>>>8)&0xFF,key&0xFF],3000);
+  if(r.ok&&r.d[0]===0x67){sgwUnlocked=true;if(v)log('rx','✓ Secure Gateway UNLOCKED');return true;}
+  if(v)log('er','SGW key rejected: '+(r.err||bytesHex(r.d)));return false;
+}
+
+/* ---- scan all (sincro-style 3E 00 probe) ---- */
+$('btn-scan').onclick=async()=>{
+  if(!connected){log('er','Connect first.');return;}
+  log('hl','── Scanning '+ALL.length+' modules'+(benchMode()?' (bench · no SGW)':'')+' ──');
+  if(!benchMode()&&!sgwUnlocked)await unlockSgw(true);
+  let found=0;
+  for(const m of ALL){
+    m.state='busy';render();
+    const r=await uds(m.tx,m.rx,[0x3E,0x00],1200);
+    if(r.ok&&(r.d[0]===0x7E||r.d[0]===0x7F)){m.state='live';found++;log('rx','● '+m.code+'  '+hx3(m.tx)+'/'+hx3(m.rx)+'  responding');}
+    else{m.state='dead';}
+    render();
+  }
+  const liveM=ALL.find(m=>m.state==='live'); if(liveM){sel=liveM;render();log('in','Auto-selected '+liveM.code+' — use the command buttons on the right →');}
+  log('hl','── Scan complete: '+found+'/'+ALL.length+' modules responding ──');
+};
+
+/* ---- commands ---- */
+function nrc(c){return ({0x10:'general reject',0x11:'service not supported',0x12:'subfn not supported',0x22:'conditions not correct',0x31:'request out of range',0x33:'security denied',0x35:'invalid key',0x37:'time delay not expired',0x7E:'subfn not supported in session',0x80:'not supported'})[c]||'see ISO 14229';}
+function parseVin(d){const c=Array.from(d).filter(b=>b>=0x20&&b<=0x7E);const v=String.fromCharCode(...c).slice(-17);return v.length>=11?v:null;}
+function fmtDtc(b0,b1,b2){return 'PCBU'[(b0>>6)&3]+((b0>>4)&3)+(b0&0xF).toString(16).toUpperCase()+((b1>>4)&0xF).toString(16).toUpperCase()+(b1&0xF).toString(16).toUpperCase()+'-'+hx2(b2);}
+function showResp(h){$('resp').innerHTML=h;}
+function decode(r){if(!r.ok)return '<span class="err">✗ '+(r.err||'no response')+'</span>';if(r.d[0]===0x7F)return '<span class="err">✗ NRC 0x'+hx2(r.d[2]||0)+'  ('+nrc(r.d[2])+')</span>';return '<span class="ok">✓ '+bytesHex(r.d)+'</span>';}
+
+async function runCmd(cmd){
+  if(!sel){ sel=ALL.find(m=>m.state==='live')||null; if(sel)render(); }
+  if(!sel){showResp('<span class="err">← Click a module box in the topology first.</span>');log('er','No module selected — click a module box.');return;}
+  if(!connected){ const st=await refreshStatus(); if(!st||!st.ok||!st.channelConnected){showResp('<span class="err">Not connected — click CONNECT (top-right).</span>');log('er','Not connected — click CONNECT.');return;} connected=true; }
+  const {tx,rx,code}=sel;$('c-link').textContent='Link: busy';let r;
+  try{
+    if(cmd==='vin'){log('tx',code+' → 22 F1 90');r=await uds(tx,rx,[0x22,0xF1,0x90]);
+      const v=r.ok?parseVin(r.d):null;
+      if(v){showResp('<span class="lbl">VIN</span>\n<span class="ok">'+v+'</span>\n<span class="lbl">raw</span> '+bytesHex(r.d));log('rx',code+' VIN = '+v);if(sel.state!=='live'){sel.state='live';render();}}
+      else{showResp(decode(r));log(r.ok?'rx':'er',code+' VIN: '+(r.raw||r.err));}}
+    else if(cmd==='vins'){
+      // Current VIN = DID F190. Original VIN slot is module-specific (sincro/CDA map):
+      //   BCM → 6E2025, RFH(UB) → 6E2027 (FCA config block), GPEC2A PCM → 7B88, else 7B88.
+      const ORIG={BCM:[0x6E,0x20,0x25],RFH:[0x6E,0x20,0x27],RFHUB:[0x6E,0x20,0x27]};
+      const ob=ORIG[code]||[0x7B,0x88];
+      const oLbl=ob.map(hx2).join('');
+      log('tx',code+' → VINs: F190 (current) + '+oLbl+' (original)');
+      const cur=await uds(tx,rx,[0x22,0xF1,0x90]);
+      const org=await uds(tx,rx,[0x22,...ob],4000);
+      const pv=rr=>{ if(!rr.ok)return {v:null,note:rr.err||'no response'}; if(rr.d[0]===0x7F)return {v:null,note:'NRC 0x'+hx2(rr.d[2]||0)+' — '+nrc(rr.d[2])}; const v=parseVin(rr.d); return {v:v||bytesHex(rr.d.slice(3)),note:''}; };
+      const cV=pv(cur),oV=pv(org);
+      const line=(lbl,o)=>'<span class="lbl">'+lbl+'</span>\n'+(o.v?'<span class="ok">'+o.v+'</span>':'<span class="err">'+o.note+'</span>');
+      let html=line('Current VIN · F190',cV)+'\n'+line('Original VIN · '+oLbl,oV);
+      if(cV.v&&oV.v&&cV.v.length>=11&&oV.v.length>=11) html+=(cV.v===oV.v)?'\n<span class="ok">✓ current = original (untouched)</span>':'\n<span class="err">⚠ current ≠ original — reprogrammed</span>';
+      showResp(html);
+      if(cur.ok&&cur.d[0]===0x62&&sel.state!=='live'){sel.state='live';render();}
+      log('rx',code+' VINs  cur='+(cV.v||cV.note)+'  orig='+(oV.v||oV.note));
+    }
+    else if(cmd==='dtc'){log('tx',code+' → 19 02 FF');r=await uds(tx,rx,[0x19,0x02,0xFF],4000);
+      if(r.ok&&r.d[0]===0x59){const o=[];for(let i=3;i+3<r.d.length;i+=4)o.push(fmtDtc(r.d[i],r.d[i+1],r.d[i+2])+'  (0x'+hx2(r.d[i+3])+')');showResp('<span class="lbl">DTCs ('+o.length+')</span>\n'+(o.length?o.join('\n'):'<span class="ok">none stored</span>'));log('rx',code+' DTCs: '+(o.length||'none'));}
+      else{showResp(decode(r));log('er',code+' DTC: '+(r.raw||r.err));}}
+    else if(cmd==='cleardtc'){log('tx',code+' → 14 FF FF FF');r=await uds(tx,rx,[0x14,0xFF,0xFF,0xFF]);showResp(r.ok&&r.d[0]===0x54?'<span class="ok">✓ DTCs cleared</span>':decode(r));log(r.ok&&r.d[0]===0x54?'rx':'er',code+' clear DTCs');}
+    else if(cmd==='tp'){log('tx',code+' → 3E 00');r=await uds(tx,rx,[0x3E,0x00]);showResp(decode(r));log(r.ok?'rx':'er',code+' tester present');}
+    else if(cmd==='ext'){log('tx',code+' → 10 03');r=await uds(tx,rx,[0x10,0x03]);showResp(decode(r));log(r.ok?'rx':'er',code+' ext session');}
+    else if(cmd==='reset'){log('tx',code+' → 11 01');r=await uds(tx,rx,[0x11,0x01]);showResp(decode(r));log(r.ok?'rx':'er',code+' ECU reset');}
+    else if(cmd==='did'){const did=$('didsel').value,hi=parseInt(did.substr(0,2),16),lo=parseInt(did.substr(2,2),16);log('tx',code+' → 22 '+did);r=await uds(tx,rx,[0x22,hi,lo]);
+      if(r.ok&&r.d[0]===0x62){const a=Array.from(r.d.slice(3)).filter(b=>b>=0x20&&b<=0x7E).map(b=>String.fromCharCode(b)).join('');showResp('<span class="lbl">DID '+did+'</span>\n<span class="ok">'+bytesHex(r.d.slice(3))+'</span>'+(a?'\n<span class="lbl">ascii</span> '+a:''));log('rx',code+' '+did+' = '+bytesHex(r.d.slice(3)));}
+      else{showResp(decode(r));log('er',code+' '+did+': '+(r.raw||r.err));}}
+  }catch(e){showResp('<span class="err">error: '+(e.message||e)+'</span>');}
+  $('c-link').textContent='Link: idle';
+}
+document.querySelectorAll('.cmd').forEach(b=>b.onclick=()=>runCmd(b.dataset.cmd));
+$('btn-send').onclick=async()=>{if(!sel){log('er','Pick a module first.');return;}const b=hexToBytes($('raw').value);if(!b.length){log('er','Enter hex.');return;}log('tx',sel.code+' → '+b.map(hx2).join(' '));const r=await uds(sel.tx,sel.rx,b);showResp(decode(r));log(r.ok?'rx':'er',sel.code+' ← '+(r.ok?bytesHex(r.d):r.err));};
+$('raw').addEventListener('keydown',e=>{if(e.key==='Enter')$('btn-send').click();});
+$('benchchk').addEventListener('change',()=>{$('btn-sgw').style.display=benchMode()?'none':'';});
+
+/* boot */
+render();$('btn-sgw').style.display=benchMode()?'none':'';refreshStatus();
+setInterval(()=>{if(!document.hidden)refreshStatus();},5000);
+log('in','Ready · BENCH mode. Click CONNECT, then SCAN ALL. Bridge: '+BRIDGE);
+</script>
+</body>
+</html>

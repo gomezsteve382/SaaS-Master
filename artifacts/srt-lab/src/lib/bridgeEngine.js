@@ -182,7 +182,13 @@ async function _buildUdsEngineFromUrl({ addLog, url, transportLabel, adapterLabe
       uds,
       adapter:  adapterLabel,
       transport: isMicroPod ? TRANSPORT_MICROPOD : TRANSPORT_J2534,
-      readVoltage: async () => null,
+      // Real battery voltage from the bridge (J2534 READ_VBATT ioctl), surfaced
+      // in /status as `voltage`. The voltage gate before any module write reads
+      // this; null when the adapter can't report it (e.g. MicroPod II).
+      readVoltage: async () => {
+        try { const s = await getStatus(url); return (s && typeof s.voltage === 'number') ? s.voltage : null; }
+        catch { return null; }
+      },
       isBridge: true,
       setNegotiatedTiming,
       clearNegotiatedTiming,

@@ -1,23 +1,32 @@
 #!/usr/bin/env python3
 """
-SRT Lab — J2534 HTTP Bridge Daemon
-===================================
+SRT Lab — J2534 HTTP Bridge Daemon  (Topdon / raw-CAN software ISO-TP)
+=====================================================================
 Local HTTP server that wraps a vendor J2534 PassThru DLL via ctypes and exposes
 it to the SRT Lab web app over plain HTTP. Runs on Windows / macOS / Linux with
 nothing but the Python 3.8+ standard library — no pip packages required.
+
+Transport: this build connects a RAW CAN channel and performs ISO-TP framing in
+software (SF / FF / CF / FC, 64-frame bulk drain, block-size 0) — the sincro
+Topdon core. It deliberately does NOT use the adapter's hardware ISO15765 layer,
+which on TOPDON adapters returns stale/zero-filled multi-frame reassembly and
+truncates VIN / DTC reads. The HTTP surface is unchanged, so the React client
+needs no changes: /sendmsg performs the ISO-TP send, /readmsg the ISO-TP receive.
+Started without --dll, the daemon auto-discovers a TOPDON (or any) J2534 DLL.
 
 The hosted SRT Lab UI talks to this bridge from the browser via:
     http://127.0.0.1:8765
 
 Endpoints (all return JSON):
-    GET  /status        — bridge state, loaded DLL, vendor, fw/api versions
+    GET  /status        — bridge state, loaded DLL, vendor, fw/api versions, voltage
     POST /open          — PassThruOpen (loads DLL on first call)
-    POST /connect       — PassThruConnect (protocol, flags, baudRate)
+    POST /connect       — open RAW CAN channel (ISO15765 request is mapped to CAN)
     POST /disconnect    — PassThruDisconnect
     POST /close         — PassThruClose
-    POST /sendmsg       — PassThruWriteMsgs (data is hex string)
-    POST /readmsg       — PassThruReadMsgs (data returned as hex string)
-    POST /setfilter     — PassThruStartMsgFilter (ISO-TP flow control)
+    POST /sendmsg       — software ISO-TP send (data is hex UDS payload)
+    POST /readmsg       — software ISO-TP receive (reassembled, hex)
+    POST /setfilter     — arm/recycle the raw-CAN PASS filter for rx_id
+    POST /voltage       — battery voltage via READ_VBATT ioctl
 
 Permissive CORS (Access-Control-Allow-Origin: *) so the hosted web app can call
 the daemon directly from the browser.
@@ -60,9 +69,32 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 PROTOCOL_CAN = 5
 PROTOCOL_ISO15765 = 6
 ISO15765_FRAME_PAD = 0x00000040
+CAN_29BIT_ID = 0x00000100
 FLOW_CONTROL_FILTER = 3
 PASS_FILTER = 1
+BLOCK_FILTER = 2
+READ_VBATT = 0x03
+CLEAR_TX_BUFFER = 0x07
 CLEAR_RX_BUFFER = 0x08
+CLEAR_MSG_FILTERS = 0x0A
+
+STATUS_NOERROR = 0x00
+ERR_TIMEOUT = 0x09        # no frame yet → keep polling, NOT fatal
+ERR_BUFFER_EMPTY = 0x10   # no frame yet → keep polling, NOT fatal
+
+# Software ISO-TP flow-control block size. 0 = "module sends ALL consecutive
+# frames, no mid-stream FC". This is the value that lets a big multi-frame
+# response (VIN, 600+ B DTC lists) complete on a TOPDON adapter: we drain 64 CAN
+# frames per ReadMsgs call (fast enough not to overflow the adapter buffer), so a
+# non-zero BS that injects mid-stream FC frames would only confuse the module's
+# ISO-TP state. (Bench-verified in sincro: BS=0 → 679/679 B + next request OK;
+# BS>0 → 678 B + next request FAIL.)
+ISOTP_BLOCK_SIZE = 0x00
+
+# Build marker — logged on connect so a run log alone tells you which transport
+# is live. This bridge does software ISO-TP over RAW CAN (sincro Topdon core),
+# NOT the adapter's hardware ISO15765 layer.
+BRIDGE_BUILD = "sw-isotp-rawcan-v1"
 
 # J2534 error codes (subset — full mapping below)
 J2534_ERRORS = {
@@ -97,6 +129,7 @@ J2534_ERRORS = {
 
 # Vendor detection — substrings looked for in the DLL path.
 VENDOR_HINTS = [
+    ("Topdon",          ("topdon", "artidiag", "rlink", "passthru464", "passthru432")),
     ("Autel MaxiFlash", ("autel", "maxiflash", "maxipc", "maxisys")),
     ("Drew Tech",       ("drewtech", "drew_tech", "cardaq")),
     ("OBDLink",         ("obdlink", "scantool")),
@@ -113,6 +146,156 @@ def vendor_for(dll_path: str) -> str:
         if any(h in needle for h in hints):
             return name
     return "Generic J2534"
+
+
+# ─── Topdon / J2534 DLL auto-discovery ───────────────────────────────────────
+# Started without --dll, the bridge scans the Windows J2534 registry and the
+# common TOPDON install paths so a tech can just plug the cable in. Ported from
+# sincro/device/j2534_registry.py, trimmed to the discovery essentials.
+
+_PASSTHRU_REG_BASES = (
+    r"SOFTWARE\PassThruSupport.04.04",
+    r"SOFTWARE\WOW6432Node\PassThruSupport.04.04",
+)
+COMMON_TOPDON_PATHS_64 = (
+    r"C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru464.dll",
+    r"C:\Program Files\TOPDON\ArtiDiagVci\PassThru464.dll",
+    r"C:\Program Files (x86)\TOPDON\RLink\PassThru464.dll",
+    r"C:\Program Files\TOPDON\RLink\PassThru464.dll",
+)
+COMMON_TOPDON_PATHS_32 = (
+    r"C:\Program Files (x86)\TOPDON\ArtiDiagVci\PassThru432.dll",
+    r"C:\Program Files (x86)\TOPDON\RLink\PassThru432.dll",
+)
+
+
+def _python_bits() -> int:
+    import struct as _s
+    return 64 if _s.calcsize("P") * 8 == 64 else 32
+
+
+def _pe_bits(path: str):
+    """PE machine field → 32 or 64, else None. A 32-bit DLL cannot load into
+    64-bit Python (and vice-versa), so we use this to reject mismatches early."""
+    try:
+        import struct as _s
+        with open(path, "rb") as f:
+            dos = f.read(64)
+            if len(dos) < 64 or dos[:2] != b"MZ":
+                return None
+            pe_off = _s.unpack_from("<I", dos, 0x3C)[0]
+            f.seek(pe_off)
+            if f.read(4) != b"PE\x00\x00":
+                return None
+            machine = _s.unpack("<H", f.read(2))[0]
+            if machine == 0x014C:
+                return 32
+            if machine == 0x8664:
+                return 64
+    except Exception:
+        return None
+    return None
+
+
+def _reg_read(key, names):
+    import winreg
+    for n in names:
+        try:
+            v, _ = winreg.QueryValueEx(key, n)
+            if v and str(v).strip():
+                return str(v).strip().strip('"')
+        except OSError:
+            continue
+    return ""
+
+
+def _topdon_dll_fix(text: str, dll: str, bits: int) -> str:
+    """For a TOPDON entry, prefer the DLL that matches our Python bitness
+    (PassThru464.dll for 64-bit, PassThru432.dll for 32-bit)."""
+    if not any(k in text for k in ("topdon", "artidiag", "rlink")) or not dll:
+        return dll
+    base = os.path.basename(dll).lower()
+    if bits == 64 and base == "passthru432.dll":
+        cand = os.path.join(os.path.dirname(dll), "PassThru464.dll")
+        if os.path.isfile(cand):
+            return cand
+    if bits == 32 and base == "passthru464.dll":
+        cand = os.path.join(os.path.dirname(dll), "PassThru432.dll")
+        if os.path.isfile(cand):
+            return cand
+    return dll
+
+
+def discover_j2534_dll(prefer_topdon: bool = True):
+    """Return (dll_path, friendly_name) for the best J2534 adapter, or (None, None).
+    Scans the registry (native + WOW64 views + WOW6432Node) plus the TOPDON
+    fallback paths, keeps only DLLs whose PE bitness matches this Python, and
+    ranks TOPDON first."""
+    if sys.platform != "win32":
+        return (None, None)
+    import winreg
+    bits = _python_bits()
+    found = []  # (dll_path, name)
+
+    views = [0]
+    for flag in ("KEY_WOW64_64KEY", "KEY_WOW64_32KEY"):
+        fv = getattr(winreg, flag, None)
+        if fv is not None:
+            views.append(int(fv))
+
+    dll_order = (
+        ("FunctionLibrary64", "Library64", "FunctionLibrary", "Library", "FunctionLibrary32", "Library32")
+        if bits == 64 else
+        ("FunctionLibrary32", "Library32", "FunctionLibrary", "Library", "FunctionLibrary64", "Library64")
+    )
+
+    for base in _PASSTHRU_REG_BASES:
+        for view in views:
+            try:
+                access = winreg.KEY_READ | view
+                with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, base, 0, access) as bk:
+                    n, _, _ = winreg.QueryInfoKey(bk)
+                    for i in range(n):
+                        try:
+                            sub = winreg.EnumKey(bk, i)
+                            with winreg.OpenKey(bk, sub, 0, access) as dk:
+                                name = _reg_read(dk, ("Name", "DeviceName", "ProductName")) or sub
+                                vendor = _reg_read(dk, ("Vendor", "VendorName", "Manufacturer"))
+                                dll = _reg_read(dk, dll_order)
+                                dll = os.path.expandvars(dll) if dll else dll
+                                text = f"{name} {vendor} {dll} {base}".lower().replace("\\", "/")
+                                dll = _topdon_dll_fix(text, dll, bits)
+                                if dll and os.path.isfile(dll):
+                                    found.append((dll, name))
+                        except OSError:
+                            continue
+            except OSError:
+                continue
+
+    for p in (COMMON_TOPDON_PATHS_64 if bits == 64 else COMMON_TOPDON_PATHS_32):
+        if os.path.isfile(p):
+            found.append((p, "TOPDON ArtiDiag / RLink"))
+
+    # Keep only bitness-compatible DLLs (unknown PE = keep, let the load decide).
+    compat = [(p, nm) for (p, nm) in found if _pe_bits(p) in (None, bits)]
+    if not compat:
+        return (None, None)
+
+    def is_topdon(item):
+        p, nm = item
+        t = (p + " " + nm).lower()
+        b = os.path.basename(p).lower()
+        return ("topdon" in t or "artidiag" in t or "rlink" in t
+                or b in ("passthru464.dll", "passthru432.dll"))
+
+    seen, ranked = set(), []
+    for item in sorted(compat, key=lambda it: (0 if (prefer_topdon and is_topdon(it)) else 1)):
+        key = os.path.normcase(os.path.abspath(item[0]))
+        if key in seen:
+            continue
+        seen.add(key)
+        ranked.append(item)
+    return ranked[0] if ranked else (None, None)
 
 
 # ─── PASSTHRU_MSG ────────────────────────────────────────────────────────────
@@ -141,6 +324,20 @@ class J2534Bridge:
         self.connected = False
         self.last_error: str | None = None
         self.lock = threading.Lock()
+        self._has_version = False
+        # Transport: this bridge speaks software ISO-TP over RAW CAN (sincro
+        # Topdon core). We open ProtocolID=CAN and do SF/FF/CF/FC framing here,
+        # bypassing the adapter's hardware ISO15765 layer (broken on TOPDON).
+        self.protocol_id: int | None = None
+        # Addressing learned from /setfilter (overridable per /sendmsg).
+        self._tx_id: int | None = None
+        self._rx_id: int | None = None
+        self._active_pass_rx: int | None = None  # one recycled raw-CAN PASS filter
+        # Receive-reassembly state — persisted across /readmsg calls so a big
+        # multi-frame response survives being sliced over several HTTP polls.
+        self._rx_expected: int | None = None
+        self._rx_buf = bytearray()
+        self._rx_queue: list[tuple[int, bytes]] = []
 
     # ── helpers ──
     def _log(self, msg: str) -> None:
@@ -200,11 +397,23 @@ class J2534Bridge:
             self.load()
             if self.opened:
                 return
-            ret = self.dll.PassThruOpen(None, byref(self.device_id))
-            if ret != 0:
-                raise RuntimeError(self.err_text(ret))
-            self.opened = True
-            self._log(f"PassThruOpen → device_id={self.device_id.value}")
+            # The TOPDON RLink frequently returns ERR_DEVICE_NOT_CONNECTED (0x08)
+            # on the first PassThruOpen and only opens after a few retries — this
+            # is exactly what sincro's run log shows (3 failed opens, then OK).
+            # Opening once and giving up leaves a half/no-open handle that reports
+            # "connected" but never talks. Retry with a short backoff.
+            last = 0
+            for attempt in range(6):
+                self.device_id = c_ulong(0)
+                ret = self.dll.PassThruOpen(None, byref(self.device_id))
+                if ret == 0:
+                    self.opened = True
+                    self._log(f"PassThruOpen → device_id={self.device_id.value} (attempt {attempt + 1})")
+                    return
+                last = ret
+                self._log(f"PassThruOpen attempt {attempt + 1}: {self.err_text(ret)} — retrying")
+                time.sleep(0.5)
+            raise RuntimeError(self.err_text(last))
 
     def close(self) -> None:
         with self.lock:
@@ -219,20 +428,29 @@ class J2534Bridge:
             if ret != 0:
                 raise RuntimeError(self.err_text(ret))
 
-    def connect(self, protocol: int = PROTOCOL_ISO15765, flags: int = 0, baudrate: int = 500000) -> None:
+    def connect(self, protocol: int = PROTOCOL_CAN, flags: int = 0, baudrate: int = 500000) -> None:
+        """Open a RAW CAN channel. The web client still asks for ISO15765 (the old
+        hardware-ISO-TP path); we deliberately connect ProtocolID=CAN instead and
+        own the ISO-TP framing in software — that is what makes multi-frame reads
+        actually complete on a TOPDON adapter."""
         with self.lock:
             if not self.opened:
                 raise RuntimeError("Device not open — call /open first")
             if self.connected:
                 return
+            # ISO15765/CAN both map to raw CAN; pass anything exotic through verbatim.
+            proto = protocol if protocol not in (PROTOCOL_CAN, PROTOCOL_ISO15765) else PROTOCOL_CAN
             ret = self.dll.PassThruConnect(
-                self.device_id, c_ulong(protocol), c_ulong(flags),
+                self.device_id, c_ulong(proto), c_ulong(0),
                 c_ulong(baudrate), byref(self.channel_id),
             )
             if ret != 0:
                 raise RuntimeError(self.err_text(ret))
             self.connected = True
-            self._log(f"PassThruConnect proto={protocol} baud={baudrate} → ch={self.channel_id.value}")
+            self.protocol_id = proto
+            self._active_pass_rx = None
+            self._reset_rx()
+            self._log(f"PassThruConnect RAW CAN baud={baudrate} → ch={self.channel_id.value} ({BRIDGE_BUILD})")
 
     def disconnect(self) -> None:
         with self.lock:
@@ -245,96 +463,268 @@ class J2534Bridge:
             except Exception:
                 pass
         self.filters = []
+        self._active_pass_rx = None
+        self._reset_rx()
         if not self.connected:
             return
         ret = self.dll.PassThruDisconnect(self.channel_id)
         self.connected = False
         self.channel_id = c_ulong(0)
+        self.protocol_id = None
         self._log(f"PassThruDisconnect ret={ret}")
         if ret != 0:
             raise RuntimeError(self.err_text(ret))
 
     def set_filter(self, tx_id: int, rx_id: int) -> int:
+        """Raw-CAN mode: remember the tx/rx pair and arm ONE recycled PASS filter
+        for rx_id so the device actually delivers the module's frames. (A fresh
+        filter per address would exhaust the adapter's small filter pool and then
+        silence modules that are physically present — the classic 'scan kills the
+        bus' bug.)"""
         with self.lock:
             if not self.connected:
                 raise RuntimeError("Channel not connected — call /connect first")
-            mask = PASSTHRU_MSG()
-            mask.ProtocolID = PROTOCOL_ISO15765
-            mask.DataSize = 4
-            mask.Data[0] = 0xFF; mask.Data[1] = 0xFF; mask.Data[2] = 0xFF; mask.Data[3] = 0xFF
+            self._tx_id = int(tx_id)
+            self._rx_id = int(rx_id)
+            self._reset_rx()
+            if self._active_pass_rx != rx_id:
+                self._stop_filters_locked()
+                fid = self._start_can_pass_filter_locked(rx_id)
+                self._active_pass_rx = rx_id
+                self._log(f"PASS filter rx=0x{rx_id:X} tx=0x{tx_id:X} fid={fid}")
+                return fid if fid is not None else 0
+            return self.filters[-1] if self.filters else 0
 
-            patt = PASSTHRU_MSG()
-            patt.ProtocolID = PROTOCOL_ISO15765
-            patt.DataSize = 4
-            patt.Data[0] = (rx_id >> 24) & 0xFF
-            patt.Data[1] = (rx_id >> 16) & 0xFF
-            patt.Data[2] = (rx_id >> 8) & 0xFF
-            patt.Data[3] = rx_id & 0xFF
-
-            fc = PASSTHRU_MSG()
-            fc.ProtocolID = PROTOCOL_ISO15765
-            fc.TxFlags = ISO15765_FRAME_PAD
-            fc.DataSize = 4
-            fc.Data[0] = (tx_id >> 24) & 0xFF
-            fc.Data[1] = (tx_id >> 16) & 0xFF
-            fc.Data[2] = (tx_id >> 8) & 0xFF
-            fc.Data[3] = tx_id & 0xFF
-
-            fid = c_ulong(0)
-            ret = self.dll.PassThruStartMsgFilter(
-                self.channel_id, FLOW_CONTROL_FILTER,
-                byref(mask), byref(patt), byref(fc), byref(fid),
-            )
-            if ret != 0:
-                raise RuntimeError(self.err_text(ret))
-            self.filters.append(fid.value)
-            self._log(f"Filter added tx=0x{tx_id:X} rx=0x{rx_id:X} fid={fid.value}")
-            return fid.value
-
-    def send_msg(self, tx_id: int, data: bytes, flags: int = ISO15765_FRAME_PAD, timeout_ms: int = 1000) -> None:
+    def send_msg(self, tx_id: int, data: bytes, flags: int = 0, timeout_ms: int = 1000) -> None:
+        """Software ISO-TP SEND over raw CAN. `data` is the raw UDS payload (e.g.
+        22 F1 90); WE add the SF/FF framing. The matching response is drained by
+        read_msg(). The client's `flags` (hardware ISO15765 pad) is ignored — raw
+        CAN framing is computed from the addressing here."""
         with self.lock:
             if not self.connected:
                 raise RuntimeError("Channel not connected — call /connect first")
-            if len(data) > 4124:
-                raise ValueError("Payload too large for PASSTHRU_MSG (max 4124 bytes)")
-            msg = PASSTHRU_MSG()
-            msg.ProtocolID = PROTOCOL_ISO15765
-            msg.TxFlags = flags
-            msg.DataSize = 4 + len(data)
-            msg.Data[0] = (tx_id >> 24) & 0xFF
-            msg.Data[1] = (tx_id >> 16) & 0xFF
-            msg.Data[2] = (tx_id >> 8) & 0xFF
-            msg.Data[3] = tx_id & 0xFF
-            for i, b in enumerate(data):
-                msg.Data[4 + i] = b
-            num = c_ulong(1)
-            ret = self.dll.PassThruWriteMsgs(self.channel_id, byref(msg), byref(num), c_ulong(timeout_ms))
-            if ret != 0:
-                raise RuntimeError(self.err_text(ret))
-            self._log(f"TX 0x{tx_id:X}: {data.hex()}")
+            payload = bytes(data)
+            if len(payload) > 4095:
+                raise ValueError("ISO-TP payload too large (max 4095 bytes)")
+            tx_id = int(tx_id)
+            rx_id = self._rx_id if self._rx_id is not None else (tx_id + 8)
+            id_flags = CAN_29BIT_ID if (self._is29(tx_id) or self._is29(rx_id)) else 0
+
+            if self._active_pass_rx != rx_id:
+                self._stop_filters_locked()
+                self._start_can_pass_filter_locked(rx_id)
+                self._active_pass_rx = rx_id
+
+            self._ioctl_clear_locked()   # flush stale frames BEFORE we transmit
+            self._rx_queue = []
+            self._reset_rx()
+
+            if len(payload) <= 7:
+                frame = (bytes([len(payload)]) + payload).ljust(8, b"\x00")
+                self._write_raw_locked(tx_id, frame, id_flags)
+            else:
+                self._isotp_send_multiframe_locked(tx_id, rx_id, payload, id_flags, timeout_ms)
+            self._log(f"TX 0x{tx_id:X}: {payload.hex()}")
+
+            # Receive the reply NOW, in the same call, so our flow-control follows
+            # the module's First Frame with no HTTP gap. Splitting send (/sendmsg)
+            # and receive (/readmsg) across round-trips made the module N_Bs-timeout
+            # on multi-frame replies (VIN/DTC) while single-frame replies (3E 00)
+            # always worked — the exact symptom seen on the bench. Buffer for /readmsg.
+            msg = self._receive_one_locked(rx_id, tx_id, id_flags, max(timeout_ms, 1200))
+            if msg is not None:
+                self._rx_queue.append(msg)
 
     def read_msg(self, timeout_ms: int = 1000) -> dict | None:
+        """Return the reply buffered by send_msg (the receive — including our flow
+        control — happens there, in the same call as the send, so it follows the
+        module's First Frame with no HTTP gap). Falls back to a short live receive
+        if nothing is buffered, covering any async / extra frames."""
         with self.lock:
             if not self.connected:
                 raise RuntimeError("Channel not connected — call /connect first")
-            msg = PASSTHRU_MSG()
-            num = c_ulong(1)
-            ret = self.dll.PassThruReadMsgs(self.channel_id, byref(msg), byref(num), c_ulong(timeout_ms))
-            if ret == 0x10:  # ERR_BUFFER_EMPTY
+            if self._rx_queue:
+                cid, pl = self._rx_queue.pop(0)
+                return {"canId": cid, "data": pl.hex(), "rxStatus": 0, "timestamp": 0}
+            rx_id = self._rx_id
+            if rx_id is None:
                 return None
-            if ret != 0:
-                raise RuntimeError(self.err_text(ret))
-            if num.value == 0 or msg.DataSize < 4:
+            tx_id = self._tx_id if self._tx_id is not None else (rx_id - 8)
+            id_flags = CAN_29BIT_ID if (self._is29(tx_id) or self._is29(rx_id)) else 0
+            msg = self._receive_one_locked(rx_id, tx_id, id_flags, timeout_ms)
+            if msg is None:
                 return None
-            can_id = (msg.Data[0] << 24) | (msg.Data[1] << 16) | (msg.Data[2] << 8) | msg.Data[3]
-            payload = bytes(msg.Data[i] for i in range(4, msg.DataSize))
-            self._log(f"RX 0x{can_id:X}: {payload.hex()}")
-            return {
-                "canId": can_id,
-                "data": payload.hex(),
-                "rxStatus": msg.RxStatus,
-                "timestamp": msg.Timestamp,
-            }
+            cid, pl = msg
+            return {"canId": cid, "data": pl.hex(), "rxStatus": 0, "timestamp": 0}
+
+    def _receive_one_locked(self, rx_id, tx_id, id_flags, timeout_ms):
+        """Drain raw CAN and reassemble ONE ISO-TP message at rx_id, sending our
+        flow control (30 00 00) the instant a First Frame appears. Skips a
+        responsePending (7F xx 78) and keeps waiting for the real answer. Returns
+        (can_id, bytes) or None on timeout. Bulk-drains 64 frames/call so a big
+        multi-frame reply (e.g. a 679 B DTC list) can't overflow the adapter."""
+        self._reset_rx()
+        deadline = time.monotonic() + (max(1, timeout_ms) / 1000.0)
+        while time.monotonic() < deadline:
+            for fid, d in self._read_can_batch_locked(64, 20):
+                if fid != rx_id or not d:
+                    continue
+                pci = d[0] & 0xF0
+                if pci == 0x00:  # Single Frame
+                    length = d[0] & 0x0F
+                    out = bytes(d[1:1 + length])
+                    if len(out) >= 3 and out[0] == 0x7F and out[2] == 0x78:
+                        continue  # responsePending — keep waiting for the real reply
+                    self._log(f"RX 0x{fid:X} SF: {out.hex()}")
+                    return (fid, out)
+                if pci == 0x10:  # First Frame → send our FC immediately
+                    self._rx_expected = ((d[0] & 0x0F) << 8) | d[1]
+                    self._rx_buf = bytearray(d[2:8])
+                    self._send_fc_locked(tx_id, id_flags)
+                    if len(self._rx_buf) >= self._rx_expected:
+                        out = bytes(self._rx_buf[:self._rx_expected]); self._reset_rx()
+                        return (fid, out)
+                    continue
+                if pci == 0x20:  # Consecutive Frame
+                    if self._rx_expected is None:
+                        continue
+                    take = min(7, self._rx_expected - len(self._rx_buf))
+                    self._rx_buf += d[1:1 + take]
+                    if len(self._rx_buf) >= self._rx_expected:
+                        out = bytes(self._rx_buf[:self._rx_expected]); self._reset_rx()
+                        self._log(f"RX 0x{fid:X} reassembled {len(out)}B: {out.hex()}")
+                        return (fid, out)
+                    continue
+        return None
+
+    # ── software ISO-TP helpers (raw CAN) ──────────────────────────────────────
+    @staticmethod
+    def _is29(can_id) -> bool:
+        return int(can_id or 0) > 0x7FF
+
+    def _reset_rx(self) -> None:
+        self._rx_expected = None
+        self._rx_buf = bytearray()
+
+    def _ioctl_clear_locked(self) -> None:
+        for ioctl_id in (CLEAR_RX_BUFFER, CLEAR_TX_BUFFER):
+            try:
+                self.dll.PassThruIoctl(self.channel_id, c_ulong(ioctl_id), None, None)
+            except Exception:
+                pass
+
+    def _stop_filters_locked(self) -> None:
+        for fid in list(self.filters):
+            try:
+                self.dll.PassThruStopMsgFilter(self.channel_id, c_ulong(fid))
+            except Exception:
+                pass
+        self.filters = []
+        try:
+            self.dll.PassThruIoctl(self.channel_id, c_ulong(CLEAR_MSG_FILTERS), None, None)
+        except Exception:
+            pass
+
+    def _mk_can_msg(self, can_id: int, payload: bytes, tx_flags: int = 0) -> PASSTHRU_MSG:
+        msg = PASSTHRU_MSG()
+        msg.ProtocolID = self.protocol_id or PROTOCOL_CAN
+        msg.TxFlags = tx_flags
+        frame = int(can_id).to_bytes(4, "big") + bytes(payload)
+        msg.DataSize = len(frame)
+        for i, b in enumerate(frame):
+            msg.Data[i] = b
+        return msg
+
+    def _start_can_pass_filter_locked(self, rx_id: int):
+        """Raw-CAN PASS filter: without it most J2534 devices drop every incoming
+        frame. mask = full ID width, pattern = the module's response ID."""
+        is29 = self._is29(rx_id)
+        id_flags = CAN_29BIT_ID if is29 else 0
+        id_mask = 0x1FFFFFFF if is29 else 0x7FF
+        mask = self._mk_can_msg(id_mask, b"", id_flags)
+        patt = self._mk_can_msg(rx_id, b"", id_flags)
+        fid = c_ulong(0)
+        ret = self.dll.PassThruStartMsgFilter(
+            self.channel_id, c_ulong(PASS_FILTER),
+            byref(mask), byref(patt), None, byref(fid),
+        )
+        if ret != 0:
+            self._log(f"PASS filter rx=0x{rx_id:X} failed: {self.err_text(ret)}")
+            return None
+        self.filters.append(fid.value)
+        return fid.value
+
+    def _write_raw_locked(self, can_id: int, payload: bytes, tx_flags: int = 0) -> None:
+        msg = self._mk_can_msg(can_id, payload, tx_flags)
+        num = c_ulong(1)
+        ret = self.dll.PassThruWriteMsgs(self.channel_id, byref(msg), byref(num), c_ulong(100))
+        if ret != 0:
+            raise RuntimeError(f"WriteMsgs raw: {self.err_text(ret)}")
+
+    def _send_fc_locked(self, tx_id: int, id_flags: int) -> None:
+        fc = bytes([0x30, ISOTP_BLOCK_SIZE, 0x00]).ljust(8, b"\x00")  # CTS, BS, STmin=0
+        self._write_raw_locked(tx_id, fc, id_flags)
+
+    def _read_can_batch_locked(self, max_frames: int = 64, timeout_ms: int = 40):
+        """Read up to max_frames raw CAN frames in ONE ReadMsgs call → list of
+        (can_id, payload). Bulk draining keeps a multi-frame burst from
+        overflowing the adapter RX buffer (the root cause of VIN/DTC truncation)."""
+        arr = (PASSTHRU_MSG * max_frames)()
+        num = c_ulong(max_frames)
+        ret = self.dll.PassThruReadMsgs(self.channel_id, arr, byref(num), c_ulong(timeout_ms))
+        if ret not in (STATUS_NOERROR, ERR_TIMEOUT, ERR_BUFFER_EMPTY):
+            return []
+        out = []
+        for i in range(int(num.value)):
+            m = arr[i]
+            size = int(m.DataSize)
+            if size < 4:
+                continue
+            raw = bytes(m.Data[:size])
+            out.append((int.from_bytes(raw[:4], "big"), raw[4:]))
+        return out
+
+    def _isotp_send_multiframe_locked(self, tx_id, rx_id, payload, id_flags, timeout_ms) -> None:
+        """Send a >7-byte UDS request: First Frame → wait for the module's Flow
+        Control → Consecutive-Frame stream (paced by the module's STmin)."""
+        total = len(payload)
+        ff = (bytes([0x10 | ((total >> 8) & 0x0F), total & 0xFF]) + payload[:6]).ljust(8, b"\x00")
+        self._write_raw_locked(tx_id, ff, id_flags)
+
+        deadline = time.monotonic() + (max(1, timeout_ms) / 1000.0)
+        st_min = 0
+        got_fc = False
+        while time.monotonic() < deadline and not got_fc:
+            for fid, d in self._read_can_batch_locked(16, 40):
+                if fid == rx_id and d and (d[0] & 0xF0) == 0x30:
+                    st_min = d[2] if len(d) > 2 else 0
+                    got_fc = True
+                    break
+        if not got_fc:
+            raise RuntimeError("SW-ISOTP: module sent no Flow Control for the write")
+
+        idx, seq = 6, 1
+        while idx < total:
+            cf = (bytes([0x20 | (seq & 0x0F)]) + payload[idx:idx + 7]).ljust(8, b"\x00")
+            self._write_raw_locked(tx_id, cf, id_flags)
+            idx += 7
+            seq = (seq + 1) & 0x0F
+            time.sleep((st_min / 1000.0) if 0 < st_min <= 127 else 0.001)
+
+    def read_voltage(self):
+        """Vehicle battery voltage (V) via the J2534 READ_VBATT ioctl (returns mV).
+        This is the voltage gate before any module write. None if unreadable."""
+        if not self.connected:
+            return None
+        with self.lock:
+            mv = c_ulong(0)
+            try:
+                ret = self.dll.PassThruIoctl(self.channel_id, c_ulong(READ_VBATT), None, byref(mv))
+            except Exception:
+                return None
+        if ret == 0 and mv.value > 0:
+            return round(mv.value / 1000.0, 2)
+        return None
 
     def read_versions(self) -> dict:
         with self.lock:
@@ -398,6 +788,9 @@ class J2534Bridge:
         return {
             "ok": True,
             "bridgeVersion": "1.0.0",
+            "build": BRIDGE_BUILD,
+            "transport": "raw-can-sw-isotp",
+            "voltage": self.read_voltage() if self.connected else None,
             "platform": platform.system(),
             "pythonVersion": platform.python_version(),
             "dllPath": self.dll_path,
@@ -913,6 +1306,8 @@ class Handler(BaseHTTPRequestHandler):
                 # Return both shapes so callers written to either spec keep working:
                 # legacy spec wants `messages: [...]`; shipped client wants `msg: {...}`.
                 self._json({"ok": True, "msg": msgs[0] if msgs else None, "messages": msgs})
+            elif path == "/voltage":
+                self._json({"ok": True, "voltage": BRIDGE.read_voltage()})
             elif path == "/tools/status":
                 tool_id = body.get("toolId", body.get("tool_id", ""))
                 result = _check_tool_status(tool_id)
@@ -937,6 +1332,15 @@ class Handler(BaseHTTPRequestHandler):
 
 # ─── main ────────────────────────────────────────────────────────────────────
 def main() -> int:
+    # Make stdout/stderr encoding-proof. Log messages contain Unicode (→, ✓) and
+    # a Windows console / redirected file defaults to cp1252, which raises
+    # UnicodeEncodeError mid-request and can crash a handler (e.g. /open). Force
+    # UTF-8 with a safe fallback so a print can never take down a request.
+    for _s in (sys.stdout, sys.stderr):
+        try:
+            _s.reconfigure(encoding="utf-8", errors="backslashreplace")
+        except Exception:
+            pass
     ap = argparse.ArgumentParser(description="SRT Lab J2534 HTTP bridge daemon")
     ap.add_argument("--dll", required=False, default="",
                     help="Path to vendor J2534 DLL (e.g. MaxiFlashJ2534.dll). "
@@ -949,6 +1353,13 @@ def main() -> int:
     args = ap.parse_args()
 
     global BRIDGE
+    if not args.dll:
+        found, found_name = discover_j2534_dll(prefer_topdon=True)
+        if found:
+            args.dll = found
+            print(f"  [auto] Discovered J2534 DLL: {found}  ({found_name or vendor_for(found)})")
+        else:
+            print("  [auto] No J2534 DLL found in registry / TOPDON paths — pass --dll to set one.")
     BRIDGE = J2534Bridge(args.dll, verbose=args.verbose)
 
     # Auto-fallback to a free port if --port is busy (matches the original spec).
@@ -958,27 +1369,38 @@ def main() -> int:
     args.port = bind_port
 
     print("=" * 64)
-    print(" SRT Lab — J2534 HTTP Bridge")
+    print(" SRT Lab — J2534 HTTP Bridge (Topdon / raw-CAN software ISO-TP)")
     print("=" * 64)
     print(f"  Listening on   http://{args.host}:{args.port}")
     print(f"  DLL            {args.dll or '(none — pass --dll to use)'}")
     print(f"  Vendor         {vendor_for(args.dll)}")
+    print(f"  Transport      raw CAN + software ISO-TP  [{BRIDGE_BUILD}]")
     print(f"  Platform       {platform.system()} / Python {platform.python_version()}")
     print()
 
-    if args.dll and not args.no_open:
+    if args.dll:
+        # Load the vendor DLL now so /status reports dllLoaded=true and the web
+        # UI will proceed. Loading the DLL does NOT touch the adapter; the device
+        # is opened (PassThruOpen) on the first /open — at startup only when the
+        # operator did not pass --no-open.
         try:
-            BRIDGE.open()
-            v = BRIDGE.read_versions()
-            print(f"  Device opened. firmware={v.get('firmware')} dll={v.get('dll')} api={v.get('api')}")
+            BRIDGE.load()
+            print("  DLL loaded OK — ready for /open from the UI.")
         except Exception as e:
-            print(f"  [!] Auto-open failed: {e}")
-            print(f"      You can still POST /open from the AUTEL SGW tab once the cable is in.")
+            print(f"  [!] Could not load DLL: {e}")
+        if not args.no_open:
+            try:
+                BRIDGE.open()
+                v = BRIDGE.read_versions()
+                print(f"  Device opened. firmware={v.get('firmware')} dll={v.get('dll')} api={v.get('api')}")
+            except Exception as e:
+                print(f"  [!] Auto-open failed (the UI can open it on Connect): {e}")
 
     print()
     print("  Endpoints:")
     print("    GET  /status   POST /open    POST /connect   POST /disconnect")
     print("    POST /close    POST /sendmsg POST /readmsg   POST /setfilter")
+    print("    POST /voltage  POST /tools/status  /tools/launch  /tools/reveal")
     print()
     print("  Press Ctrl+C to stop.")
     print()
