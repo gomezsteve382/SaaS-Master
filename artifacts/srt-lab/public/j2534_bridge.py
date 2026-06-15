@@ -333,6 +333,13 @@ class J2534Bridge:
         self._tx_id: int | None = None
         self._rx_id: int | None = None
         self._active_pass_rx: int | None = None  # one recycled raw-CAN PASS filter
+        # Server-side keepalive (audit #4): a long unlock→2E→verify, or an operator
+        # pause, must not let the module's ~5 s S3 session timer expire or the
+        # session drops mid-write. Keepalive threads briefly take self.lock
+        # (serialized with every transfer — they never interleave a CF stream) and
+        # fire 3E 80 (TesterPresent, suppress positive response).
+        self._periodics: dict[int, threading.Event] = {}
+        self._periodic_next_id = 1
         # Receive-reassembly state — persisted across /readmsg calls so a big
         # multi-frame response survives being sliced over several HTTP polls.
         self._rx_expected: int | None = None
@@ -557,6 +564,46 @@ class J2534Bridge:
             cid, pl = msg
             return {"canId": cid, "data": pl.hex(), "rxStatus": 0, "timestamp": 0}
 
+    # ── TesterPresent keepalive (audit #4) ─────────────────────────────────────
+    def start_periodic(self, tx_id: int, data: bytes, interval_ms: int = 2000) -> int:
+        """Start a background TesterPresent keepalive on tx_id. Returns a periodic
+        id for stop_periodic(). The thread takes self.lock for the brief write only
+        and sleeps OUTSIDE the lock, so it serializes with — never interleaves —
+        an in-flight multi-frame transfer."""
+        tx_id = int(tx_id)
+        payload = bytes(data) if data else b"\x3E\x80"
+        interval = max(0.25, int(interval_ms) / 1000.0)
+        with self.lock:
+            pid = self._periodic_next_id
+            self._periodic_next_id += 1
+            stop = threading.Event()
+            self._periodics[pid] = stop
+
+        def _loop():
+            while not stop.is_set():
+                try:
+                    with self.lock:
+                        if self.connected:
+                            id_flags = CAN_29BIT_ID if self._is29(tx_id) else 0
+                            frame = (bytes([len(payload)]) + payload).ljust(8, b"\x00")
+                            self._write_raw_locked(tx_id, frame, id_flags)
+                except Exception:
+                    pass
+                stop.wait(interval)
+
+        threading.Thread(target=_loop, name=f"keepalive-{pid}", daemon=True).start()
+        self._log(f"keepalive started id={pid} tx=0x{tx_id:X} every {int(interval_ms)}ms")
+        return pid
+
+    def stop_periodic(self, pid: int) -> bool:
+        with self.lock:
+            stop = self._periodics.pop(int(pid), None)
+        if stop is not None:
+            stop.set()
+            self._log(f"keepalive stopped id={pid}")
+            return True
+        return False
+
     def _receive_one_locked(self, rx_id, tx_id, id_flags, timeout_ms):
         """Drain raw CAN and reassemble ONE ISO-TP message at rx_id, sending our
         flow control (30 00 00) the instant a First Frame appears. Skips a
@@ -580,6 +627,7 @@ class J2534Bridge:
                 if pci == 0x10:  # First Frame → send our FC immediately
                     self._rx_expected = ((d[0] & 0x0F) << 8) | d[1]
                     self._rx_buf = bytearray(d[2:8])
+                    self._rx_seq = 1               # the next CF must be sequence 1
                     self._send_fc_locked(tx_id, id_flags)
                     if len(self._rx_buf) >= self._rx_expected:
                         out = bytes(self._rx_buf[:self._rx_expected]); self._reset_rx()
@@ -588,8 +636,19 @@ class J2534Bridge:
                 if pci == 0x20:  # Consecutive Frame
                     if self._rx_expected is None:
                         continue
+                    seq = d[0] & 0x0F
+                    if seq != self._rx_seq:
+                        # ISO-TP sequence gap: a consecutive frame was dropped or
+                        # duplicated on the bus. The reassembled bytes would be
+                        # SILENTLY WRONG — and a corrupt seed (27 01) or SEC16 read
+                        # feeds key derivation and 2E writes — so discard the whole
+                        # message rather than return garbage. The caller re-reads.
+                        self._log(f"RX 0x{fid:X} ISO-TP SEQUENCE ERROR: expected {self._rx_seq} got {seq} — discarding message")
+                        self._reset_rx()
+                        continue
                     take = min(7, self._rx_expected - len(self._rx_buf))
                     self._rx_buf += d[1:1 + take]
+                    self._rx_seq = (self._rx_seq + 1) & 0x0F
                     if len(self._rx_buf) >= self._rx_expected:
                         out = bytes(self._rx_buf[:self._rx_expected]); self._reset_rx()
                         self._log(f"RX 0x{fid:X} reassembled {len(out)}B: {out.hex()}")
@@ -605,6 +664,7 @@ class J2534Bridge:
     def _reset_rx(self) -> None:
         self._rx_expected = None
         self._rx_buf = bytearray()
+        self._rx_seq = 1   # next expected ISO-TP CF sequence (FF carries seq 0, first CF = 1)
 
     def _ioctl_clear_locked(self) -> None:
         for ioctl_id in (CLEAR_RX_BUFFER, CLEAR_TX_BUFFER):
@@ -1308,6 +1368,20 @@ class Handler(BaseHTTPRequestHandler):
                 self._json({"ok": True, "msg": msgs[0] if msgs else None, "messages": msgs})
             elif path == "/voltage":
                 self._json({"ok": True, "voltage": BRIDGE.read_voltage()})
+            elif path == "/startperiodic":
+                tx = _coerce_int(body.get("txId", body.get("tx_id", 0x7DF)))
+                raw_data = body.get("data", "3E80")
+                if isinstance(raw_data, list):
+                    data = bytes(int(b) & 0xFF for b in raw_data)
+                else:
+                    data = _hex_to_bytes(str(raw_data)) if raw_data else b"\x3E\x80"
+                interval = int(body.get("intervalMs", body.get("interval_ms", 2000)))
+                pid = BRIDGE.start_periodic(tx, data, interval)
+                self._json({"ok": True, "periodicId": pid, "periodic_id": pid})
+            elif path == "/stopperiodic":
+                pid = _coerce_int(body.get("periodicId", body.get("periodic_id", 0)))
+                ok = BRIDGE.stop_periodic(pid)
+                self._json({"ok": ok})
             elif path == "/tools/status":
                 tool_id = body.get("toolId", body.get("tool_id", ""))
                 result = _check_tool_status(tool_id)

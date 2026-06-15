@@ -72,6 +72,7 @@ import CanUniverseTab from "./tabs/CanUniverseTab.jsx";
 import RelatedCanUniversePanel from "./components/RelatedCanUniversePanel.jsx";
 import LogAnalyserTab from "./tabs/LogAnalyserTab.jsx";
 import J2534UdsConsoleTab from "./tabs/J2534UdsConsoleTab.jsx";
+import TopologyTab from "./tabs/TopologyTab.jsx";
 import FirmwareEmulationTab from "./tabs/FirmwareEmulationTab.jsx";
 import {parseEFD} from "./lib/efdParser.js";
 import MismatchWizard from "./components/MismatchWizard.jsx";
@@ -939,6 +940,7 @@ const WORKSPACE_TABS = [
   {id:'ecm',       i:'⚡', l:'ECM',          s:'VIN · 10 Algorithms'},
   {id:'smartbox',  i:'📦', l:'SMARTBOX',     s:'Journey immo EEE · VIN · read-only'},
   {id:'backups',   i:'💾', l:'BACKUPS',      s:'History · Restore'},
+  {id:'topology',  i:'🗺️', l:'LIVE TOPOLOGY',s:'FCA bus map · live read · VIN program'},
   {id:'obd',       i:'📡', l:'LIVE OBD',     s:'UDS · Seed→Key · J2534 · Gould'},
   {id:'uds-console',i:'🔌', l:'UDS CONSOLE',  s:'J2534 bridge · raw UDS · any module'},
   {id:'skim',      i:'🛡️', l:'SKIM',         s:'Keys · Immo'},
@@ -993,7 +995,7 @@ const WORKSPACE_CATEGORIES = {
   ecm:'PROGRAM', flasher:'PROGRAM', immobcm56xb:'PROGRAM', bcmpcmpair:'PROGRAM', gpecunlock:'PROGRAM',
   cdasession:'PROGRAM', radiocodes:'PROGRAM', seed:'PROGRAM', keywriter:'PROGRAM',
   // LIVE — connected OBD/J2534 sessions and external bench tools.
-  obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE',
+  topology:'LIVE', obd:'LIVE', 'uds-console':'LIVE', skim:'LIVE', skimlive:'LIVE', modsync:'LIVE', exttools:'LIVE',
   // ANALYZE — dump inspection, diff, log parsing, workflow tracking.
   dumps:'ANALYZE', inspector:'ANALYZE', cflash:'ANALYZE', efd:'ANALYZE', efd2bin:'ANALYZE',
   proxi:'ANALYZE', smartbox:'ANALYZE', backups:'ANALYZE', samples:'ANALYZE', udsanalyzer:'ANALYZE',
@@ -1240,6 +1242,7 @@ function VehicleWorkspace({vehicleId, onBack, onOpenCopilot}){
         {tab==='smartbox'  && <SmartBoxTab/>}
         {tab==='backups'   && <BackupsTab/>}
         {tab==='obd'       && <LiveObdTab vehicle={vehicle} onOpenTab={setTab}/>}
+        {tab==='topology'  && <TopologyTab/>}
         {tab==='uds-console' && <J2534UdsConsoleTab/>}
         {tab==='skim'      && <SkimSecurityTab vehicle={vehicle}/>}
         {tab==='info'      && <InfoTab vehicle={vehicle}/>}

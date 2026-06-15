@@ -638,7 +638,15 @@ export default function J2534UdsConsoleTab() {
     if (isNaN(tx) || isNaN(rx)) { addLog("Invalid TX/RX address.", "error"); return; }
 
     const levelsToTry = saSweepLevels ? SA_LEVELS : [SA_LEVELS[saLevelIdx]];
-    const chain = pickUnlockChain(tx);
+    // audit #2: resolve the module code from the selected TX so pickUnlockChain
+    // LEADS with the factory byte-verified algorithms (algos.js verified[]) for
+    // this module instead of running only the legacy cda6/sxor fallback chain —
+    // which seedkey.ts warns returns NRC 0x35 and, sprayed deep, trips the FCA
+    // 0x36 lockout before the right key is ever reached.
+    const modMeta = FCA_MODULES.find(m => m.tx === tx);
+    const code = modMeta ? modMeta.name : undefined;
+    const chain = pickUnlockChain(tx, code);
+    if (code) addLog(`Resolved ${code} for TX 0x${hx(tx, 3)} — leading with its verified algorithms`, "info");
 
     if (saSweepLevels) {
       addLog(`── Auto-detect Security Access — sweeping ${levelsToTry.length} levels × ${chain.length} algos ──`, "header");

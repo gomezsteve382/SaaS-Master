@@ -242,6 +242,12 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
   }
 
   // Step 5 — write each DID, then verify by re-read.
+  // Anti-brick rules (audit #1):
+  //   (a) A write the module REJECTED (no 0x6E ack) must never count as verified
+  //       — even if the read-back happens to match what was already in the DID —
+  //       so `verified` is gated on (w.ok && match), not match alone.
+  //   (b) ABORT on the first rejected 0x2E instead of continuing to spray writes
+  //       at a module that just refused one. The remaining DIDs are not attempted.
   let allWroteOk = true;
   let allVerifiedOk = true;
   for (const did of dids) {
@@ -249,17 +255,21 @@ export async function programVin({ eng, row, vin, addLog, makeBackup } = {}) {
     if (!w.ok) {
       allWroteOk = false;
       result.errors.push(`${lbl} write DID 0x${did.toString(16).toUpperCase()} failed (NRC ${w.nrc != null ? '0x' + w.nrc.toString(16).toUpperCase() : 'none'})`);
+      result.didResults.push({ did, wrote: false, readback: '', match: false, verified: false });
+      log(`${lbl} ✗ aborting write sequence — module rejected 0x2E on DID 0x${did.toString(16).toUpperCase()} (no further DIDs written)`, 'error');
+      break;
     }
     const rb = await readDid(eng.uds, row.tx, row.rx, did);
     const value = rb.value || '';
     const match = vinReadbackOk(did, value, vin);
-    if (!match) {
+    const verified = w.ok && match;
+    if (!verified) {
       allVerifiedOk = false;
       log(`${lbl} ✗ verify DID 0x${did.toString(16).toUpperCase()}: read '${value}' (expected '${vin}')`, 'warn');
     } else {
       log(`${lbl} ✓ verify DID 0x${did.toString(16).toUpperCase()}`, 'rx');
     }
-    result.didResults.push({ did, wrote: w.ok, readback: value, match });
+    result.didResults.push({ did, wrote: w.ok, readback: value, match, verified });
   }
 
   // Step 6 — final F190 readback for the summary card.
