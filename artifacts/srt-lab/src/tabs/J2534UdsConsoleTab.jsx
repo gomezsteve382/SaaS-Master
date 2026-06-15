@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { getStatus, open as openBridge, connect as bridgeConnect, setFilter, sendMsg, readMsg, getAutelState } from "../lib/bridgeClient.js";
 import { decodeNRC } from "../lib/nrc.js";
 import { ALGOS, unlockKeyBytes, pickUnlockChain } from "../lib/algos.js";
+import { rankCandidates, budgetFromSeedNrc } from "../lib/unlockBudget.js";
 
 /* ─── localStorage key for remembered algo per TX address ──────────────────── */
 const saStorageKey = (txHex) => `sa_algo_${txHex.toLowerCase().replace(/\s/g, "")}`;
@@ -624,6 +625,58 @@ export default function J2534UdsConsoleTab() {
     }
     await runSecurityAccess();
   }, [status, txHex, rxHex, addLog, runSecurityAccess]);
+
+  /* ── Informed shot (audit #8): request ONE seed, rank ALL candidate keys
+     offline, fire only the TOP candidate. FCA locks after ~3 bad keys, so this
+     beats spraying a chain. A pre-flight 0x36/0x37 on the seed means the module
+     is already locked — fire ZERO keys. ──────────────────────────────────── */
+  const runInformedShot = useCallback(async () => {
+    if (status !== "can_connected") { addLog("Bridge not connected — connect first.", "error"); return; }
+    const tx = parseAddr(txHex);
+    const rx = parseAddr(rxHex);
+    if (isNaN(tx) || isNaN(rx)) { addLog("Invalid TX/RX address.", "error"); return; }
+    const level = SA_LEVELS[saLevelIdx];
+    const modMeta = FCA_MODULES.find(m => m.tx === tx);
+    const code = modMeta ? modMeta.name : undefined;
+    addLog(`── Informed shot (level 0x${hx(level.seed)}${code ? ", " + code : ""}) — one seed, ranked offline ──`, "header");
+    setBusy(true);
+    try {
+      await udsCall(urlRef.current, tx, rx, [0x10, 0x03], 3000);
+      const sr = await udsCall(urlRef.current, tx, rx, [0x27, level.seed & 0xFF], 5000);
+      if (!sr.ok || !sr.d) { addLog("Seed request failed: " + (sr.raw || "no response"), "error"); return; }
+      addLog(`RX ← ${bytesToHex(sr.d)}`, "rx");
+      if (sr.d[0] === 0x7F) {
+        const nrc = sr.d.length >= 3 ? sr.d[2] : 0;
+        const budget = budgetFromSeedNrc(nrc);
+        if (budget.locked) {
+          addLog(`✗ Module is LOCKED (NRC 0x${hx(nrc)} — ${budget.reason}). Firing ZERO keys. ${budget.advise === "dealer-lockout-bypass" ? "Clear the counter with the dealer-lockout bypass (Routine 0xFF00) before retrying." : "Wait for the time-delay to expire, then retry."}`, "error");
+          return;
+        }
+        addLog(`Seed NRC 0x${hx(nrc)}: ${decodeNRC(nrc)}`, "error"); return;
+      }
+      if (sr.d[0] !== 0x67) { addLog(`Unexpected seed response: ${bytesToHex(sr.d)}`, "error"); return; }
+      const seedBytes = Array.from(sr.d).slice(2);
+      if (!seedBytes.some(b => b !== 0)) { addLog("Zero seed — module already unlocked.", "success"); return; }
+      addLog(`Seed: ${bytesToHex(seedBytes)}`, "info");
+      const ranked = rankCandidates({ seed: seedBytes, tx, code, saLevel: level.seed });
+      if (!ranked.length) { addLog("No candidate key computes from this seed.", "warn"); return; }
+      const top = ranked[0];
+      const nm = (id) => (SA_ALGOS.find(a => a.id === id) || { n: id }).n;
+      addLog(`${ranked.length} candidates ranked → ${ranked.slice(0, 3).map(c => `${nm(c.id)}${c.reasons.length ? " [" + c.reasons.join(",") + "]" : ""}`).join(" · ")}`, "info");
+      addLog(`Firing TOP only: ${nm(top.id)} → ${top.keyHex}`, "tx");
+      const kr = await udsCall(urlRef.current, tx, rx, [0x27, level.key & 0xFF, ...top.keyBytes], 5000);
+      if (kr.ok && kr.d && kr.d[0] === 0x67 && kr.d[1] === (level.key & 0xFF)) {
+        addLog(`✓ UNLOCKED with ${nm(top.id)} — 1 attempt used.`, "success");
+        try { localStorage.setItem(saStorageKey(txHex), top.id); } catch {}
+        setSaRememberedAlgo(top.id); loadRemembered();
+      } else if (kr.ok && kr.d && kr.d[0] === 0x7F) {
+        const nrc = kr.d.length >= 3 ? kr.d[2] : 0;
+        addLog(`Top candidate rejected (NRC 0x${hx(nrc)}: ${decodeNRC(nrc)}).${ranked.length > 1 ? ` Next best is ${nm(ranked[1].id)} — re-run to try it (mind the ~3-attempt lockout).` : " No other candidate computes."}`, "warn");
+      } else {
+        addLog("Send-key: no response.", "error");
+      }
+    } finally { setBusy(false); }
+  }, [status, txHex, rxHex, saLevelIdx, addLog, loadRemembered]);
 
   /* ── Auto-detect: iterate pickUnlockChain, log each attempt ─────────── */
   /* When saSweepLevels is true an outer loop iterates all SA_LEVELS;
@@ -1251,6 +1304,20 @@ export default function J2534UdsConsoleTab() {
                       }}
                     >
                       {busy ? "Running…" : "⟳ Auto-detect Algorithm"}
+                    </button>
+                    <button
+                      onClick={runInformedShot}
+                      disabled={busy}
+                      title="One seed → rank every candidate key offline → fire only the top one. Avoids the FCA ~3-attempt lockout."
+                      style={{
+                        flex: 1, padding: "10px 0", borderRadius: 6,
+                        border: `1px solid ${busy ? S.border : "#4FC3F7"}`,
+                        background: busy ? "#222" : "#001428", color: busy ? "#555" : "#4FC3F7",
+                        fontFamily: S.font, fontWeight: 800, fontSize: 11, letterSpacing: 1,
+                        cursor: busy ? "not-allowed" : "pointer", transition: "all 0.2s",
+                      }}
+                    >
+                      {busy ? "Running…" : "🎯 Informed Shot"}
                     </button>
                     <button
                       onClick={runSecurityAccess}
